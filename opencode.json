@@ -1,0 +1,45 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "frontend": {
+      "description": "Generates Next.js frontend code (pages, components, hooks, lib, services) with Tailwind CSS, TypeScript strict mode, and Jest + React Testing Library tests.",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-6",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "npm *": "allow",
+          "npx *": "allow",
+          "*": "ask"
+        }
+      }
+    },
+    "nodejs": {
+      "description": "Generates Node.js backend code (Fastify routes, controllers, services, middleware, validators) with TypeScript, JWT auth, and Jest tests.",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-6",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "npm *": "allow",
+          "npx *": "allow",
+          "*": "ask"
+        }
+      }
+    },
+    "mariadb": {
+      "description": "Generates and manages the database layer (Prisma schema, migrations, seeds, data-access helpers) for MariaDB, with Jest tests.",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-6",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "npm *": "allow",
+          "npx *": "allow",
+          "prisma *": "allow",
+          "*": "ask"
+        }
+      }
+    }
+  }
+}

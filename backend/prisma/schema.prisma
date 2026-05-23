@@ -1,0 +1,239 @@
+generator client {
+  provider   = "prisma-client"
+  output     = "../src/generated/prisma"
+  engineType = "client"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  reporter
+  investigator
+  manager
+  admin
+
+  @@map("user_role")
+}
+
+enum IncidentStatus {
+  draft
+  submitted
+  under_review
+  assigned
+  investigating
+  resolved
+  closed
+  rejected
+
+  @@map("incident_status")
+}
+
+enum Severity {
+  low
+  medium
+  high
+  critical
+
+  @@map("severity")
+}
+
+enum ActionStatus {
+  open
+  in_progress
+  completed
+  overdue
+
+  @@map("action_status")
+}
+
+model Company {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  email     String   @unique @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(0)
+
+  users     User[]
+  incidents Incident[]
+
+  @@map("companies")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  companyId    Int      @map("company_id")
+  name         String   @db.VarChar(255)
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  role         UserRole @default(reporter)
+  department   String?  @db.VarChar(255)
+  status       String   @default("active") @db.VarChar(50)
+  createdBy    Int?     @map("created_by")
+  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.DateTime(0)
+
+  company           Company            @relation(fields: [companyId], references: [id])
+  creator           User?              @relation("created_users", fields: [createdBy], references: [id])
+  createdUsers      User[]             @relation("created_users")
+  reportedIncidents Incident[]         @relation("reporter")
+  assignedIncidents Incident[]         @relation("assigned_investigator")
+  comments          Comment[]
+  uploadedEvidence  Evidence[]
+  actionOwner       CorrectiveAction[]
+  auditLogs         AuditLog[]
+
+  @@index([companyId])
+  @@index([createdBy])
+  @@map("users")
+}
+
+model Incident {
+  id              Int            @id @default(autoincrement())
+  companyId       Int            @map("company_id")
+  referenceNumber String         @unique @map("reference_number") @db.VarChar(50)
+  title           String         @db.VarChar(255)
+  description     String         @db.Text
+  type            String         @db.VarChar(100)
+  severity        Severity       @default(medium)
+  category        String         @db.VarChar(100)
+  status          IncidentStatus @default(draft)
+  incidentDate    DateTime       @map("incident_date") @db.DateTime(0)
+  location        String?        @db.VarChar(255)
+  reporterId      Int            @map("reporter_id")
+  assignedTo      Int?           @map("assigned_to")
+  createdAt       DateTime       @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt       DateTime       @updatedAt @map("updated_at") @db.DateTime(0)
+
+  company           Company            @relation(fields: [companyId], references: [id])
+  reporter          User               @relation("reporter", fields: [reporterId], references: [id])
+  assignedInvestigator User?           @relation("assigned_investigator", fields: [assignedTo], references: [id])
+  people            IncidentPerson[]
+  evidence          Evidence[]
+  comments          Comment[]
+  investigation     Investigation?
+  correctiveActions CorrectiveAction[]
+
+  @@index([companyId])
+  @@index([status])
+  @@index([severity])
+  @@index([reporterId])
+  @@index([assignedTo])
+  @@index([incidentDate])
+  @@map("incidents")
+}
+
+model IncidentPerson {
+  id         Int     @id @default(autoincrement())
+  incidentId Int     @map("incident_id")
+  name       String  @db.VarChar(255)
+  role       String  @db.VarChar(100)
+  contact    String? @db.VarChar(255)
+  notes      String? @db.Text
+
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId])
+  @@map("incident_people")
+}
+
+model Evidence {
+  id           Int      @id @default(autoincrement())
+  incidentId   Int      @map("incident_id")
+  fileName     String   @map("file_name") @db.VarChar(255)
+  originalName String   @map("original_name") @db.VarChar(255)
+  mimeType     String   @map("mime_type") @db.VarChar(100)
+  fileSize     Int      @map("file_size")
+  checksum     String   @db.VarChar(64)
+  uploadedBy   Int      @map("uploaded_by")
+  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(0)
+
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  uploader User     @relation(fields: [uploadedBy], references: [id])
+
+  @@index([incidentId])
+  @@index([uploadedBy])
+  @@map("evidence")
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  incidentId Int      @map("incident_id")
+  userId     Int      @map("user_id")
+  message    String   @db.Text
+  createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(0)
+
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@index([incidentId])
+  @@map("comments")
+}
+
+model Investigation {
+  id            Int       @id @default(autoincrement())
+  incidentId    Int       @unique @map("incident_id")
+  findings      String?   @db.Text
+  rootCause     String?   @map("root_cause") @db.Text
+  recommendations String? @db.Text
+  closureNotes  String?   @map("closure_notes") @db.Text
+  completedAt   DateTime? @map("completed_at") @db.DateTime(0)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.DateTime(0)
+
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@map("investigations")
+}
+
+model CorrectiveAction {
+  id           Int          @id @default(autoincrement())
+  incidentId   Int          @map("incident_id")
+  description  String       @db.Text
+  ownerId      Int          @map("owner_id")
+  dueDate      DateTime     @map("due_date") @db.DateTime(0)
+  status       ActionStatus @default(open)
+  completedAt  DateTime?    @map("completed_at") @db.DateTime(0)
+  createdAt    DateTime     @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt    DateTime     @updatedAt @map("updated_at") @db.DateTime(0)
+
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  owner    User     @relation(fields: [ownerId], references: [id])
+
+  @@index([incidentId])
+  @@index([ownerId])
+  @@index([status])
+  @@map("corrective_actions")
+}
+
+model PasswordResetToken {
+  id        Int       @id @default(autoincrement())
+  email     String    @map("email") @db.VarChar(255)
+  tokenHash String    @unique @map("token_hash") @db.VarChar(255)
+  expiresAt DateTime  @map("expires_at") @db.DateTime(0)
+  usedAt    DateTime? @map("used_at") @db.DateTime(0)
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(0)
+
+  @@index([email])
+  @@index([tokenHash])
+  @@map("password_reset_tokens")
+}
+
+model AuditLog {
+  id           Int      @id @default(autoincrement())
+  entityType   String   @map("entity_type") @db.VarChar(100)
+  entityId     Int      @map("entity_id")
+  action       String   @db.VarChar(50)
+  oldValues    String?  @map("old_values") @db.Text
+  newValues    String?  @map("new_values") @db.Text
+  performedBy  Int      @map("performed_by")
+  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(0)
+
+  performedByUser User @relation(fields: [performedBy], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([performedBy])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
