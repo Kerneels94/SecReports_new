@@ -57,7 +57,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
         <nav className="flex flex-col gap-0.5 p-3 flex-1 overflow-y-auto">
           {navItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+            const hasChildMatch = navItems.some(
+              other => other.href !== item.href && other.href.startsWith(item.href) && pathname.startsWith(other.href)
+            );
+            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/") && !hasChildMatch);
             return (
               <Link
                 key={item.href}

@@ -54,12 +54,23 @@ describe("Sidebar", () => {
     expect(screen.getByText("Users").closest("a")).toHaveAttribute("href", "/admin/users");
   });
 
-  it("highlights parent route when on child path", () => {
+  it("highlights parent route when on child detail path", () => {
     mockUsePathname.mockReturnValue("/incidents/123");
     render(<Sidebar />);
 
     const incidentsLink = screen.getByText("Incidents").closest("a");
     expect(incidentsLink).toHaveClass("text-primary");
+  });
+
+  it("does NOT highlight parent when on dedicated sub-route", () => {
+    mockUsePathname.mockReturnValue("/incidents/new");
+    render(<Sidebar />);
+
+    const incidentsLink = screen.getByText("Incidents").closest("a");
+    expect(incidentsLink).not.toHaveClass("text-primary");
+
+    const reportLink = screen.getByText("Report Incident").closest("a");
+    expect(reportLink).toHaveClass("text-primary");
   });
 
   it("shows app title", () => {
