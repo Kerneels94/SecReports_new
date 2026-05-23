@@ -31,20 +31,23 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       />
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-full w-64 bg-surface border-r border-border transition-transform duration-200 lg:translate-x-0",
+          "fixed left-0 top-0 z-40 h-full w-64 bg-surface border-r border-border-light transition-transform duration-200 lg:translate-x-0 flex flex-col",
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex h-16 items-center justify-between px-6 border-b border-border">
-          <div className="flex items-center gap-2">
-            <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-            <span className="font-semibold text-text">Incident Reports</span>
+        <div className="flex h-16 items-center justify-between px-6 border-b border-border-light">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-hover text-gray-900 text-sm font-bold shadow-lg shadow-primary/25">
+              S
+            </div>
+            <div>
+              <span className="text-sm font-semibold text-text">SecReports</span>
+              <p className="text-[10px] text-text-secondary/70 tracking-wide uppercase">Incident System</p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-surface-secondary hover:text-text transition-colors lg:hidden"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-white/[0.06] transition-colors lg:hidden"
             aria-label="Close sidebar"
           >
             <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -52,7 +55,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </svg>
           </button>
         </div>
-        <nav className="flex flex-col gap-1 p-4">
+        <nav className="flex flex-col gap-0.5 p-3 flex-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
             return (
@@ -61,13 +64,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 href={item.href}
                 onClick={onClose}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 relative",
                   isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-text-secondary hover:bg-surface-secondary hover:text-text",
+                    ? "text-primary bg-gradient-to-r from-primary/[0.08] to-transparent"
+                    : "text-text-secondary hover:text-text hover:bg-white/[0.04]",
                 )}
               >
-                <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                {isActive && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-r-full bg-gradient-to-b from-primary to-primary-hover" />
+                )}
+                <svg className={cn("h-5 w-5 shrink-0 transition-colors", isActive ? "text-primary" : "text-text-secondary")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d={item.icon} />
                 </svg>
                 {item.label}
@@ -75,6 +81,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             );
           })}
         </nav>
+        <div className="p-3 border-t border-border-light">
+          <div className="rounded-lg bg-gradient-to-r from-primary/[0.04] to-transparent px-3 py-2.5">
+            <p className="text-[10px] text-text-secondary/50 tracking-wider uppercase">Version</p>
+            <p className="text-xs text-text-secondary">2.0.0</p>
+          </div>
+        </div>
       </aside>
     </>
   );

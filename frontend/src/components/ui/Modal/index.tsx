@@ -31,11 +31,11 @@ export function Modal({ open, onClose, title, children, className, ...props }: M
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in" role="dialog" aria-modal="true" aria-label={title}>
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div
         className={cn(
-          "relative z-10 w-full max-w-lg rounded-xl bg-surface p-6 shadow-lg",
+          "relative z-10 w-full max-w-lg rounded-xl bg-surface p-6 shadow-2xl shadow-black/50 ring-1 ring-white/[0.06] animate-scale-in mx-4",
           className,
         )}
         {...props}
@@ -45,7 +45,7 @@ export function Modal({ open, onClose, title, children, className, ...props }: M
             <h2 className="text-lg font-semibold text-text">{title}</h2>
             <button
               onClick={onClose}
-              className="text-text-secondary hover:text-text transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-white/[0.06] transition-colors"
               aria-label="Close"
             >
               <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

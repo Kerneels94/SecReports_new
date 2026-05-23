@@ -55,7 +55,7 @@ export default function IncidentsPage() {
   const totalPages = Math.ceil(total / perPage);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">Incidents</h1>
@@ -66,11 +66,14 @@ export default function IncidentsPage() {
         </Link>
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
         <CardContent className="p-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <p className="text-sm text-text-secondary">Loading incidents...</p>
+              </div>
             </div>
           ) : error ? (
             <div className="flex flex-col items-center gap-4 py-12">
@@ -78,30 +81,35 @@ export default function IncidentsPage() {
               <Button variant="secondary" onClick={fetchIncidents}>Retry</Button>
             </div>
           ) : incidents.length === 0 ? (
-            <div className="flex flex-col items-center gap-4 py-12">
+            <div className="flex flex-col items-center gap-4 py-16">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-elevated/60 ring-1 ring-border-light">
+                <svg className="h-6 w-6 text-text-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
               <p className="text-sm text-text-secondary">No incidents found.</p>
               <Link href="/incidents/new">
-                <Button>Report your first incident</Button>
+                <Button variant="gradient">Report your first incident</Button>
               </Link>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border">
-                    <th className="px-6 py-3 text-left font-medium text-text-secondary">Ref #</th>
-                    <th className="px-6 py-3 text-left font-medium text-text-secondary">Title</th>
-                    <th className="px-6 py-3 text-left font-medium text-text-secondary">Severity</th>
-                    <th className="px-6 py-3 text-left font-medium text-text-secondary">Status</th>
-                    <th className="px-6 py-3 text-left font-medium text-text-secondary">Type</th>
-                    <th className="px-6 py-3 text-left font-medium text-text-secondary">Category</th>
-                    <th className="px-6 py-3 text-left font-medium text-text-secondary">Reporter</th>
-                    <th className="px-6 py-3 text-left font-medium text-text-secondary">Date</th>
+                  <tr className="border-b border-border-light bg-surface-elevated/20">
+                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Ref #</th>
+                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Title</th>
+                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Severity</th>
+                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Type</th>
+                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Category</th>
+                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Reporter</th>
+                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Date</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {incidents.map((incident) => (
-                    <tr key={incident.id} className="border-b border-border hover:bg-surface-secondary transition-colors">
+                  {incidents.map((incident, idx) => (
+                    <tr key={incident.id} className={`border-b border-border-light/50 hover:bg-white/[0.02] transition-colors ${idx % 2 === 0 ? 'bg-white/[0.01]' : ''}`}>
                       <td className="px-6 py-4">
                         <Link
                           href={`/incidents/${incident.id}`}
@@ -111,17 +119,17 @@ export default function IncidentsPage() {
                         </Link>
                       </td>
                       <td className="px-6 py-4">
-                        <Link href={`/incidents/${incident.id}`} className="font-medium text-text hover:underline">
+                        <Link href={`/incidents/${incident.id}`} className="font-medium text-text hover:text-primary transition-colors">
                           {incident.title}
                         </Link>
                       </td>
                       <td className="px-6 py-4">
-                        <Badge variant={severityVariant[incident.severity] || "default"}>
+                        <Badge variant={severityVariant[incident.severity] || "default"} dot>
                           {incident.severity}
                         </Badge>
                       </td>
                       <td className="px-6 py-4">
-                        <Badge variant={statusVariant[incident.status] || "default"}>
+                        <Badge variant={statusVariant[incident.status] || "default"} dot>
                           {incident.status.replace("_", " ")}
                         </Badge>
                       </td>

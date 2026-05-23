@@ -17,3 +17,15 @@ Before making any code changes, run the existing tests for the area being change
 - Test both success and error paths
 - Test edge cases (empty data, null values, boundary conditions)
 <!-- END:test-rules -->
+
+<!-- BEGIN:workflow-rules -->
+# Workflow rules
+
+After making any changes and running tests:
+1. Create new tests or update existing tests to cover the changes
+2. Run all tests again to confirm everything passes
+3. `git pull origin main`
+4. Stage all relevant files with `git add -A`
+5. Commit with a descriptive message
+6. `git push origin main`
+<!-- END:workflow-rules -->

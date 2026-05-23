@@ -91,10 +91,11 @@ const features = [
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-surface-secondary">
-      <header className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur">
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(134,239,172,0.04),transparent_50%)] pointer-events-none" />
+      <header className="sticky top-0 z-50 border-b border-border-light bg-surface/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-gray-900 text-sm font-bold">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-hover text-gray-900 text-sm font-bold shadow-lg shadow-primary/25">
               S
             </div>
             <span className="text-lg font-bold text-text">SecReports</span>
@@ -102,10 +103,10 @@ export default function LandingPage() {
           <nav className="hidden items-center gap-6 md:flex">
             <a href="#features" className="text-sm text-text-secondary hover:text-text transition-colors">Features</a>
             <a href="#pricing" className="text-sm text-text-secondary hover:text-text transition-colors">Pricing</a>
-            <Link href="/login" className="text-sm font-medium text-primary hover:underline">Sign In</Link>
+            <Link href="/login" className="text-sm font-medium text-primary hover:text-primary-hover transition-colors">Sign In</Link>
             <Link
               href="/register"
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:bg-primary-hover transition-all duration-150"
             >
               Get Started
             </Link>
@@ -116,6 +117,10 @@ export default function LandingPage() {
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/[0.08] px-4 py-1.5 text-xs font-medium text-primary ring-1 ring-primary/20">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+              Incident Management Platform
+            </div>
             <h1 className="text-4xl font-bold tracking-tight text-text sm:text-6xl">
               Incident Reporting for{" "}
               <span className="text-primary">Security Professionals</span>
@@ -128,13 +133,13 @@ export default function LandingPage() {
             <div className="mt-10 flex items-center justify-center gap-4">
               <Link
                 href="/register"
-                className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-gray-900 shadow-sm hover:bg-primary-hover transition-colors"
+                className="rounded-lg bg-gradient-to-r from-primary to-primary-hover px-6 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary transition-all duration-150"
               >
                 Start Free Trial
               </Link>
               <a
                 href="#features"
-                className="rounded-lg border border-border bg-surface px-6 py-3 text-sm font-semibold text-text hover:bg-surface-secondary transition-colors"
+                className="rounded-lg border border-border-light bg-surface/50 px-6 py-3 text-sm font-semibold text-text hover:bg-surface hover:border-border transition-all duration-150"
               >
                 Learn More
               </a>
@@ -143,7 +148,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="features" className="border-t border-border bg-surface">
+      <section id="features" className="border-t border-border-light bg-surface/50">
         <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold text-text">Everything you need to manage incidents</h2>
@@ -151,10 +156,15 @@ export default function LandingPage() {
               Built specifically for private security companies managing multiple sites and clients.
             </p>
           </div>
-          <div className="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => (
-              <div key={feature.title} className="flex flex-col gap-2 rounded-xl border border-border bg-surface-secondary p-6">
-                <h3 className="text-base font-semibold text-text">{feature.title}</h3>
+              <div key={feature.title} className="group flex flex-col gap-2 rounded-xl bg-surface p-6 ring-1 ring-border-light hover:ring-primary/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 text-primary ring-1 ring-primary/20 mb-1">
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <h3 className="text-base font-semibold text-text group-hover:text-primary transition-colors">{feature.title}</h3>
                 <p className="text-sm text-text-secondary">{feature.description}</p>
               </div>
             ))}
@@ -162,7 +172,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="pricing" className="border-t border-border">
+      <section id="pricing" className="border-t border-border-light">
         <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold text-text">Simple, transparent pricing</h2>
@@ -174,10 +184,10 @@ export default function LandingPage() {
             {tiers.map((tier) => (
               <div
                 key={tier.name}
-                className={`flex flex-col rounded-2xl border p-8 ${
+                className={`group flex flex-col rounded-2xl p-8 transition-all duration-200 ${
                   tier.highlighted
-                    ? "border-primary bg-surface shadow-lg scale-105"
-                    : "border-border bg-surface"
+                    ? "bg-surface-elevated ring-2 ring-primary/30 shadow-2xl shadow-primary/10 scale-105 hover:ring-primary/50"
+                    : "bg-surface ring-1 ring-border-light hover:ring-white/[0.08] hover:shadow-lg hover:shadow-black/20"
                 }`}
               >
                 <div>
@@ -185,7 +195,7 @@ export default function LandingPage() {
                   <p className="mt-1 text-sm text-text-secondary">{tier.description}</p>
                   <p className="mt-6">
                     <span className="text-4xl font-bold text-text">{tier.price}</span>
-                    {tier.period && <span className="text-sm text-text-secondary">{tier.period}</span>}
+                    {tier.period && <span className="text-sm text-text-secondary ml-1">{tier.period}</span>}
                   </p>
                   <p className="mt-1 text-sm text-text-secondary">{tier.limit}</p>
                 </div>
@@ -201,10 +211,10 @@ export default function LandingPage() {
                 </ul>
                 <Link
                   href={tier.href}
-                  className={`mt-8 block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-colors ${
+                  className={`mt-8 block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-150 ${
                     tier.highlighted
-                      ? "bg-primary text-gray-900 hover:bg-primary-hover"
-                      : "border border-border text-text hover:bg-surface-secondary"
+                      ? "bg-gradient-to-r from-primary to-primary-hover text-gray-900 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary"
+                      : "border border-border-light text-text hover:bg-surface-elevated hover:border-border"
                   }`}
                 >
                   {tier.cta}
@@ -215,11 +225,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-border bg-surface">
+      <footer className="border-t border-border-light bg-surface/50">
         <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded bg-primary text-gray-900 text-xs font-bold">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-hover text-gray-900 text-xs font-bold shadow-lg shadow-primary/25">
                 S
               </div>
               <span className="text-sm font-semibold text-text">SecReports</span>

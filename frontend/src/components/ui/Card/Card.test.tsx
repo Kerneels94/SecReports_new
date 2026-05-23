@@ -22,7 +22,7 @@ describe("Card", () => {
 
   it("applies bordered variant", () => {
     render(<Card variant="bordered">Bordered</Card>);
-    expect(screen.getByText("Bordered")).toHaveClass("border-border");
+    expect(screen.getByText("Bordered")).toHaveClass("border-border-light");
   });
 
   it("applies custom className", () => {

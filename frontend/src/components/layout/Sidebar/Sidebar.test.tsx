@@ -37,10 +37,10 @@ describe("Sidebar", () => {
     render(<Sidebar />);
 
     const incidentsLink = screen.getByText("Incidents").closest("a");
-    expect(incidentsLink).toHaveClass("bg-primary/10");
+    expect(incidentsLink).toHaveClass("text-primary");
 
     const dashboardLink = screen.getByText("Dashboard").closest("a");
-    expect(dashboardLink).not.toHaveClass("bg-primary/10");
+    expect(dashboardLink).not.toHaveClass("text-primary");
   });
 
   it("links have correct hrefs", () => {
@@ -59,12 +59,12 @@ describe("Sidebar", () => {
     render(<Sidebar />);
 
     const incidentsLink = screen.getByText("Incidents").closest("a");
-    expect(incidentsLink).toHaveClass("bg-primary/10");
+    expect(incidentsLink).toHaveClass("text-primary");
   });
 
   it("shows app title", () => {
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar />);
-    expect(screen.getByText("Incident Reports")).toBeInTheDocument();
+    expect(screen.getByText("SecReports")).toBeInTheDocument();
   });
 });

@@ -56,7 +56,7 @@ export default function NewIncidentPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             {error && (
-              <div className="rounded-lg bg-red-900/20 p-3 text-sm text-danger" role="alert">
+              <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
                 {error}
               </div>
             )}
@@ -69,14 +69,14 @@ export default function NewIncidentPage() {
             />
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="description" className="text-sm font-medium text-text">
+              <label htmlFor="description" className="text-sm font-medium text-text/90">
                 Description
               </label>
               <textarea
                 id="description"
                 rows={4}
                 placeholder="Detailed description of what happened"
-                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="rounded-lg border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text placeholder:text-text-secondary/60 transition-all duration-150 focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 focus:bg-surface-elevated/60"
                 aria-invalid={!!errors.description}
                 {...register("description")}
               />
@@ -102,12 +102,12 @@ export default function NewIncidentPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="severity" className="text-sm font-medium text-text">
+                <label htmlFor="severity" className="text-sm font-medium text-text/90">
                   Severity
                 </label>
                 <select
                   id="severity"
-                  className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="rounded-lg border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
                   {...register("severity")}
                 >
                   <option value="low">Low</option>

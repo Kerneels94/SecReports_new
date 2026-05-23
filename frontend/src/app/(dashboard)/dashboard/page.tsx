@@ -59,7 +59,10 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <p className="text-sm text-text-secondary">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -70,7 +73,7 @@ export default function DashboardPage() {
         <p className="text-sm text-danger">{error}</p>
         <button
           onClick={fetchSummary}
-          className="rounded-lg bg-surface-secondary px-4 py-2 text-sm font-medium text-text hover:bg-border transition-colors"
+          className="rounded-lg bg-surface px-4 py-2 text-sm font-medium text-text border border-border hover:bg-surface-elevated transition-colors"
         >
           Retry
         </button>
@@ -78,38 +81,45 @@ export default function DashboardPage() {
     );
   }
 
+  const statCards = [
+    { label: "Open Incidents", value: openCount, color: "text-warning", gradient: "from-amber-500/10 to-amber-500/5", icon: "M12 9v2m0 4h.01" },
+    { label: "Critical", value: criticalCount, color: "text-danger", gradient: "from-red-500/10 to-red-500/5", icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" },
+    { label: "Assigned to Me", value: assignedToMe, color: "text-primary", gradient: "from-primary/10 to-primary/5", icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" },
+    { label: "Overdue Actions", value: overdueActions, color: "text-danger", gradient: "from-red-500/10 to-red-500/5", icon: "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
+  ];
+
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-2xl font-bold text-text">Dashboard</h1>
-        <p className="text-sm text-text-secondary mt-1">Overview of incident reports</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-text">Dashboard</h1>
+          <p className="text-sm text-text-secondary mt-1">Overview of incident reports</p>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-elevated/40 text-xs text-text-secondary ring-1 ring-border-light">
+          <svg className="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+          </svg>
+          Live
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardContent>
-            <p className="text-sm text-text-secondary">Open Incidents</p>
-            <p className="mt-2 text-3xl font-bold text-warning">{openCount}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-sm text-text-secondary">Critical</p>
-            <p className="mt-2 text-3xl font-bold text-danger">{criticalCount}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-sm text-text-secondary">Assigned to Me</p>
-            <p className="mt-2 text-3xl font-bold text-primary">{assignedToMe}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <p className="text-sm text-text-secondary">Overdue Actions</p>
-            <p className="mt-2 text-3xl font-bold text-danger">{overdueActions}</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {statCards.map((stat) => (
+          <Card key={stat.label} className="relative overflow-hidden">
+            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient}`} />
+            <CardContent className="relative">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-text-secondary">{stat.label}</p>
+                <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient} ring-1 ring-white/[0.06]`}>
+                  <svg className={`h-5 w-5 ${stat.color}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d={stat.icon} />
+                  </svg>
+                </div>
+              </div>
+              <p className={`mt-3 text-3xl font-bold tracking-tight ${stat.color}`}>{stat.value}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

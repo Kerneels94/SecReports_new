@@ -24,7 +24,7 @@ beforeEach(() => {
 describe("LoginPage", () => {
   it("renders form with email and password", () => {
     render(<LoginPage />);
-    expect(screen.getByRole("heading", { name: /sign in/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /welcome back/i })).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /sign in as company/i })).toBeInTheDocument();

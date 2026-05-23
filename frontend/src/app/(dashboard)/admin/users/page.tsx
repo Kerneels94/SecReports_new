@@ -38,7 +38,14 @@ export default function AdminUsersPage() {
   if (user?.role !== "admin") {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-sm text-danger">Admin access required.</p>
+        <div className="flex flex-col items-center gap-3 px-6 py-8 rounded-xl bg-surface ring-1 ring-border-light">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-900/30 ring-1 ring-red-500/20">
+            <svg className="h-5 w-5 text-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 9v2m0 4h.01" /><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+            </svg>
+          </div>
+          <p className="text-sm text-danger font-medium">Admin access required.</p>
+        </div>
       </div>
     );
   }
@@ -69,12 +76,12 @@ export default function AdminUsersPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             {success && (
-              <div className="rounded-lg bg-green-900/20 p-3 text-sm text-success" role="alert">
+              <div className="rounded-lg bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20" role="alert">
                 {success}
               </div>
             )}
             {error && (
-              <div className="rounded-lg bg-red-900/20 p-3 text-sm text-danger" role="alert">
+              <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
                 {error}
               </div>
             )}
@@ -105,10 +112,10 @@ export default function AdminUsersPage() {
               {...register("department")}
             />
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="role" className="text-sm font-medium text-text">Role</label>
+              <label htmlFor="role" className="text-sm font-medium text-text/90">Role</label>
               <select
                 id="role"
-                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary"
+                className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
                 {...register("role")}
               >
                 <option value="reporter">Reporter</option>
