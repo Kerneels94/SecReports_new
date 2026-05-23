@@ -18,6 +18,8 @@ interface ReportSummary {
   byStatus: { status: string; _count: { id: number } }[];
   bySeverity: { severity: string; _count: { id: number } }[];
   recent: Incident[];
+  assignedToMe: number;
+  overdueActions: number;
 }
 
 export const authService = {

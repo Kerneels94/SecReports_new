@@ -56,7 +56,7 @@ export default function NewIncidentPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             {error && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-danger" role="alert">
+              <div className="rounded-lg bg-red-900/20 p-3 text-sm text-danger" role="alert">
                 {error}
               </div>
             )}

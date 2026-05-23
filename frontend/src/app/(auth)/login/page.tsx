@@ -57,14 +57,14 @@ export default function LoginPage() {
           <div className="mb-4 flex rounded-lg border border-border p-1">
             <button
               type="button"
-              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${tab === "company" ? "bg-primary text-white" : "text-text-secondary hover:text-text"}`}
+              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${tab === "company" ? "bg-primary text-gray-900" : "text-text-secondary hover:text-text"}`}
               onClick={() => setTab("company")}
             >
               Company
             </button>
             <button
               type="button"
-              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${tab === "employee" ? "bg-primary text-white" : "text-text-secondary hover:text-text"}`}
+              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${tab === "employee" ? "bg-primary text-gray-900" : "text-text-secondary hover:text-text"}`}
               onClick={() => setTab("employee")}
             >
               Employee
@@ -73,7 +73,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             {error && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-danger" role="alert">
+              <div className="rounded-lg bg-red-900/20 p-3 text-sm text-danger" role="alert">
                 {error}
               </div>
             )}

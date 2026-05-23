@@ -94,7 +94,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white text-sm font-bold">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-gray-900 text-sm font-bold">
               S
             </div>
             <span className="text-lg font-bold text-text">SecReports</span>
@@ -105,7 +105,7 @@ export default function LandingPage() {
             <Link href="/login" className="text-sm font-medium text-primary hover:underline">Sign In</Link>
             <Link
               href="/register"
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
             >
               Get Started
             </Link>
@@ -128,7 +128,7 @@ export default function LandingPage() {
             <div className="mt-10 flex items-center justify-center gap-4">
               <Link
                 href="/register"
-                className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-hover transition-colors"
+                className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-gray-900 shadow-sm hover:bg-primary-hover transition-colors"
               >
                 Start Free Trial
               </Link>
@@ -203,7 +203,7 @@ export default function LandingPage() {
                   href={tier.href}
                   className={`mt-8 block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-colors ${
                     tier.highlighted
-                      ? "bg-primary text-white hover:bg-primary-hover"
+                      ? "bg-primary text-gray-900 hover:bg-primary-hover"
                       : "border border-border text-text hover:bg-surface-secondary"
                   }`}
                 >
@@ -219,7 +219,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded bg-primary text-white text-xs font-bold">
+              <div className="flex h-6 w-6 items-center justify-center rounded bg-primary text-gray-900 text-xs font-bold">
                 S
               </div>
               <span className="text-sm font-semibold text-text">SecReports</span>

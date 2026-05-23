@@ -69,12 +69,12 @@ export default function AdminUsersPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             {success && (
-              <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700" role="alert">
+              <div className="rounded-lg bg-green-900/20 p-3 text-sm text-success" role="alert">
                 {success}
               </div>
             )}
             {error && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-danger" role="alert">
+              <div className="rounded-lg bg-red-900/20 p-3 text-sm text-danger" role="alert">
                 {error}
               </div>
             )}

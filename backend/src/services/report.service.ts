@@ -1,12 +1,14 @@
 import { prisma } from "../lib/db";
 
 export const ReportService = {
-  async summary(companyId: number) {
+  async summary(companyId: number, userId: number) {
     const [
       total,
       byStatus,
       bySeverity,
       recent,
+      assignedToMe,
+      overdueActions,
     ] = await Promise.all([
       prisma.incident.count({ where: { companyId } }),
       prisma.incident.groupBy({
@@ -25,8 +27,17 @@ export const ReportService = {
         orderBy: { createdAt: "desc" },
         take: 10,
       }),
+      prisma.incident.count({
+        where: { companyId, assignedTo: userId },
+      }),
+      prisma.correctiveAction.count({
+        where: {
+          status: "overdue",
+          incident: { companyId },
+        },
+      }),
     ]);
 
-    return { total, byStatus, bySeverity, recent };
+    return { total, byStatus, bySeverity, recent, assignedToMe, overdueActions };
   },
 };

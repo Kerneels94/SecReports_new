@@ -1,0 +1,139 @@
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import AdminUsersPage from "./page";
+import { userService } from "@/services";
+import { useAuth } from "@/hooks/useAuth";
+
+jest.mock("@/hooks/useAuth", () => ({
+  useAuth: jest.fn(),
+}));
+
+jest.mock("@/services", () => ({
+  userService: { create: jest.fn() },
+}));
+
+const mockUseAuth = useAuth as jest.Mock;
+const mockCreate = userService.create as jest.Mock;
+
+const adminUser = {
+  id: 1,
+  name: "Admin",
+  email: "admin@example.com",
+  role: "admin" as const,
+  department: null,
+  status: "active" as const,
+  companyId: 1,
+};
+
+const nonAdminUser = {
+  id: 2,
+  name: "Reporter",
+  email: "rep@example.com",
+  role: "reporter" as const,
+  department: null,
+  status: "active" as const,
+  companyId: 1,
+};
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe("AdminUsersPage", () => {
+  it("shows admin access required when user is not admin", () => {
+    mockUseAuth.mockReturnValue({ user: nonAdminUser });
+    render(<AdminUsersPage />);
+    expect(screen.getByText("Admin access required.")).toBeInTheDocument();
+    expect(screen.queryByText("Manage Users")).not.toBeInTheDocument();
+  });
+
+  it("shows admin access required when user is null", () => {
+    mockUseAuth.mockReturnValue({ user: null });
+    render(<AdminUsersPage />);
+    expect(screen.getByText("Admin access required.")).toBeInTheDocument();
+  });
+
+  it("renders form when user is admin", () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    render(<AdminUsersPage />);
+    expect(screen.getByRole("heading", { name: /manage users/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /create employee/i })).toBeInTheDocument();
+    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+    expect(screen.getByLabelText("Password")).toBeInTheDocument();
+    expect(screen.getByLabelText("Department")).toBeInTheDocument();
+    expect(screen.getByLabelText("Role")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /create user/i })).toBeInTheDocument();
+  });
+
+  it("shows validation errors for empty required fields", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    render(<AdminUsersPage />);
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: /create user/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Name is required")).toBeInTheDocument();
+      expect(screen.getByText("Invalid email")).toBeInTheDocument();
+      expect(screen.getByText("Min 8 characters")).toBeInTheDocument();
+    });
+  });
+
+  it("calls userService.create and shows success", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockCreate.mockResolvedValue({ success: true, data: { id: 1 } });
+    render(<AdminUsersPage />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText("Name"), "Jane Doe");
+    await user.type(screen.getByLabelText("Email"), "jane@example.com");
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.type(screen.getByLabelText("Department"), "Engineering");
+    await user.click(screen.getByRole("button", { name: /create user/i }));
+
+    await waitFor(() => {
+      expect(mockCreate).toHaveBeenCalledWith({
+        name: "Jane Doe",
+        email: "jane@example.com",
+        password: "password123",
+        role: "reporter",
+        department: "Engineering",
+      });
+      expect(screen.getByText("User jane@example.com created successfully")).toBeInTheDocument();
+    });
+  });
+
+  it("shows error on failure", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockCreate.mockRejectedValue(new Error("Email already exists"));
+    render(<AdminUsersPage />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText("Name"), "Jane Doe");
+    await user.type(screen.getByLabelText("Email"), "taken@example.com");
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.click(screen.getByRole("button", { name: /create user/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Email already exists")).toBeInTheDocument();
+    });
+  });
+
+  it("resets form after successful creation", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockCreate.mockResolvedValue({ success: true, data: { id: 1 } });
+    render(<AdminUsersPage />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText("Name"), "Jane Doe");
+    await user.type(screen.getByLabelText("Email"), "jane@example.com");
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.type(screen.getByLabelText("Department"), "Engineering");
+    await user.click(screen.getByRole("button", { name: /create user/i }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText<HTMLInputElement>("Name").value).toBe("");
+    });
+  });
+});

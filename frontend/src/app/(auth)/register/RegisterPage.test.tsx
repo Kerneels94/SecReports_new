@@ -26,14 +26,14 @@ describe("RegisterPage", () => {
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
   });
 
-  it("renders the registration form", () => {
+  it("renders the registration form with correct labels", () => {
     render(<RegisterPage />);
-    expect(screen.getByRole("heading", { name: /create account/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/department/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /register your company/i })).toBeInTheDocument();
+    expect(screen.getByLabelText("Company Name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Your Name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+    expect(screen.getByLabelText("Password")).toBeInTheDocument();
+    expect(screen.getByLabelText("Confirm Password")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /create account/i })).toBeInTheDocument();
   });
 
@@ -44,10 +44,11 @@ describe("RegisterPage", () => {
     await user.click(screen.getByRole("button", { name: /create account/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/name is required/i)).toBeInTheDocument();
-      expect(screen.getByText(/invalid email/i)).toBeInTheDocument();
-      expect(screen.getByText(/password must be at least 8 characters/i)).toBeInTheDocument();
-      expect(screen.getByText(/please confirm your password/i)).toBeInTheDocument();
+      expect(screen.getByText("Company name is required")).toBeInTheDocument();
+      expect(screen.getByText("Name is required")).toBeInTheDocument();
+      expect(screen.getByText("Invalid email address")).toBeInTheDocument();
+      expect(screen.getByText("Password must be at least 8 characters")).toBeInTheDocument();
+      expect(screen.getByText("Please confirm your password")).toBeInTheDocument();
     });
   });
 
@@ -55,10 +56,11 @@ describe("RegisterPage", () => {
     render(<RegisterPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText(/name/i), "John Doe");
-    await user.type(screen.getByLabelText(/email/i), "john@example.com");
-    await user.type(screen.getByLabelText(/^password$/i), "password123");
-    await user.type(screen.getByLabelText(/confirm password/i), "different");
+    await user.type(screen.getByLabelText("Company Name"), "Security Corp");
+    await user.type(screen.getByLabelText("Your Name"), "John Doe");
+    await user.type(screen.getByLabelText("Email"), "john@example.com");
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.type(screen.getByLabelText("Confirm Password"), "different");
     await user.click(screen.getByRole("button", { name: /create account/i }));
 
     await waitFor(() => {
@@ -71,19 +73,19 @@ describe("RegisterPage", () => {
     render(<RegisterPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText(/name/i), "John Doe");
-    await user.type(screen.getByLabelText(/email/i), "john@example.com");
-    await user.type(screen.getByLabelText(/department/i), "Engineering");
-    await user.type(screen.getByLabelText(/^password$/i), "password123");
-    await user.type(screen.getByLabelText(/confirm password/i), "password123");
+    await user.type(screen.getByLabelText("Company Name"), "Security Corp");
+    await user.type(screen.getByLabelText("Your Name"), "John Doe");
+    await user.type(screen.getByLabelText("Email"), "john@example.com");
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.type(screen.getByLabelText("Confirm Password"), "password123");
     await user.click(screen.getByRole("button", { name: /create account/i }));
 
     await waitFor(() => {
       expect(mockRegister).toHaveBeenCalledWith({
+        companyName: "Security Corp",
         name: "John Doe",
         email: "john@example.com",
         password: "password123",
-        department: "Engineering",
       });
       expect(mockRouter.push).toHaveBeenCalledWith("/login");
     });
@@ -94,10 +96,11 @@ describe("RegisterPage", () => {
     render(<RegisterPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText(/name/i), "John Doe");
-    await user.type(screen.getByLabelText(/email/i), "taken@example.com");
-    await user.type(screen.getByLabelText(/^password$/i), "password123");
-    await user.type(screen.getByLabelText(/confirm password/i), "password123");
+    await user.type(screen.getByLabelText("Company Name"), "Security Corp");
+    await user.type(screen.getByLabelText("Your Name"), "John Doe");
+    await user.type(screen.getByLabelText("Email"), "taken@example.com");
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.type(screen.getByLabelText("Confirm Password"), "password123");
     await user.click(screen.getByRole("button", { name: /create account/i }));
 
     await waitFor(() => {
@@ -109,5 +112,22 @@ describe("RegisterPage", () => {
     render(<RegisterPage />);
     const link = screen.getByRole("link", { name: /sign in/i });
     expect(link).toHaveAttribute("href", "/login");
+  });
+
+  it("calls register with fallback error message", async () => {
+    mockRegister.mockRejectedValue("string error");
+    render(<RegisterPage />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText("Company Name"), "Security Corp");
+    await user.type(screen.getByLabelText("Your Name"), "John Doe");
+    await user.type(screen.getByLabelText("Email"), "err@example.com");
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.type(screen.getByLabelText("Confirm Password"), "password123");
+    await user.click(screen.getByRole("button", { name: /create account/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/registration failed/i)).toBeInTheDocument();
+    });
   });
 });

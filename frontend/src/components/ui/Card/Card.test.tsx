@@ -19,4 +19,26 @@ describe("Card", () => {
     expect(screen.getByText("Title")).toBeInTheDocument();
     expect(screen.getByText("Body")).toBeInTheDocument();
   });
+
+  it("applies bordered variant", () => {
+    render(<Card variant="bordered">Bordered</Card>);
+    expect(screen.getByText("Bordered")).toHaveClass("border-border");
+  });
+
+  it("applies custom className", () => {
+    render(<Card className="my-class">Custom</Card>);
+    expect(screen.getByText("Custom")).toHaveClass("my-class");
+  });
+
+  it("forwards ref", () => {
+    const ref = jest.fn();
+    render(<Card ref={ref}>With ref</Card>);
+    expect(ref).toHaveBeenCalled();
+  });
+
+  it("CardTitle renders as h3", () => {
+    render(<CardTitle>Heading</CardTitle>);
+    const heading = screen.getByText("Heading");
+    expect(heading.tagName).toBe("H3");
+  });
 });

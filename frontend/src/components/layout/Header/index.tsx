@@ -7,7 +7,7 @@ interface HeaderProps {
 
 export function Header({ user, onLogout }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-end gap-4 border-b border-border bg-surface px-8">
+    <header className="sticky top-0 z-30 hidden h-16 items-center justify-end gap-4 border-b border-border bg-surface px-8 lg:flex">
       {user && (
         <div className="flex items-center gap-4">
           <div className="text-right">
