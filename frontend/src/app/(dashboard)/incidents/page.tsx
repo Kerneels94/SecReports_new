@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { IncidentDetailModal } from "@/components/incidents/IncidentDetailModal";
 import { incidentService } from "@/services";
 import type { Incident } from "@/types";
 
@@ -32,6 +33,7 @@ export default function IncidentsPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(null);
   const perPage = 20;
 
   const fetchIncidents = useCallback(async () => {
@@ -111,17 +113,22 @@ export default function IncidentsPage() {
                   {incidents.map((incident, idx) => (
                     <tr key={incident.id} className={`border-b border-border-light/50 hover:bg-surface-elevated/30 transition-colors ${idx % 2 === 0 ? 'bg-surface-elevated/20' : ''}`}>
                       <td className="px-6 py-4">
-                        <Link
-                          href={`/incidents/${incident.id}`}
+                        <button
+                          type="button"
+                          onClick={() => setSelectedIncidentId(incident.id)}
                           className="font-mono text-xs text-primary hover:underline"
                         >
                           {incident.referenceNumber}
-                        </Link>
+                        </button>
                       </td>
                       <td className="px-6 py-4">
-                        <Link href={`/incidents/${incident.id}`} className="font-medium text-text hover:text-primary transition-colors">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedIncidentId(incident.id)}
+                          className="font-medium text-text hover:text-primary transition-colors text-left"
+                        >
                           {incident.title}
-                        </Link>
+                        </button>
                       </td>
                       <td className="px-6 py-4">
                         <Badge variant={severityVariant[incident.severity] || "default"} dot>
@@ -172,6 +179,14 @@ export default function IncidentsPage() {
             </Button>
           </div>
         </div>
+      )}
+
+      {selectedIncidentId && (
+        <IncidentDetailModal
+          incidentId={selectedIncidentId}
+          open={!!selectedIncidentId}
+          onClose={() => setSelectedIncidentId(null)}
+        />
       )}
     </div>
   );

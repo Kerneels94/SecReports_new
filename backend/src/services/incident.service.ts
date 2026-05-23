@@ -32,6 +32,8 @@ interface ListParams {
   status?: string;
   severity?: string;
   search?: string;
+  dateFrom?: string;
+  dateTo?: string;
   userId?: number;
   role?: string;
 }
@@ -48,6 +50,12 @@ export const IncidentService = {
         { title: { contains: params.search } },
         { referenceNumber: { contains: params.search } },
       ];
+    }
+
+    if (params.dateFrom || params.dateTo) {
+      where.incidentDate = {};
+      if (params.dateFrom) where.incidentDate.gte = new Date(params.dateFrom);
+      if (params.dateTo) where.incidentDate.lte = new Date(params.dateTo);
     }
 
     const [data, total] = await Promise.all([

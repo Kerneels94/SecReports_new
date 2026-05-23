@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { IncidentDetailModal } from "@/components/incidents/IncidentDetailModal";
 import { reportService } from "@/services";
+import { DashboardSearch } from "./components/DashboardSearch";
 import type { Incident } from "@/types";
 
 const closedStatuses = new Set(["resolved", "closed", "rejected"]);
@@ -25,6 +26,7 @@ export default function DashboardPage() {
   const [overdueActions, setOverdueActions] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(null);
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -103,6 +105,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      <DashboardSearch />
+
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat) => (
           <Card key={stat.label} className="relative overflow-hidden">
@@ -145,20 +149,22 @@ export default function DashboardPage() {
                     {recent.map((incident) => (
                       <tr key={incident.id} className="border-b border-border last:border-0">
                         <td className="py-3 pr-4">
-                          <Link
-                            href={`/incidents/${incident.id}`}
+                          <button
+                            type="button"
+                            onClick={() => setSelectedIncidentId(incident.id)}
                             className="font-mono text-xs text-primary hover:underline"
                           >
                             {incident.referenceNumber}
-                          </Link>
+                          </button>
                         </td>
                         <td className="py-3 pr-4">
-                          <Link
-                            href={`/incidents/${incident.id}`}
-                            className="font-medium text-text hover:underline"
+                          <button
+                            type="button"
+                            onClick={() => setSelectedIncidentId(incident.id)}
+                            className="font-medium text-text hover:underline text-left"
                           >
                             {incident.title}
-                          </Link>
+                          </button>
                         </td>
                         <td className="py-3 pr-4">
                           <Badge
@@ -238,6 +244,14 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {selectedIncidentId && (
+        <IncidentDetailModal
+          incidentId={selectedIncidentId}
+          open={!!selectedIncidentId}
+          onClose={() => setSelectedIncidentId(null)}
+        />
+      )}
     </div>
   );
 }
