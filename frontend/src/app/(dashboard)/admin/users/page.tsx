@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { userService } from "@/services";
+import { Badge } from "@/components/ui/Badge";
+import { Modal } from "@/components/ui/Modal";
+import { authService, userService, type UserListItem } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 
 const createUserSchema = z.object({
@@ -22,8 +24,36 @@ type CreateUserForm = z.infer<typeof createUserSchema>;
 
 export default function AdminUsersPage() {
   const { user } = useAuth();
+
+  const [users, setUsers] = useState<UserListItem[]>([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const [editUser, setEditUser] = useState<UserListItem | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editRole, setEditRole] = useState<string>("reporter");
+  const [editDepartment, setEditDepartment] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  const fetchUsers = useCallback(async () => {
+    setUsersLoading(true);
+    try {
+      const res = await authService.listUsers();
+      setUsers(res.data);
+    } catch {
+      // silently fail
+    } finally {
+      setUsersLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user?.role === "admin") fetchUsers();
+  }, [user, fetchUsers]);
 
   const {
     register,
@@ -57,82 +87,201 @@ export default function AdminUsersPage() {
       await userService.create(data);
       setSuccess(`User ${data.email} created successfully`);
       reset();
+      fetchUsers();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create user");
     }
   };
 
+  const openEdit = (u: UserListItem) => {
+    setEditUser(u);
+    setEditName(u.name);
+    setEditEmail(u.email);
+    setEditRole(u.role);
+    setEditDepartment(u.department || "");
+    setEditError(null);
+  };
+
+  const handleEditSave = async () => {
+    if (!editUser) return;
+    if (!editName.trim()) { setEditError("Name is required"); return; }
+    if (!editEmail.trim()) { setEditError("Email is required"); return; }
+
+    setEditSaving(true);
+    setEditError(null);
+    try {
+      await userService.update(editUser.id, {
+        name: editName,
+        email: editEmail,
+        role: editRole as any,
+        department: editDepartment || null,
+      });
+      setEditUser(null);
+      setSuccess(`User ${editEmail} updated`);
+      fetchUsers();
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : "Failed to update user");
+    } finally {
+      setEditSaving(false);
+    }
+  };
+
   return (
-    <div className="mx-auto max-w-lg">
-      <div className="mb-6">
+    <div className="flex flex-col gap-8 animate-fade-in">
+      <div>
         <h1 className="text-2xl font-bold text-text">Manage Users</h1>
-        <p className="text-sm text-text-secondary mt-1">Create employee accounts for your company.</p>
+        <p className="text-sm text-text-secondary mt-1">Create and manage employee accounts for your company.</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Create Employee</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            {success && (
-              <div className="rounded-lg bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20" role="alert">
-                {success}
-              </div>
-            )}
-            {error && (
-              <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
-                {error}
-              </div>
-            )}
-            <Input
-              label="Name"
-              placeholder="Employee name"
-              error={errors.name?.message}
-              {...register("name")}
-            />
-            <Input
-              label="Email"
-              type="email"
-              placeholder="employee@example.com"
-              error={errors.email?.message}
-              {...register("email")}
-            />
-            <Input
-              label="Password"
-              type="password"
-              placeholder="Min. 8 characters"
-              error={errors.password?.message}
-              {...register("password")}
-            />
-            <Input
-              label="Department"
-              placeholder="e.g. Security"
-              error={errors.department?.message}
-              {...register("department")}
-            />
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="role" className="text-sm font-medium text-text/90">Role</label>
-              <select
-                id="role"
-                className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
-                {...register("role")}
-              >
-                <option value="reporter">Reporter</option>
-                <option value="investigator">Investigator</option>
-                <option value="manager">Manager</option>
-                <option value="admin">Admin</option>
-              </select>
-              {errors.role && (
-                <p className="text-sm text-danger" role="alert">{errors.role.message}</p>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Create Employee</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+              {success && (
+                <div className="rounded-lg bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20" role="alert">
+                  {success}
+                </div>
               )}
-            </div>
-            <Button type="submit" loading={isSubmitting} className="w-full">
-              Create User
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+              {error && (
+                <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+                  {error}
+                </div>
+              )}
+              <Input
+                label="Name"
+                placeholder="Employee name"
+                error={errors.name?.message}
+                {...register("name")}
+              />
+              <Input
+                label="Email"
+                type="email"
+                placeholder="employee@example.com"
+                error={errors.email?.message}
+                {...register("email")}
+              />
+              <Input
+                label="Password"
+                type="password"
+                placeholder="Min. 8 characters"
+                error={errors.password?.message}
+                {...register("password")}
+              />
+              <Input
+                label="Department"
+                placeholder="e.g. Security"
+                error={errors.department?.message}
+                {...register("department")}
+              />
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="role" className="text-sm font-medium text-text/90">Role</label>
+                <select
+                  id="role"
+                  className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
+                  {...register("role")}
+                >
+                  <option value="reporter">Reporter</option>
+                  <option value="investigator">Investigator</option>
+                  <option value="manager">Manager</option>
+                  <option value="admin">Admin</option>
+                </select>
+                {errors.role && (
+                  <p className="text-sm text-danger" role="alert">{errors.role.message}</p>
+                )}
+              </div>
+              <Button type="submit" loading={isSubmitting} className="w-full">
+                Create User
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Employees ({users.length})</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {usersLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            ) : users.length === 0 ? (
+              <p className="px-6 py-8 text-sm text-text-secondary text-center">No employees yet.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border-light bg-surface-elevated/20">
+                      <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Name</th>
+                      <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Role</th>
+                      <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Dept</th>
+                      <th className="px-4 py-3 text-right font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((u, idx) => (
+                      <tr key={u.id} className={`border-b border-border-light/50 hover:bg-surface-elevated/20 transition-colors ${idx % 2 === 0 ? 'bg-surface-elevated/10' : ''}`}>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-col">
+                            <span className="font-medium text-text">{u.name}</span>
+                            <span className="text-xs text-text-secondary/60">{u.email}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <Badge variant={u.role === "admin" ? "info" : "default"}>{u.role}</Badge>
+                        </td>
+                        <td className="px-4 py-3 text-text-secondary">{u.department || "-"}</td>
+                        <td className="px-4 py-3 text-right">
+                          <Button variant="ghost" size="sm" onClick={() => openEdit(u)}>
+                            Edit
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Modal
+        open={!!editUser}
+        onClose={() => setEditUser(null)}
+        title={`Edit ${editUser?.name || "User"}`}
+      >
+        {editError && (
+          <div className="mb-4 rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+            {editError}
+          </div>
+        )}
+        <div className="flex flex-col gap-4">
+          <Input label="Name" value={editName} onChange={(e) => setEditName(e.target.value)} />
+          <Input label="Email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
+          <Input label="Department" value={editDepartment} onChange={(e) => setEditDepartment(e.target.value)} placeholder="e.g. Security" />
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-text/90">Role</label>
+            <select
+              value={editRole}
+              onChange={(e) => setEditRole(e.target.value)}
+              className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
+            >
+              <option value="reporter">Reporter</option>
+              <option value="investigator">Investigator</option>
+              <option value="manager">Manager</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <Button onClick={handleEditSave} loading={editSaving}>Save</Button>
+            <Button variant="secondary" onClick={() => setEditUser(null)}>Cancel</Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

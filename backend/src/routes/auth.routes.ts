@@ -11,9 +11,29 @@ export default async function authRoutes(fastify: FastifyInstance) {
     handler: AuthController.me,
   });
 
+  fastify.patch("/auth/me/password", {
+    preHandler: [fastify.authenticate],
+    handler: AuthController.changePassword,
+  });
+
   fastify.post("/auth/users", {
     preHandler: [fastify.authenticate],
     handler: AuthController.createUser,
+  });
+
+  fastify.get("/auth/users", {
+    preHandler: [fastify.authenticate],
+    handler: AuthController.listUsers,
+  });
+
+  fastify.get("/auth/users/:id", {
+    preHandler: [fastify.authenticate],
+    handler: AuthController.getUserById,
+  });
+
+  fastify.patch("/auth/users/:id", {
+    preHandler: [fastify.authenticate],
+    handler: AuthController.updateUser,
   });
 
   fastify.post("/auth/forgot-password", AuthController.forgotPassword);

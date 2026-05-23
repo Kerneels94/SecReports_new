@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import AdminUsersPage from "./page";
-import { userService } from "@/services";
+import { userService, authService } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 
 jest.mock("@/hooks/useAuth", () => ({
@@ -9,11 +9,29 @@ jest.mock("@/hooks/useAuth", () => ({
 }));
 
 jest.mock("@/services", () => ({
-  userService: { create: jest.fn() },
+  userService: { create: jest.fn(), update: jest.fn() },
+  authService: { listUsers: jest.fn() },
+}));
+
+jest.mock("@/components/ui/Modal", () => ({
+  Modal: ({ open, onClose, title, children }: {
+    open: boolean; onClose: () => void; title?: string; children: React.ReactNode;
+  }) =>
+    open ? (
+      <div role="dialog" aria-label={title}>
+        <button aria-label="Close" onClick={onClose}>×</button>
+        {children}
+      </div>
+    ) : null,
+}));
+
+jest.mock("@/components/ui/Badge", () => ({
+  Badge: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
 }));
 
 const mockUseAuth = useAuth as jest.Mock;
 const mockCreate = userService.create as jest.Mock;
+const mockListUsers = authService.listUsers as jest.Mock;
 
 const adminUser = {
   id: 1,
@@ -37,6 +55,7 @@ const nonAdminUser = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockListUsers.mockResolvedValue({ data: [] });
 });
 
 describe("AdminUsersPage", () => {

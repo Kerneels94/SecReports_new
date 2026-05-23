@@ -224,4 +224,82 @@ export const AuthService = {
       console.error("[AuthService] Password changed email failed:", err),
     );
   },
+
+  async changePassword(userId: number, currentPassword: string, newPassword: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new UnauthorizedError("User not found");
+
+    const valid = await comparePassword(currentPassword, user.passwordHash);
+    if (!valid) throw new UnauthorizedError("Current password is incorrect");
+
+    const passwordHash = await hashPassword(newPassword);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+  },
+
+  async listUsers(companyId: number) {
+    return prisma.user.findMany({
+      where: { companyId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        department: true,
+        status: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  },
+
+  async getUserById(companyId: number, userId: number) {
+    const user = await prisma.user.findFirst({
+      where: { id: userId, companyId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        department: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    if (!user) throw new NotFoundError("User not found");
+    return user;
+  },
+
+  async updateUser(companyId: number, userId: number, data: { name?: string; email?: string; role?: string; department?: string | null }) {
+    const user = await prisma.user.findFirst({
+      where: { id: userId, companyId },
+    });
+    if (!user) throw new NotFoundError("User not found");
+
+    if (data.email && data.email !== user.email) {
+      const existing = await prisma.user.findUnique({ where: { email: data.email } });
+      if (existing) throw new ConflictError("Email already in use");
+    }
+
+    return prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.email !== undefined && { email: data.email }),
+        ...(data.role !== undefined && { role: data.role as any }),
+        ...(data.department !== undefined && { department: data.department }),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        department: true,
+        status: true,
+      },
+    });
+  },
 };

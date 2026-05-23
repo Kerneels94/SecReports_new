@@ -22,6 +22,17 @@ interface ReportSummary {
   overdueActions: number;
 }
 
+export interface UserListItem {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  department: string | null;
+  status: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export const authService = {
   login: (data: LoginRequest) => api.post<LoginResponse>("/auth/login", data),
   register: (data: RegisterRequest) => api.post<RegisterResponse>("/auth/register", data),
@@ -30,6 +41,10 @@ export const authService = {
   me: () => api.get<User>("/auth/me"),
   forgotPassword: (email: string) => api.post<{ message: string }>("/auth/forgot-password", { email }),
   resetPassword: (token: string, password: string) => api.post<{ message: string }>("/auth/reset-password", { token, password }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    api.patch<{ message: string }>("/auth/me/password", { currentPassword, newPassword }),
+  listUsers: () => api.get<UserListItem[]>("/auth/users"),
+  getUserById: (id: number) => api.get<UserListItem>(`/auth/users/${id}`),
 };
 
 export const incidentService = {
@@ -80,4 +95,6 @@ export const reportService = {
 export const userService = {
   create: (data: { name: string; email: string; password: string; role?: string; department?: string }) =>
     api.post<User>("/auth/users", data),
+  update: (id: number, data: { name?: string; email?: string; role?: string; department?: string | null }) =>
+    api.patch<UserListItem>(`/auth/users/${id}`, data),
 };

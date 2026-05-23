@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { AuthService } from "../services/auth.service";
-import { loginSchema, refreshSchema, registerSchema, createUserSchema, forgotPasswordSchema, resetPasswordSchema } from "../validators/auth.schema";
-import { ValidationError } from "../lib/errors";
+import { loginSchema, refreshSchema, registerSchema, createUserSchema, forgotPasswordSchema, resetPasswordSchema, changePasswordSchema, updateUserSchema } from "../validators/auth.schema";
+import { ValidationError, ForbiddenError } from "../lib/errors";
 
 export const AuthController = {
   async login(request: FastifyRequest, reply: FastifyReply) {
@@ -59,5 +59,39 @@ export const AuthController = {
 
     await AuthService.resetPassword(parsed.data.token, parsed.data.password);
     reply.code(200).send({ success: true, message: "Password has been reset successfully." });
+  },
+
+  async changePassword(request: FastifyRequest, reply: FastifyReply) {
+    const parsed = changePasswordSchema.safeParse(request.body);
+    if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
+
+    await AuthService.changePassword(request.user!.userId, parsed.data.currentPassword, parsed.data.newPassword);
+    reply.code(200).send({ success: true, message: "Password changed successfully." });
+  },
+
+  async listUsers(request: FastifyRequest, reply: FastifyReply) {
+    if (request.user!.role !== "admin") throw new ForbiddenError();
+
+    const users = await AuthService.listUsers(request.user!.companyId);
+    reply.code(200).send({ success: true, data: users });
+  },
+
+  async getUserById(request: FastifyRequest, reply: FastifyReply) {
+    if (request.user!.role !== "admin") throw new ForbiddenError();
+
+    const { id } = request.params as { id: string };
+    const user = await AuthService.getUserById(request.user!.companyId, Number(id));
+    reply.code(200).send({ success: true, data: user });
+  },
+
+  async updateUser(request: FastifyRequest, reply: FastifyReply) {
+    if (request.user!.role !== "admin") throw new ForbiddenError();
+
+    const parsed = updateUserSchema.safeParse(request.body);
+    if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
+
+    const { id } = request.params as { id: string };
+    const user = await AuthService.updateUser(request.user!.companyId, Number(id), parsed.data);
+    reply.code(200).send({ success: true, data: user });
   },
 };

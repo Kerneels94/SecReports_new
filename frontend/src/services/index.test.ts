@@ -54,6 +54,21 @@ describe("authService", () => {
     authService.resetPassword("tok", "newpw");
     expect(mockApi.post).toHaveBeenCalledWith("/auth/reset-password", { token: "tok", password: "newpw" });
   });
+
+  it("changePassword calls api.patch with correct path and data", () => {
+    authService.changePassword("oldpw", "newpw");
+    expect(mockApi.patch).toHaveBeenCalledWith("/auth/me/password", { currentPassword: "oldpw", newPassword: "newpw" });
+  });
+
+  it("listUsers calls api.get with correct path", () => {
+    authService.listUsers();
+    expect(mockApi.get).toHaveBeenCalledWith("/auth/users");
+  });
+
+  it("getUserById calls api.get with correct path", () => {
+    authService.getUserById(5);
+    expect(mockApi.get).toHaveBeenCalledWith("/auth/users/5");
+  });
 });
 
 describe("incidentService", () => {
@@ -158,5 +173,10 @@ describe("userService", () => {
     const data = { name: "Alice", email: "a@b.com", password: "pw", role: "reporter", department: "IT" };
     userService.create(data);
     expect(mockApi.post).toHaveBeenCalledWith("/auth/users", data);
+  });
+
+  it("update calls api.patch with correct path and data", () => {
+    userService.update(1, { name: "Bob" });
+    expect(mockApi.patch).toHaveBeenCalledWith("/auth/users/1", { name: "Bob" });
   });
 });
