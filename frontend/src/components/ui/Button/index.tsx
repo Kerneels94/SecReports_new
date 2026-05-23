@@ -15,7 +15,7 @@ const variantStyles: Record<string, string> = {
   danger:
     "bg-danger text-white shadow-lg shadow-red-500/20 hover:shadow-red-500/30 hover:bg-red-600 active:shadow-md",
   ghost:
-    "text-text-secondary hover:text-text hover:bg-white/[0.06]",
+    "text-text-secondary hover:text-text hover:bg-surface-elevated",
   gradient:
     "bg-gradient-to-r from-primary to-primary-hover text-gray-900 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:from-primary-hover hover:to-primary active:shadow-md",
 };

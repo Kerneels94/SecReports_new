@@ -35,7 +35,7 @@ export function Modal({ open, onClose, title, children, className, ...props }: M
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div
         className={cn(
-          "relative z-10 w-full max-w-lg rounded-xl bg-surface p-6 shadow-2xl shadow-black/50 ring-1 ring-white/[0.06] animate-scale-in mx-4",
+          "relative z-10 w-full max-w-lg rounded-xl bg-surface p-6 shadow-2xl shadow-black/50 animate-scale-in mx-4",
           className,
         )}
         {...props}
@@ -45,7 +45,7 @@ export function Modal({ open, onClose, title, children, className, ...props }: M
             <h2 className="text-lg font-semibold text-text">{title}</h2>
             <button
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-white/[0.06] transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors"
               aria-label="Close"
             >
               <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

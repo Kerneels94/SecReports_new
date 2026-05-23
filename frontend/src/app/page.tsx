@@ -187,7 +187,7 @@ export default function LandingPage() {
                 className={`group flex flex-col rounded-2xl p-8 transition-all duration-200 ${
                   tier.highlighted
                     ? "bg-surface-elevated ring-2 ring-primary/30 shadow-2xl shadow-primary/10 scale-105 hover:ring-primary/50"
-                    : "bg-surface ring-1 ring-border-light hover:ring-white/[0.08] hover:shadow-lg hover:shadow-black/20"
+                    : "bg-surface ring-1 ring-border-light hover:ring-border hover:shadow-lg hover:shadow-black/20"
                 }`}
               >
                 <div>

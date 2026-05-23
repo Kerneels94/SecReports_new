@@ -110,7 +110,7 @@ export default function DashboardPage() {
             <CardContent className="relative">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-text-secondary">{stat.label}</p>
-                <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient} ring-1 ring-white/[0.06]`}>
+                <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient}`}>
                   <svg className={`h-5 w-5 ${stat.color}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d={stat.icon} />
                   </svg>

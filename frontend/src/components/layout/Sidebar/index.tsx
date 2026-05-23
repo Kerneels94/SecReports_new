@@ -47,7 +47,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-white/[0.06] transition-colors lg:hidden"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors lg:hidden"
             aria-label="Close sidebar"
           >
             <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -67,7 +67,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 relative",
                   isActive
                     ? "text-primary bg-gradient-to-r from-primary/[0.08] to-transparent"
-                    : "text-text-secondary hover:text-text hover:bg-white/[0.04]",
+                    : "text-text-secondary hover:text-text hover:bg-surface-elevated/50",
                 )}
               >
                 {isActive && (

@@ -11,7 +11,7 @@ export function MobileHeader({ user, onToggleSidebar, onLogout }: MobileHeaderPr
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border-light bg-surface/80 backdrop-blur-md px-4 lg:hidden">
       <button
         onClick={onToggleSidebar}
-        className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-white/[0.06] transition-colors"
+        className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors"
         aria-label="Toggle sidebar"
       >
         <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -38,7 +38,7 @@ export function MobileHeader({ user, onToggleSidebar, onLogout }: MobileHeaderPr
         {onLogout && (
           <button
             onClick={onLogout}
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-white/[0.06] transition-colors"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors"
             aria-label="Logout"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

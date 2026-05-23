@@ -109,7 +109,7 @@ export default function IncidentsPage() {
                 </thead>
                 <tbody>
                   {incidents.map((incident, idx) => (
-                    <tr key={incident.id} className={`border-b border-border-light/50 hover:bg-white/[0.02] transition-colors ${idx % 2 === 0 ? 'bg-white/[0.01]' : ''}`}>
+                    <tr key={incident.id} className={`border-b border-border-light/50 hover:bg-surface-elevated/30 transition-colors ${idx % 2 === 0 ? 'bg-surface-elevated/20' : ''}`}>
                       <td className="px-6 py-4">
                         <Link
                           href={`/incidents/${incident.id}`}
