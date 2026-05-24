@@ -2,8 +2,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role: "reporter" | "investigator" | "manager" | "admin";
-  department: string | null;
+  role: "owner" | "manager" | "senior";
   status: "active" | "inactive";
   companyId: number;
 }

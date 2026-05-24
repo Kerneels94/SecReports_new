@@ -28,8 +28,7 @@ const mockUser = {
   id: 1,
   name: "Alice",
   email: "alice@example.com",
-  role: "reporter" as const,
-  department: "Security",
+  role: "senior" as const,
   status: "active",
   companyId: 1,
   createdAt: "2026-01-15T00:00:00Z",
@@ -47,41 +46,40 @@ describe("ProfilePage", () => {
     expect(screen.getByText("My Profile")).toBeInTheDocument();
     expect(screen.getByText("Alice")).toBeInTheDocument();
     expect(screen.getByText("alice@example.com")).toBeInTheDocument();
-    expect(screen.getByText("Security")).toBeInTheDocument();
-    expect(screen.getByText("reporter")).toBeInTheDocument();
+    expect(screen.getAllByText("senior").length).toBe(2);
     expect(screen.getByText("active")).toBeInTheDocument();
   });
 
-  it("shows admin banner for non-admin users", () => {
+  it("shows owner banner for non-owner users", () => {
     mockUseAuth.mockReturnValue({ user: mockUser });
     render(<ProfilePage />);
 
     expect(
-      screen.getByText(/Your profile details can only be updated by your administrator/),
+      screen.getByText(/Your profile details can only be updated by an owner/),
     ).toBeInTheDocument();
   });
 
-  it("does not show admin banner for admin users", () => {
+  it("does not show owner banner for owner users", () => {
     mockUseAuth.mockReturnValue({
-      user: { ...mockUser, role: "admin" },
+      user: { ...mockUser, role: "owner" },
     });
     render(<ProfilePage />);
 
     expect(
-      screen.queryByText(/Your profile details can only be updated by your administrator/),
+      screen.queryByText(/Your profile details can only be updated by an owner/),
     ).not.toBeInTheDocument();
   });
 
-  it("shows Edit Profile button for admin users", () => {
+  it("shows Edit Profile button for owner users", () => {
     mockUseAuth.mockReturnValue({
-      user: { ...mockUser, role: "admin" },
+      user: { ...mockUser, role: "owner" },
     });
     render(<ProfilePage />);
 
     expect(screen.getByText("Edit Profile")).toBeInTheDocument();
   });
 
-  it("does not show Edit Profile button for non-admin users", () => {
+  it("does not show Edit Profile button for non-owner users", () => {
     mockUseAuth.mockReturnValue({ user: mockUser });
     render(<ProfilePage />);
 

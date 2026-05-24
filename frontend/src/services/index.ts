@@ -27,7 +27,6 @@ export interface UserListItem {
   name: string;
   email: string;
   role: string;
-  department: string | null;
   status: string;
   createdAt: string;
   updatedAt?: string;
@@ -93,8 +92,8 @@ export const reportService = {
 };
 
 export const userService = {
-  create: (data: { name: string; email: string; password: string; role?: string; department?: string }) =>
+  create: (data: { name: string; email: string; password: string; role?: string }) =>
     api.post<User>("/auth/users", data),
-  update: (id: number, data: { name?: string; email?: string; role?: string; department?: string | null }) =>
+  update: (id: number, data: { name?: string; email?: string; role?: string }) =>
     api.patch<UserListItem>(`/auth/users/${id}`, data),
 };

@@ -20,8 +20,7 @@ export const createUserSchema = z.object({
   name: z.string().min(1).max(255),
   email: z.string().email(),
   password: z.string().min(8),
-  role: z.enum(["reporter", "investigator", "manager", "admin"]).optional(),
-  department: z.string().max(255).optional(),
+  role: z.enum(["owner", "manager", "senior"]).optional(),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -41,6 +40,5 @@ export const changePasswordSchema = z.object({
 export const updateUserSchema = z.object({
   name: z.string().min(1).max(255).optional(),
   email: z.string().email().optional(),
-  role: z.enum(["reporter", "investigator", "manager", "admin"]).optional(),
-  department: z.string().max(255).nullable().optional(),
+  role: z.enum(["owner", "manager", "senior"]).optional(),
 });

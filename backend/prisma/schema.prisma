@@ -9,10 +9,9 @@ datasource db {
 }
 
 enum UserRole {
-  reporter
-  investigator
+  owner
   manager
-  admin
+  senior
 
   @@map("user_role")
 }
@@ -67,8 +66,7 @@ model User {
   name         String   @db.VarChar(255)
   email        String   @unique @db.VarChar(255)
   passwordHash String   @map("password_hash") @db.VarChar(255)
-  role         UserRole @default(reporter)
-  department   String?  @db.VarChar(255)
+  role         UserRole @default(senior)
   status       String   @default("active") @db.VarChar(50)
   createdBy    Int?     @map("created_by")
   createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(0)

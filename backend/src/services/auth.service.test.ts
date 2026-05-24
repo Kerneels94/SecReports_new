@@ -40,8 +40,7 @@ const mockUser = {
   name: "Test User",
   email: "test@example.com",
   passwordHash: "$2b$12$hashedpassword",
-  role: "admin" as const,
-  department: "IT",
+  role: "owner" as const,
   status: "active",
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -94,7 +93,7 @@ describe("AuthService", () => {
 
   describe("refresh", () => {
     it("returns new tokens for valid refresh token", async () => {
-      (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: 1, role: "admin", companyId: 1 });
+      (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: 1, role: "owner", companyId: 1 });
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
       (jwt.signAccessToken as jest.Mock).mockReturnValue("new-access-token");
       (jwt.signRefreshToken as jest.Mock).mockReturnValue("new-refresh-token");
@@ -114,7 +113,7 @@ describe("AuthService", () => {
     });
 
     it("throws UnauthorizedError when user from token no longer exists", async () => {
-      (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: 999, role: "admin", companyId: 1 });
+      (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: 999, role: "owner", companyId: 1 });
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(AuthService.refresh("token-for-deleted-user")).rejects.toThrow(UnauthorizedError);
@@ -312,8 +311,8 @@ describe("changePassword", () => {
 describe("listUsers", () => {
   it("returns all users for the company", async () => {
     const users = [
-      { id: 1, name: "User A", email: "a@test.com", role: "reporter", department: null, status: "active", createdAt: new Date() },
-      { id: 2, name: "User B", email: "b@test.com", role: "admin", department: "IT", status: "active", createdAt: new Date() },
+      { id: 1, name: "User A", email: "a@test.com", role: "senior", status: "active", createdAt: new Date() },
+      { id: 2, name: "User B", email: "b@test.com", role: "owner", status: "active", createdAt: new Date() },
     ];
     (prisma.user.findMany as jest.Mock).mockResolvedValue(users);
 
@@ -331,8 +330,8 @@ describe("listUsers", () => {
 describe("getUserById", () => {
   it("returns user when found in same company", async () => {
     const user = {
-      id: 1, name: "Test User", email: "test@example.com", role: "admin",
-      department: "IT", status: "active", createdAt: new Date(), updatedAt: new Date(),
+      id: 1, name: "Test User", email: "test@example.com", role: "owner",
+      status: "active", createdAt: new Date(), updatedAt: new Date(),
     };
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(user);
 

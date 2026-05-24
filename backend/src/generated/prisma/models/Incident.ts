@@ -781,6 +781,10 @@ export type EnumIncidentStatusFieldUpdateOperationsInput = {
   set?: $Enums.IncidentStatus
 }
 
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
 export type IncidentCreateNestedOneWithoutPeopleInput = {
   create?: Prisma.XOR<Prisma.IncidentCreateWithoutPeopleInput, Prisma.IncidentUncheckedCreateWithoutPeopleInput>
   connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutPeopleInput

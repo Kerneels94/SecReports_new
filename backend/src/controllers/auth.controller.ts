@@ -70,14 +70,14 @@ export const AuthController = {
   },
 
   async listUsers(request: FastifyRequest, reply: FastifyReply) {
-    if (request.user!.role !== "admin") throw new ForbiddenError();
+    if (request.user!.role !== "owner") throw new ForbiddenError();
 
     const users = await AuthService.listUsers(request.user!.companyId);
     reply.code(200).send({ success: true, data: users });
   },
 
   async getUserById(request: FastifyRequest, reply: FastifyReply) {
-    if (request.user!.role !== "admin") throw new ForbiddenError();
+    if (request.user!.role !== "owner") throw new ForbiddenError();
 
     const { id } = request.params as { id: string };
     const user = await AuthService.getUserById(request.user!.companyId, Number(id));
@@ -85,7 +85,7 @@ export const AuthController = {
   },
 
   async updateUser(request: FastifyRequest, reply: FastifyReply) {
-    if (request.user!.role !== "admin") throw new ForbiddenError();
+    if (request.user!.role !== "owner") throw new ForbiddenError();
 
     const parsed = updateUserSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());

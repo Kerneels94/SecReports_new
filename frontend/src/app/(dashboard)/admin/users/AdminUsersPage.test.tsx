@@ -33,22 +33,20 @@ const mockUseAuth = useAuth as jest.Mock;
 const mockCreate = userService.create as jest.Mock;
 const mockListUsers = authService.listUsers as jest.Mock;
 
-const adminUser = {
+const ownerUser = {
   id: 1,
-  name: "Admin",
-  email: "admin@example.com",
-  role: "admin" as const,
-  department: null,
+  name: "Owner",
+  email: "owner@example.com",
+  role: "owner" as const,
   status: "active" as const,
   companyId: 1,
 };
 
-const nonAdminUser = {
+const nonOwnerUser = {
   id: 2,
-  name: "Reporter",
-  email: "rep@example.com",
-  role: "reporter" as const,
-  department: null,
+  name: "Senior",
+  email: "senior@example.com",
+  role: "senior" as const,
   status: "active" as const,
   companyId: 1,
 };
@@ -59,34 +57,33 @@ beforeEach(() => {
 });
 
 describe("AdminUsersPage", () => {
-  it("shows admin access required when user is not admin", () => {
-    mockUseAuth.mockReturnValue({ user: nonAdminUser });
+  it("shows owner access required when user is not owner", () => {
+    mockUseAuth.mockReturnValue({ user: nonOwnerUser });
     render(<AdminUsersPage />);
     expect(screen.getByText("Admin access required.")).toBeInTheDocument();
     expect(screen.queryByText("Manage Users")).not.toBeInTheDocument();
   });
 
-  it("shows admin access required when user is null", () => {
+  it("shows owner access required when user is null", () => {
     mockUseAuth.mockReturnValue({ user: null });
     render(<AdminUsersPage />);
     expect(screen.getByText("Admin access required.")).toBeInTheDocument();
   });
 
-  it("renders form when user is admin", () => {
-    mockUseAuth.mockReturnValue({ user: adminUser });
+  it("renders form when user is owner", () => {
+    mockUseAuth.mockReturnValue({ user: ownerUser });
     render(<AdminUsersPage />);
     expect(screen.getByRole("heading", { name: /manage users/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /create employee/i })).toBeInTheDocument();
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
-    expect(screen.getByLabelText("Department")).toBeInTheDocument();
     expect(screen.getByLabelText("Role")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /create user/i })).toBeInTheDocument();
   });
 
   it("shows validation errors for empty required fields", async () => {
-    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockUseAuth.mockReturnValue({ user: ownerUser });
     render(<AdminUsersPage />);
     const user = userEvent.setup();
 
@@ -100,7 +97,7 @@ describe("AdminUsersPage", () => {
   });
 
   it("calls userService.create and shows success", async () => {
-    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockUseAuth.mockReturnValue({ user: ownerUser });
     mockCreate.mockResolvedValue({ success: true, data: { id: 1 } });
     render(<AdminUsersPage />);
     const user = userEvent.setup();
@@ -108,7 +105,6 @@ describe("AdminUsersPage", () => {
     await user.type(screen.getByLabelText("Name"), "Jane Doe");
     await user.type(screen.getByLabelText("Email"), "jane@example.com");
     await user.type(screen.getByLabelText("Password"), "password123");
-    await user.type(screen.getByLabelText("Department"), "Engineering");
     await user.click(screen.getByRole("button", { name: /create user/i }));
 
     await waitFor(() => {
@@ -116,15 +112,14 @@ describe("AdminUsersPage", () => {
         name: "Jane Doe",
         email: "jane@example.com",
         password: "password123",
-        role: "reporter",
-        department: "Engineering",
+        role: "senior",
       });
       expect(screen.getByText("User jane@example.com created successfully")).toBeInTheDocument();
     });
   });
 
   it("shows error on failure", async () => {
-    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockUseAuth.mockReturnValue({ user: ownerUser });
     mockCreate.mockRejectedValue(new Error("Email already exists"));
     render(<AdminUsersPage />);
     const user = userEvent.setup();
@@ -140,7 +135,7 @@ describe("AdminUsersPage", () => {
   });
 
   it("resets form after successful creation", async () => {
-    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockUseAuth.mockReturnValue({ user: ownerUser });
     mockCreate.mockResolvedValue({ success: true, data: { id: 1 } });
     render(<AdminUsersPage />);
     const user = userEvent.setup();
@@ -148,7 +143,6 @@ describe("AdminUsersPage", () => {
     await user.type(screen.getByLabelText("Name"), "Jane Doe");
     await user.type(screen.getByLabelText("Email"), "jane@example.com");
     await user.type(screen.getByLabelText("Password"), "password123");
-    await user.type(screen.getByLabelText("Department"), "Engineering");
     await user.click(screen.getByRole("button", { name: /create user/i }));
 
     await waitFor(() => {

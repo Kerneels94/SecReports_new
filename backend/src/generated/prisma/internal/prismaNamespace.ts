@@ -1130,7 +1130,6 @@ export const UserScalarFieldEnum = {
   email: 'email',
   passwordHash: 'passwordHash',
   role: 'role',
-  department: 'department',
   status: 'status',
   createdBy: 'createdBy',
   createdAt: 'createdAt',
@@ -1283,7 +1282,6 @@ export const UserOrderByRelevanceFieldEnum = {
   name: 'name',
   email: 'email',
   passwordHash: 'passwordHash',
-  department: 'department',
   status: 'status'
 } as const
 

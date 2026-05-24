@@ -69,11 +69,10 @@ describe("auth schemas", () => {
       expect(result.success).toBe(true);
     });
 
-    it("passes with all optional fields", () => {
+    it("passes with role field", () => {
       const result = createUserSchema.safeParse({
         ...valid,
-        role: "investigator",
-        department: "IT",
+        role: "manager",
       });
       expect(result.success).toBe(true);
     });

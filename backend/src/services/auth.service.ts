@@ -22,7 +22,6 @@ interface CreateUserParams {
   email: string;
   password: string;
   role?: string;
-  department?: string;
   companyId: number;
   createdBy: number;
 }
@@ -45,7 +44,6 @@ export const AuthService = {
         name: user.name,
         email: user.email,
         role: user.role,
-        department: user.department,
         status: user.status,
         companyId: user.companyId,
       },
@@ -73,7 +71,6 @@ export const AuthService = {
         name: user.name,
         email: user.email,
         role: user.role,
-        department: user.department,
         status: user.status,
         companyId: user.companyId,
       },
@@ -89,7 +86,6 @@ export const AuthService = {
       name: user.name,
       email: user.email,
       role: user.role,
-      department: user.department,
       status: user.status,
       companyId: user.companyId,
     };
@@ -115,7 +111,7 @@ export const AuthService = {
           name: params.name,
           email: params.email,
           passwordHash,
-          role: "admin",
+          role: "owner",
         },
       });
 
@@ -133,10 +129,9 @@ export const AuthService = {
         id: result.user.id,
         name: result.user.name,
         email: result.user.email,
-        role: result.user.role,
-        department: result.user.department,
-        status: result.user.status,
-        companyId: result.user.companyId,
+      role: result.user.role,
+      status: result.user.status,
+      companyId: result.user.companyId,
       },
       company: {
         id: result.company.id,
@@ -158,8 +153,7 @@ export const AuthService = {
         name: params.name,
         email: params.email,
         passwordHash,
-        role: (params.role as any) || "reporter",
-        department: params.department,
+        role: (params.role as any) || "senior",
         createdBy: params.createdBy,
       },
     });
@@ -171,7 +165,6 @@ export const AuthService = {
       name: user.name,
       email: user.email,
       role: user.role,
-      department: user.department,
       status: user.status,
       companyId: user.companyId,
     };
@@ -247,7 +240,6 @@ export const AuthService = {
         name: true,
         email: true,
         role: true,
-        department: true,
         status: true,
         createdAt: true,
       },
@@ -263,7 +255,6 @@ export const AuthService = {
         name: true,
         email: true,
         role: true,
-        department: true,
         status: true,
         createdAt: true,
         updatedAt: true,
@@ -273,7 +264,7 @@ export const AuthService = {
     return user;
   },
 
-  async updateUser(companyId: number, userId: number, data: { name?: string; email?: string; role?: string; department?: string | null }) {
+  async updateUser(companyId: number, userId: number, data: { name?: string; email?: string; role?: string }) {
     const user = await prisma.user.findFirst({
       where: { id: userId, companyId },
     });
@@ -290,14 +281,12 @@ export const AuthService = {
         ...(data.name !== undefined && { name: data.name }),
         ...(data.email !== undefined && { email: data.email }),
         ...(data.role !== undefined && { role: data.role as any }),
-        ...(data.department !== undefined && { department: data.department }),
       },
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
-        department: true,
         status: true,
       },
     });

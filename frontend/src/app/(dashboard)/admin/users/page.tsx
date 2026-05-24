@@ -16,8 +16,7 @@ const createUserSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email"),
   password: z.string().min(8, "Min 8 characters"),
-  role: z.enum(["reporter", "investigator", "manager", "admin"]),
-  department: z.string().optional(),
+  role: z.enum(["owner", "manager", "senior"]),
 });
 
 type CreateUserForm = z.infer<typeof createUserSchema>;
@@ -34,8 +33,7 @@ export default function AdminUsersPage() {
   const [editUser, setEditUser] = useState<UserListItem | null>(null);
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
-  const [editRole, setEditRole] = useState<string>("reporter");
-  const [editDepartment, setEditDepartment] = useState("");
+  const [editRole, setEditRole] = useState<string>("senior");
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
@@ -52,7 +50,7 @@ export default function AdminUsersPage() {
   }, []);
 
   useEffect(() => {
-    if (user?.role === "admin") fetchUsers();
+    if (user?.role === "owner") fetchUsers();
   }, [user, fetchUsers]);
 
   const {
@@ -62,10 +60,10 @@ export default function AdminUsersPage() {
     formState: { errors, isSubmitting },
   } = useForm<CreateUserForm>({
     resolver: zodResolver(createUserSchema),
-    defaultValues: { role: "reporter" },
+    defaultValues: { role: "senior" },
   });
 
-  if (user?.role !== "admin") {
+  if (user?.role !== "owner") {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="flex flex-col items-center gap-3 px-6 py-8 rounded-xl bg-surface ring-1 ring-border-light">
@@ -98,7 +96,6 @@ export default function AdminUsersPage() {
     setEditName(u.name);
     setEditEmail(u.email);
     setEditRole(u.role);
-    setEditDepartment(u.department || "");
     setEditError(null);
   };
 
@@ -114,7 +111,6 @@ export default function AdminUsersPage() {
         name: editName,
         email: editEmail,
         role: editRole as any,
-        department: editDepartment || null,
       });
       setEditUser(null);
       setSuccess(`User ${editEmail} updated`);
@@ -170,12 +166,6 @@ export default function AdminUsersPage() {
                 error={errors.password?.message}
                 {...register("password")}
               />
-              <Input
-                label="Department"
-                placeholder="e.g. Security"
-                error={errors.department?.message}
-                {...register("department")}
-              />
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="role" className="text-sm font-medium text-text/90">Role</label>
                 <select
@@ -183,10 +173,9 @@ export default function AdminUsersPage() {
                   className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
                   {...register("role")}
                 >
-                  <option value="reporter">Reporter</option>
-                  <option value="investigator">Investigator</option>
+                  <option value="owner">Owner</option>
                   <option value="manager">Manager</option>
-                  <option value="admin">Admin</option>
+                  <option value="senior">Senior</option>
                 </select>
                 {errors.role && (
                   <p className="text-sm text-danger" role="alert">{errors.role.message}</p>
@@ -217,7 +206,6 @@ export default function AdminUsersPage() {
                     <tr className="border-b border-border-light bg-surface-elevated/20">
                       <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Name</th>
                       <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Role</th>
-                      <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Dept</th>
                       <th className="px-4 py-3 text-right font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
@@ -231,9 +219,8 @@ export default function AdminUsersPage() {
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <Badge variant={u.role === "admin" ? "info" : "default"}>{u.role}</Badge>
+                          <Badge variant={u.role === "owner" ? "info" : "default"}>{u.role}</Badge>
                         </td>
-                        <td className="px-4 py-3 text-text-secondary">{u.department || "-"}</td>
                         <td className="px-4 py-3 text-right">
                           <Button variant="ghost" size="sm" onClick={() => openEdit(u)}>
                             Edit
@@ -262,7 +249,6 @@ export default function AdminUsersPage() {
         <div className="flex flex-col gap-4">
           <Input label="Name" value={editName} onChange={(e) => setEditName(e.target.value)} />
           <Input label="Email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
-          <Input label="Department" value={editDepartment} onChange={(e) => setEditDepartment(e.target.value)} placeholder="e.g. Security" />
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-text/90">Role</label>
             <select
@@ -270,10 +256,9 @@ export default function AdminUsersPage() {
               onChange={(e) => setEditRole(e.target.value)}
               className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
             >
-              <option value="reporter">Reporter</option>
-              <option value="investigator">Investigator</option>
+              <option value="owner">Owner</option>
               <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
+              <option value="senior">Senior</option>
             </select>
           </div>
           <div className="flex gap-3 pt-2">

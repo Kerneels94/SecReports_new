@@ -47,7 +47,7 @@ describe("AuthController", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockRequest = {
-      user: { userId: 1, companyId: 1, role: "admin" },
+      user: { userId: 1, companyId: 1, role: "owner" },
       body: {},
     };
     mockReply = {
@@ -251,8 +251,8 @@ describe("listUsers", () => {
     expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: users });
   });
 
-  it("non-admin: throws ForbiddenError", async () => {
-    mockRequest.user.role = "reporter";
+  it("non-owner: throws ForbiddenError", async () => {
+    mockRequest.user.role = "senior";
 
     await expect(AuthController.listUsers(mockRequest, mockReply)).rejects.toThrow(ForbiddenError);
   });
@@ -271,8 +271,8 @@ describe("getUserById", () => {
     expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: user });
   });
 
-  it("non-admin: throws ForbiddenError", async () => {
-    mockRequest.user.role = "reporter";
+  it("non-owner: throws ForbiddenError", async () => {
+    mockRequest.user.role = "senior";
 
     await expect(AuthController.getUserById(mockRequest, mockReply)).rejects.toThrow(ForbiddenError);
   });
@@ -294,8 +294,8 @@ describe("updateUser", () => {
     expect(mockReply.code).toHaveBeenCalledWith(200);
   });
 
-  it("non-admin: throws ForbiddenError", async () => {
-    mockRequest.user.role = "reporter";
+  it("non-owner: throws ForbiddenError", async () => {
+    mockRequest.user.role = "senior";
 
     await expect(AuthController.updateUser(mockRequest, mockReply)).rejects.toThrow(ForbiddenError);
   });

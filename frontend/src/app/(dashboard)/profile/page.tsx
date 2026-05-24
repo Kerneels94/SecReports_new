@@ -12,7 +12,7 @@ export default function ProfilePage() {
 
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
-  const [editDepartment, setEditDepartment] = useState("");
+  const [editRole, setEditRole] = useState<string>("senior");
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -30,7 +30,7 @@ export default function ProfilePage() {
 
   const startEditing = () => {
     setEditName(user.name);
-    setEditDepartment(user.department || "");
+    setEditRole(user.role);
     setEditing(true);
     setProfileError(null);
     setProfileSuccess(null);
@@ -52,7 +52,7 @@ export default function ProfilePage() {
     try {
       await userService.update(user.id, {
         name: editName,
-        department: editDepartment || null,
+        role: editRole,
       });
       await refreshUser();
       setProfileSuccess("Profile updated");
@@ -104,7 +104,7 @@ export default function ProfilePage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Account Information</CardTitle>
-            {user.role === "admin" && !editing && (
+            {user.role === "owner" && !editing && (
               <Button variant="secondary" size="sm" onClick={startEditing}>
                 Edit Profile
               </Button>
@@ -112,9 +112,9 @@ export default function ProfilePage() {
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-5">
-          {user.role !== "admin" && (
+          {user.role !== "owner" && (
             <div className="rounded-lg bg-blue-900/20 px-4 py-3 text-sm text-blue-300 ring-1 ring-blue-500/20" role="status">
-              Your profile details can only be updated by your administrator. Contact them to request changes to your name, email, or department.
+              Your profile details can only be updated by an owner. Contact them to request changes.
             </div>
           )}
 
@@ -146,11 +146,18 @@ export default function ProfilePage() {
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
               />
-              <Input
-                label="Department"
-                value={editDepartment}
-                onChange={(e) => setEditDepartment(e.target.value)}
-              />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-text/90">Role</label>
+                <select
+                  value={editRole}
+                  onChange={(e) => setEditRole(e.target.value)}
+                  className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
+                >
+                  <option value="owner">Owner</option>
+                  <option value="manager">Manager</option>
+                  <option value="senior">Senior</option>
+                </select>
+              </div>
               <div className="flex gap-3">
                 <Button onClick={handleProfileSave} loading={profileLoading}>
                   Save
@@ -167,8 +174,8 @@ export default function ProfilePage() {
                 <span className="text-sm text-text">{user.email}</span>
               </div>
               <div className="flex items-baseline justify-between gap-4 py-2.5">
-                <span className="text-sm font-medium text-text-secondary/70">Department</span>
-                <span className="text-sm text-text">{user.department || "-"}</span>
+                <span className="text-sm font-medium text-text-secondary/70">Role</span>
+                <span className="text-sm text-text capitalize">{user.role}</span>
               </div>
               <div className="flex items-baseline justify-between gap-4 py-2.5">
                 <span className="text-sm font-medium text-text-secondary/70">Status</span>
