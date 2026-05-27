@@ -218,6 +218,9 @@ export type CompanyWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Company"> | Date | string
   users?: Prisma.UserListRelationFilter
   incidents?: Prisma.IncidentListRelationFilter
+  subscription?: Prisma.XOR<Prisma.CompanySubscriptionNullableScalarRelationFilter, Prisma.CompanySubscriptionWhereInput> | null
+  payments?: Prisma.PaymentHistoryListRelationFilter
+  apiKeys?: Prisma.ApiKeyListRelationFilter
 }
 
 export type CompanyOrderByWithRelationInput = {
@@ -228,6 +231,9 @@ export type CompanyOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   users?: Prisma.UserOrderByRelationAggregateInput
   incidents?: Prisma.IncidentOrderByRelationAggregateInput
+  subscription?: Prisma.CompanySubscriptionOrderByWithRelationInput
+  payments?: Prisma.PaymentHistoryOrderByRelationAggregateInput
+  apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
   _relevance?: Prisma.CompanyOrderByRelevanceInput
 }
 
@@ -242,6 +248,9 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Company"> | Date | string
   users?: Prisma.UserListRelationFilter
   incidents?: Prisma.IncidentListRelationFilter
+  subscription?: Prisma.XOR<Prisma.CompanySubscriptionNullableScalarRelationFilter, Prisma.CompanySubscriptionWhereInput> | null
+  payments?: Prisma.PaymentHistoryListRelationFilter
+  apiKeys?: Prisma.ApiKeyListRelationFilter
 }, "id" | "email">
 
 export type CompanyOrderByWithAggregationInput = {
@@ -275,6 +284,9 @@ export type CompanyCreateInput = {
   updatedAt?: Date | string
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  subscription?: Prisma.CompanySubscriptionCreateNestedOneWithoutCompanyInput
+  payments?: Prisma.PaymentHistoryCreateNestedManyWithoutCompanyInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateInput = {
@@ -285,6 +297,9 @@ export type CompanyUncheckedCreateInput = {
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  subscription?: Prisma.CompanySubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+  payments?: Prisma.PaymentHistoryUncheckedCreateNestedManyWithoutCompanyInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUpdateInput = {
@@ -294,6 +309,9 @@ export type CompanyUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  subscription?: Prisma.CompanySubscriptionUpdateOneWithoutCompanyNestedInput
+  payments?: Prisma.PaymentHistoryUpdateManyWithoutCompanyNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateInput = {
@@ -304,6 +322,9 @@ export type CompanyUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  subscription?: Prisma.CompanySubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+  payments?: Prisma.PaymentHistoryUncheckedUpdateManyWithoutCompanyNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateManyInput = {
@@ -416,12 +437,57 @@ export type CompanyUpdateOneRequiredWithoutIncidentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutIncidentsInput, Prisma.CompanyUpdateWithoutIncidentsInput>, Prisma.CompanyUncheckedUpdateWithoutIncidentsInput>
 }
 
+export type CompanyCreateNestedOneWithoutSubscriptionInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutSubscriptionInput, Prisma.CompanyUncheckedCreateWithoutSubscriptionInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutSubscriptionInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutSubscriptionNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutSubscriptionInput, Prisma.CompanyUncheckedCreateWithoutSubscriptionInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutSubscriptionInput
+  upsert?: Prisma.CompanyUpsertWithoutSubscriptionInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutSubscriptionInput, Prisma.CompanyUpdateWithoutSubscriptionInput>, Prisma.CompanyUncheckedUpdateWithoutSubscriptionInput>
+}
+
+export type CompanyCreateNestedOneWithoutPaymentsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutPaymentsInput, Prisma.CompanyUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutPaymentsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutPaymentsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutPaymentsInput, Prisma.CompanyUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutPaymentsInput
+  upsert?: Prisma.CompanyUpsertWithoutPaymentsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutPaymentsInput, Prisma.CompanyUpdateWithoutPaymentsInput>, Prisma.CompanyUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type CompanyCreateNestedOneWithoutApiKeysInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutApiKeysInput, Prisma.CompanyUncheckedCreateWithoutApiKeysInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutApiKeysInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutApiKeysNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutApiKeysInput, Prisma.CompanyUncheckedCreateWithoutApiKeysInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutApiKeysInput
+  upsert?: Prisma.CompanyUpsertWithoutApiKeysInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutApiKeysInput, Prisma.CompanyUpdateWithoutApiKeysInput>, Prisma.CompanyUncheckedUpdateWithoutApiKeysInput>
+}
+
 export type CompanyCreateWithoutUsersInput = {
   name: string
   email: string
   createdAt?: Date | string
   updatedAt?: Date | string
   incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  subscription?: Prisma.CompanySubscriptionCreateNestedOneWithoutCompanyInput
+  payments?: Prisma.PaymentHistoryCreateNestedManyWithoutCompanyInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutUsersInput = {
@@ -431,6 +497,9 @@ export type CompanyUncheckedCreateWithoutUsersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  subscription?: Prisma.CompanySubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+  payments?: Prisma.PaymentHistoryUncheckedCreateNestedManyWithoutCompanyInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutUsersInput = {
@@ -455,6 +524,9 @@ export type CompanyUpdateWithoutUsersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  subscription?: Prisma.CompanySubscriptionUpdateOneWithoutCompanyNestedInput
+  payments?: Prisma.PaymentHistoryUpdateManyWithoutCompanyNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutUsersInput = {
@@ -464,6 +536,9 @@ export type CompanyUncheckedUpdateWithoutUsersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  subscription?: Prisma.CompanySubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+  payments?: Prisma.PaymentHistoryUncheckedUpdateManyWithoutCompanyNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutIncidentsInput = {
@@ -472,6 +547,9 @@ export type CompanyCreateWithoutIncidentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  subscription?: Prisma.CompanySubscriptionCreateNestedOneWithoutCompanyInput
+  payments?: Prisma.PaymentHistoryCreateNestedManyWithoutCompanyInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutIncidentsInput = {
@@ -481,6 +559,9 @@ export type CompanyUncheckedCreateWithoutIncidentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  subscription?: Prisma.CompanySubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+  payments?: Prisma.PaymentHistoryUncheckedCreateNestedManyWithoutCompanyInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutIncidentsInput = {
@@ -505,6 +586,9 @@ export type CompanyUpdateWithoutIncidentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  subscription?: Prisma.CompanySubscriptionUpdateOneWithoutCompanyNestedInput
+  payments?: Prisma.PaymentHistoryUpdateManyWithoutCompanyNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutIncidentsInput = {
@@ -514,6 +598,195 @@ export type CompanyUncheckedUpdateWithoutIncidentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  subscription?: Prisma.CompanySubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+  payments?: Prisma.PaymentHistoryUncheckedUpdateManyWithoutCompanyNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutSubscriptionInput = {
+  name: string
+  email: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentHistoryCreateNestedManyWithoutCompanyInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutSubscriptionInput = {
+  id?: number
+  name: string
+  email: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentHistoryUncheckedCreateNestedManyWithoutCompanyInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutSubscriptionInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutSubscriptionInput, Prisma.CompanyUncheckedCreateWithoutSubscriptionInput>
+}
+
+export type CompanyUpsertWithoutSubscriptionInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutSubscriptionInput, Prisma.CompanyUncheckedUpdateWithoutSubscriptionInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutSubscriptionInput, Prisma.CompanyUncheckedCreateWithoutSubscriptionInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutSubscriptionInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutSubscriptionInput, Prisma.CompanyUncheckedUpdateWithoutSubscriptionInput>
+}
+
+export type CompanyUpdateWithoutSubscriptionInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentHistoryUpdateManyWithoutCompanyNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutSubscriptionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentHistoryUncheckedUpdateManyWithoutCompanyNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutPaymentsInput = {
+  name: string
+  email: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  subscription?: Prisma.CompanySubscriptionCreateNestedOneWithoutCompanyInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutPaymentsInput = {
+  id?: number
+  name: string
+  email: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  subscription?: Prisma.CompanySubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutPaymentsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutPaymentsInput, Prisma.CompanyUncheckedCreateWithoutPaymentsInput>
+}
+
+export type CompanyUpsertWithoutPaymentsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutPaymentsInput, Prisma.CompanyUncheckedUpdateWithoutPaymentsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutPaymentsInput, Prisma.CompanyUncheckedCreateWithoutPaymentsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutPaymentsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutPaymentsInput, Prisma.CompanyUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type CompanyUpdateWithoutPaymentsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  subscription?: Prisma.CompanySubscriptionUpdateOneWithoutCompanyNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutPaymentsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  subscription?: Prisma.CompanySubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutApiKeysInput = {
+  name: string
+  email: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  subscription?: Prisma.CompanySubscriptionCreateNestedOneWithoutCompanyInput
+  payments?: Prisma.PaymentHistoryCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutApiKeysInput = {
+  id?: number
+  name: string
+  email: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  subscription?: Prisma.CompanySubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+  payments?: Prisma.PaymentHistoryUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutApiKeysInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutApiKeysInput, Prisma.CompanyUncheckedCreateWithoutApiKeysInput>
+}
+
+export type CompanyUpsertWithoutApiKeysInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutApiKeysInput, Prisma.CompanyUncheckedUpdateWithoutApiKeysInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutApiKeysInput, Prisma.CompanyUncheckedCreateWithoutApiKeysInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutApiKeysInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutApiKeysInput, Prisma.CompanyUncheckedUpdateWithoutApiKeysInput>
+}
+
+export type CompanyUpdateWithoutApiKeysInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  subscription?: Prisma.CompanySubscriptionUpdateOneWithoutCompanyNestedInput
+  payments?: Prisma.PaymentHistoryUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutApiKeysInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  subscription?: Prisma.CompanySubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+  payments?: Prisma.PaymentHistoryUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 
@@ -524,11 +797,15 @@ export type CompanyUncheckedUpdateWithoutIncidentsInput = {
 export type CompanyCountOutputType = {
   users: number
   incidents: number
+  payments: number
+  apiKeys: number
 }
 
 export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | CompanyCountOutputTypeCountUsersArgs
   incidents?: boolean | CompanyCountOutputTypeCountIncidentsArgs
+  payments?: boolean | CompanyCountOutputTypeCountPaymentsArgs
+  apiKeys?: boolean | CompanyCountOutputTypeCountApiKeysArgs
 }
 
 /**
@@ -555,6 +832,20 @@ export type CompanyCountOutputTypeCountIncidentsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.IncidentWhereInput
 }
 
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PaymentHistoryWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountApiKeysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApiKeyWhereInput
+}
+
 
 export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -564,6 +855,9 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   updatedAt?: boolean
   users?: boolean | Prisma.Company$usersArgs<ExtArgs>
   incidents?: boolean | Prisma.Company$incidentsArgs<ExtArgs>
+  subscription?: boolean | Prisma.Company$subscriptionArgs<ExtArgs>
+  payments?: boolean | Prisma.Company$paymentsArgs<ExtArgs>
+  apiKeys?: boolean | Prisma.Company$apiKeysArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["company"]>
 
@@ -581,6 +875,9 @@ export type CompanyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.Company$usersArgs<ExtArgs>
   incidents?: boolean | Prisma.Company$incidentsArgs<ExtArgs>
+  subscription?: boolean | Prisma.Company$subscriptionArgs<ExtArgs>
+  payments?: boolean | Prisma.Company$paymentsArgs<ExtArgs>
+  apiKeys?: boolean | Prisma.Company$apiKeysArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -589,6 +886,9 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     users: Prisma.$UserPayload<ExtArgs>[]
     incidents: Prisma.$IncidentPayload<ExtArgs>[]
+    subscription: Prisma.$CompanySubscriptionPayload<ExtArgs> | null
+    payments: Prisma.$PaymentHistoryPayload<ExtArgs>[]
+    apiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -938,6 +1238,9 @@ export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   users<T extends Prisma.Company$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   incidents<T extends Prisma.Company$incidentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$incidentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IncidentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  subscription<T extends Prisma.Company$subscriptionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$subscriptionArgs<ExtArgs>>): Prisma.Prisma__CompanySubscriptionClient<runtime.Types.Result.GetResult<Prisma.$CompanySubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  payments<T extends Prisma.Company$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  apiKeys<T extends Prisma.Company$apiKeysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$apiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1365,6 +1668,73 @@ export type Company$incidentsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.IncidentScalarFieldEnum | Prisma.IncidentScalarFieldEnum[]
+}
+
+/**
+ * Company.subscription
+ */
+export type Company$subscriptionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CompanySubscription
+   */
+  select?: Prisma.CompanySubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CompanySubscription
+   */
+  omit?: Prisma.CompanySubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanySubscriptionInclude<ExtArgs> | null
+  where?: Prisma.CompanySubscriptionWhereInput
+}
+
+/**
+ * Company.payments
+ */
+export type Company$paymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PaymentHistory
+   */
+  select?: Prisma.PaymentHistorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PaymentHistory
+   */
+  omit?: Prisma.PaymentHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentHistoryInclude<ExtArgs> | null
+  where?: Prisma.PaymentHistoryWhereInput
+  orderBy?: Prisma.PaymentHistoryOrderByWithRelationInput | Prisma.PaymentHistoryOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentHistoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentHistoryScalarFieldEnum | Prisma.PaymentHistoryScalarFieldEnum[]
+}
+
+/**
+ * Company.apiKeys
+ */
+export type Company$apiKeysArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApiKey
+   */
+  select?: Prisma.ApiKeySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApiKey
+   */
+  omit?: Prisma.ApiKeyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApiKeyInclude<ExtArgs> | null
+  where?: Prisma.ApiKeyWhereInput
+  orderBy?: Prisma.ApiKeyOrderByWithRelationInput | Prisma.ApiKeyOrderByWithRelationInput[]
+  cursor?: Prisma.ApiKeyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApiKeyScalarFieldEnum | Prisma.ApiKeyScalarFieldEnum[]
 }
 
 /**

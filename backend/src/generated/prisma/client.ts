@@ -85,6 +85,26 @@ export type CorrectiveAction = Prisma.CorrectiveActionModel
  */
 export type PasswordResetToken = Prisma.PasswordResetTokenModel
 /**
+ * Model SubscriptionPlan
+ * 
+ */
+export type SubscriptionPlan = Prisma.SubscriptionPlanModel
+/**
+ * Model CompanySubscription
+ * 
+ */
+export type CompanySubscription = Prisma.CompanySubscriptionModel
+/**
+ * Model PaymentHistory
+ * 
+ */
+export type PaymentHistory = Prisma.PaymentHistoryModel
+/**
+ * Model ApiKey
+ * 
+ */
+export type ApiKey = Prisma.ApiKeyModel
+/**
  * Model AuditLog
  * 
  */

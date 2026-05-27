@@ -8,9 +8,18 @@ interface CreateIncidentParams {
   description: string;
   type: string;
   severity: string;
-  category: string;
   incidentDate: string;
   location?: string;
+  operatorName: string;
+  dispatcher: string;
+  dispatchTime?: string;
+  arrivalTime?: string;
+  callSign?: string;
+  propertyAddress?: string;
+  clientName?: string;
+  clientCode?: string;
+  businessOrComplex?: string;
+  sapsReference?: string;
   reporterId: number;
   people?: { name: string; role: string; contact?: string; notes?: string }[];
 }
@@ -20,9 +29,18 @@ interface UpdateIncidentParams {
   description?: string;
   type?: string;
   severity?: string;
-  category?: string;
   incidentDate?: string;
   location?: string;
+  operatorName?: string;
+  dispatcher?: string;
+  dispatchTime?: string;
+  arrivalTime?: string;
+  callSign?: string;
+  propertyAddress?: string;
+  clientName?: string;
+  clientCode?: string;
+  businessOrComplex?: string;
+  sapsReference?: string;
 }
 
 interface ListParams {
@@ -103,9 +121,18 @@ export const IncidentService = {
         description: params.description,
         type: params.type,
         severity: params.severity as any,
-        category: params.category,
         incidentDate: new Date(params.incidentDate),
         location: params.location,
+        operatorName: params.operatorName,
+        dispatcher: params.dispatcher,
+        dispatchTime: params.dispatchTime ? new Date(params.dispatchTime) : undefined,
+        arrivalTime: params.arrivalTime ? new Date(params.arrivalTime) : undefined,
+        callSign: params.callSign,
+        propertyAddress: params.propertyAddress,
+        clientName: params.clientName,
+        clientCode: params.clientCode,
+        businessOrComplex: params.businessOrComplex,
+        sapsReference: params.sapsReference,
         reporterId: params.reporterId,
         people: params.people
           ? { create: params.people }
@@ -138,17 +165,27 @@ export const IncidentService = {
       throw new ForbiddenError("You can only edit your own incidents");
     }
 
+    const data: any = {};
+    if (params.title !== undefined) data.title = params.title;
+    if (params.description !== undefined) data.description = params.description;
+    if (params.type !== undefined) data.type = params.type;
+    if (params.severity !== undefined) data.severity = params.severity;
+    if (params.incidentDate !== undefined) data.incidentDate = new Date(params.incidentDate);
+    if (params.location !== undefined) data.location = params.location;
+    if (params.operatorName !== undefined) data.operatorName = params.operatorName;
+    if (params.dispatcher !== undefined) data.dispatcher = params.dispatcher;
+    if (params.dispatchTime !== undefined) data.dispatchTime = params.dispatchTime ? new Date(params.dispatchTime) : null;
+    if (params.arrivalTime !== undefined) data.arrivalTime = params.arrivalTime ? new Date(params.arrivalTime) : null;
+    if (params.callSign !== undefined) data.callSign = params.callSign;
+    if (params.propertyAddress !== undefined) data.propertyAddress = params.propertyAddress;
+    if (params.clientName !== undefined) data.clientName = params.clientName;
+    if (params.clientCode !== undefined) data.clientCode = params.clientCode;
+    if (params.businessOrComplex !== undefined) data.businessOrComplex = params.businessOrComplex;
+    if (params.sapsReference !== undefined) data.sapsReference = params.sapsReference;
+
     const updated = await prisma.incident.update({
       where: { id },
-      data: {
-        ...(params.title && { title: params.title }),
-        ...(params.description && { description: params.description }),
-        ...(params.type && { type: params.type }),
-        ...(params.severity && { severity: params.severity as any }),
-        ...(params.category && { category: params.category }),
-        ...(params.incidentDate && { incidentDate: new Date(params.incidentDate) }),
-        ...(params.location !== undefined && { location: params.location }),
-      },
+      data,
       include: {
         reporter: { select: { id: true, name: true, email: true } },
         assignedInvestigator: { select: { id: true, name: true, email: true } },

@@ -21,21 +21,38 @@ beforeEach(() => {
 });
 
 describe("NewIncidentPage", () => {
-  it("renders form with all fields", () => {
+  it("renders form with all section headings", () => {
     render(<NewIncidentPage />);
     expect(screen.getByRole("heading", { name: /report incident/i })).toBeInTheDocument();
-    expect(screen.getByLabelText("Title")).toBeInTheDocument();
-    expect(screen.getByLabelText("Description")).toBeInTheDocument();
-    expect(screen.getByLabelText("Type")).toBeInTheDocument();
-    expect(screen.getByLabelText("Category")).toBeInTheDocument();
-    expect(screen.getByLabelText("Severity")).toBeInTheDocument();
-    expect(screen.getByLabelText("Incident Date")).toBeInTheDocument();
-    expect(screen.getByLabelText("Location")).toBeInTheDocument();
+    expect(screen.getByText("Personnel")).toBeInTheDocument();
+    expect(screen.getByText("Response Details")).toBeInTheDocument();
+    expect(screen.getByText("Client & Property")).toBeInTheDocument();
+    expect(screen.getByText("Incident")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /submit report/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
   });
 
-  it("shows validation errors for empty fields", async () => {
+  it("renders all new form fields", () => {
+    render(<NewIncidentPage />);
+    expect(screen.getByLabelText("Operator Name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Dispatcher")).toBeInTheDocument();
+    expect(screen.getByLabelText("Dispatch Time")).toBeInTheDocument();
+    expect(screen.getByLabelText("Arrival Time")).toBeInTheDocument();
+    expect(screen.getByLabelText("Call Sign")).toBeInTheDocument();
+    expect(screen.getByLabelText("Property Address")).toBeInTheDocument();
+    expect(screen.getByLabelText("Client Name and Surname")).toBeInTheDocument();
+    expect(screen.getByLabelText("Client Code")).toBeInTheDocument();
+    expect(screen.getByLabelText("Business or Complex Name")).toBeInTheDocument();
+    expect(screen.getByLabelText("SAPS Reference")).toBeInTheDocument();
+    expect(screen.getByLabelText("Title")).toBeInTheDocument();
+    expect(screen.getByLabelText("Report")).toBeInTheDocument();
+    expect(screen.getByLabelText("Type")).toBeInTheDocument();
+    expect(screen.getByLabelText("Severity")).toBeInTheDocument();
+    expect(screen.getByLabelText("Incident Date")).toBeInTheDocument();
+    expect(screen.getByLabelText("Location")).toBeInTheDocument();
+  });
+
+  it("shows validation errors for required fields", async () => {
     render(<NewIncidentPage />);
     const user = userEvent.setup();
 
@@ -45,7 +62,8 @@ describe("NewIncidentPage", () => {
       expect(screen.getByText("Title is required")).toBeInTheDocument();
       expect(screen.getByText("Description is required")).toBeInTheDocument();
       expect(screen.getByText("Type is required")).toBeInTheDocument();
-      expect(screen.getByText("Category is required")).toBeInTheDocument();
+      expect(screen.getByText("Operator name is required")).toBeInTheDocument();
+      expect(screen.getByText("Dispatcher is required")).toBeInTheDocument();
     });
   });
 
@@ -54,21 +72,37 @@ describe("NewIncidentPage", () => {
     render(<NewIncidentPage />);
     const user = userEvent.setup();
 
+    await user.type(screen.getByLabelText("Operator Name"), "John Op");
+    await user.type(screen.getByLabelText("Dispatcher"), "Jane Disp");
+    await user.type(screen.getByLabelText("Call Sign"), "AR-42");
+    await user.type(screen.getByLabelText("Property Address"), "123 Main St");
+    await user.type(screen.getByLabelText("Client Name and Surname"), "Bob Client");
+    await user.type(screen.getByLabelText("Client Code"), "C-001");
+    await user.type(screen.getByLabelText("Business or Complex Name"), "Biz Hub");
+    await user.type(screen.getByLabelText("SAPS Reference"), "SAPS-123");
     await user.type(screen.getByLabelText("Title"), "Server Down");
-    await user.type(screen.getByLabelText("Description"), "Server is down");
+    await user.type(screen.getByLabelText("Report"), "Server is down");
     await user.type(screen.getByLabelText("Type"), "outage");
-    await user.type(screen.getByLabelText("Category"), "Infrastructure");
     await user.type(screen.getByLabelText("Location"), "DC-1");
 
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
     await waitFor(() => {
       expect(mockCreate).toHaveBeenCalledWith({
+        operatorName: "John Op",
+        dispatcher: "Jane Disp",
+        dispatchTime: "",
+        arrivalTime: "",
+        callSign: "AR-42",
+        propertyAddress: "123 Main St",
+        clientName: "Bob Client",
+        clientCode: "C-001",
+        businessOrComplex: "Biz Hub",
+        sapsReference: "SAPS-123",
         title: "Server Down",
         description: "Server is down",
         type: "outage",
         severity: "medium",
-        category: "Infrastructure",
         incidentDate: expect.any(String),
         location: "DC-1",
       });
@@ -81,10 +115,11 @@ describe("NewIncidentPage", () => {
     render(<NewIncidentPage />);
     const user = userEvent.setup();
 
+    await user.type(screen.getByLabelText("Operator Name"), "John");
+    await user.type(screen.getByLabelText("Dispatcher"), "Jane");
     await user.type(screen.getByLabelText("Title"), "Server Down");
-    await user.type(screen.getByLabelText("Description"), "Server is down");
+    await user.type(screen.getByLabelText("Report"), "Server is down");
     await user.type(screen.getByLabelText("Type"), "outage");
-    await user.type(screen.getByLabelText("Category"), "Infrastructure");
 
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
@@ -101,7 +136,7 @@ describe("NewIncidentPage", () => {
     expect(mockRouter.push).toHaveBeenCalledWith("/incidents");
   });
 
-  it("severity select has all options", () => {
+  it("severity select defaults to medium", () => {
     render(<NewIncidentPage />);
     const select = screen.getByLabelText("Severity");
     expect(select).toHaveValue("medium");

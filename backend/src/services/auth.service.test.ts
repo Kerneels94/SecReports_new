@@ -16,11 +16,19 @@ jest.mock("../lib/db", () => ({
       findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      count: jest.fn().mockResolvedValue(0),
     },
     passwordResetToken: {
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+    },
+    subscriptionPlan: {
+      findFirst: jest.fn().mockResolvedValue({ id: 1, name: "Starter", price: 0, reportLimit: 20, userLimit: 1, features: "[]" }),
+    },
+    companySubscription: {
+      findUnique: jest.fn().mockResolvedValue(null),
+      create: jest.fn().mockResolvedValue({ id: 1, companyId: 1, planId: 1, status: "active" }),
     },
     $transaction: jest.fn((fn: any) => fn(prisma)),
   },

@@ -15,9 +15,18 @@ const createIncidentSchema = z.object({
   description: z.string().min(1, "Description is required"),
   type: z.string().min(1, "Type is required").max(100),
   severity: z.enum(["low", "medium", "high", "critical"]),
-  category: z.string().min(1, "Category is required").max(100),
   incidentDate: z.string().min(1, "Date is required"),
   location: z.string().max(255).optional(),
+  operatorName: z.string().min(1, "Operator name is required").max(255),
+  dispatcher: z.string().min(1, "Dispatcher is required").max(255),
+  dispatchTime: z.string().optional(),
+  arrivalTime: z.string().optional(),
+  callSign: z.string().max(100).optional(),
+  propertyAddress: z.string().max(500).optional(),
+  clientName: z.string().max(255).optional(),
+  clientCode: z.string().max(100).optional(),
+  businessOrComplex: z.string().max(255).optional(),
+  sapsReference: z.string().max(100).optional(),
 });
 
 type CreateIncidentForm = z.infer<typeof createIncidentSchema>;
@@ -32,7 +41,10 @@ export default function NewIncidentPage() {
     formState: { errors, isSubmitting },
   } = useForm<CreateIncidentForm>({
     resolver: zodResolver(createIncidentSchema),
-    defaultValues: { severity: "medium", incidentDate: new Date().toISOString().split("T")[0] },
+    defaultValues: {
+      severity: "medium",
+      incidentDate: new Date().toISOString().split("T")[0],
+    },
   });
 
   const onSubmit = async (data: CreateIncidentForm) => {
@@ -41,7 +53,9 @@ export default function NewIncidentPage() {
       await incidentService.create(data);
       router.push("/incidents");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create incident");
+      setError(
+        err instanceof Error ? err.message : "Failed to create incident",
+      );
     }
   };
 
@@ -49,17 +63,115 @@ export default function NewIncidentPage() {
     <div className="mx-auto max-w-2xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-text">Report Incident</h1>
-        <p className="text-sm text-text-secondary mt-1">Fill in the details of the incident.</p>
+        <p className="text-sm text-text-secondary mt-1">
+          Fill in the details of the incident.
+        </p>
       </div>
 
       <Card>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
             {error && (
-              <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+              <div
+                className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20"
+                role="alert"
+              >
                 {error}
               </div>
             )}
+
+            <h3 className="text-sm font-semibold text-text-secondary/80 uppercase tracking-wider pt-2">
+              Personnel
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Operator Name"
+                placeholder="Person creating the report"
+                error={errors.operatorName?.message}
+                {...register("operatorName")}
+              />
+              <Input
+                label="Dispatcher"
+                placeholder="Person at dispatch station"
+                error={errors.dispatcher?.message}
+                {...register("dispatcher")}
+              />
+            </div>
+
+            <h3 className="text-sm font-semibold text-text-secondary/80 uppercase tracking-wider pt-2">
+              Response Details
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Dispatch Time"
+                type="datetime-local"
+                error={errors.dispatchTime?.message}
+                {...register("dispatchTime")}
+              />
+              <Input
+                label="Arrival Time"
+                type="datetime-local"
+                error={errors.arrivalTime?.message}
+                {...register("arrivalTime")}
+              />
+            </div>
+
+            <Input
+              label="Call Sign"
+              placeholder="Call sign of the armed response vehicle"
+              error={errors.callSign?.message}
+              {...register("callSign")}
+            />
+
+            <h3 className="text-sm font-semibold text-text-secondary/80 uppercase tracking-wider pt-2">
+              Client &amp; Property
+            </h3>
+
+            <Input
+              label="Property Address"
+              placeholder="Address of the property"
+              error={errors.propertyAddress?.message}
+              {...register("propertyAddress")}
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Client Name and Surname"
+                placeholder="Client full name"
+                error={errors.clientName?.message}
+                {...register("clientName")}
+              />
+              <Input
+                label="Client Code"
+                placeholder="Client code"
+                error={errors.clientCode?.message}
+                {...register("clientCode")}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Business or Complex Name"
+                placeholder="Business or complex name"
+                error={errors.businessOrComplex?.message}
+                {...register("businessOrComplex")}
+              />
+              <Input
+                label="SAPS Reference"
+                placeholder="SAPS reference number"
+                error={errors.sapsReference?.message}
+                {...register("sapsReference")}
+              />
+            </div>
+
+            <h3 className="text-sm font-semibold text-text-secondary/80 uppercase tracking-wider pt-2">
+              Incident
+            </h3>
 
             <Input
               label="Title"
@@ -69,8 +181,11 @@ export default function NewIncidentPage() {
             />
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="description" className="text-sm font-medium text-text/90">
-                Description
+              <label
+                htmlFor="description"
+                className="text-sm font-medium text-text/90"
+              >
+                Report
               </label>
               <textarea
                 id="description"
@@ -81,28 +196,25 @@ export default function NewIncidentPage() {
                 {...register("description")}
               />
               {errors.description && (
-                <p className="text-sm text-danger" role="alert">{errors.description.message}</p>
+                <p className="text-sm text-danger" role="alert">
+                  {errors.description.message}
+                </p>
               )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Input
                 label="Type"
-                placeholder="e.g. equipment_failure"
+                placeholder="e.g. Attempted house break in"
                 error={errors.type?.message}
                 {...register("type")}
               />
-              <Input
-                label="Category"
-                placeholder="e.g. Infrastructure"
-                error={errors.category?.message}
-                {...register("category")}
-              />
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="severity" className="text-sm font-medium text-text/90">
+                <label
+                  htmlFor="severity"
+                  className="text-sm font-medium text-text/90"
+                >
                   Severity
                 </label>
                 <select
@@ -116,30 +228,37 @@ export default function NewIncidentPage() {
                   <option value="critical">Critical</option>
                 </select>
                 {errors.severity && (
-                  <p className="text-sm text-danger" role="alert">{errors.severity.message}</p>
+                  <p className="text-sm text-danger" role="alert">
+                    {errors.severity.message}
+                  </p>
                 )}
               </div>
+            </div>
 
+            <div className="grid grid-cols-2 gap-4">
               <Input
                 label="Incident Date"
                 type="date"
                 error={errors.incidentDate?.message}
                 {...register("incidentDate")}
               />
+              <Input
+                label="Location"
+                placeholder="Where did it happen?"
+                error={errors.location?.message}
+                {...register("location")}
+              />
             </div>
-
-            <Input
-              label="Location"
-              placeholder="Where did it happen?"
-              error={errors.location?.message}
-              {...register("location")}
-            />
 
             <div className="flex gap-3 pt-2">
               <Button type="submit" loading={isSubmitting}>
                 Submit Report
               </Button>
-              <Button type="button" variant="secondary" onClick={() => router.push("/incidents")}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => router.push("/incidents")}
+              >
                 Cancel
               </Button>
             </div>

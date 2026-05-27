@@ -48,10 +48,19 @@ export type IncidentMinAggregateOutputType = {
   description: string | null
   type: string | null
   severity: $Enums.Severity | null
-  category: string | null
   status: $Enums.IncidentStatus | null
   incidentDate: Date | null
   location: string | null
+  operatorName: string | null
+  dispatcher: string | null
+  dispatchTime: Date | null
+  arrivalTime: Date | null
+  callSign: string | null
+  propertyAddress: string | null
+  clientName: string | null
+  clientCode: string | null
+  businessOrComplex: string | null
+  sapsReference: string | null
   reporterId: number | null
   assignedTo: number | null
   createdAt: Date | null
@@ -66,10 +75,19 @@ export type IncidentMaxAggregateOutputType = {
   description: string | null
   type: string | null
   severity: $Enums.Severity | null
-  category: string | null
   status: $Enums.IncidentStatus | null
   incidentDate: Date | null
   location: string | null
+  operatorName: string | null
+  dispatcher: string | null
+  dispatchTime: Date | null
+  arrivalTime: Date | null
+  callSign: string | null
+  propertyAddress: string | null
+  clientName: string | null
+  clientCode: string | null
+  businessOrComplex: string | null
+  sapsReference: string | null
   reporterId: number | null
   assignedTo: number | null
   createdAt: Date | null
@@ -84,10 +102,19 @@ export type IncidentCountAggregateOutputType = {
   description: number
   type: number
   severity: number
-  category: number
   status: number
   incidentDate: number
   location: number
+  operatorName: number
+  dispatcher: number
+  dispatchTime: number
+  arrivalTime: number
+  callSign: number
+  propertyAddress: number
+  clientName: number
+  clientCode: number
+  businessOrComplex: number
+  sapsReference: number
   reporterId: number
   assignedTo: number
   createdAt: number
@@ -118,10 +145,19 @@ export type IncidentMinAggregateInputType = {
   description?: true
   type?: true
   severity?: true
-  category?: true
   status?: true
   incidentDate?: true
   location?: true
+  operatorName?: true
+  dispatcher?: true
+  dispatchTime?: true
+  arrivalTime?: true
+  callSign?: true
+  propertyAddress?: true
+  clientName?: true
+  clientCode?: true
+  businessOrComplex?: true
+  sapsReference?: true
   reporterId?: true
   assignedTo?: true
   createdAt?: true
@@ -136,10 +172,19 @@ export type IncidentMaxAggregateInputType = {
   description?: true
   type?: true
   severity?: true
-  category?: true
   status?: true
   incidentDate?: true
   location?: true
+  operatorName?: true
+  dispatcher?: true
+  dispatchTime?: true
+  arrivalTime?: true
+  callSign?: true
+  propertyAddress?: true
+  clientName?: true
+  clientCode?: true
+  businessOrComplex?: true
+  sapsReference?: true
   reporterId?: true
   assignedTo?: true
   createdAt?: true
@@ -154,10 +199,19 @@ export type IncidentCountAggregateInputType = {
   description?: true
   type?: true
   severity?: true
-  category?: true
   status?: true
   incidentDate?: true
   location?: true
+  operatorName?: true
+  dispatcher?: true
+  dispatchTime?: true
+  arrivalTime?: true
+  callSign?: true
+  propertyAddress?: true
+  clientName?: true
+  clientCode?: true
+  businessOrComplex?: true
+  sapsReference?: true
   reporterId?: true
   assignedTo?: true
   createdAt?: true
@@ -259,10 +313,19 @@ export type IncidentGroupByOutputType = {
   description: string
   type: string
   severity: $Enums.Severity
-  category: string
   status: $Enums.IncidentStatus
   incidentDate: Date
   location: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime: Date | null
+  arrivalTime: Date | null
+  callSign: string | null
+  propertyAddress: string | null
+  clientName: string | null
+  clientCode: string | null
+  businessOrComplex: string | null
+  sapsReference: string | null
   reporterId: number
   assignedTo: number | null
   createdAt: Date
@@ -300,10 +363,19 @@ export type IncidentWhereInput = {
   description?: Prisma.StringFilter<"Incident"> | string
   type?: Prisma.StringFilter<"Incident"> | string
   severity?: Prisma.EnumSeverityFilter<"Incident"> | $Enums.Severity
-  category?: Prisma.StringFilter<"Incident"> | string
   status?: Prisma.EnumIncidentStatusFilter<"Incident"> | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFilter<"Incident"> | Date | string
   location?: Prisma.StringNullableFilter<"Incident"> | string | null
+  operatorName?: Prisma.StringFilter<"Incident"> | string
+  dispatcher?: Prisma.StringFilter<"Incident"> | string
+  dispatchTime?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
+  arrivalTime?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
+  callSign?: Prisma.StringNullableFilter<"Incident"> | string | null
+  propertyAddress?: Prisma.StringNullableFilter<"Incident"> | string | null
+  clientName?: Prisma.StringNullableFilter<"Incident"> | string | null
+  clientCode?: Prisma.StringNullableFilter<"Incident"> | string | null
+  businessOrComplex?: Prisma.StringNullableFilter<"Incident"> | string | null
+  sapsReference?: Prisma.StringNullableFilter<"Incident"> | string | null
   reporterId?: Prisma.IntFilter<"Incident"> | number
   assignedTo?: Prisma.IntNullableFilter<"Incident"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Incident"> | Date | string
@@ -326,10 +398,19 @@ export type IncidentOrderByWithRelationInput = {
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   severity?: Prisma.SortOrder
-  category?: Prisma.SortOrder
   status?: Prisma.SortOrder
   incidentDate?: Prisma.SortOrder
   location?: Prisma.SortOrderInput | Prisma.SortOrder
+  operatorName?: Prisma.SortOrder
+  dispatcher?: Prisma.SortOrder
+  dispatchTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  arrivalTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  callSign?: Prisma.SortOrderInput | Prisma.SortOrder
+  propertyAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientName?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  businessOrComplex?: Prisma.SortOrderInput | Prisma.SortOrder
+  sapsReference?: Prisma.SortOrderInput | Prisma.SortOrder
   reporterId?: Prisma.SortOrder
   assignedTo?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -356,10 +437,19 @@ export type IncidentWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringFilter<"Incident"> | string
   type?: Prisma.StringFilter<"Incident"> | string
   severity?: Prisma.EnumSeverityFilter<"Incident"> | $Enums.Severity
-  category?: Prisma.StringFilter<"Incident"> | string
   status?: Prisma.EnumIncidentStatusFilter<"Incident"> | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFilter<"Incident"> | Date | string
   location?: Prisma.StringNullableFilter<"Incident"> | string | null
+  operatorName?: Prisma.StringFilter<"Incident"> | string
+  dispatcher?: Prisma.StringFilter<"Incident"> | string
+  dispatchTime?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
+  arrivalTime?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
+  callSign?: Prisma.StringNullableFilter<"Incident"> | string | null
+  propertyAddress?: Prisma.StringNullableFilter<"Incident"> | string | null
+  clientName?: Prisma.StringNullableFilter<"Incident"> | string | null
+  clientCode?: Prisma.StringNullableFilter<"Incident"> | string | null
+  businessOrComplex?: Prisma.StringNullableFilter<"Incident"> | string | null
+  sapsReference?: Prisma.StringNullableFilter<"Incident"> | string | null
   reporterId?: Prisma.IntFilter<"Incident"> | number
   assignedTo?: Prisma.IntNullableFilter<"Incident"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Incident"> | Date | string
@@ -382,10 +472,19 @@ export type IncidentOrderByWithAggregationInput = {
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   severity?: Prisma.SortOrder
-  category?: Prisma.SortOrder
   status?: Prisma.SortOrder
   incidentDate?: Prisma.SortOrder
   location?: Prisma.SortOrderInput | Prisma.SortOrder
+  operatorName?: Prisma.SortOrder
+  dispatcher?: Prisma.SortOrder
+  dispatchTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  arrivalTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  callSign?: Prisma.SortOrderInput | Prisma.SortOrder
+  propertyAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientName?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  businessOrComplex?: Prisma.SortOrderInput | Prisma.SortOrder
+  sapsReference?: Prisma.SortOrderInput | Prisma.SortOrder
   reporterId?: Prisma.SortOrder
   assignedTo?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -408,10 +507,19 @@ export type IncidentScalarWhereWithAggregatesInput = {
   description?: Prisma.StringWithAggregatesFilter<"Incident"> | string
   type?: Prisma.StringWithAggregatesFilter<"Incident"> | string
   severity?: Prisma.EnumSeverityWithAggregatesFilter<"Incident"> | $Enums.Severity
-  category?: Prisma.StringWithAggregatesFilter<"Incident"> | string
   status?: Prisma.EnumIncidentStatusWithAggregatesFilter<"Incident"> | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeWithAggregatesFilter<"Incident"> | Date | string
   location?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
+  operatorName?: Prisma.StringWithAggregatesFilter<"Incident"> | string
+  dispatcher?: Prisma.StringWithAggregatesFilter<"Incident"> | string
+  dispatchTime?: Prisma.DateTimeNullableWithAggregatesFilter<"Incident"> | Date | string | null
+  arrivalTime?: Prisma.DateTimeNullableWithAggregatesFilter<"Incident"> | Date | string | null
+  callSign?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
+  propertyAddress?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
+  clientName?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
+  clientCode?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
+  businessOrComplex?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
+  sapsReference?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
   reporterId?: Prisma.IntWithAggregatesFilter<"Incident"> | number
   assignedTo?: Prisma.IntNullableWithAggregatesFilter<"Incident"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Incident"> | Date | string
@@ -424,10 +532,19 @@ export type IncidentCreateInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
@@ -448,10 +565,19 @@ export type IncidentUncheckedCreateInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   reporterId: number
   assignedTo?: number | null
   createdAt?: Date | string
@@ -469,10 +595,19 @@ export type IncidentUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
@@ -493,10 +628,19 @@ export type IncidentUncheckedUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reporterId?: Prisma.IntFieldUpdateOperationsInput | number
   assignedTo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -516,10 +660,19 @@ export type IncidentCreateManyInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   reporterId: number
   assignedTo?: number | null
   createdAt?: Date | string
@@ -532,10 +685,19 @@ export type IncidentUpdateManyMutationInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -548,10 +710,19 @@ export type IncidentUncheckedUpdateManyInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reporterId?: Prisma.IntFieldUpdateOperationsInput | number
   assignedTo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -582,10 +753,19 @@ export type IncidentCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   severity?: Prisma.SortOrder
-  category?: Prisma.SortOrder
   status?: Prisma.SortOrder
   incidentDate?: Prisma.SortOrder
   location?: Prisma.SortOrder
+  operatorName?: Prisma.SortOrder
+  dispatcher?: Prisma.SortOrder
+  dispatchTime?: Prisma.SortOrder
+  arrivalTime?: Prisma.SortOrder
+  callSign?: Prisma.SortOrder
+  propertyAddress?: Prisma.SortOrder
+  clientName?: Prisma.SortOrder
+  clientCode?: Prisma.SortOrder
+  businessOrComplex?: Prisma.SortOrder
+  sapsReference?: Prisma.SortOrder
   reporterId?: Prisma.SortOrder
   assignedTo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -607,10 +787,19 @@ export type IncidentMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   severity?: Prisma.SortOrder
-  category?: Prisma.SortOrder
   status?: Prisma.SortOrder
   incidentDate?: Prisma.SortOrder
   location?: Prisma.SortOrder
+  operatorName?: Prisma.SortOrder
+  dispatcher?: Prisma.SortOrder
+  dispatchTime?: Prisma.SortOrder
+  arrivalTime?: Prisma.SortOrder
+  callSign?: Prisma.SortOrder
+  propertyAddress?: Prisma.SortOrder
+  clientName?: Prisma.SortOrder
+  clientCode?: Prisma.SortOrder
+  businessOrComplex?: Prisma.SortOrder
+  sapsReference?: Prisma.SortOrder
   reporterId?: Prisma.SortOrder
   assignedTo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -625,10 +814,19 @@ export type IncidentMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   severity?: Prisma.SortOrder
-  category?: Prisma.SortOrder
   status?: Prisma.SortOrder
   incidentDate?: Prisma.SortOrder
   location?: Prisma.SortOrder
+  operatorName?: Prisma.SortOrder
+  dispatcher?: Prisma.SortOrder
+  dispatchTime?: Prisma.SortOrder
+  arrivalTime?: Prisma.SortOrder
+  callSign?: Prisma.SortOrder
+  propertyAddress?: Prisma.SortOrder
+  clientName?: Prisma.SortOrder
+  clientCode?: Prisma.SortOrder
+  businessOrComplex?: Prisma.SortOrder
+  sapsReference?: Prisma.SortOrder
   reporterId?: Prisma.SortOrder
   assignedTo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -785,6 +983,10 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type IncidentCreateNestedOneWithoutPeopleInput = {
   create?: Prisma.XOR<Prisma.IncidentCreateWithoutPeopleInput, Prisma.IncidentUncheckedCreateWithoutPeopleInput>
   connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutPeopleInput
@@ -861,10 +1063,19 @@ export type IncidentCreateWithoutCompanyInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
@@ -883,10 +1094,19 @@ export type IncidentUncheckedCreateWithoutCompanyInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   reporterId: number
   assignedTo?: number | null
   createdAt?: Date | string
@@ -935,10 +1155,19 @@ export type IncidentScalarWhereInput = {
   description?: Prisma.StringFilter<"Incident"> | string
   type?: Prisma.StringFilter<"Incident"> | string
   severity?: Prisma.EnumSeverityFilter<"Incident"> | $Enums.Severity
-  category?: Prisma.StringFilter<"Incident"> | string
   status?: Prisma.EnumIncidentStatusFilter<"Incident"> | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFilter<"Incident"> | Date | string
   location?: Prisma.StringNullableFilter<"Incident"> | string | null
+  operatorName?: Prisma.StringFilter<"Incident"> | string
+  dispatcher?: Prisma.StringFilter<"Incident"> | string
+  dispatchTime?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
+  arrivalTime?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
+  callSign?: Prisma.StringNullableFilter<"Incident"> | string | null
+  propertyAddress?: Prisma.StringNullableFilter<"Incident"> | string | null
+  clientName?: Prisma.StringNullableFilter<"Incident"> | string | null
+  clientCode?: Prisma.StringNullableFilter<"Incident"> | string | null
+  businessOrComplex?: Prisma.StringNullableFilter<"Incident"> | string | null
+  sapsReference?: Prisma.StringNullableFilter<"Incident"> | string | null
   reporterId?: Prisma.IntFilter<"Incident"> | number
   assignedTo?: Prisma.IntNullableFilter<"Incident"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Incident"> | Date | string
@@ -951,10 +1180,19 @@ export type IncidentCreateWithoutReporterInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
@@ -974,10 +1212,19 @@ export type IncidentUncheckedCreateWithoutReporterInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   assignedTo?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1004,10 +1251,19 @@ export type IncidentCreateWithoutAssignedInvestigatorInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
@@ -1027,10 +1283,19 @@ export type IncidentUncheckedCreateWithoutAssignedInvestigatorInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   reporterId: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1089,10 +1354,19 @@ export type IncidentCreateWithoutPeopleInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
@@ -1112,10 +1386,19 @@ export type IncidentUncheckedCreateWithoutPeopleInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   reporterId: number
   assignedTo?: number | null
   createdAt?: Date | string
@@ -1148,10 +1431,19 @@ export type IncidentUpdateWithoutPeopleInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
@@ -1171,10 +1463,19 @@ export type IncidentUncheckedUpdateWithoutPeopleInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reporterId?: Prisma.IntFieldUpdateOperationsInput | number
   assignedTo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1191,10 +1492,19 @@ export type IncidentCreateWithoutEvidenceInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
@@ -1214,10 +1524,19 @@ export type IncidentUncheckedCreateWithoutEvidenceInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   reporterId: number
   assignedTo?: number | null
   createdAt?: Date | string
@@ -1250,10 +1569,19 @@ export type IncidentUpdateWithoutEvidenceInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
@@ -1273,10 +1601,19 @@ export type IncidentUncheckedUpdateWithoutEvidenceInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reporterId?: Prisma.IntFieldUpdateOperationsInput | number
   assignedTo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1293,10 +1630,19 @@ export type IncidentCreateWithoutCommentsInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
@@ -1316,10 +1662,19 @@ export type IncidentUncheckedCreateWithoutCommentsInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   reporterId: number
   assignedTo?: number | null
   createdAt?: Date | string
@@ -1352,10 +1707,19 @@ export type IncidentUpdateWithoutCommentsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
@@ -1375,10 +1739,19 @@ export type IncidentUncheckedUpdateWithoutCommentsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reporterId?: Prisma.IntFieldUpdateOperationsInput | number
   assignedTo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1395,10 +1768,19 @@ export type IncidentCreateWithoutInvestigationInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
@@ -1418,10 +1800,19 @@ export type IncidentUncheckedCreateWithoutInvestigationInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   reporterId: number
   assignedTo?: number | null
   createdAt?: Date | string
@@ -1454,10 +1845,19 @@ export type IncidentUpdateWithoutInvestigationInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
@@ -1477,10 +1877,19 @@ export type IncidentUncheckedUpdateWithoutInvestigationInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reporterId?: Prisma.IntFieldUpdateOperationsInput | number
   assignedTo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1497,10 +1906,19 @@ export type IncidentCreateWithoutCorrectiveActionsInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
@@ -1520,10 +1938,19 @@ export type IncidentUncheckedCreateWithoutCorrectiveActionsInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   reporterId: number
   assignedTo?: number | null
   createdAt?: Date | string
@@ -1556,10 +1983,19 @@ export type IncidentUpdateWithoutCorrectiveActionsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
@@ -1579,10 +2015,19 @@ export type IncidentUncheckedUpdateWithoutCorrectiveActionsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reporterId?: Prisma.IntFieldUpdateOperationsInput | number
   assignedTo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1600,10 +2045,19 @@ export type IncidentCreateManyCompanyInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   reporterId: number
   assignedTo?: number | null
   createdAt?: Date | string
@@ -1616,10 +2070,19 @@ export type IncidentUpdateWithoutCompanyInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
@@ -1638,10 +2101,19 @@ export type IncidentUncheckedUpdateWithoutCompanyInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reporterId?: Prisma.IntFieldUpdateOperationsInput | number
   assignedTo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1660,10 +2132,19 @@ export type IncidentUncheckedUpdateManyWithoutCompanyInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reporterId?: Prisma.IntFieldUpdateOperationsInput | number
   assignedTo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1678,10 +2159,19 @@ export type IncidentCreateManyReporterInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   assignedTo?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1695,10 +2185,19 @@ export type IncidentCreateManyAssignedInvestigatorInput = {
   description: string
   type: string
   severity?: $Enums.Severity
-  category: string
   status?: $Enums.IncidentStatus
   incidentDate: Date | string
   location?: string | null
+  operatorName: string
+  dispatcher: string
+  dispatchTime?: Date | string | null
+  arrivalTime?: Date | string | null
+  callSign?: string | null
+  propertyAddress?: string | null
+  clientName?: string | null
+  clientCode?: string | null
+  businessOrComplex?: string | null
+  sapsReference?: string | null
   reporterId: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1710,10 +2209,19 @@ export type IncidentUpdateWithoutReporterInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
@@ -1733,10 +2241,19 @@ export type IncidentUncheckedUpdateWithoutReporterInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1755,10 +2272,19 @@ export type IncidentUncheckedUpdateManyWithoutReporterInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedTo?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1770,10 +2296,19 @@ export type IncidentUpdateWithoutAssignedInvestigatorInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
@@ -1793,10 +2328,19 @@ export type IncidentUncheckedUpdateWithoutAssignedInvestigatorInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reporterId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1815,10 +2359,19 @@ export type IncidentUncheckedUpdateManyWithoutAssignedInvestigatorInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   severity?: Prisma.EnumSeverityFieldUpdateOperationsInput | $Enums.Severity
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumIncidentStatusFieldUpdateOperationsInput | $Enums.IncidentStatus
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
+  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reporterId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1890,10 +2443,19 @@ export type IncidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   description?: boolean
   type?: boolean
   severity?: boolean
-  category?: boolean
   status?: boolean
   incidentDate?: boolean
   location?: boolean
+  operatorName?: boolean
+  dispatcher?: boolean
+  dispatchTime?: boolean
+  arrivalTime?: boolean
+  callSign?: boolean
+  propertyAddress?: boolean
+  clientName?: boolean
+  clientCode?: boolean
+  businessOrComplex?: boolean
+  sapsReference?: boolean
   reporterId?: boolean
   assignedTo?: boolean
   createdAt?: boolean
@@ -1919,17 +2481,26 @@ export type IncidentSelectScalar = {
   description?: boolean
   type?: boolean
   severity?: boolean
-  category?: boolean
   status?: boolean
   incidentDate?: boolean
   location?: boolean
+  operatorName?: boolean
+  dispatcher?: boolean
+  dispatchTime?: boolean
+  arrivalTime?: boolean
+  callSign?: boolean
+  propertyAddress?: boolean
+  clientName?: boolean
+  clientCode?: boolean
+  businessOrComplex?: boolean
+  sapsReference?: boolean
   reporterId?: boolean
   assignedTo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type IncidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "referenceNumber" | "title" | "description" | "type" | "severity" | "category" | "status" | "incidentDate" | "location" | "reporterId" | "assignedTo" | "createdAt" | "updatedAt", ExtArgs["result"]["incident"]>
+export type IncidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "referenceNumber" | "title" | "description" | "type" | "severity" | "status" | "incidentDate" | "location" | "operatorName" | "dispatcher" | "dispatchTime" | "arrivalTime" | "callSign" | "propertyAddress" | "clientName" | "clientCode" | "businessOrComplex" | "sapsReference" | "reporterId" | "assignedTo" | "createdAt" | "updatedAt", ExtArgs["result"]["incident"]>
 export type IncidentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   reporter?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1962,10 +2533,19 @@ export type $IncidentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     description: string
     type: string
     severity: $Enums.Severity
-    category: string
     status: $Enums.IncidentStatus
     incidentDate: Date
     location: string | null
+    operatorName: string
+    dispatcher: string
+    dispatchTime: Date | null
+    arrivalTime: Date | null
+    callSign: string | null
+    propertyAddress: string | null
+    clientName: string | null
+    clientCode: string | null
+    businessOrComplex: string | null
+    sapsReference: string | null
     reporterId: number
     assignedTo: number | null
     createdAt: Date
@@ -2354,10 +2934,19 @@ export interface IncidentFieldRefs {
   readonly description: Prisma.FieldRef<"Incident", 'String'>
   readonly type: Prisma.FieldRef<"Incident", 'String'>
   readonly severity: Prisma.FieldRef<"Incident", 'Severity'>
-  readonly category: Prisma.FieldRef<"Incident", 'String'>
   readonly status: Prisma.FieldRef<"Incident", 'IncidentStatus'>
   readonly incidentDate: Prisma.FieldRef<"Incident", 'DateTime'>
   readonly location: Prisma.FieldRef<"Incident", 'String'>
+  readonly operatorName: Prisma.FieldRef<"Incident", 'String'>
+  readonly dispatcher: Prisma.FieldRef<"Incident", 'String'>
+  readonly dispatchTime: Prisma.FieldRef<"Incident", 'DateTime'>
+  readonly arrivalTime: Prisma.FieldRef<"Incident", 'DateTime'>
+  readonly callSign: Prisma.FieldRef<"Incident", 'String'>
+  readonly propertyAddress: Prisma.FieldRef<"Incident", 'String'>
+  readonly clientName: Prisma.FieldRef<"Incident", 'String'>
+  readonly clientCode: Prisma.FieldRef<"Incident", 'String'>
+  readonly businessOrComplex: Prisma.FieldRef<"Incident", 'String'>
+  readonly sapsReference: Prisma.FieldRef<"Incident", 'String'>
   readonly reporterId: Prisma.FieldRef<"Incident", 'Int'>
   readonly assignedTo: Prisma.FieldRef<"Incident", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Incident", 'DateTime'>

@@ -17,8 +17,7 @@ CREATE TABLE `users` (
     `name` VARCHAR(255) NOT NULL,
     `email` VARCHAR(255) NOT NULL,
     `password_hash` VARCHAR(255) NOT NULL,
-    `role` ENUM('reporter', 'investigator', 'manager', 'admin') NOT NULL DEFAULT 'reporter',
-    `department` VARCHAR(255) NULL,
+    `role` ENUM('owner', 'manager', 'senior') NOT NULL DEFAULT 'senior',
     `status` VARCHAR(50) NOT NULL DEFAULT 'active',
     `created_by` INTEGER NULL,
     `created_at` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
@@ -39,10 +38,19 @@ CREATE TABLE `incidents` (
     `description` TEXT NOT NULL,
     `type` VARCHAR(100) NOT NULL,
     `severity` ENUM('low', 'medium', 'high', 'critical') NOT NULL DEFAULT 'medium',
-    `category` VARCHAR(100) NOT NULL,
     `status` ENUM('draft', 'submitted', 'under_review', 'assigned', 'investigating', 'resolved', 'closed', 'rejected') NOT NULL DEFAULT 'draft',
     `incident_date` DATETIME(0) NOT NULL,
     `location` VARCHAR(255) NULL,
+    `operator_name` VARCHAR(255) NOT NULL,
+    `dispatcher` VARCHAR(255) NOT NULL,
+    `dispatch_time` DATETIME(0) NULL,
+    `arrival_time` DATETIME(0) NULL,
+    `call_sign` VARCHAR(100) NULL,
+    `property_address` VARCHAR(500) NULL,
+    `client_name` VARCHAR(255) NULL,
+    `client_code` VARCHAR(100) NULL,
+    `business_or_complex` VARCHAR(255) NULL,
+    `saps_reference` VARCHAR(100) NULL,
     `reporter_id` INTEGER NOT NULL,
     `assigned_to` INTEGER NULL,
     `created_at` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
@@ -135,6 +143,86 @@ CREATE TABLE `corrective_actions` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `password_reset_tokens` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(255) NOT NULL,
+    `token_hash` VARCHAR(255) NOT NULL,
+    `expires_at` DATETIME(0) NOT NULL,
+    `used_at` DATETIME(0) NULL,
+    `created_at` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+
+    UNIQUE INDEX `password_reset_tokens_token_hash_key`(`token_hash`),
+    INDEX `password_reset_tokens_email_idx`(`email`),
+    INDEX `password_reset_tokens_token_hash_idx`(`token_hash`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `subscription_plans` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(100) NOT NULL,
+    `price` INTEGER NOT NULL,
+    `report_limit` INTEGER NOT NULL,
+    `user_limit` INTEGER NOT NULL,
+    `features` TEXT NOT NULL,
+    `highlighted` BOOLEAN NOT NULL DEFAULT false,
+    `created_at` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    `updated_at` DATETIME(0) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `company_subscriptions` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `company_id` INTEGER NOT NULL,
+    `plan_id` INTEGER NOT NULL,
+    `status` VARCHAR(50) NOT NULL DEFAULT 'active',
+    `paystack_subscription_code` VARCHAR(255) NULL,
+    `paystack_customer_code` VARCHAR(255) NULL,
+    `authorization_code` VARCHAR(255) NULL,
+    `current_period_start` DATETIME(0) NULL,
+    `current_period_end` DATETIME(0) NULL,
+    `created_at` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    `updated_at` DATETIME(0) NOT NULL,
+
+    UNIQUE INDEX `company_subscriptions_company_id_key`(`company_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `payment_history` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `company_id` INTEGER NOT NULL,
+    `amount` INTEGER NOT NULL,
+    `currency` VARCHAR(10) NOT NULL DEFAULT 'ZAR',
+    `reference` VARCHAR(255) NOT NULL,
+    `status` VARCHAR(50) NOT NULL DEFAULT 'pending',
+    `paystack_data` TEXT NULL,
+    `created_at` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+
+    UNIQUE INDEX `payment_history_reference_key`(`reference`),
+    INDEX `payment_history_company_id_idx`(`company_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `api_keys` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `company_id` INTEGER NOT NULL,
+    `name` VARCHAR(255) NOT NULL,
+    `key` VARCHAR(255) NOT NULL,
+    `last_used_at` DATETIME(0) NULL,
+    `active` BOOLEAN NOT NULL DEFAULT true,
+    `created_at` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+
+    UNIQUE INDEX `api_keys_key_key`(`key`),
+    INDEX `api_keys_company_id_idx`(`company_id`),
+    INDEX `api_keys_key_idx`(`key`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `audit_logs` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `entity_type` VARCHAR(100) NOT NULL,
@@ -189,6 +277,18 @@ ALTER TABLE `corrective_actions` ADD CONSTRAINT `corrective_actions_incident_id_
 
 -- AddForeignKey
 ALTER TABLE `corrective_actions` ADD CONSTRAINT `corrective_actions_owner_id_fkey` FOREIGN KEY (`owner_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `company_subscriptions` ADD CONSTRAINT `company_subscriptions_company_id_fkey` FOREIGN KEY (`company_id`) REFERENCES `companies`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `company_subscriptions` ADD CONSTRAINT `company_subscriptions_plan_id_fkey` FOREIGN KEY (`plan_id`) REFERENCES `subscription_plans`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `payment_history` ADD CONSTRAINT `payment_history_company_id_fkey` FOREIGN KEY (`company_id`) REFERENCES `companies`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `api_keys` ADD CONSTRAINT `api_keys_company_id_fkey` FOREIGN KEY (`company_id`) REFERENCES `companies`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `audit_logs` ADD CONSTRAINT `audit_logs_performed_by_fkey` FOREIGN KEY (`performed_by`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

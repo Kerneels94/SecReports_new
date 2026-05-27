@@ -11,8 +11,9 @@ describe("incident schemas", () => {
     description: "A description",
     type: "equipment_failure",
     severity: "high",
-    category: "Infrastructure",
     incidentDate: "2026-05-23",
+    operatorName: "John Operator",
+    dispatcher: "Jane Dispatcher",
   };
 
   describe("createIncidentSchema", () => {

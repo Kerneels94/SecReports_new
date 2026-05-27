@@ -7,6 +7,7 @@ import {
   paginationSchema,
 } from "../validators/incident.schema";
 import { ValidationError } from "../lib/errors";
+import { SubscriptionService } from "../services/subscription.service";
 
 export const IncidentController = {
   async list(request: FastifyRequest, reply: FastifyReply) {
@@ -30,6 +31,8 @@ export const IncidentController = {
   },
 
   async create(request: FastifyRequest, reply: FastifyReply) {
+    await SubscriptionService.canCreateIncident(request.user!.companyId);
+
     const parsed = createIncidentSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 

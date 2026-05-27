@@ -104,7 +104,6 @@ export default function IncidentsPage() {
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Severity</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Type</th>
-                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Category</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Reporter</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Date</th>
                   </tr>
@@ -141,7 +140,6 @@ export default function IncidentsPage() {
                         </Badge>
                       </td>
                       <td className="px-6 py-4 text-text-secondary">{incident.type}</td>
-                      <td className="px-6 py-4 text-text-secondary">{incident.category}</td>
                       <td className="px-6 py-4 text-text-secondary">{incident.reporter?.name || "-"}</td>
                       <td className="px-6 py-4 text-text-secondary">
                         {new Date(incident.createdAt).toLocaleDateString()}

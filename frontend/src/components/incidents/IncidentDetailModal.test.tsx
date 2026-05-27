@@ -34,10 +34,19 @@ const mockIncident = {
   description: "Unauthorized access detected in server room B.",
   type: "Security",
   severity: "critical",
-  category: "Infrastructure",
   status: "under_review",
   incidentDate: "2026-05-01T00:00:00Z",
   location: "Server Room B",
+  operatorName: "John Operator",
+  dispatcher: "Jane Dispatcher",
+  dispatchTime: "2026-05-01T08:30:00Z",
+  arrivalTime: "2026-05-01T08:45:00Z",
+  callSign: "AR-42",
+  propertyAddress: "123 Main St",
+  clientName: "Bob Client",
+  clientCode: "C-001",
+  businessOrComplex: "Biz Hub",
+  sapsReference: "SAPS-123",
   reporterId: 1,
   assignedTo: 2,
   createdAt: "2026-05-01T08:00:00Z",
@@ -73,10 +82,17 @@ describe("IncidentDetailModal", () => {
     });
 
     expect(screen.getByText("Security")).toBeInTheDocument();
-    expect(screen.getByText("Infrastructure")).toBeInTheDocument();
     expect(screen.getByText("Server Room B")).toBeInTheDocument();
     expect(screen.getByText("Alice")).toBeInTheDocument();
     expect(screen.getByText("Bob")).toBeInTheDocument();
+    expect(screen.getByText("John Operator")).toBeInTheDocument();
+    expect(screen.getByText("Jane Dispatcher")).toBeInTheDocument();
+    expect(screen.getByText("AR-42")).toBeInTheDocument();
+    expect(screen.getByText("123 Main St")).toBeInTheDocument();
+    expect(screen.getByText("Bob Client")).toBeInTheDocument();
+    expect(screen.getByText("C-001")).toBeInTheDocument();
+    expect(screen.getByText("Biz Hub")).toBeInTheDocument();
+    expect(screen.getByText("SAPS-123")).toBeInTheDocument();
   });
 
   it("shows error state with retry", async () => {
@@ -114,6 +130,14 @@ describe("IncidentDetailModal", () => {
         location: null,
         reporter: undefined,
         assignee: null,
+        dispatchTime: null,
+        arrivalTime: null,
+        callSign: null,
+        propertyAddress: null,
+        clientName: null,
+        clientCode: null,
+        businessOrComplex: null,
+        sapsReference: null,
       },
     });
 
@@ -145,6 +169,9 @@ describe("IncidentDetailModal", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Description")).toBeInTheDocument();
+      expect(screen.getByText("Personnel")).toBeInTheDocument();
+      expect(screen.getByText("Response")).toBeInTheDocument();
+      expect(screen.getByText("Client & Property")).toBeInTheDocument();
       expect(screen.getByText("Details")).toBeInTheDocument();
     });
   });

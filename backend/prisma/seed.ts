@@ -14,6 +14,10 @@ const adapter = new PrismaMariaDb({
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  await prisma.paymentHistory.deleteMany();
+  await prisma.companySubscription.deleteMany();
+  await prisma.subscriptionPlan.deleteMany();
+  await prisma.apiKey.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.correctiveAction.deleteMany();
   await prisma.investigation.deleteMany();
@@ -23,6 +27,37 @@ async function main() {
   await prisma.incident.deleteMany();
   await prisma.user.deleteMany();
   await prisma.company.deleteMany();
+
+  const starterPlan = await prisma.subscriptionPlan.create({
+    data: {
+      name: "Starter",
+      price: 0,
+      reportLimit: 20,
+      userLimit: 1,
+      features: JSON.stringify(["basic_crud", "status_changes", "email_notifications"]),
+    },
+  });
+
+  const professionalPlan = await prisma.subscriptionPlan.create({
+    data: {
+      name: "Professional",
+      price: 80000,
+      reportLimit: 50,
+      userLimit: 5,
+      features: JSON.stringify(["basic_crud", "status_changes", "email_notifications", "evidence_uploads", "export_csv_pdf", "priority_support"]),
+      highlighted: true,
+    },
+  });
+
+  await prisma.subscriptionPlan.create({
+    data: {
+      name: "Enterprise",
+      price: 150000,
+      reportLimit: 0,
+      userLimit: 0,
+      features: JSON.stringify(["basic_crud", "status_changes", "email_notifications", "evidence_uploads", "export_csv_pdf", "priority_support", "full_lifecycle", "api_access"]),
+    },
+  });
 
   const passwordHash = await bcrypt.hash("password123", 12);
 
@@ -39,8 +74,7 @@ async function main() {
       name: "Admin User",
       email: "admin@example.com",
       passwordHash,
-      role: "admin",
-      department: "Management",
+      role: "owner",
     },
   });
 
@@ -51,29 +85,24 @@ async function main() {
       email: "manager@example.com",
       passwordHash,
       role: "manager",
-      department: "Management",
     },
   });
 
-  const investigator = await prisma.user.create({
+  const senior = await prisma.user.create({
     data: {
       companyId: company.id,
-      name: "Investigator User",
-      email: "investigator@example.com",
+      name: "Senior User",
+      email: "senior@example.com",
       passwordHash,
-      role: "investigator",
-      department: "Security",
+      role: "senior",
     },
   });
 
-  const reporter = await prisma.user.create({
+  await prisma.companySubscription.create({
     data: {
       companyId: company.id,
-      name: "Reporter User",
-      email: "reporter@example.com",
-      passwordHash,
-      role: "reporter",
-      department: "Operations",
+      planId: starterPlan.id,
+      status: "active",
     },
   });
 
@@ -85,12 +114,13 @@ async function main() {
       description: "Temperature in server room A-12 exceeded safe threshold for 15 minutes.",
       type: "equipment_failure",
       severity: "high",
-      category: "Infrastructure",
       status: "investigating",
       incidentDate: new Date("2026-05-20"),
       location: "Server Room A-12",
-      reporterId: reporter.id,
-      assignedTo: investigator.id,
+      operatorName: "Admin User",
+      dispatcher: "Manager User",
+      reporterId: admin.id,
+      assignedTo: senior.id,
       people: {
         create: [
           {
@@ -108,7 +138,7 @@ async function main() {
   await prisma.comment.create({
     data: {
       incidentId: incident.id,
-      userId: reporter.id,
+      userId: senior.id,
       message: "I noticed the temperature alarm at approximately 14:30.",
     },
   });
@@ -116,7 +146,7 @@ async function main() {
   await prisma.comment.create({
     data: {
       incidentId: incident.id,
-      userId: investigator.id,
+      userId: admin.id,
       message: "I will inspect the HVAC system in the morning.",
     },
   });
@@ -134,7 +164,7 @@ async function main() {
     data: {
       incidentId: incident.id,
       description: "Replace failed cooling fan motor",
-      ownerId: investigator.id,
+      ownerId: senior.id,
       dueDate: new Date("2026-06-01"),
       status: "in_progress",
     },
@@ -146,7 +176,7 @@ async function main() {
       entityId: incident.id,
       action: "create",
       newValues: JSON.stringify({ title: incident.title, severity: incident.severity }),
-      performedBy: reporter.id,
+      performedBy: admin.id,
     },
   });
 
@@ -154,8 +184,7 @@ async function main() {
   console.log(`Company: Demo Security Inc.`);
   console.log(`Admin: admin@example.com / password123`);
   console.log(`Manager: manager@example.com / password123`);
-  console.log(`Investigator: investigator@example.com / password123`);
-  console.log(`Reporter: reporter@example.com / password123`);
+  console.log(`Senior: senior@example.com / password123`);
 }
 
 main()

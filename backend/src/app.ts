@@ -9,6 +9,12 @@ import { AppError } from "./lib/errors";
 import authRoutes from "./routes/auth.routes";
 import incidentRoutes from "./routes/incident.routes";
 import reportRoutes from "./routes/report.routes";
+import paystackRoutes from "./routes/paystack.routes";
+import webhookRoutes from "./routes/webhook.routes";
+import evidenceRoutes from "./routes/evidence.routes";
+import exportRoutes from "./routes/export.routes";
+import investigationRoutes from "./routes/investigation.routes";
+import apiKeyRoutes from "./routes/apiKey.routes";
 
 export async function buildApp() {
   const fastify = Fastify({ logger: true });
@@ -50,6 +56,12 @@ export async function buildApp() {
   await fastify.register(authRoutes);
   await fastify.register(incidentRoutes);
   await fastify.register(reportRoutes);
+  await fastify.register(paystackRoutes);
+  await fastify.register(webhookRoutes);
+  await fastify.register(evidenceRoutes);
+  await fastify.register(exportRoutes);
+  await fastify.register(investigationRoutes);
+  await fastify.register(apiKeyRoutes);
 
   fastify.setErrorHandler((error, request, reply) => {
     if (error instanceof AppError) {

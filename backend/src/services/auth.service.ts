@@ -4,6 +4,7 @@ import { hashPassword, comparePassword } from "../lib/hash";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../lib/jwt";
 import { UnauthorizedError, ConflictError, NotFoundError } from "../lib/errors";
 import { sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail } from "../lib/mail";
+import { SubscriptionService } from "./subscription.service";
 
 interface LoginParams {
   email: string;
@@ -118,6 +119,8 @@ export const AuthService = {
       return { company, user };
     });
 
+    await SubscriptionService.activateFreePlan(result.company.id);
+
     sendWelcomeEmail(result.user.email, result.user.name).catch((err) => console.error("[AuthService] Welcome email failed:", err));
 
     const payload = { userId: result.user.id, role: result.user.role, companyId: result.company.id };
@@ -142,6 +145,8 @@ export const AuthService = {
   },
 
   async createUser(params: CreateUserParams) {
+    await SubscriptionService.canAddUser(params.companyId);
+
     const existing = await prisma.user.findUnique({ where: { email: params.email } });
     if (existing) throw new ConflictError("Email already in use");
 

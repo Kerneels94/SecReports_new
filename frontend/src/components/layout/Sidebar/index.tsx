@@ -12,6 +12,8 @@ const navItems = [
   { href: "/admin/users", label: "Users", icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" },
 ];
 
+const settingsItem = { href: "/settings/billing", label: "Billing", icon: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" };
+
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -85,6 +87,21 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           })}
         </nav>
         <div className="p-3 border-t border-border-light">
+          <Link
+            href={settingsItem.href}
+            onClick={onClose}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 mb-2",
+              pathname.startsWith("/settings")
+                ? "text-primary bg-gradient-to-r from-primary/[0.08] to-transparent"
+                : "text-text-secondary hover:text-text hover:bg-surface-elevated/50",
+            )}
+          >
+            <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d={settingsItem.icon} />
+            </svg>
+            {settingsItem.label}
+          </Link>
           <div className="rounded-lg bg-gradient-to-r from-primary/[0.04] to-transparent px-3 py-2.5">
             <p className="text-[10px] text-text-secondary/50 tracking-wider uppercase">Version</p>
             <p className="text-xs text-text-secondary">2.0.0</p>

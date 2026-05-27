@@ -24,7 +24,6 @@ const mockIncidents = [
     severity: "critical",
     status: "under_review",
     type: "security",
-    category: "infrastructure",
     reporter: { name: "Alice" },
     createdAt: "2026-05-01T00:00:00Z",
   },
@@ -35,7 +34,6 @@ const mockIncidents = [
     severity: "medium",
     status: "submitted",
     type: "phishing",
-    category: "social",
     reporter: null,
     createdAt: "2026-05-15T00:00:00Z",
   },
@@ -88,7 +86,6 @@ describe("IncidentsPage", () => {
       severity: "low",
       status: "draft",
       type: "other",
-      category: "misc",
       reporter: null,
       createdAt: "2026-01-01T00:00:00Z",
     }));

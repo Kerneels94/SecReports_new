@@ -486,10 +486,6 @@ export type InvestigationUncheckedUpdateOneWithoutIncidentNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InvestigationUpdateToOneWithWhereWithoutIncidentInput, Prisma.InvestigationUpdateWithoutIncidentInput>, Prisma.InvestigationUncheckedUpdateWithoutIncidentInput>
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type InvestigationCreateWithoutIncidentInput = {
   findings?: string | null
   rootCause?: string | null

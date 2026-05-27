@@ -47,13 +47,21 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(134,239,172,0.03),transparent_50%)] pointer-events-none" />
       <Card variant="elevated" className="w-full max-w-sm animate-slide-up">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
-            <svg className="h-7 w-7 text-gray-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
+            <svg
+              className="h-7 w-7 text-gray-900"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <CardTitle>Welcome Back</CardTitle>
-          <p className="mt-1 text-sm text-text-secondary">Sign in to your account</p>
+          <p className="mt-1 text-sm text-text-secondary">
+            Sign in to your account
+          </p>
         </CardHeader>
         <CardContent>
           <div className="mb-4 flex rounded-xl bg-surface-elevated/40 p-1">
@@ -73,16 +81,24 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
             {error && (
-              <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+              <div
+                className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20"
+                role="alert"
+              >
                 {error}
               </div>
             )}
             <Input
               label="Email"
               type="email"
-              placeholder={tab === "company" ? "company@example.com" : "you@example.com"}
+              placeholder={
+                tab === "company" ? "company@example.com" : "you@example.com"
+              }
               error={errors.email?.message}
               {...register("email")}
             />
@@ -98,7 +114,10 @@ export default function LoginPage() {
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-text-secondary">
-            <a href="/forgot-password" className="text-primary hover:underline transition-colors">
+            <a
+              href="/forgot-password"
+              className="text-primary hover:underline transition-colors"
+            >
               Forgot password?
             </a>
           </p>

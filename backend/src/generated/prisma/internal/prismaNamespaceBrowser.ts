@@ -60,6 +60,10 @@ export const ModelName = {
   Investigation: 'Investigation',
   CorrectiveAction: 'CorrectiveAction',
   PasswordResetToken: 'PasswordResetToken',
+  SubscriptionPlan: 'SubscriptionPlan',
+  CompanySubscription: 'CompanySubscription',
+  PaymentHistory: 'PaymentHistory',
+  ApiKey: 'ApiKey',
   AuditLog: 'AuditLog'
 } as const
 
@@ -114,10 +118,19 @@ export const IncidentScalarFieldEnum = {
   description: 'description',
   type: 'type',
   severity: 'severity',
-  category: 'category',
   status: 'status',
   incidentDate: 'incidentDate',
   location: 'location',
+  operatorName: 'operatorName',
+  dispatcher: 'dispatcher',
+  dispatchTime: 'dispatchTime',
+  arrivalTime: 'arrivalTime',
+  callSign: 'callSign',
+  propertyAddress: 'propertyAddress',
+  clientName: 'clientName',
+  clientCode: 'clientCode',
+  businessOrComplex: 'businessOrComplex',
+  sapsReference: 'sapsReference',
   reporterId: 'reporterId',
   assignedTo: 'assignedTo',
   createdAt: 'createdAt',
@@ -207,6 +220,65 @@ export const PasswordResetTokenScalarFieldEnum = {
 export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
 
 
+export const SubscriptionPlanScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  price: 'price',
+  reportLimit: 'reportLimit',
+  userLimit: 'userLimit',
+  features: 'features',
+  highlighted: 'highlighted',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubscriptionPlanScalarFieldEnum = (typeof SubscriptionPlanScalarFieldEnum)[keyof typeof SubscriptionPlanScalarFieldEnum]
+
+
+export const CompanySubscriptionScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  planId: 'planId',
+  status: 'status',
+  paystackSubscriptionCode: 'paystackSubscriptionCode',
+  paystackCustomerCode: 'paystackCustomerCode',
+  authorizationCode: 'authorizationCode',
+  currentPeriodStart: 'currentPeriodStart',
+  currentPeriodEnd: 'currentPeriodEnd',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CompanySubscriptionScalarFieldEnum = (typeof CompanySubscriptionScalarFieldEnum)[keyof typeof CompanySubscriptionScalarFieldEnum]
+
+
+export const PaymentHistoryScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  amount: 'amount',
+  currency: 'currency',
+  reference: 'reference',
+  status: 'status',
+  paystackData: 'paystackData',
+  createdAt: 'createdAt'
+} as const
+
+export type PaymentHistoryScalarFieldEnum = (typeof PaymentHistoryScalarFieldEnum)[keyof typeof PaymentHistoryScalarFieldEnum]
+
+
+export const ApiKeyScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  name: 'name',
+  key: 'key',
+  lastUsedAt: 'lastUsedAt',
+  active: 'active',
+  createdAt: 'createdAt'
+} as const
+
+export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
+
+
 export const AuditLogScalarFieldEnum = {
   id: 'id',
   entityType: 'entityType',
@@ -260,8 +332,15 @@ export const IncidentOrderByRelevanceFieldEnum = {
   title: 'title',
   description: 'description',
   type: 'type',
-  category: 'category',
-  location: 'location'
+  location: 'location',
+  operatorName: 'operatorName',
+  dispatcher: 'dispatcher',
+  callSign: 'callSign',
+  propertyAddress: 'propertyAddress',
+  clientName: 'clientName',
+  clientCode: 'clientCode',
+  businessOrComplex: 'businessOrComplex',
+  sapsReference: 'sapsReference'
 } as const
 
 export type IncidentOrderByRelevanceFieldEnum = (typeof IncidentOrderByRelevanceFieldEnum)[keyof typeof IncidentOrderByRelevanceFieldEnum]
@@ -317,6 +396,42 @@ export const PasswordResetTokenOrderByRelevanceFieldEnum = {
 } as const
 
 export type PasswordResetTokenOrderByRelevanceFieldEnum = (typeof PasswordResetTokenOrderByRelevanceFieldEnum)[keyof typeof PasswordResetTokenOrderByRelevanceFieldEnum]
+
+
+export const SubscriptionPlanOrderByRelevanceFieldEnum = {
+  name: 'name',
+  features: 'features'
+} as const
+
+export type SubscriptionPlanOrderByRelevanceFieldEnum = (typeof SubscriptionPlanOrderByRelevanceFieldEnum)[keyof typeof SubscriptionPlanOrderByRelevanceFieldEnum]
+
+
+export const CompanySubscriptionOrderByRelevanceFieldEnum = {
+  status: 'status',
+  paystackSubscriptionCode: 'paystackSubscriptionCode',
+  paystackCustomerCode: 'paystackCustomerCode',
+  authorizationCode: 'authorizationCode'
+} as const
+
+export type CompanySubscriptionOrderByRelevanceFieldEnum = (typeof CompanySubscriptionOrderByRelevanceFieldEnum)[keyof typeof CompanySubscriptionOrderByRelevanceFieldEnum]
+
+
+export const PaymentHistoryOrderByRelevanceFieldEnum = {
+  currency: 'currency',
+  reference: 'reference',
+  status: 'status',
+  paystackData: 'paystackData'
+} as const
+
+export type PaymentHistoryOrderByRelevanceFieldEnum = (typeof PaymentHistoryOrderByRelevanceFieldEnum)[keyof typeof PaymentHistoryOrderByRelevanceFieldEnum]
+
+
+export const ApiKeyOrderByRelevanceFieldEnum = {
+  name: 'name',
+  key: 'key'
+} as const
+
+export type ApiKeyOrderByRelevanceFieldEnum = (typeof ApiKeyOrderByRelevanceFieldEnum)[keyof typeof ApiKeyOrderByRelevanceFieldEnum]
 
 
 export const AuditLogOrderByRelevanceFieldEnum = {

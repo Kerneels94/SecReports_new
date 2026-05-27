@@ -35,8 +35,16 @@ export default function ForgotPasswordPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(134,239,172,0.06),transparent_50%)] pointer-events-none" />
         <Card variant="elevated" className="w-full max-w-sm animate-slide-up">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
-              <svg className="h-6 w-6 text-gray-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
+              <svg
+                className="h-6 w-6 text-gray-900"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -47,7 +55,10 @@ export default function ForgotPasswordPage() {
               If an account with that email exists, a reset link has been sent.
             </p>
             <div className="mt-6 text-center">
-              <button onClick={() => router.push("/login")} className="text-sm font-medium text-primary hover:underline transition-colors">
+              <button
+                onClick={() => router.push("/login")}
+                className="text-sm font-medium text-primary hover:underline transition-colors"
+              >
                 Back to sign in
               </button>
             </div>
@@ -63,8 +74,16 @@ export default function ForgotPasswordPage() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(134,239,172,0.03),transparent_50%)] pointer-events-none" />
       <Card variant="elevated" className="w-full max-w-sm animate-slide-up">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
-            <svg className="h-6 w-6 text-gray-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
+            <svg
+              className="h-6 w-6 text-gray-900"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>
           </div>
@@ -89,7 +108,10 @@ export default function ForgotPasswordPage() {
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-text-secondary">
-            <button onClick={() => router.push("/login")} className="text-sm font-medium text-primary hover:underline transition-colors">
+            <button
+              onClick={() => router.push("/login")}
+              className="text-sm font-medium text-primary hover:underline transition-colors"
+            >
               Back to sign in
             </button>
           </p>

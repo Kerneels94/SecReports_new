@@ -85,8 +85,9 @@ describe("IncidentController", () => {
       description: "Desc",
       type: "equipment_failure",
       severity: "high",
-      category: "Infrastructure",
       incidentDate: "2026-01-01",
+      operatorName: "John Operator",
+      dispatcher: "Jane Dispatcher",
     };
 
     it("calls service with body plus companyId and reporterId, responds 201", async () => {

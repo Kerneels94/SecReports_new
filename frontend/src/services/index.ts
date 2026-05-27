@@ -97,3 +97,48 @@ export const userService = {
   update: (id: number, data: { name?: string; email?: string; role?: string }) =>
     api.patch<UserListItem>(`/auth/users/${id}`, data),
 };
+
+interface SubscriptionData {
+  id: number;
+  companyId: number;
+  planId: number;
+  status: string;
+  paystackSubscriptionCode: string | null;
+  paystackCustomerCode: string | null;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  plan: {
+    id: number;
+    name: string;
+    price: number;
+    reportLimit: number;
+    userLimit: number;
+    features: string;
+  };
+  usage: {
+    reports: number;
+    users: number;
+  };
+}
+
+interface PaymentHistoryItem {
+  id: number;
+  companyId: number;
+  amount: number;
+  currency: string;
+  reference: string;
+  status: string;
+  createdAt: string;
+}
+
+interface UpgradeResponse {
+  authorizationUrl: string;
+  reference: string;
+}
+
+export const paymentService = {
+  getSubscription: () => api.get<SubscriptionData>("/payments/subscription"),
+  upgrade: (planId: number) => api.post<UpgradeResponse>("/payments/upgrade", { planId }),
+  cancel: () => api.post<SubscriptionData>("/payments/cancel"),
+  history: () => api.get<PaymentHistoryItem[]>("/payments/history"),
+};

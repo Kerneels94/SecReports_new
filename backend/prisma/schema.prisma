@@ -54,8 +54,11 @@ model Company {
   createdAt DateTime @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(0)
 
-  users     User[]
-  incidents Incident[]
+  users            User[]
+  incidents        Incident[]
+  subscription     CompanySubscription?
+  payments         PaymentHistory[]
+  apiKeys          ApiKey[]
 
   @@map("companies")
 }
@@ -93,16 +96,25 @@ model Incident {
   referenceNumber String         @unique @map("reference_number") @db.VarChar(50)
   title           String         @db.VarChar(255)
   description     String         @db.Text
-  type            String         @db.VarChar(100)
-  severity        Severity       @default(medium)
-  category        String         @db.VarChar(100)
-  status          IncidentStatus @default(draft)
-  incidentDate    DateTime       @map("incident_date") @db.DateTime(0)
-  location        String?        @db.VarChar(255)
-  reporterId      Int            @map("reporter_id")
-  assignedTo      Int?           @map("assigned_to")
-  createdAt       DateTime       @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt       DateTime       @updatedAt @map("updated_at") @db.DateTime(0)
+  type              String          @db.VarChar(100)
+  severity          Severity        @default(medium)
+  status            IncidentStatus  @default(draft)
+  incidentDate      DateTime        @map("incident_date") @db.DateTime(0)
+  location          String?         @db.VarChar(255)
+  operatorName      String          @map("operator_name") @db.VarChar(255)
+  dispatcher        String          @map("dispatcher") @db.VarChar(255)
+  dispatchTime      DateTime?       @map("dispatch_time") @db.DateTime(0)
+  arrivalTime       DateTime?       @map("arrival_time") @db.DateTime(0)
+  callSign          String?         @map("call_sign") @db.VarChar(100)
+  propertyAddress   String?         @map("property_address") @db.VarChar(500)
+  clientName        String?         @map("client_name") @db.VarChar(255)
+  clientCode        String?         @map("client_code") @db.VarChar(100)
+  businessOrComplex String?         @map("business_or_complex") @db.VarChar(255)
+  sapsReference     String?         @map("saps_reference") @db.VarChar(100)
+  reporterId        Int             @map("reporter_id")
+  assignedTo        Int?            @map("assigned_to")
+  createdAt         DateTime        @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt         DateTime        @updatedAt @map("updated_at") @db.DateTime(0)
 
   company           Company            @relation(fields: [companyId], references: [id])
   reporter          User               @relation("reporter", fields: [reporterId], references: [id])
@@ -216,6 +228,73 @@ model PasswordResetToken {
   @@index([email])
   @@index([tokenHash])
   @@map("password_reset_tokens")
+}
+
+model SubscriptionPlan {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  price       Int      @map("price")
+  reportLimit Int      @map("report_limit")
+  userLimit   Int      @map("user_limit")
+  features    String   @db.Text
+  highlighted Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.DateTime(0)
+
+  subscriptions CompanySubscription[]
+
+  @@map("subscription_plans")
+}
+
+model CompanySubscription {
+  id                       Int       @id @default(autoincrement())
+  companyId                Int       @unique @map("company_id")
+  planId                   Int       @map("plan_id")
+  status                   String    @default("active") @db.VarChar(50)
+  paystackSubscriptionCode String?   @map("paystack_subscription_code") @db.VarChar(255)
+  paystackCustomerCode     String?   @map("paystack_customer_code") @db.VarChar(255)
+  authorizationCode        String?   @map("authorization_code") @db.VarChar(255)
+  currentPeriodStart       DateTime? @map("current_period_start") @db.DateTime(0)
+  currentPeriodEnd         DateTime? @map("current_period_end") @db.DateTime(0)
+  createdAt                DateTime  @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt                DateTime  @updatedAt @map("updated_at") @db.DateTime(0)
+
+  company Company          @relation(fields: [companyId], references: [id])
+  plan    SubscriptionPlan @relation(fields: [planId], references: [id])
+
+  @@map("company_subscriptions")
+}
+
+model PaymentHistory {
+  id           Int      @id @default(autoincrement())
+  companyId    Int      @map("company_id")
+  amount       Int      @map("amount")
+  currency     String   @default("ZAR") @db.VarChar(10)
+  reference    String   @unique @db.VarChar(255)
+  status       String   @default("pending") @db.VarChar(50)
+  paystackData String?  @map("paystack_data") @db.Text
+  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(0)
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@map("payment_history")
+}
+
+model ApiKey {
+  id         Int       @id @default(autoincrement())
+  companyId  Int       @map("company_id")
+  name       String    @db.VarChar(255)
+  key        String    @unique @db.VarChar(255)
+  lastUsedAt DateTime? @map("last_used_at") @db.DateTime(0)
+  active     Boolean   @default(true)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.DateTime(0)
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@index([key])
+  @@map("api_keys")
 }
 
 model AuditLog {
