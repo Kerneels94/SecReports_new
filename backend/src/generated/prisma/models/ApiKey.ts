@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -20,25 +20,13 @@ export type ApiKeyModel = runtime.Types.Result.DefaultSelection<Prisma.$ApiKeyPa
 
 export type AggregateApiKey = {
   _count: ApiKeyCountAggregateOutputType | null
-  _avg: ApiKeyAvgAggregateOutputType | null
-  _sum: ApiKeySumAggregateOutputType | null
   _min: ApiKeyMinAggregateOutputType | null
   _max: ApiKeyMaxAggregateOutputType | null
 }
 
-export type ApiKeyAvgAggregateOutputType = {
-  id: number | null
-  companyId: number | null
-}
-
-export type ApiKeySumAggregateOutputType = {
-  id: number | null
-  companyId: number | null
-}
-
 export type ApiKeyMinAggregateOutputType = {
-  id: number | null
-  companyId: number | null
+  id: string | null
+  companyId: string | null
   name: string | null
   key: string | null
   lastUsedAt: Date | null
@@ -47,8 +35,8 @@ export type ApiKeyMinAggregateOutputType = {
 }
 
 export type ApiKeyMaxAggregateOutputType = {
-  id: number | null
-  companyId: number | null
+  id: string | null
+  companyId: string | null
   name: string | null
   key: string | null
   lastUsedAt: Date | null
@@ -67,16 +55,6 @@ export type ApiKeyCountAggregateOutputType = {
   _all: number
 }
 
-
-export type ApiKeyAvgAggregateInputType = {
-  id?: true
-  companyId?: true
-}
-
-export type ApiKeySumAggregateInputType = {
-  id?: true
-  companyId?: true
-}
 
 export type ApiKeyMinAggregateInputType = {
   id?: true
@@ -147,18 +125,6 @@ export type ApiKeyAggregateArgs<ExtArgs extends runtime.Types.Extensions.Interna
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: ApiKeyAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: ApiKeySumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: ApiKeyMinAggregateInputType
@@ -189,28 +155,24 @@ export type ApiKeyGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   _count?: ApiKeyCountAggregateInputType | true
-  _avg?: ApiKeyAvgAggregateInputType
-  _sum?: ApiKeySumAggregateInputType
   _min?: ApiKeyMinAggregateInputType
   _max?: ApiKeyMaxAggregateInputType
 }
 
 export type ApiKeyGroupByOutputType = {
-  id: number
-  companyId: number
+  id: string
+  companyId: string
   name: string
   key: string
   lastUsedAt: Date | null
   active: boolean
   createdAt: Date
   _count: ApiKeyCountAggregateOutputType | null
-  _avg: ApiKeyAvgAggregateOutputType | null
-  _sum: ApiKeySumAggregateOutputType | null
   _min: ApiKeyMinAggregateOutputType | null
   _max: ApiKeyMaxAggregateOutputType | null
 }
 
-export type GetApiKeyGroupByPayload<T extends ApiKeyGroupByArgs> = Prisma.PrismaPromise<
+type GetApiKeyGroupByPayload<T extends ApiKeyGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ApiKeyGroupByOutputType, T['by']> &
       {
@@ -229,8 +191,8 @@ export type ApiKeyWhereInput = {
   AND?: Prisma.ApiKeyWhereInput | Prisma.ApiKeyWhereInput[]
   OR?: Prisma.ApiKeyWhereInput[]
   NOT?: Prisma.ApiKeyWhereInput | Prisma.ApiKeyWhereInput[]
-  id?: Prisma.IntFilter<"ApiKey"> | number
-  companyId?: Prisma.IntFilter<"ApiKey"> | number
+  id?: Prisma.StringFilter<"ApiKey"> | string
+  companyId?: Prisma.StringFilter<"ApiKey"> | string
   name?: Prisma.StringFilter<"ApiKey"> | string
   key?: Prisma.StringFilter<"ApiKey"> | string
   lastUsedAt?: Prisma.DateTimeNullableFilter<"ApiKey"> | Date | string | null
@@ -244,20 +206,19 @@ export type ApiKeyOrderByWithRelationInput = {
   companyId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   key?: Prisma.SortOrder
-  lastUsedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastUsedAt?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   company?: Prisma.CompanyOrderByWithRelationInput
-  _relevance?: Prisma.ApiKeyOrderByRelevanceInput
 }
 
 export type ApiKeyWhereUniqueInput = Prisma.AtLeast<{
-  id?: number
+  id?: string
   key?: string
   AND?: Prisma.ApiKeyWhereInput | Prisma.ApiKeyWhereInput[]
   OR?: Prisma.ApiKeyWhereInput[]
   NOT?: Prisma.ApiKeyWhereInput | Prisma.ApiKeyWhereInput[]
-  companyId?: Prisma.IntFilter<"ApiKey"> | number
+  companyId?: Prisma.StringFilter<"ApiKey"> | string
   name?: Prisma.StringFilter<"ApiKey"> | string
   lastUsedAt?: Prisma.DateTimeNullableFilter<"ApiKey"> | Date | string | null
   active?: Prisma.BoolFilter<"ApiKey"> | boolean
@@ -270,22 +231,20 @@ export type ApiKeyOrderByWithAggregationInput = {
   companyId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   key?: Prisma.SortOrder
-  lastUsedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastUsedAt?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ApiKeyCountOrderByAggregateInput
-  _avg?: Prisma.ApiKeyAvgOrderByAggregateInput
   _max?: Prisma.ApiKeyMaxOrderByAggregateInput
   _min?: Prisma.ApiKeyMinOrderByAggregateInput
-  _sum?: Prisma.ApiKeySumOrderByAggregateInput
 }
 
 export type ApiKeyScalarWhereWithAggregatesInput = {
   AND?: Prisma.ApiKeyScalarWhereWithAggregatesInput | Prisma.ApiKeyScalarWhereWithAggregatesInput[]
   OR?: Prisma.ApiKeyScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ApiKeyScalarWhereWithAggregatesInput | Prisma.ApiKeyScalarWhereWithAggregatesInput[]
-  id?: Prisma.IntWithAggregatesFilter<"ApiKey"> | number
-  companyId?: Prisma.IntWithAggregatesFilter<"ApiKey"> | number
+  id?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
+  companyId?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
   name?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
   key?: Prisma.StringWithAggregatesFilter<"ApiKey"> | string
   lastUsedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ApiKey"> | Date | string | null
@@ -294,6 +253,7 @@ export type ApiKeyScalarWhereWithAggregatesInput = {
 }
 
 export type ApiKeyCreateInput = {
+  id?: string
   name: string
   key: string
   lastUsedAt?: Date | string | null
@@ -303,8 +263,8 @@ export type ApiKeyCreateInput = {
 }
 
 export type ApiKeyUncheckedCreateInput = {
-  id?: number
-  companyId: number
+  id?: string
+  companyId: string
   name: string
   key: string
   lastUsedAt?: Date | string | null
@@ -322,8 +282,7 @@ export type ApiKeyUpdateInput = {
 }
 
 export type ApiKeyUncheckedUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -332,8 +291,8 @@ export type ApiKeyUncheckedUpdateInput = {
 }
 
 export type ApiKeyCreateManyInput = {
-  id?: number
-  companyId: number
+  id?: string
+  companyId: string
   name: string
   key: string
   lastUsedAt?: Date | string | null
@@ -350,8 +309,7 @@ export type ApiKeyUpdateManyMutationInput = {
 }
 
 export type ApiKeyUncheckedUpdateManyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -369,12 +327,6 @@ export type ApiKeyOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type ApiKeyOrderByRelevanceInput = {
-  fields: Prisma.ApiKeyOrderByRelevanceFieldEnum | Prisma.ApiKeyOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
-}
-
 export type ApiKeyCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
@@ -383,11 +335,6 @@ export type ApiKeyCountOrderByAggregateInput = {
   lastUsedAt?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-}
-
-export type ApiKeyAvgOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  companyId?: Prisma.SortOrder
 }
 
 export type ApiKeyMaxOrderByAggregateInput = {
@@ -408,11 +355,6 @@ export type ApiKeyMinOrderByAggregateInput = {
   lastUsedAt?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-}
-
-export type ApiKeySumOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  companyId?: Prisma.SortOrder
 }
 
 export type ApiKeyCreateNestedManyWithoutCompanyInput = {
@@ -458,6 +400,7 @@ export type ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput = {
 }
 
 export type ApiKeyCreateWithoutCompanyInput = {
+  id?: string
   name: string
   key: string
   lastUsedAt?: Date | string | null
@@ -466,7 +409,7 @@ export type ApiKeyCreateWithoutCompanyInput = {
 }
 
 export type ApiKeyUncheckedCreateWithoutCompanyInput = {
-  id?: number
+  id?: string
   name: string
   key: string
   lastUsedAt?: Date | string | null
@@ -481,7 +424,6 @@ export type ApiKeyCreateOrConnectWithoutCompanyInput = {
 
 export type ApiKeyCreateManyCompanyInputEnvelope = {
   data: Prisma.ApiKeyCreateManyCompanyInput | Prisma.ApiKeyCreateManyCompanyInput[]
-  skipDuplicates?: boolean
 }
 
 export type ApiKeyUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -504,8 +446,8 @@ export type ApiKeyScalarWhereInput = {
   AND?: Prisma.ApiKeyScalarWhereInput | Prisma.ApiKeyScalarWhereInput[]
   OR?: Prisma.ApiKeyScalarWhereInput[]
   NOT?: Prisma.ApiKeyScalarWhereInput | Prisma.ApiKeyScalarWhereInput[]
-  id?: Prisma.IntFilter<"ApiKey"> | number
-  companyId?: Prisma.IntFilter<"ApiKey"> | number
+  id?: Prisma.StringFilter<"ApiKey"> | string
+  companyId?: Prisma.StringFilter<"ApiKey"> | string
   name?: Prisma.StringFilter<"ApiKey"> | string
   key?: Prisma.StringFilter<"ApiKey"> | string
   lastUsedAt?: Prisma.DateTimeNullableFilter<"ApiKey"> | Date | string | null
@@ -514,7 +456,7 @@ export type ApiKeyScalarWhereInput = {
 }
 
 export type ApiKeyCreateManyCompanyInput = {
-  id?: number
+  id?: string
   name: string
   key: string
   lastUsedAt?: Date | string | null
@@ -531,7 +473,6 @@ export type ApiKeyUpdateWithoutCompanyInput = {
 }
 
 export type ApiKeyUncheckedUpdateWithoutCompanyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -540,7 +481,6 @@ export type ApiKeyUncheckedUpdateWithoutCompanyInput = {
 }
 
 export type ApiKeyUncheckedUpdateManyWithoutCompanyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -584,8 +524,8 @@ export type $ApiKeyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     company: Prisma.$CompanyPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    id: number
-    companyId: number
+    id: string
+    companyId: string
     name: string
     key: string
     lastUsedAt: Date | null
@@ -791,6 +731,29 @@ export interface ApiKeyDelegate<ExtArgs extends runtime.Types.Extensions.Interna
    */
   upsert<T extends ApiKeyUpsertArgs>(args: Prisma.SelectSubset<T, ApiKeyUpsertArgs<ExtArgs>>): Prisma.Prisma__ApiKeyClient<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
+  /**
+   * Find zero or more ApiKeys that matches the filter.
+   * @param {ApiKeyFindRawArgs} args - Select which filters you would like to apply.
+   * @example
+   * const apiKey = await prisma.apiKey.findRaw({
+   *   filter: { age: { $gt: 25 } }
+   * })
+   */
+  findRaw(args?: Prisma.ApiKeyFindRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
+  /**
+   * Perform aggregation operations on a ApiKey.
+   * @param {ApiKeyAggregateRawArgs} args - Select which aggregations you would like to apply.
+   * @example
+   * const apiKey = await prisma.apiKey.aggregateRaw({
+   *   pipeline: [
+   *     { $match: { status: "registered" } },
+   *     { $group: { _id: "$country", total: { $sum: 1 } } }
+   *   ]
+   * })
+   */
+  aggregateRaw(args?: Prisma.ApiKeyAggregateRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
 
   /**
    * Count the number of ApiKeys.
@@ -961,8 +924,8 @@ export interface Prisma__ApiKeyClient<T, Null = never, ExtArgs extends runtime.T
  * Fields of the ApiKey model
  */
 export interface ApiKeyFieldRefs {
-  readonly id: Prisma.FieldRef<"ApiKey", 'Int'>
-  readonly companyId: Prisma.FieldRef<"ApiKey", 'Int'>
+  readonly id: Prisma.FieldRef<"ApiKey", 'String'>
+  readonly companyId: Prisma.FieldRef<"ApiKey", 'String'>
   readonly name: Prisma.FieldRef<"ApiKey", 'String'>
   readonly key: Prisma.FieldRef<"ApiKey", 'String'>
   readonly lastUsedAt: Prisma.FieldRef<"ApiKey", 'DateTime'>
@@ -1164,11 +1127,6 @@ export type ApiKeyFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Skip the first `n` ApiKeys.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of ApiKeys.
-   */
   distinct?: Prisma.ApiKeyScalarFieldEnum | Prisma.ApiKeyScalarFieldEnum[]
 }
 
@@ -1202,7 +1160,6 @@ export type ApiKeyCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * The data used to create many ApiKeys.
    */
   data: Prisma.ApiKeyCreateManyInput | Prisma.ApiKeyCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1313,6 +1270,34 @@ export type ApiKeyDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Limit how many ApiKeys to delete.
    */
   limit?: number
+}
+
+/**
+ * ApiKey findRaw
+ */
+export type ApiKeyFindRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+   */
+  filter?: runtime.InputJsonValue
+  /**
+   * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
+}
+
+/**
+ * ApiKey aggregateRaw
+ */
+export type ApiKeyAggregateRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+   */
+  pipeline?: runtime.InputJsonValue[]
+  /**
+   * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
 }
 
 /**

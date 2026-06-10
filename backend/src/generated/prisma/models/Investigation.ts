@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -20,25 +20,13 @@ export type InvestigationModel = runtime.Types.Result.DefaultSelection<Prisma.$I
 
 export type AggregateInvestigation = {
   _count: InvestigationCountAggregateOutputType | null
-  _avg: InvestigationAvgAggregateOutputType | null
-  _sum: InvestigationSumAggregateOutputType | null
   _min: InvestigationMinAggregateOutputType | null
   _max: InvestigationMaxAggregateOutputType | null
 }
 
-export type InvestigationAvgAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
-}
-
-export type InvestigationSumAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
-}
-
 export type InvestigationMinAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
+  id: string | null
+  incidentId: string | null
   findings: string | null
   rootCause: string | null
   recommendations: string | null
@@ -49,8 +37,8 @@ export type InvestigationMinAggregateOutputType = {
 }
 
 export type InvestigationMaxAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
+  id: string | null
+  incidentId: string | null
   findings: string | null
   rootCause: string | null
   recommendations: string | null
@@ -73,16 +61,6 @@ export type InvestigationCountAggregateOutputType = {
   _all: number
 }
 
-
-export type InvestigationAvgAggregateInputType = {
-  id?: true
-  incidentId?: true
-}
-
-export type InvestigationSumAggregateInputType = {
-  id?: true
-  incidentId?: true
-}
 
 export type InvestigationMinAggregateInputType = {
   id?: true
@@ -159,18 +137,6 @@ export type InvestigationAggregateArgs<ExtArgs extends runtime.Types.Extensions.
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: InvestigationAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: InvestigationSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: InvestigationMinAggregateInputType
@@ -201,15 +167,13 @@ export type InvestigationGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   _count?: InvestigationCountAggregateInputType | true
-  _avg?: InvestigationAvgAggregateInputType
-  _sum?: InvestigationSumAggregateInputType
   _min?: InvestigationMinAggregateInputType
   _max?: InvestigationMaxAggregateInputType
 }
 
 export type InvestigationGroupByOutputType = {
-  id: number
-  incidentId: number
+  id: string
+  incidentId: string
   findings: string | null
   rootCause: string | null
   recommendations: string | null
@@ -218,13 +182,11 @@ export type InvestigationGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: InvestigationCountAggregateOutputType | null
-  _avg: InvestigationAvgAggregateOutputType | null
-  _sum: InvestigationSumAggregateOutputType | null
   _min: InvestigationMinAggregateOutputType | null
   _max: InvestigationMaxAggregateOutputType | null
 }
 
-export type GetInvestigationGroupByPayload<T extends InvestigationGroupByArgs> = Prisma.PrismaPromise<
+type GetInvestigationGroupByPayload<T extends InvestigationGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<InvestigationGroupByOutputType, T['by']> &
       {
@@ -243,8 +205,8 @@ export type InvestigationWhereInput = {
   AND?: Prisma.InvestigationWhereInput | Prisma.InvestigationWhereInput[]
   OR?: Prisma.InvestigationWhereInput[]
   NOT?: Prisma.InvestigationWhereInput | Prisma.InvestigationWhereInput[]
-  id?: Prisma.IntFilter<"Investigation"> | number
-  incidentId?: Prisma.IntFilter<"Investigation"> | number
+  id?: Prisma.StringFilter<"Investigation"> | string
+  incidentId?: Prisma.StringFilter<"Investigation"> | string
   findings?: Prisma.StringNullableFilter<"Investigation"> | string | null
   rootCause?: Prisma.StringNullableFilter<"Investigation"> | string | null
   recommendations?: Prisma.StringNullableFilter<"Investigation"> | string | null
@@ -258,20 +220,19 @@ export type InvestigationWhereInput = {
 export type InvestigationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   incidentId?: Prisma.SortOrder
-  findings?: Prisma.SortOrderInput | Prisma.SortOrder
-  rootCause?: Prisma.SortOrderInput | Prisma.SortOrder
-  recommendations?: Prisma.SortOrderInput | Prisma.SortOrder
-  closureNotes?: Prisma.SortOrderInput | Prisma.SortOrder
-  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  findings?: Prisma.SortOrder
+  rootCause?: Prisma.SortOrder
+  recommendations?: Prisma.SortOrder
+  closureNotes?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   incident?: Prisma.IncidentOrderByWithRelationInput
-  _relevance?: Prisma.InvestigationOrderByRelevanceInput
 }
 
 export type InvestigationWhereUniqueInput = Prisma.AtLeast<{
-  id?: number
-  incidentId?: number
+  id?: string
+  incidentId?: string
   AND?: Prisma.InvestigationWhereInput | Prisma.InvestigationWhereInput[]
   OR?: Prisma.InvestigationWhereInput[]
   NOT?: Prisma.InvestigationWhereInput | Prisma.InvestigationWhereInput[]
@@ -288,26 +249,24 @@ export type InvestigationWhereUniqueInput = Prisma.AtLeast<{
 export type InvestigationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   incidentId?: Prisma.SortOrder
-  findings?: Prisma.SortOrderInput | Prisma.SortOrder
-  rootCause?: Prisma.SortOrderInput | Prisma.SortOrder
-  recommendations?: Prisma.SortOrderInput | Prisma.SortOrder
-  closureNotes?: Prisma.SortOrderInput | Prisma.SortOrder
-  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  findings?: Prisma.SortOrder
+  rootCause?: Prisma.SortOrder
+  recommendations?: Prisma.SortOrder
+  closureNotes?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.InvestigationCountOrderByAggregateInput
-  _avg?: Prisma.InvestigationAvgOrderByAggregateInput
   _max?: Prisma.InvestigationMaxOrderByAggregateInput
   _min?: Prisma.InvestigationMinOrderByAggregateInput
-  _sum?: Prisma.InvestigationSumOrderByAggregateInput
 }
 
 export type InvestigationScalarWhereWithAggregatesInput = {
   AND?: Prisma.InvestigationScalarWhereWithAggregatesInput | Prisma.InvestigationScalarWhereWithAggregatesInput[]
   OR?: Prisma.InvestigationScalarWhereWithAggregatesInput[]
   NOT?: Prisma.InvestigationScalarWhereWithAggregatesInput | Prisma.InvestigationScalarWhereWithAggregatesInput[]
-  id?: Prisma.IntWithAggregatesFilter<"Investigation"> | number
-  incidentId?: Prisma.IntWithAggregatesFilter<"Investigation"> | number
+  id?: Prisma.StringWithAggregatesFilter<"Investigation"> | string
+  incidentId?: Prisma.StringWithAggregatesFilter<"Investigation"> | string
   findings?: Prisma.StringNullableWithAggregatesFilter<"Investigation"> | string | null
   rootCause?: Prisma.StringNullableWithAggregatesFilter<"Investigation"> | string | null
   recommendations?: Prisma.StringNullableWithAggregatesFilter<"Investigation"> | string | null
@@ -318,6 +277,7 @@ export type InvestigationScalarWhereWithAggregatesInput = {
 }
 
 export type InvestigationCreateInput = {
+  id?: string
   findings?: string | null
   rootCause?: string | null
   recommendations?: string | null
@@ -329,8 +289,8 @@ export type InvestigationCreateInput = {
 }
 
 export type InvestigationUncheckedCreateInput = {
-  id?: number
-  incidentId: number
+  id?: string
+  incidentId: string
   findings?: string | null
   rootCause?: string | null
   recommendations?: string | null
@@ -352,8 +312,7 @@ export type InvestigationUpdateInput = {
 }
 
 export type InvestigationUncheckedUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  incidentId?: Prisma.IntFieldUpdateOperationsInput | number
+  incidentId?: Prisma.StringFieldUpdateOperationsInput | string
   findings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rootCause?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recommendations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -364,8 +323,8 @@ export type InvestigationUncheckedUpdateInput = {
 }
 
 export type InvestigationCreateManyInput = {
-  id?: number
-  incidentId: number
+  id?: string
+  incidentId: string
   findings?: string | null
   rootCause?: string | null
   recommendations?: string | null
@@ -386,8 +345,7 @@ export type InvestigationUpdateManyMutationInput = {
 }
 
 export type InvestigationUncheckedUpdateManyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  incidentId?: Prisma.IntFieldUpdateOperationsInput | number
+  incidentId?: Prisma.StringFieldUpdateOperationsInput | string
   findings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rootCause?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recommendations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -402,12 +360,6 @@ export type InvestigationNullableScalarRelationFilter = {
   isNot?: Prisma.InvestigationWhereInput | null
 }
 
-export type InvestigationOrderByRelevanceInput = {
-  fields: Prisma.InvestigationOrderByRelevanceFieldEnum | Prisma.InvestigationOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
-}
-
 export type InvestigationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   incidentId?: Prisma.SortOrder
@@ -418,11 +370,6 @@ export type InvestigationCountOrderByAggregateInput = {
   completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type InvestigationAvgOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  incidentId?: Prisma.SortOrder
 }
 
 export type InvestigationMaxOrderByAggregateInput = {
@@ -447,11 +394,6 @@ export type InvestigationMinOrderByAggregateInput = {
   completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type InvestigationSumOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  incidentId?: Prisma.SortOrder
 }
 
 export type InvestigationCreateNestedOneWithoutIncidentInput = {
@@ -487,6 +429,7 @@ export type InvestigationUncheckedUpdateOneWithoutIncidentNestedInput = {
 }
 
 export type InvestigationCreateWithoutIncidentInput = {
+  id?: string
   findings?: string | null
   rootCause?: string | null
   recommendations?: string | null
@@ -497,7 +440,7 @@ export type InvestigationCreateWithoutIncidentInput = {
 }
 
 export type InvestigationUncheckedCreateWithoutIncidentInput = {
-  id?: number
+  id?: string
   findings?: string | null
   rootCause?: string | null
   recommendations?: string | null
@@ -534,7 +477,6 @@ export type InvestigationUpdateWithoutIncidentInput = {
 }
 
 export type InvestigationUncheckedUpdateWithoutIncidentInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   findings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rootCause?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recommendations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -584,8 +526,8 @@ export type $InvestigationPayload<ExtArgs extends runtime.Types.Extensions.Inter
     incident: Prisma.$IncidentPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    id: number
-    incidentId: number
+    id: string
+    incidentId: string
     findings: string | null
     rootCause: string | null
     recommendations: string | null
@@ -793,6 +735,29 @@ export interface InvestigationDelegate<ExtArgs extends runtime.Types.Extensions.
    */
   upsert<T extends InvestigationUpsertArgs>(args: Prisma.SelectSubset<T, InvestigationUpsertArgs<ExtArgs>>): Prisma.Prisma__InvestigationClient<runtime.Types.Result.GetResult<Prisma.$InvestigationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
+  /**
+   * Find zero or more Investigations that matches the filter.
+   * @param {InvestigationFindRawArgs} args - Select which filters you would like to apply.
+   * @example
+   * const investigation = await prisma.investigation.findRaw({
+   *   filter: { age: { $gt: 25 } }
+   * })
+   */
+  findRaw(args?: Prisma.InvestigationFindRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
+  /**
+   * Perform aggregation operations on a Investigation.
+   * @param {InvestigationAggregateRawArgs} args - Select which aggregations you would like to apply.
+   * @example
+   * const investigation = await prisma.investigation.aggregateRaw({
+   *   pipeline: [
+   *     { $match: { status: "registered" } },
+   *     { $group: { _id: "$country", total: { $sum: 1 } } }
+   *   ]
+   * })
+   */
+  aggregateRaw(args?: Prisma.InvestigationAggregateRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
 
   /**
    * Count the number of Investigations.
@@ -963,8 +928,8 @@ export interface Prisma__InvestigationClient<T, Null = never, ExtArgs extends ru
  * Fields of the Investigation model
  */
 export interface InvestigationFieldRefs {
-  readonly id: Prisma.FieldRef<"Investigation", 'Int'>
-  readonly incidentId: Prisma.FieldRef<"Investigation", 'Int'>
+  readonly id: Prisma.FieldRef<"Investigation", 'String'>
+  readonly incidentId: Prisma.FieldRef<"Investigation", 'String'>
   readonly findings: Prisma.FieldRef<"Investigation", 'String'>
   readonly rootCause: Prisma.FieldRef<"Investigation", 'String'>
   readonly recommendations: Prisma.FieldRef<"Investigation", 'String'>
@@ -1168,11 +1133,6 @@ export type InvestigationFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Skip the first `n` Investigations.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of Investigations.
-   */
   distinct?: Prisma.InvestigationScalarFieldEnum | Prisma.InvestigationScalarFieldEnum[]
 }
 
@@ -1206,7 +1166,6 @@ export type InvestigationCreateManyArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many Investigations.
    */
   data: Prisma.InvestigationCreateManyInput | Prisma.InvestigationCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1317,6 +1276,34 @@ export type InvestigationDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many Investigations to delete.
    */
   limit?: number
+}
+
+/**
+ * Investigation findRaw
+ */
+export type InvestigationFindRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+   */
+  filter?: runtime.InputJsonValue
+  /**
+   * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
+}
+
+/**
+ * Investigation aggregateRaw
+ */
+export type InvestigationAggregateRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+   */
+  pipeline?: runtime.InputJsonValue[]
+  /**
+   * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
 }
 
 /**

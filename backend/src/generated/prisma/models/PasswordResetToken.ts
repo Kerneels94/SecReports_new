@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -20,22 +20,12 @@ export type PasswordResetTokenModel = runtime.Types.Result.DefaultSelection<Pris
 
 export type AggregatePasswordResetToken = {
   _count: PasswordResetTokenCountAggregateOutputType | null
-  _avg: PasswordResetTokenAvgAggregateOutputType | null
-  _sum: PasswordResetTokenSumAggregateOutputType | null
   _min: PasswordResetTokenMinAggregateOutputType | null
   _max: PasswordResetTokenMaxAggregateOutputType | null
 }
 
-export type PasswordResetTokenAvgAggregateOutputType = {
-  id: number | null
-}
-
-export type PasswordResetTokenSumAggregateOutputType = {
-  id: number | null
-}
-
 export type PasswordResetTokenMinAggregateOutputType = {
-  id: number | null
+  id: string | null
   email: string | null
   tokenHash: string | null
   expiresAt: Date | null
@@ -44,7 +34,7 @@ export type PasswordResetTokenMinAggregateOutputType = {
 }
 
 export type PasswordResetTokenMaxAggregateOutputType = {
-  id: number | null
+  id: string | null
   email: string | null
   tokenHash: string | null
   expiresAt: Date | null
@@ -62,14 +52,6 @@ export type PasswordResetTokenCountAggregateOutputType = {
   _all: number
 }
 
-
-export type PasswordResetTokenAvgAggregateInputType = {
-  id?: true
-}
-
-export type PasswordResetTokenSumAggregateInputType = {
-  id?: true
-}
 
 export type PasswordResetTokenMinAggregateInputType = {
   id?: true
@@ -137,18 +119,6 @@ export type PasswordResetTokenAggregateArgs<ExtArgs extends runtime.Types.Extens
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: PasswordResetTokenAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: PasswordResetTokenSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: PasswordResetTokenMinAggregateInputType
@@ -179,27 +149,23 @@ export type PasswordResetTokenGroupByArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   _count?: PasswordResetTokenCountAggregateInputType | true
-  _avg?: PasswordResetTokenAvgAggregateInputType
-  _sum?: PasswordResetTokenSumAggregateInputType
   _min?: PasswordResetTokenMinAggregateInputType
   _max?: PasswordResetTokenMaxAggregateInputType
 }
 
 export type PasswordResetTokenGroupByOutputType = {
-  id: number
+  id: string
   email: string
   tokenHash: string
   expiresAt: Date
   usedAt: Date | null
   createdAt: Date
   _count: PasswordResetTokenCountAggregateOutputType | null
-  _avg: PasswordResetTokenAvgAggregateOutputType | null
-  _sum: PasswordResetTokenSumAggregateOutputType | null
   _min: PasswordResetTokenMinAggregateOutputType | null
   _max: PasswordResetTokenMaxAggregateOutputType | null
 }
 
-export type GetPasswordResetTokenGroupByPayload<T extends PasswordResetTokenGroupByArgs> = Prisma.PrismaPromise<
+type GetPasswordResetTokenGroupByPayload<T extends PasswordResetTokenGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<PasswordResetTokenGroupByOutputType, T['by']> &
       {
@@ -218,7 +184,7 @@ export type PasswordResetTokenWhereInput = {
   AND?: Prisma.PasswordResetTokenWhereInput | Prisma.PasswordResetTokenWhereInput[]
   OR?: Prisma.PasswordResetTokenWhereInput[]
   NOT?: Prisma.PasswordResetTokenWhereInput | Prisma.PasswordResetTokenWhereInput[]
-  id?: Prisma.IntFilter<"PasswordResetToken"> | number
+  id?: Prisma.StringFilter<"PasswordResetToken"> | string
   email?: Prisma.StringFilter<"PasswordResetToken"> | string
   tokenHash?: Prisma.StringFilter<"PasswordResetToken"> | string
   expiresAt?: Prisma.DateTimeFilter<"PasswordResetToken"> | Date | string
@@ -231,13 +197,12 @@ export type PasswordResetTokenOrderByWithRelationInput = {
   email?: Prisma.SortOrder
   tokenHash?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
-  usedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  usedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  _relevance?: Prisma.PasswordResetTokenOrderByRelevanceInput
 }
 
 export type PasswordResetTokenWhereUniqueInput = Prisma.AtLeast<{
-  id?: number
+  id?: string
   tokenHash?: string
   AND?: Prisma.PasswordResetTokenWhereInput | Prisma.PasswordResetTokenWhereInput[]
   OR?: Prisma.PasswordResetTokenWhereInput[]
@@ -253,20 +218,18 @@ export type PasswordResetTokenOrderByWithAggregationInput = {
   email?: Prisma.SortOrder
   tokenHash?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
-  usedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  usedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.PasswordResetTokenCountOrderByAggregateInput
-  _avg?: Prisma.PasswordResetTokenAvgOrderByAggregateInput
   _max?: Prisma.PasswordResetTokenMaxOrderByAggregateInput
   _min?: Prisma.PasswordResetTokenMinOrderByAggregateInput
-  _sum?: Prisma.PasswordResetTokenSumOrderByAggregateInput
 }
 
 export type PasswordResetTokenScalarWhereWithAggregatesInput = {
   AND?: Prisma.PasswordResetTokenScalarWhereWithAggregatesInput | Prisma.PasswordResetTokenScalarWhereWithAggregatesInput[]
   OR?: Prisma.PasswordResetTokenScalarWhereWithAggregatesInput[]
   NOT?: Prisma.PasswordResetTokenScalarWhereWithAggregatesInput | Prisma.PasswordResetTokenScalarWhereWithAggregatesInput[]
-  id?: Prisma.IntWithAggregatesFilter<"PasswordResetToken"> | number
+  id?: Prisma.StringWithAggregatesFilter<"PasswordResetToken"> | string
   email?: Prisma.StringWithAggregatesFilter<"PasswordResetToken"> | string
   tokenHash?: Prisma.StringWithAggregatesFilter<"PasswordResetToken"> | string
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"PasswordResetToken"> | Date | string
@@ -275,6 +238,7 @@ export type PasswordResetTokenScalarWhereWithAggregatesInput = {
 }
 
 export type PasswordResetTokenCreateInput = {
+  id?: string
   email: string
   tokenHash: string
   expiresAt: Date | string
@@ -283,7 +247,7 @@ export type PasswordResetTokenCreateInput = {
 }
 
 export type PasswordResetTokenUncheckedCreateInput = {
-  id?: number
+  id?: string
   email: string
   tokenHash: string
   expiresAt: Date | string
@@ -300,7 +264,6 @@ export type PasswordResetTokenUpdateInput = {
 }
 
 export type PasswordResetTokenUncheckedUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   email?: Prisma.StringFieldUpdateOperationsInput | string
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -309,7 +272,7 @@ export type PasswordResetTokenUncheckedUpdateInput = {
 }
 
 export type PasswordResetTokenCreateManyInput = {
-  id?: number
+  id?: string
   email: string
   tokenHash: string
   expiresAt: Date | string
@@ -326,18 +289,11 @@ export type PasswordResetTokenUpdateManyMutationInput = {
 }
 
 export type PasswordResetTokenUncheckedUpdateManyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   email?: Prisma.StringFieldUpdateOperationsInput | string
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type PasswordResetTokenOrderByRelevanceInput = {
-  fields: Prisma.PasswordResetTokenOrderByRelevanceFieldEnum | Prisma.PasswordResetTokenOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type PasswordResetTokenCountOrderByAggregateInput = {
@@ -347,10 +303,6 @@ export type PasswordResetTokenCountOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   usedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-}
-
-export type PasswordResetTokenAvgOrderByAggregateInput = {
-  id?: Prisma.SortOrder
 }
 
 export type PasswordResetTokenMaxOrderByAggregateInput = {
@@ -369,10 +321,6 @@ export type PasswordResetTokenMinOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   usedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-}
-
-export type PasswordResetTokenSumOrderByAggregateInput = {
-  id?: Prisma.SortOrder
 }
 
 
@@ -403,7 +351,7 @@ export type $PasswordResetTokenPayload<ExtArgs extends runtime.Types.Extensions.
   name: "PasswordResetToken"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    id: number
+    id: string
     email: string
     tokenHash: string
     expiresAt: Date
@@ -609,6 +557,29 @@ export interface PasswordResetTokenDelegate<ExtArgs extends runtime.Types.Extens
    */
   upsert<T extends PasswordResetTokenUpsertArgs>(args: Prisma.SelectSubset<T, PasswordResetTokenUpsertArgs<ExtArgs>>): Prisma.Prisma__PasswordResetTokenClient<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
+  /**
+   * Find zero or more PasswordResetTokens that matches the filter.
+   * @param {PasswordResetTokenFindRawArgs} args - Select which filters you would like to apply.
+   * @example
+   * const passwordResetToken = await prisma.passwordResetToken.findRaw({
+   *   filter: { age: { $gt: 25 } }
+   * })
+   */
+  findRaw(args?: Prisma.PasswordResetTokenFindRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
+  /**
+   * Perform aggregation operations on a PasswordResetToken.
+   * @param {PasswordResetTokenAggregateRawArgs} args - Select which aggregations you would like to apply.
+   * @example
+   * const passwordResetToken = await prisma.passwordResetToken.aggregateRaw({
+   *   pipeline: [
+   *     { $match: { status: "registered" } },
+   *     { $group: { _id: "$country", total: { $sum: 1 } } }
+   *   ]
+   * })
+   */
+  aggregateRaw(args?: Prisma.PasswordResetTokenAggregateRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
 
   /**
    * Count the number of PasswordResetTokens.
@@ -778,7 +749,7 @@ export interface Prisma__PasswordResetTokenClient<T, Null = never, ExtArgs exten
  * Fields of the PasswordResetToken model
  */
 export interface PasswordResetTokenFieldRefs {
-  readonly id: Prisma.FieldRef<"PasswordResetToken", 'Int'>
+  readonly id: Prisma.FieldRef<"PasswordResetToken", 'String'>
   readonly email: Prisma.FieldRef<"PasswordResetToken", 'String'>
   readonly tokenHash: Prisma.FieldRef<"PasswordResetToken", 'String'>
   readonly expiresAt: Prisma.FieldRef<"PasswordResetToken", 'DateTime'>
@@ -960,11 +931,6 @@ export type PasswordResetTokenFindManyArgs<ExtArgs extends runtime.Types.Extensi
    * Skip the first `n` PasswordResetTokens.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of PasswordResetTokens.
-   */
   distinct?: Prisma.PasswordResetTokenScalarFieldEnum | Prisma.PasswordResetTokenScalarFieldEnum[]
 }
 
@@ -994,7 +960,6 @@ export type PasswordResetTokenCreateManyArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many PasswordResetTokens.
    */
   data: Prisma.PasswordResetTokenCreateManyInput | Prisma.PasswordResetTokenCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1093,6 +1058,34 @@ export type PasswordResetTokenDeleteManyArgs<ExtArgs extends runtime.Types.Exten
    * Limit how many PasswordResetTokens to delete.
    */
   limit?: number
+}
+
+/**
+ * PasswordResetToken findRaw
+ */
+export type PasswordResetTokenFindRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+   */
+  filter?: runtime.InputJsonValue
+  /**
+   * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
+}
+
+/**
+ * PasswordResetToken aggregateRaw
+ */
+export type PasswordResetTokenAggregateRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+   */
+  pipeline?: runtime.InputJsonValue[]
+  /**
+   * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
 }
 
 /**

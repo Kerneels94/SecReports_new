@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -27,40 +27,34 @@ export type AggregateEvidence = {
 }
 
 export type EvidenceAvgAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
   fileSize: number | null
-  uploadedBy: number | null
 }
 
 export type EvidenceSumAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
   fileSize: number | null
-  uploadedBy: number | null
 }
 
 export type EvidenceMinAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
+  id: string | null
+  incidentId: string | null
   fileName: string | null
   originalName: string | null
   mimeType: string | null
   fileSize: number | null
   checksum: string | null
-  uploadedBy: number | null
+  uploadedBy: string | null
   createdAt: Date | null
 }
 
 export type EvidenceMaxAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
+  id: string | null
+  incidentId: string | null
   fileName: string | null
   originalName: string | null
   mimeType: string | null
   fileSize: number | null
   checksum: string | null
-  uploadedBy: number | null
+  uploadedBy: string | null
   createdAt: Date | null
 }
 
@@ -79,17 +73,11 @@ export type EvidenceCountAggregateOutputType = {
 
 
 export type EvidenceAvgAggregateInputType = {
-  id?: true
-  incidentId?: true
   fileSize?: true
-  uploadedBy?: true
 }
 
 export type EvidenceSumAggregateInputType = {
-  id?: true
-  incidentId?: true
   fileSize?: true
-  uploadedBy?: true
 }
 
 export type EvidenceMinAggregateInputType = {
@@ -216,14 +204,14 @@ export type EvidenceGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 export type EvidenceGroupByOutputType = {
-  id: number
-  incidentId: number
+  id: string
+  incidentId: string
   fileName: string
   originalName: string
   mimeType: string
   fileSize: number
   checksum: string
-  uploadedBy: number
+  uploadedBy: string
   createdAt: Date
   _count: EvidenceCountAggregateOutputType | null
   _avg: EvidenceAvgAggregateOutputType | null
@@ -232,7 +220,7 @@ export type EvidenceGroupByOutputType = {
   _max: EvidenceMaxAggregateOutputType | null
 }
 
-export type GetEvidenceGroupByPayload<T extends EvidenceGroupByArgs> = Prisma.PrismaPromise<
+type GetEvidenceGroupByPayload<T extends EvidenceGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<EvidenceGroupByOutputType, T['by']> &
       {
@@ -251,14 +239,14 @@ export type EvidenceWhereInput = {
   AND?: Prisma.EvidenceWhereInput | Prisma.EvidenceWhereInput[]
   OR?: Prisma.EvidenceWhereInput[]
   NOT?: Prisma.EvidenceWhereInput | Prisma.EvidenceWhereInput[]
-  id?: Prisma.IntFilter<"Evidence"> | number
-  incidentId?: Prisma.IntFilter<"Evidence"> | number
+  id?: Prisma.StringFilter<"Evidence"> | string
+  incidentId?: Prisma.StringFilter<"Evidence"> | string
   fileName?: Prisma.StringFilter<"Evidence"> | string
   originalName?: Prisma.StringFilter<"Evidence"> | string
   mimeType?: Prisma.StringFilter<"Evidence"> | string
   fileSize?: Prisma.IntFilter<"Evidence"> | number
   checksum?: Prisma.StringFilter<"Evidence"> | string
-  uploadedBy?: Prisma.IntFilter<"Evidence"> | number
+  uploadedBy?: Prisma.StringFilter<"Evidence"> | string
   createdAt?: Prisma.DateTimeFilter<"Evidence"> | Date | string
   incident?: Prisma.XOR<Prisma.IncidentScalarRelationFilter, Prisma.IncidentWhereInput>
   uploader?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -276,21 +264,20 @@ export type EvidenceOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   incident?: Prisma.IncidentOrderByWithRelationInput
   uploader?: Prisma.UserOrderByWithRelationInput
-  _relevance?: Prisma.EvidenceOrderByRelevanceInput
 }
 
 export type EvidenceWhereUniqueInput = Prisma.AtLeast<{
-  id?: number
+  id?: string
   AND?: Prisma.EvidenceWhereInput | Prisma.EvidenceWhereInput[]
   OR?: Prisma.EvidenceWhereInput[]
   NOT?: Prisma.EvidenceWhereInput | Prisma.EvidenceWhereInput[]
-  incidentId?: Prisma.IntFilter<"Evidence"> | number
+  incidentId?: Prisma.StringFilter<"Evidence"> | string
   fileName?: Prisma.StringFilter<"Evidence"> | string
   originalName?: Prisma.StringFilter<"Evidence"> | string
   mimeType?: Prisma.StringFilter<"Evidence"> | string
   fileSize?: Prisma.IntFilter<"Evidence"> | number
   checksum?: Prisma.StringFilter<"Evidence"> | string
-  uploadedBy?: Prisma.IntFilter<"Evidence"> | number
+  uploadedBy?: Prisma.StringFilter<"Evidence"> | string
   createdAt?: Prisma.DateTimeFilter<"Evidence"> | Date | string
   incident?: Prisma.XOR<Prisma.IncidentScalarRelationFilter, Prisma.IncidentWhereInput>
   uploader?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -317,18 +304,19 @@ export type EvidenceScalarWhereWithAggregatesInput = {
   AND?: Prisma.EvidenceScalarWhereWithAggregatesInput | Prisma.EvidenceScalarWhereWithAggregatesInput[]
   OR?: Prisma.EvidenceScalarWhereWithAggregatesInput[]
   NOT?: Prisma.EvidenceScalarWhereWithAggregatesInput | Prisma.EvidenceScalarWhereWithAggregatesInput[]
-  id?: Prisma.IntWithAggregatesFilter<"Evidence"> | number
-  incidentId?: Prisma.IntWithAggregatesFilter<"Evidence"> | number
+  id?: Prisma.StringWithAggregatesFilter<"Evidence"> | string
+  incidentId?: Prisma.StringWithAggregatesFilter<"Evidence"> | string
   fileName?: Prisma.StringWithAggregatesFilter<"Evidence"> | string
   originalName?: Prisma.StringWithAggregatesFilter<"Evidence"> | string
   mimeType?: Prisma.StringWithAggregatesFilter<"Evidence"> | string
   fileSize?: Prisma.IntWithAggregatesFilter<"Evidence"> | number
   checksum?: Prisma.StringWithAggregatesFilter<"Evidence"> | string
-  uploadedBy?: Prisma.IntWithAggregatesFilter<"Evidence"> | number
+  uploadedBy?: Prisma.StringWithAggregatesFilter<"Evidence"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Evidence"> | Date | string
 }
 
 export type EvidenceCreateInput = {
+  id?: string
   fileName: string
   originalName: string
   mimeType: string
@@ -340,14 +328,14 @@ export type EvidenceCreateInput = {
 }
 
 export type EvidenceUncheckedCreateInput = {
-  id?: number
-  incidentId: number
+  id?: string
+  incidentId: string
   fileName: string
   originalName: string
   mimeType: string
   fileSize: number
   checksum: string
-  uploadedBy: number
+  uploadedBy: string
   createdAt?: Date | string
 }
 
@@ -363,26 +351,25 @@ export type EvidenceUpdateInput = {
 }
 
 export type EvidenceUncheckedUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  incidentId?: Prisma.IntFieldUpdateOperationsInput | number
+  incidentId?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   checksum?: Prisma.StringFieldUpdateOperationsInput | string
-  uploadedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  uploadedBy?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type EvidenceCreateManyInput = {
-  id?: number
-  incidentId: number
+  id?: string
+  incidentId: string
   fileName: string
   originalName: string
   mimeType: string
   fileSize: number
   checksum: string
-  uploadedBy: number
+  uploadedBy: string
   createdAt?: Date | string
 }
 
@@ -396,14 +383,13 @@ export type EvidenceUpdateManyMutationInput = {
 }
 
 export type EvidenceUncheckedUpdateManyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  incidentId?: Prisma.IntFieldUpdateOperationsInput | number
+  incidentId?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   checksum?: Prisma.StringFieldUpdateOperationsInput | string
-  uploadedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  uploadedBy?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -415,12 +401,6 @@ export type EvidenceListRelationFilter = {
 
 export type EvidenceOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type EvidenceOrderByRelevanceInput = {
-  fields: Prisma.EvidenceOrderByRelevanceFieldEnum | Prisma.EvidenceOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type EvidenceCountOrderByAggregateInput = {
@@ -436,10 +416,7 @@ export type EvidenceCountOrderByAggregateInput = {
 }
 
 export type EvidenceAvgOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  incidentId?: Prisma.SortOrder
   fileSize?: Prisma.SortOrder
-  uploadedBy?: Prisma.SortOrder
 }
 
 export type EvidenceMaxOrderByAggregateInput = {
@@ -467,10 +444,7 @@ export type EvidenceMinOrderByAggregateInput = {
 }
 
 export type EvidenceSumOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  incidentId?: Prisma.SortOrder
   fileSize?: Prisma.SortOrder
-  uploadedBy?: Prisma.SortOrder
 }
 
 export type EvidenceCreateNestedManyWithoutUploaderInput = {
@@ -557,7 +531,16 @@ export type EvidenceUncheckedUpdateManyWithoutIncidentNestedInput = {
   deleteMany?: Prisma.EvidenceScalarWhereInput | Prisma.EvidenceScalarWhereInput[]
 }
 
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type EvidenceCreateWithoutUploaderInput = {
+  id?: string
   fileName: string
   originalName: string
   mimeType: string
@@ -568,8 +551,8 @@ export type EvidenceCreateWithoutUploaderInput = {
 }
 
 export type EvidenceUncheckedCreateWithoutUploaderInput = {
-  id?: number
-  incidentId: number
+  id?: string
+  incidentId: string
   fileName: string
   originalName: string
   mimeType: string
@@ -585,7 +568,6 @@ export type EvidenceCreateOrConnectWithoutUploaderInput = {
 
 export type EvidenceCreateManyUploaderInputEnvelope = {
   data: Prisma.EvidenceCreateManyUploaderInput | Prisma.EvidenceCreateManyUploaderInput[]
-  skipDuplicates?: boolean
 }
 
 export type EvidenceUpsertWithWhereUniqueWithoutUploaderInput = {
@@ -608,18 +590,19 @@ export type EvidenceScalarWhereInput = {
   AND?: Prisma.EvidenceScalarWhereInput | Prisma.EvidenceScalarWhereInput[]
   OR?: Prisma.EvidenceScalarWhereInput[]
   NOT?: Prisma.EvidenceScalarWhereInput | Prisma.EvidenceScalarWhereInput[]
-  id?: Prisma.IntFilter<"Evidence"> | number
-  incidentId?: Prisma.IntFilter<"Evidence"> | number
+  id?: Prisma.StringFilter<"Evidence"> | string
+  incidentId?: Prisma.StringFilter<"Evidence"> | string
   fileName?: Prisma.StringFilter<"Evidence"> | string
   originalName?: Prisma.StringFilter<"Evidence"> | string
   mimeType?: Prisma.StringFilter<"Evidence"> | string
   fileSize?: Prisma.IntFilter<"Evidence"> | number
   checksum?: Prisma.StringFilter<"Evidence"> | string
-  uploadedBy?: Prisma.IntFilter<"Evidence"> | number
+  uploadedBy?: Prisma.StringFilter<"Evidence"> | string
   createdAt?: Prisma.DateTimeFilter<"Evidence"> | Date | string
 }
 
 export type EvidenceCreateWithoutIncidentInput = {
+  id?: string
   fileName: string
   originalName: string
   mimeType: string
@@ -630,13 +613,13 @@ export type EvidenceCreateWithoutIncidentInput = {
 }
 
 export type EvidenceUncheckedCreateWithoutIncidentInput = {
-  id?: number
+  id?: string
   fileName: string
   originalName: string
   mimeType: string
   fileSize: number
   checksum: string
-  uploadedBy: number
+  uploadedBy: string
   createdAt?: Date | string
 }
 
@@ -647,7 +630,6 @@ export type EvidenceCreateOrConnectWithoutIncidentInput = {
 
 export type EvidenceCreateManyIncidentInputEnvelope = {
   data: Prisma.EvidenceCreateManyIncidentInput | Prisma.EvidenceCreateManyIncidentInput[]
-  skipDuplicates?: boolean
 }
 
 export type EvidenceUpsertWithWhereUniqueWithoutIncidentInput = {
@@ -667,8 +649,8 @@ export type EvidenceUpdateManyWithWhereWithoutIncidentInput = {
 }
 
 export type EvidenceCreateManyUploaderInput = {
-  id?: number
-  incidentId: number
+  id?: string
+  incidentId: string
   fileName: string
   originalName: string
   mimeType: string
@@ -688,8 +670,7 @@ export type EvidenceUpdateWithoutUploaderInput = {
 }
 
 export type EvidenceUncheckedUpdateWithoutUploaderInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  incidentId?: Prisma.IntFieldUpdateOperationsInput | number
+  incidentId?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -699,8 +680,7 @@ export type EvidenceUncheckedUpdateWithoutUploaderInput = {
 }
 
 export type EvidenceUncheckedUpdateManyWithoutUploaderInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  incidentId?: Prisma.IntFieldUpdateOperationsInput | number
+  incidentId?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -710,13 +690,13 @@ export type EvidenceUncheckedUpdateManyWithoutUploaderInput = {
 }
 
 export type EvidenceCreateManyIncidentInput = {
-  id?: number
+  id?: string
   fileName: string
   originalName: string
   mimeType: string
   fileSize: number
   checksum: string
-  uploadedBy: number
+  uploadedBy: string
   createdAt?: Date | string
 }
 
@@ -731,24 +711,22 @@ export type EvidenceUpdateWithoutIncidentInput = {
 }
 
 export type EvidenceUncheckedUpdateWithoutIncidentInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   checksum?: Prisma.StringFieldUpdateOperationsInput | string
-  uploadedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  uploadedBy?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type EvidenceUncheckedUpdateManyWithoutIncidentInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   checksum?: Prisma.StringFieldUpdateOperationsInput | string
-  uploadedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  uploadedBy?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -795,14 +773,14 @@ export type $EvidencePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     uploader: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    id: number
-    incidentId: number
+    id: string
+    incidentId: string
     fileName: string
     originalName: string
     mimeType: string
     fileSize: number
     checksum: string
-    uploadedBy: number
+    uploadedBy: string
     createdAt: Date
   }, ExtArgs["result"]["evidence"]>
   composites: {}
@@ -1004,6 +982,29 @@ export interface EvidenceDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    */
   upsert<T extends EvidenceUpsertArgs>(args: Prisma.SelectSubset<T, EvidenceUpsertArgs<ExtArgs>>): Prisma.Prisma__EvidenceClient<runtime.Types.Result.GetResult<Prisma.$EvidencePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
+  /**
+   * Find zero or more Evidences that matches the filter.
+   * @param {EvidenceFindRawArgs} args - Select which filters you would like to apply.
+   * @example
+   * const evidence = await prisma.evidence.findRaw({
+   *   filter: { age: { $gt: 25 } }
+   * })
+   */
+  findRaw(args?: Prisma.EvidenceFindRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
+  /**
+   * Perform aggregation operations on a Evidence.
+   * @param {EvidenceAggregateRawArgs} args - Select which aggregations you would like to apply.
+   * @example
+   * const evidence = await prisma.evidence.aggregateRaw({
+   *   pipeline: [
+   *     { $match: { status: "registered" } },
+   *     { $group: { _id: "$country", total: { $sum: 1 } } }
+   *   ]
+   * })
+   */
+  aggregateRaw(args?: Prisma.EvidenceAggregateRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
 
   /**
    * Count the number of Evidences.
@@ -1175,14 +1176,14 @@ export interface Prisma__EvidenceClient<T, Null = never, ExtArgs extends runtime
  * Fields of the Evidence model
  */
 export interface EvidenceFieldRefs {
-  readonly id: Prisma.FieldRef<"Evidence", 'Int'>
-  readonly incidentId: Prisma.FieldRef<"Evidence", 'Int'>
+  readonly id: Prisma.FieldRef<"Evidence", 'String'>
+  readonly incidentId: Prisma.FieldRef<"Evidence", 'String'>
   readonly fileName: Prisma.FieldRef<"Evidence", 'String'>
   readonly originalName: Prisma.FieldRef<"Evidence", 'String'>
   readonly mimeType: Prisma.FieldRef<"Evidence", 'String'>
   readonly fileSize: Prisma.FieldRef<"Evidence", 'Int'>
   readonly checksum: Prisma.FieldRef<"Evidence", 'String'>
-  readonly uploadedBy: Prisma.FieldRef<"Evidence", 'Int'>
+  readonly uploadedBy: Prisma.FieldRef<"Evidence", 'String'>
   readonly createdAt: Prisma.FieldRef<"Evidence", 'DateTime'>
 }
     
@@ -1380,11 +1381,6 @@ export type EvidenceFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Skip the first `n` Evidences.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of Evidences.
-   */
   distinct?: Prisma.EvidenceScalarFieldEnum | Prisma.EvidenceScalarFieldEnum[]
 }
 
@@ -1418,7 +1414,6 @@ export type EvidenceCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * The data used to create many Evidences.
    */
   data: Prisma.EvidenceCreateManyInput | Prisma.EvidenceCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1529,6 +1524,34 @@ export type EvidenceDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many Evidences to delete.
    */
   limit?: number
+}
+
+/**
+ * Evidence findRaw
+ */
+export type EvidenceFindRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+   */
+  filter?: runtime.InputJsonValue
+  /**
+   * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
+}
+
+/**
+ * Evidence aggregateRaw
+ */
+export type EvidenceAggregateRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+   */
+  pipeline?: runtime.InputJsonValue[]
+  /**
+   * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
 }
 
 /**

@@ -14,7 +14,7 @@ interface PaystackTxData {
 }
 
 export const SubscriptionService = {
-  async activateFreePlan(companyId: number) {
+  async activateFreePlan(companyId: string) {
     const freePlan = await prisma.subscriptionPlan.findFirst({
       where: { price: 0 },
     });
@@ -35,7 +35,7 @@ export const SubscriptionService = {
     });
   },
 
-  async getSubscription(companyId: number) {
+  async getSubscription(companyId: string) {
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
       include: { plan: true },
@@ -56,7 +56,7 @@ export const SubscriptionService = {
     };
   },
 
-  async initializeUpgrade(companyId: number, planId: number) {
+  async initializeUpgrade(companyId: string, planId: string) {
     const company = await prisma.company.findUnique({ where: { id: companyId } });
     if (!company) throw new NotFoundError("Company");
 
@@ -120,8 +120,8 @@ export const SubscriptionService = {
     }
 
     const metadata = tx.metadata as Record<string, any> | undefined;
-    const companyId = metadata?.company_id as number;
-    const planId = metadata?.plan_id as number;
+    const companyId = metadata?.company_id as string;
+    const planId = metadata?.plan_id as string;
     const customerCode = metadata?.customer_code as string;
 
     if (!companyId || !planId) {
@@ -193,7 +193,7 @@ export const SubscriptionService = {
     return { subscription: updated, isNew: true };
   },
 
-  async cancelSubscription(companyId: number) {
+  async cancelSubscription(companyId: string) {
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
     });
@@ -202,9 +202,7 @@ export const SubscriptionService = {
 
     if (sub.paystackSubscriptionCode && sub.paystackCustomerCode) {
       try {
-        const subscriptions = await PaystackService.listTransactions(
-          sub.paystackCustomerCode
-        );
+        await PaystackService.listTransactions(sub.paystackCustomerCode);
       } catch {
       }
     }
@@ -223,14 +221,14 @@ export const SubscriptionService = {
     });
   },
 
-  async getPaymentHistory(companyId: number) {
+  async getPaymentHistory(companyId: string) {
     return prisma.paymentHistory.findMany({
       where: { companyId },
       orderBy: { createdAt: "desc" },
     });
   },
 
-  async canCreateIncident(companyId: number): Promise<void> {
+  async canCreateIncident(companyId: string): Promise<void> {
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
       include: { plan: true },
@@ -253,7 +251,7 @@ export const SubscriptionService = {
     }
   },
 
-  async canAddUser(companyId: number): Promise<void> {
+  async canAddUser(companyId: string): Promise<void> {
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
       include: { plan: true },
@@ -276,7 +274,7 @@ export const SubscriptionService = {
     }
   },
 
-  async hasFeature(companyId: number, feature: string): Promise<boolean> {
+  async hasFeature(companyId: string, feature: string): Promise<boolean> {
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
       include: { plan: true },
@@ -286,7 +284,7 @@ export const SubscriptionService = {
     return features.includes(feature);
   },
 
-  async requireFeature(companyId: number, feature: string): Promise<void> {
+  async requireFeature(companyId: string, feature: string): Promise<void> {
     const has = await this.hasFeature(companyId, feature);
     if (!has) {
       throw new ForbiddenError(`This feature requires an upgraded plan`);

@@ -26,7 +26,7 @@ export const ApiKeyController = {
 
   async revoke(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    await ApiKeyService.revoke(Number(id), request.user!.companyId);
+    await ApiKeyService.revoke(id, request.user!.companyId);
     reply.code(204).send();
   },
 };

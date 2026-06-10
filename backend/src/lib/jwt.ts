@@ -4,9 +4,9 @@ const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "dev-refresh-secret";
 
 interface TokenPayload {
-  userId: number;
+  userId: string;
   role: string;
-  companyId: number;
+  companyId: string;
 }
 
 export function signAccessToken(payload: TokenPayload): string {

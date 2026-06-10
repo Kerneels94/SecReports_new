@@ -9,7 +9,7 @@ export const EvidenceController = {
     await SubscriptionService.requireFeature(request.user!.companyId, "evidence_uploads");
 
     const { id } = request.params as { id: string };
-    const incident = await prisma.incident.findUnique({ where: { id: Number(id) } });
+    const incident = await prisma.incident.findUnique({ where: { id } });
     if (!incident) throw new NotFoundError("Incident");
 
     const file = await request.file();
@@ -36,7 +36,7 @@ export const EvidenceController = {
   async delete(request: FastifyRequest, reply: FastifyReply) {
     const { id, evidenceId } = request.params as { id: string; evidenceId: string };
     const evidence = await prisma.evidence.findFirst({
-      where: { id: Number(evidenceId), incidentId: Number(id) },
+      where: { id: evidenceId, incidentId: id },
     });
     if (!evidence) throw new NotFoundError("Evidence");
 

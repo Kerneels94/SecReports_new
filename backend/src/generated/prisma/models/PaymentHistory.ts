@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -27,20 +27,16 @@ export type AggregatePaymentHistory = {
 }
 
 export type PaymentHistoryAvgAggregateOutputType = {
-  id: number | null
-  companyId: number | null
   amount: number | null
 }
 
 export type PaymentHistorySumAggregateOutputType = {
-  id: number | null
-  companyId: number | null
   amount: number | null
 }
 
 export type PaymentHistoryMinAggregateOutputType = {
-  id: number | null
-  companyId: number | null
+  id: string | null
+  companyId: string | null
   amount: number | null
   currency: string | null
   reference: string | null
@@ -50,8 +46,8 @@ export type PaymentHistoryMinAggregateOutputType = {
 }
 
 export type PaymentHistoryMaxAggregateOutputType = {
-  id: number | null
-  companyId: number | null
+  id: string | null
+  companyId: string | null
   amount: number | null
   currency: string | null
   reference: string | null
@@ -74,14 +70,10 @@ export type PaymentHistoryCountAggregateOutputType = {
 
 
 export type PaymentHistoryAvgAggregateInputType = {
-  id?: true
-  companyId?: true
   amount?: true
 }
 
 export type PaymentHistorySumAggregateInputType = {
-  id?: true
-  companyId?: true
   amount?: true
 }
 
@@ -206,8 +198,8 @@ export type PaymentHistoryGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 export type PaymentHistoryGroupByOutputType = {
-  id: number
-  companyId: number
+  id: string
+  companyId: string
   amount: number
   currency: string
   reference: string
@@ -221,7 +213,7 @@ export type PaymentHistoryGroupByOutputType = {
   _max: PaymentHistoryMaxAggregateOutputType | null
 }
 
-export type GetPaymentHistoryGroupByPayload<T extends PaymentHistoryGroupByArgs> = Prisma.PrismaPromise<
+type GetPaymentHistoryGroupByPayload<T extends PaymentHistoryGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<PaymentHistoryGroupByOutputType, T['by']> &
       {
@@ -240,8 +232,8 @@ export type PaymentHistoryWhereInput = {
   AND?: Prisma.PaymentHistoryWhereInput | Prisma.PaymentHistoryWhereInput[]
   OR?: Prisma.PaymentHistoryWhereInput[]
   NOT?: Prisma.PaymentHistoryWhereInput | Prisma.PaymentHistoryWhereInput[]
-  id?: Prisma.IntFilter<"PaymentHistory"> | number
-  companyId?: Prisma.IntFilter<"PaymentHistory"> | number
+  id?: Prisma.StringFilter<"PaymentHistory"> | string
+  companyId?: Prisma.StringFilter<"PaymentHistory"> | string
   amount?: Prisma.IntFilter<"PaymentHistory"> | number
   currency?: Prisma.StringFilter<"PaymentHistory"> | string
   reference?: Prisma.StringFilter<"PaymentHistory"> | string
@@ -258,19 +250,18 @@ export type PaymentHistoryOrderByWithRelationInput = {
   currency?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackData?: Prisma.SortOrderInput | Prisma.SortOrder
+  paystackData?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   company?: Prisma.CompanyOrderByWithRelationInput
-  _relevance?: Prisma.PaymentHistoryOrderByRelevanceInput
 }
 
 export type PaymentHistoryWhereUniqueInput = Prisma.AtLeast<{
-  id?: number
+  id?: string
   reference?: string
   AND?: Prisma.PaymentHistoryWhereInput | Prisma.PaymentHistoryWhereInput[]
   OR?: Prisma.PaymentHistoryWhereInput[]
   NOT?: Prisma.PaymentHistoryWhereInput | Prisma.PaymentHistoryWhereInput[]
-  companyId?: Prisma.IntFilter<"PaymentHistory"> | number
+  companyId?: Prisma.StringFilter<"PaymentHistory"> | string
   amount?: Prisma.IntFilter<"PaymentHistory"> | number
   currency?: Prisma.StringFilter<"PaymentHistory"> | string
   status?: Prisma.StringFilter<"PaymentHistory"> | string
@@ -286,7 +277,7 @@ export type PaymentHistoryOrderByWithAggregationInput = {
   currency?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackData?: Prisma.SortOrderInput | Prisma.SortOrder
+  paystackData?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.PaymentHistoryCountOrderByAggregateInput
   _avg?: Prisma.PaymentHistoryAvgOrderByAggregateInput
@@ -299,8 +290,8 @@ export type PaymentHistoryScalarWhereWithAggregatesInput = {
   AND?: Prisma.PaymentHistoryScalarWhereWithAggregatesInput | Prisma.PaymentHistoryScalarWhereWithAggregatesInput[]
   OR?: Prisma.PaymentHistoryScalarWhereWithAggregatesInput[]
   NOT?: Prisma.PaymentHistoryScalarWhereWithAggregatesInput | Prisma.PaymentHistoryScalarWhereWithAggregatesInput[]
-  id?: Prisma.IntWithAggregatesFilter<"PaymentHistory"> | number
-  companyId?: Prisma.IntWithAggregatesFilter<"PaymentHistory"> | number
+  id?: Prisma.StringWithAggregatesFilter<"PaymentHistory"> | string
+  companyId?: Prisma.StringWithAggregatesFilter<"PaymentHistory"> | string
   amount?: Prisma.IntWithAggregatesFilter<"PaymentHistory"> | number
   currency?: Prisma.StringWithAggregatesFilter<"PaymentHistory"> | string
   reference?: Prisma.StringWithAggregatesFilter<"PaymentHistory"> | string
@@ -310,6 +301,7 @@ export type PaymentHistoryScalarWhereWithAggregatesInput = {
 }
 
 export type PaymentHistoryCreateInput = {
+  id?: string
   amount: number
   currency?: string
   reference: string
@@ -320,8 +312,8 @@ export type PaymentHistoryCreateInput = {
 }
 
 export type PaymentHistoryUncheckedCreateInput = {
-  id?: number
-  companyId: number
+  id?: string
+  companyId: string
   amount: number
   currency?: string
   reference: string
@@ -341,8 +333,7 @@ export type PaymentHistoryUpdateInput = {
 }
 
 export type PaymentHistoryUncheckedUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
@@ -352,8 +343,8 @@ export type PaymentHistoryUncheckedUpdateInput = {
 }
 
 export type PaymentHistoryCreateManyInput = {
-  id?: number
-  companyId: number
+  id?: string
+  companyId: string
   amount: number
   currency?: string
   reference: string
@@ -372,8 +363,7 @@ export type PaymentHistoryUpdateManyMutationInput = {
 }
 
 export type PaymentHistoryUncheckedUpdateManyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
@@ -392,12 +382,6 @@ export type PaymentHistoryOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type PaymentHistoryOrderByRelevanceInput = {
-  fields: Prisma.PaymentHistoryOrderByRelevanceFieldEnum | Prisma.PaymentHistoryOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
-}
-
 export type PaymentHistoryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
@@ -410,8 +394,6 @@ export type PaymentHistoryCountOrderByAggregateInput = {
 }
 
 export type PaymentHistoryAvgOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  companyId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
 }
 
@@ -438,8 +420,6 @@ export type PaymentHistoryMinOrderByAggregateInput = {
 }
 
 export type PaymentHistorySumOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  companyId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
 }
 
@@ -486,6 +466,7 @@ export type PaymentHistoryUncheckedUpdateManyWithoutCompanyNestedInput = {
 }
 
 export type PaymentHistoryCreateWithoutCompanyInput = {
+  id?: string
   amount: number
   currency?: string
   reference: string
@@ -495,7 +476,7 @@ export type PaymentHistoryCreateWithoutCompanyInput = {
 }
 
 export type PaymentHistoryUncheckedCreateWithoutCompanyInput = {
-  id?: number
+  id?: string
   amount: number
   currency?: string
   reference: string
@@ -511,7 +492,6 @@ export type PaymentHistoryCreateOrConnectWithoutCompanyInput = {
 
 export type PaymentHistoryCreateManyCompanyInputEnvelope = {
   data: Prisma.PaymentHistoryCreateManyCompanyInput | Prisma.PaymentHistoryCreateManyCompanyInput[]
-  skipDuplicates?: boolean
 }
 
 export type PaymentHistoryUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -534,8 +514,8 @@ export type PaymentHistoryScalarWhereInput = {
   AND?: Prisma.PaymentHistoryScalarWhereInput | Prisma.PaymentHistoryScalarWhereInput[]
   OR?: Prisma.PaymentHistoryScalarWhereInput[]
   NOT?: Prisma.PaymentHistoryScalarWhereInput | Prisma.PaymentHistoryScalarWhereInput[]
-  id?: Prisma.IntFilter<"PaymentHistory"> | number
-  companyId?: Prisma.IntFilter<"PaymentHistory"> | number
+  id?: Prisma.StringFilter<"PaymentHistory"> | string
+  companyId?: Prisma.StringFilter<"PaymentHistory"> | string
   amount?: Prisma.IntFilter<"PaymentHistory"> | number
   currency?: Prisma.StringFilter<"PaymentHistory"> | string
   reference?: Prisma.StringFilter<"PaymentHistory"> | string
@@ -545,7 +525,7 @@ export type PaymentHistoryScalarWhereInput = {
 }
 
 export type PaymentHistoryCreateManyCompanyInput = {
-  id?: number
+  id?: string
   amount: number
   currency?: string
   reference: string
@@ -564,7 +544,6 @@ export type PaymentHistoryUpdateWithoutCompanyInput = {
 }
 
 export type PaymentHistoryUncheckedUpdateWithoutCompanyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
@@ -574,7 +553,6 @@ export type PaymentHistoryUncheckedUpdateWithoutCompanyInput = {
 }
 
 export type PaymentHistoryUncheckedUpdateManyWithoutCompanyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
@@ -621,8 +599,8 @@ export type $PaymentHistoryPayload<ExtArgs extends runtime.Types.Extensions.Inte
     company: Prisma.$CompanyPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    id: number
-    companyId: number
+    id: string
+    companyId: string
     amount: number
     currency: string
     reference: string
@@ -829,6 +807,29 @@ export interface PaymentHistoryDelegate<ExtArgs extends runtime.Types.Extensions
    */
   upsert<T extends PaymentHistoryUpsertArgs>(args: Prisma.SelectSubset<T, PaymentHistoryUpsertArgs<ExtArgs>>): Prisma.Prisma__PaymentHistoryClient<runtime.Types.Result.GetResult<Prisma.$PaymentHistoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
+  /**
+   * Find zero or more PaymentHistories that matches the filter.
+   * @param {PaymentHistoryFindRawArgs} args - Select which filters you would like to apply.
+   * @example
+   * const paymentHistory = await prisma.paymentHistory.findRaw({
+   *   filter: { age: { $gt: 25 } }
+   * })
+   */
+  findRaw(args?: Prisma.PaymentHistoryFindRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
+  /**
+   * Perform aggregation operations on a PaymentHistory.
+   * @param {PaymentHistoryAggregateRawArgs} args - Select which aggregations you would like to apply.
+   * @example
+   * const paymentHistory = await prisma.paymentHistory.aggregateRaw({
+   *   pipeline: [
+   *     { $match: { status: "registered" } },
+   *     { $group: { _id: "$country", total: { $sum: 1 } } }
+   *   ]
+   * })
+   */
+  aggregateRaw(args?: Prisma.PaymentHistoryAggregateRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
 
   /**
    * Count the number of PaymentHistories.
@@ -999,8 +1000,8 @@ export interface Prisma__PaymentHistoryClient<T, Null = never, ExtArgs extends r
  * Fields of the PaymentHistory model
  */
 export interface PaymentHistoryFieldRefs {
-  readonly id: Prisma.FieldRef<"PaymentHistory", 'Int'>
-  readonly companyId: Prisma.FieldRef<"PaymentHistory", 'Int'>
+  readonly id: Prisma.FieldRef<"PaymentHistory", 'String'>
+  readonly companyId: Prisma.FieldRef<"PaymentHistory", 'String'>
   readonly amount: Prisma.FieldRef<"PaymentHistory", 'Int'>
   readonly currency: Prisma.FieldRef<"PaymentHistory", 'String'>
   readonly reference: Prisma.FieldRef<"PaymentHistory", 'String'>
@@ -1203,11 +1204,6 @@ export type PaymentHistoryFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Skip the first `n` PaymentHistories.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of PaymentHistories.
-   */
   distinct?: Prisma.PaymentHistoryScalarFieldEnum | Prisma.PaymentHistoryScalarFieldEnum[]
 }
 
@@ -1241,7 +1237,6 @@ export type PaymentHistoryCreateManyArgs<ExtArgs extends runtime.Types.Extension
    * The data used to create many PaymentHistories.
    */
   data: Prisma.PaymentHistoryCreateManyInput | Prisma.PaymentHistoryCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1352,6 +1347,34 @@ export type PaymentHistoryDeleteManyArgs<ExtArgs extends runtime.Types.Extension
    * Limit how many PaymentHistories to delete.
    */
   limit?: number
+}
+
+/**
+ * PaymentHistory findRaw
+ */
+export type PaymentHistoryFindRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+   */
+  filter?: runtime.InputJsonValue
+  /**
+   * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
+}
+
+/**
+ * PaymentHistory aggregateRaw
+ */
+export type PaymentHistoryAggregateRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+   */
+  pipeline?: runtime.InputJsonValue[]
+  /**
+   * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
 }
 
 /**

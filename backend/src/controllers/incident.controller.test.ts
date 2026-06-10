@@ -2,6 +2,12 @@ import { IncidentController } from "./incident.controller";
 import { IncidentService } from "../services/incident.service";
 import { ValidationError } from "../lib/errors";
 
+jest.mock("../services/subscription.service", () => ({
+  SubscriptionService: {
+    canCreateIncident: jest.fn(),
+  },
+}));
+
 jest.mock("../services/incident.service", () => ({
   IncidentService: {
     list: jest.fn(),
@@ -29,7 +35,7 @@ describe("IncidentController", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockRequest = {
-      user: { companyId: 1, userId: 1, role: "admin" },
+      user: { companyId: "1", userId: "1", role: "admin" },
       query: {},
       params: {},
       body: {},
@@ -51,7 +57,7 @@ describe("IncidentController", () => {
       await IncidentController.list(mockRequest, mockReply);
 
       expect(IncidentService.list).toHaveBeenCalledWith({
-        page: 1, perPage: 20, companyId: 1, userId: 1, role: "admin",
+        page: 1, perPage: 20, companyId: "1", userId: "1", role: "admin",
       });
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
@@ -67,15 +73,15 @@ describe("IncidentController", () => {
   });
 
   describe("getById", () => {
-    it("calls service with numeric id and responds 200", async () => {
+    it("calls service with string id and responds 200", async () => {
       mockRequest.params = { id: "5" };
-      (IncidentService.getById as jest.Mock).mockResolvedValue({ id: 5, title: "Test" });
+      (IncidentService.getById as jest.Mock).mockResolvedValue({ id: "5", title: "Test" });
 
       await IncidentController.getById(mockRequest, mockReply);
 
-      expect(IncidentService.getById).toHaveBeenCalledWith(5);
+      expect(IncidentService.getById).toHaveBeenCalledWith("5");
       expect(mockReply.code).toHaveBeenCalledWith(200);
-      expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: { id: 5, title: "Test" } });
+      expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: { id: "5", title: "Test" } });
     });
   });
 
@@ -93,11 +99,11 @@ describe("IncidentController", () => {
     it("calls service with body plus companyId and reporterId, responds 201", async () => {
       mockRequest.body = validBody;
       (createIncidentSchema.safeParse as jest.Mock).mockReturnValue({ success: true, data: validBody });
-      (IncidentService.create as jest.Mock).mockResolvedValue({ id: 1, ...validBody });
+      (IncidentService.create as jest.Mock).mockResolvedValue({ id: "1", ...validBody });
 
       await IncidentController.create(mockRequest, mockReply);
 
-      expect(IncidentService.create).toHaveBeenCalledWith({ ...validBody, companyId: 1, reporterId: 1 });
+      expect(IncidentService.create).toHaveBeenCalledWith({ ...validBody, companyId: "1", reporterId: "1" });
       expect(mockReply.code).toHaveBeenCalledWith(201);
     });
 
@@ -116,11 +122,11 @@ describe("IncidentController", () => {
       mockRequest.params = { id: "3" };
       mockRequest.body = { title: "Updated" };
       (updateIncidentSchema.safeParse as jest.Mock).mockReturnValue({ success: true, data: { title: "Updated" } });
-      (IncidentService.update as jest.Mock).mockResolvedValue({ id: 3, title: "Updated" });
+      (IncidentService.update as jest.Mock).mockResolvedValue({ id: "3", title: "Updated" });
 
       await IncidentController.update(mockRequest, mockReply);
 
-      expect(IncidentService.update).toHaveBeenCalledWith(3, { title: "Updated" }, 1, "admin");
+      expect(IncidentService.update).toHaveBeenCalledWith("3", { title: "Updated" }, "1", "admin");
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 
@@ -140,11 +146,11 @@ describe("IncidentController", () => {
       mockRequest.params = { id: "3" };
       mockRequest.body = { status: "resolved" };
       (updateStatusSchema.safeParse as jest.Mock).mockReturnValue({ success: true, data: { status: "resolved" } });
-      (IncidentService.updateStatus as jest.Mock).mockResolvedValue({ id: 3, status: "resolved" });
+      (IncidentService.updateStatus as jest.Mock).mockResolvedValue({ id: "3", status: "resolved" });
 
       await IncidentController.updateStatus(mockRequest, mockReply);
 
-      expect(IncidentService.updateStatus).toHaveBeenCalledWith(3, "resolved", 1);
+      expect(IncidentService.updateStatus).toHaveBeenCalledWith("3", "resolved", "1");
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 
@@ -166,7 +172,7 @@ describe("IncidentController", () => {
 
       await IncidentController.delete(mockRequest, mockReply);
 
-      expect(IncidentService.delete).toHaveBeenCalledWith(3, 1, "admin");
+      expect(IncidentService.delete).toHaveBeenCalledWith("3", "1", "admin");
       expect(mockReply.code).toHaveBeenCalledWith(204);
       expect(mockReply.send).toHaveBeenCalled();
     });

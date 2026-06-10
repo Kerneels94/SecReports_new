@@ -5,7 +5,7 @@ import { z } from "zod";
 import { PaystackService } from "../services/paystack.service";
 
 const upgradeSchema = z.object({
-  planId: z.number().int().positive(),
+  planId: z.string().min(1),
 });
 
 export const PaystackController = {

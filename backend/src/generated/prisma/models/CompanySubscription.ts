@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -20,28 +20,14 @@ export type CompanySubscriptionModel = runtime.Types.Result.DefaultSelection<Pri
 
 export type AggregateCompanySubscription = {
   _count: CompanySubscriptionCountAggregateOutputType | null
-  _avg: CompanySubscriptionAvgAggregateOutputType | null
-  _sum: CompanySubscriptionSumAggregateOutputType | null
   _min: CompanySubscriptionMinAggregateOutputType | null
   _max: CompanySubscriptionMaxAggregateOutputType | null
 }
 
-export type CompanySubscriptionAvgAggregateOutputType = {
-  id: number | null
-  companyId: number | null
-  planId: number | null
-}
-
-export type CompanySubscriptionSumAggregateOutputType = {
-  id: number | null
-  companyId: number | null
-  planId: number | null
-}
-
 export type CompanySubscriptionMinAggregateOutputType = {
-  id: number | null
-  companyId: number | null
-  planId: number | null
+  id: string | null
+  companyId: string | null
+  planId: string | null
   status: string | null
   paystackSubscriptionCode: string | null
   paystackCustomerCode: string | null
@@ -53,9 +39,9 @@ export type CompanySubscriptionMinAggregateOutputType = {
 }
 
 export type CompanySubscriptionMaxAggregateOutputType = {
-  id: number | null
-  companyId: number | null
-  planId: number | null
+  id: string | null
+  companyId: string | null
+  planId: string | null
   status: string | null
   paystackSubscriptionCode: string | null
   paystackCustomerCode: string | null
@@ -81,18 +67,6 @@ export type CompanySubscriptionCountAggregateOutputType = {
   _all: number
 }
 
-
-export type CompanySubscriptionAvgAggregateInputType = {
-  id?: true
-  companyId?: true
-  planId?: true
-}
-
-export type CompanySubscriptionSumAggregateInputType = {
-  id?: true
-  companyId?: true
-  planId?: true
-}
 
 export type CompanySubscriptionMinAggregateInputType = {
   id?: true
@@ -175,18 +149,6 @@ export type CompanySubscriptionAggregateArgs<ExtArgs extends runtime.Types.Exten
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: CompanySubscriptionAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: CompanySubscriptionSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: CompanySubscriptionMinAggregateInputType
@@ -217,16 +179,14 @@ export type CompanySubscriptionGroupByArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   _count?: CompanySubscriptionCountAggregateInputType | true
-  _avg?: CompanySubscriptionAvgAggregateInputType
-  _sum?: CompanySubscriptionSumAggregateInputType
   _min?: CompanySubscriptionMinAggregateInputType
   _max?: CompanySubscriptionMaxAggregateInputType
 }
 
 export type CompanySubscriptionGroupByOutputType = {
-  id: number
-  companyId: number
-  planId: number
+  id: string
+  companyId: string
+  planId: string
   status: string
   paystackSubscriptionCode: string | null
   paystackCustomerCode: string | null
@@ -236,13 +196,11 @@ export type CompanySubscriptionGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: CompanySubscriptionCountAggregateOutputType | null
-  _avg: CompanySubscriptionAvgAggregateOutputType | null
-  _sum: CompanySubscriptionSumAggregateOutputType | null
   _min: CompanySubscriptionMinAggregateOutputType | null
   _max: CompanySubscriptionMaxAggregateOutputType | null
 }
 
-export type GetCompanySubscriptionGroupByPayload<T extends CompanySubscriptionGroupByArgs> = Prisma.PrismaPromise<
+type GetCompanySubscriptionGroupByPayload<T extends CompanySubscriptionGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<CompanySubscriptionGroupByOutputType, T['by']> &
       {
@@ -261,9 +219,9 @@ export type CompanySubscriptionWhereInput = {
   AND?: Prisma.CompanySubscriptionWhereInput | Prisma.CompanySubscriptionWhereInput[]
   OR?: Prisma.CompanySubscriptionWhereInput[]
   NOT?: Prisma.CompanySubscriptionWhereInput | Prisma.CompanySubscriptionWhereInput[]
-  id?: Prisma.IntFilter<"CompanySubscription"> | number
-  companyId?: Prisma.IntFilter<"CompanySubscription"> | number
-  planId?: Prisma.IntFilter<"CompanySubscription"> | number
+  id?: Prisma.StringFilter<"CompanySubscription"> | string
+  companyId?: Prisma.StringFilter<"CompanySubscription"> | string
+  planId?: Prisma.StringFilter<"CompanySubscription"> | string
   status?: Prisma.StringFilter<"CompanySubscription"> | string
   paystackSubscriptionCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
   paystackCustomerCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
@@ -281,25 +239,24 @@ export type CompanySubscriptionOrderByWithRelationInput = {
   companyId?: Prisma.SortOrder
   planId?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackSubscriptionCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  paystackCustomerCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  authorizationCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  currentPeriodStart?: Prisma.SortOrderInput | Prisma.SortOrder
-  currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
+  paystackSubscriptionCode?: Prisma.SortOrder
+  paystackCustomerCode?: Prisma.SortOrder
+  authorizationCode?: Prisma.SortOrder
+  currentPeriodStart?: Prisma.SortOrder
+  currentPeriodEnd?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   company?: Prisma.CompanyOrderByWithRelationInput
   plan?: Prisma.SubscriptionPlanOrderByWithRelationInput
-  _relevance?: Prisma.CompanySubscriptionOrderByRelevanceInput
 }
 
 export type CompanySubscriptionWhereUniqueInput = Prisma.AtLeast<{
-  id?: number
-  companyId?: number
+  id?: string
+  companyId?: string
   AND?: Prisma.CompanySubscriptionWhereInput | Prisma.CompanySubscriptionWhereInput[]
   OR?: Prisma.CompanySubscriptionWhereInput[]
   NOT?: Prisma.CompanySubscriptionWhereInput | Prisma.CompanySubscriptionWhereInput[]
-  planId?: Prisma.IntFilter<"CompanySubscription"> | number
+  planId?: Prisma.StringFilter<"CompanySubscription"> | string
   status?: Prisma.StringFilter<"CompanySubscription"> | string
   paystackSubscriptionCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
   paystackCustomerCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
@@ -317,27 +274,25 @@ export type CompanySubscriptionOrderByWithAggregationInput = {
   companyId?: Prisma.SortOrder
   planId?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackSubscriptionCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  paystackCustomerCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  authorizationCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  currentPeriodStart?: Prisma.SortOrderInput | Prisma.SortOrder
-  currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
+  paystackSubscriptionCode?: Prisma.SortOrder
+  paystackCustomerCode?: Prisma.SortOrder
+  authorizationCode?: Prisma.SortOrder
+  currentPeriodStart?: Prisma.SortOrder
+  currentPeriodEnd?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CompanySubscriptionCountOrderByAggregateInput
-  _avg?: Prisma.CompanySubscriptionAvgOrderByAggregateInput
   _max?: Prisma.CompanySubscriptionMaxOrderByAggregateInput
   _min?: Prisma.CompanySubscriptionMinOrderByAggregateInput
-  _sum?: Prisma.CompanySubscriptionSumOrderByAggregateInput
 }
 
 export type CompanySubscriptionScalarWhereWithAggregatesInput = {
   AND?: Prisma.CompanySubscriptionScalarWhereWithAggregatesInput | Prisma.CompanySubscriptionScalarWhereWithAggregatesInput[]
   OR?: Prisma.CompanySubscriptionScalarWhereWithAggregatesInput[]
   NOT?: Prisma.CompanySubscriptionScalarWhereWithAggregatesInput | Prisma.CompanySubscriptionScalarWhereWithAggregatesInput[]
-  id?: Prisma.IntWithAggregatesFilter<"CompanySubscription"> | number
-  companyId?: Prisma.IntWithAggregatesFilter<"CompanySubscription"> | number
-  planId?: Prisma.IntWithAggregatesFilter<"CompanySubscription"> | number
+  id?: Prisma.StringWithAggregatesFilter<"CompanySubscription"> | string
+  companyId?: Prisma.StringWithAggregatesFilter<"CompanySubscription"> | string
+  planId?: Prisma.StringWithAggregatesFilter<"CompanySubscription"> | string
   status?: Prisma.StringWithAggregatesFilter<"CompanySubscription"> | string
   paystackSubscriptionCode?: Prisma.StringNullableWithAggregatesFilter<"CompanySubscription"> | string | null
   paystackCustomerCode?: Prisma.StringNullableWithAggregatesFilter<"CompanySubscription"> | string | null
@@ -349,6 +304,7 @@ export type CompanySubscriptionScalarWhereWithAggregatesInput = {
 }
 
 export type CompanySubscriptionCreateInput = {
+  id?: string
   status?: string
   paystackSubscriptionCode?: string | null
   paystackCustomerCode?: string | null
@@ -362,9 +318,9 @@ export type CompanySubscriptionCreateInput = {
 }
 
 export type CompanySubscriptionUncheckedCreateInput = {
-  id?: number
-  companyId: number
-  planId: number
+  id?: string
+  companyId: string
+  planId: string
   status?: string
   paystackSubscriptionCode?: string | null
   paystackCustomerCode?: string | null
@@ -389,9 +345,8 @@ export type CompanySubscriptionUpdateInput = {
 }
 
 export type CompanySubscriptionUncheckedUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
-  planId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  planId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -403,9 +358,9 @@ export type CompanySubscriptionUncheckedUpdateInput = {
 }
 
 export type CompanySubscriptionCreateManyInput = {
-  id?: number
-  companyId: number
-  planId: number
+  id?: string
+  companyId: string
+  planId: string
   status?: string
   paystackSubscriptionCode?: string | null
   paystackCustomerCode?: string | null
@@ -428,9 +383,8 @@ export type CompanySubscriptionUpdateManyMutationInput = {
 }
 
 export type CompanySubscriptionUncheckedUpdateManyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
-  planId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  planId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -456,12 +410,6 @@ export type CompanySubscriptionOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type CompanySubscriptionOrderByRelevanceInput = {
-  fields: Prisma.CompanySubscriptionOrderByRelevanceFieldEnum | Prisma.CompanySubscriptionOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
-}
-
 export type CompanySubscriptionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
@@ -474,12 +422,6 @@ export type CompanySubscriptionCountOrderByAggregateInput = {
   currentPeriodEnd?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type CompanySubscriptionAvgOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  companyId?: Prisma.SortOrder
-  planId?: Prisma.SortOrder
 }
 
 export type CompanySubscriptionMaxOrderByAggregateInput = {
@@ -508,12 +450,6 @@ export type CompanySubscriptionMinOrderByAggregateInput = {
   currentPeriodEnd?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type CompanySubscriptionSumOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  companyId?: Prisma.SortOrder
-  planId?: Prisma.SortOrder
 }
 
 export type CompanySubscriptionCreateNestedOneWithoutCompanyInput = {
@@ -591,6 +527,7 @@ export type CompanySubscriptionUncheckedUpdateManyWithoutPlanNestedInput = {
 }
 
 export type CompanySubscriptionCreateWithoutCompanyInput = {
+  id?: string
   status?: string
   paystackSubscriptionCode?: string | null
   paystackCustomerCode?: string | null
@@ -603,8 +540,8 @@ export type CompanySubscriptionCreateWithoutCompanyInput = {
 }
 
 export type CompanySubscriptionUncheckedCreateWithoutCompanyInput = {
-  id?: number
-  planId: number
+  id?: string
+  planId: string
   status?: string
   paystackSubscriptionCode?: string | null
   paystackCustomerCode?: string | null
@@ -644,8 +581,7 @@ export type CompanySubscriptionUpdateWithoutCompanyInput = {
 }
 
 export type CompanySubscriptionUncheckedUpdateWithoutCompanyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  planId?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -657,6 +593,7 @@ export type CompanySubscriptionUncheckedUpdateWithoutCompanyInput = {
 }
 
 export type CompanySubscriptionCreateWithoutPlanInput = {
+  id?: string
   status?: string
   paystackSubscriptionCode?: string | null
   paystackCustomerCode?: string | null
@@ -669,8 +606,8 @@ export type CompanySubscriptionCreateWithoutPlanInput = {
 }
 
 export type CompanySubscriptionUncheckedCreateWithoutPlanInput = {
-  id?: number
-  companyId: number
+  id?: string
+  companyId: string
   status?: string
   paystackSubscriptionCode?: string | null
   paystackCustomerCode?: string | null
@@ -688,7 +625,6 @@ export type CompanySubscriptionCreateOrConnectWithoutPlanInput = {
 
 export type CompanySubscriptionCreateManyPlanInputEnvelope = {
   data: Prisma.CompanySubscriptionCreateManyPlanInput | Prisma.CompanySubscriptionCreateManyPlanInput[]
-  skipDuplicates?: boolean
 }
 
 export type CompanySubscriptionUpsertWithWhereUniqueWithoutPlanInput = {
@@ -711,9 +647,9 @@ export type CompanySubscriptionScalarWhereInput = {
   AND?: Prisma.CompanySubscriptionScalarWhereInput | Prisma.CompanySubscriptionScalarWhereInput[]
   OR?: Prisma.CompanySubscriptionScalarWhereInput[]
   NOT?: Prisma.CompanySubscriptionScalarWhereInput | Prisma.CompanySubscriptionScalarWhereInput[]
-  id?: Prisma.IntFilter<"CompanySubscription"> | number
-  companyId?: Prisma.IntFilter<"CompanySubscription"> | number
-  planId?: Prisma.IntFilter<"CompanySubscription"> | number
+  id?: Prisma.StringFilter<"CompanySubscription"> | string
+  companyId?: Prisma.StringFilter<"CompanySubscription"> | string
+  planId?: Prisma.StringFilter<"CompanySubscription"> | string
   status?: Prisma.StringFilter<"CompanySubscription"> | string
   paystackSubscriptionCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
   paystackCustomerCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
@@ -725,8 +661,8 @@ export type CompanySubscriptionScalarWhereInput = {
 }
 
 export type CompanySubscriptionCreateManyPlanInput = {
-  id?: number
-  companyId: number
+  id?: string
+  companyId: string
   status?: string
   paystackSubscriptionCode?: string | null
   paystackCustomerCode?: string | null
@@ -750,8 +686,7 @@ export type CompanySubscriptionUpdateWithoutPlanInput = {
 }
 
 export type CompanySubscriptionUncheckedUpdateWithoutPlanInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -763,8 +698,7 @@ export type CompanySubscriptionUncheckedUpdateWithoutPlanInput = {
 }
 
 export type CompanySubscriptionUncheckedUpdateManyWithoutPlanInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -822,9 +756,9 @@ export type $CompanySubscriptionPayload<ExtArgs extends runtime.Types.Extensions
     plan: Prisma.$SubscriptionPlanPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    id: number
-    companyId: number
-    planId: number
+    id: string
+    companyId: string
+    planId: string
     status: string
     paystackSubscriptionCode: string | null
     paystackCustomerCode: string | null
@@ -1033,6 +967,29 @@ export interface CompanySubscriptionDelegate<ExtArgs extends runtime.Types.Exten
    */
   upsert<T extends CompanySubscriptionUpsertArgs>(args: Prisma.SelectSubset<T, CompanySubscriptionUpsertArgs<ExtArgs>>): Prisma.Prisma__CompanySubscriptionClient<runtime.Types.Result.GetResult<Prisma.$CompanySubscriptionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
+  /**
+   * Find zero or more CompanySubscriptions that matches the filter.
+   * @param {CompanySubscriptionFindRawArgs} args - Select which filters you would like to apply.
+   * @example
+   * const companySubscription = await prisma.companySubscription.findRaw({
+   *   filter: { age: { $gt: 25 } }
+   * })
+   */
+  findRaw(args?: Prisma.CompanySubscriptionFindRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
+  /**
+   * Perform aggregation operations on a CompanySubscription.
+   * @param {CompanySubscriptionAggregateRawArgs} args - Select which aggregations you would like to apply.
+   * @example
+   * const companySubscription = await prisma.companySubscription.aggregateRaw({
+   *   pipeline: [
+   *     { $match: { status: "registered" } },
+   *     { $group: { _id: "$country", total: { $sum: 1 } } }
+   *   ]
+   * })
+   */
+  aggregateRaw(args?: Prisma.CompanySubscriptionAggregateRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
 
   /**
    * Count the number of CompanySubscriptions.
@@ -1204,9 +1161,9 @@ export interface Prisma__CompanySubscriptionClient<T, Null = never, ExtArgs exte
  * Fields of the CompanySubscription model
  */
 export interface CompanySubscriptionFieldRefs {
-  readonly id: Prisma.FieldRef<"CompanySubscription", 'Int'>
-  readonly companyId: Prisma.FieldRef<"CompanySubscription", 'Int'>
-  readonly planId: Prisma.FieldRef<"CompanySubscription", 'Int'>
+  readonly id: Prisma.FieldRef<"CompanySubscription", 'String'>
+  readonly companyId: Prisma.FieldRef<"CompanySubscription", 'String'>
+  readonly planId: Prisma.FieldRef<"CompanySubscription", 'String'>
   readonly status: Prisma.FieldRef<"CompanySubscription", 'String'>
   readonly paystackSubscriptionCode: Prisma.FieldRef<"CompanySubscription", 'String'>
   readonly paystackCustomerCode: Prisma.FieldRef<"CompanySubscription", 'String'>
@@ -1411,11 +1368,6 @@ export type CompanySubscriptionFindManyArgs<ExtArgs extends runtime.Types.Extens
    * Skip the first `n` CompanySubscriptions.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of CompanySubscriptions.
-   */
   distinct?: Prisma.CompanySubscriptionScalarFieldEnum | Prisma.CompanySubscriptionScalarFieldEnum[]
 }
 
@@ -1449,7 +1401,6 @@ export type CompanySubscriptionCreateManyArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many CompanySubscriptions.
    */
   data: Prisma.CompanySubscriptionCreateManyInput | Prisma.CompanySubscriptionCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1560,6 +1511,34 @@ export type CompanySubscriptionDeleteManyArgs<ExtArgs extends runtime.Types.Exte
    * Limit how many CompanySubscriptions to delete.
    */
   limit?: number
+}
+
+/**
+ * CompanySubscription findRaw
+ */
+export type CompanySubscriptionFindRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+   */
+  filter?: runtime.InputJsonValue
+  /**
+   * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
+}
+
+/**
+ * CompanySubscription aggregateRaw
+ */
+export type CompanySubscriptionAggregateRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+   */
+  pipeline?: runtime.InputJsonValue[]
+  /**
+   * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
 }
 
 /**

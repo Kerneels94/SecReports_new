@@ -3,9 +3,9 @@ import "fastify";
 declare module "fastify" {
   interface FastifyRequest {
     user?: {
-      userId: number;
+      userId: string;
       role: string;
-      companyId: number;
+      companyId: string;
     };
   }
 }

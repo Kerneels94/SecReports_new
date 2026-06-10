@@ -80,7 +80,7 @@ export const AuthController = {
     if (request.user!.role !== "owner") throw new ForbiddenError();
 
     const { id } = request.params as { id: string };
-    const user = await AuthService.getUserById(request.user!.companyId, Number(id));
+    const user = await AuthService.getUserById(request.user!.companyId, id);
     reply.code(200).send({ success: true, data: user });
   },
 
@@ -91,7 +91,7 @@ export const AuthController = {
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
     const { id } = request.params as { id: string };
-    const user = await AuthService.updateUser(request.user!.companyId, Number(id), parsed.data);
+    const user = await AuthService.updateUser(request.user!.companyId, id, parsed.data);
     reply.code(200).send({ success: true, data: user });
   },
 };

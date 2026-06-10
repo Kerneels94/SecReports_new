@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -20,25 +20,13 @@ export type IncidentPersonModel = runtime.Types.Result.DefaultSelection<Prisma.$
 
 export type AggregateIncidentPerson = {
   _count: IncidentPersonCountAggregateOutputType | null
-  _avg: IncidentPersonAvgAggregateOutputType | null
-  _sum: IncidentPersonSumAggregateOutputType | null
   _min: IncidentPersonMinAggregateOutputType | null
   _max: IncidentPersonMaxAggregateOutputType | null
 }
 
-export type IncidentPersonAvgAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
-}
-
-export type IncidentPersonSumAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
-}
-
 export type IncidentPersonMinAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
+  id: string | null
+  incidentId: string | null
   name: string | null
   role: string | null
   contact: string | null
@@ -46,8 +34,8 @@ export type IncidentPersonMinAggregateOutputType = {
 }
 
 export type IncidentPersonMaxAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
+  id: string | null
+  incidentId: string | null
   name: string | null
   role: string | null
   contact: string | null
@@ -64,16 +52,6 @@ export type IncidentPersonCountAggregateOutputType = {
   _all: number
 }
 
-
-export type IncidentPersonAvgAggregateInputType = {
-  id?: true
-  incidentId?: true
-}
-
-export type IncidentPersonSumAggregateInputType = {
-  id?: true
-  incidentId?: true
-}
 
 export type IncidentPersonMinAggregateInputType = {
   id?: true
@@ -141,18 +119,6 @@ export type IncidentPersonAggregateArgs<ExtArgs extends runtime.Types.Extensions
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: IncidentPersonAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: IncidentPersonSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: IncidentPersonMinAggregateInputType
@@ -183,27 +149,23 @@ export type IncidentPersonGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   _count?: IncidentPersonCountAggregateInputType | true
-  _avg?: IncidentPersonAvgAggregateInputType
-  _sum?: IncidentPersonSumAggregateInputType
   _min?: IncidentPersonMinAggregateInputType
   _max?: IncidentPersonMaxAggregateInputType
 }
 
 export type IncidentPersonGroupByOutputType = {
-  id: number
-  incidentId: number
+  id: string
+  incidentId: string
   name: string
   role: string
   contact: string | null
   notes: string | null
   _count: IncidentPersonCountAggregateOutputType | null
-  _avg: IncidentPersonAvgAggregateOutputType | null
-  _sum: IncidentPersonSumAggregateOutputType | null
   _min: IncidentPersonMinAggregateOutputType | null
   _max: IncidentPersonMaxAggregateOutputType | null
 }
 
-export type GetIncidentPersonGroupByPayload<T extends IncidentPersonGroupByArgs> = Prisma.PrismaPromise<
+type GetIncidentPersonGroupByPayload<T extends IncidentPersonGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<IncidentPersonGroupByOutputType, T['by']> &
       {
@@ -222,8 +184,8 @@ export type IncidentPersonWhereInput = {
   AND?: Prisma.IncidentPersonWhereInput | Prisma.IncidentPersonWhereInput[]
   OR?: Prisma.IncidentPersonWhereInput[]
   NOT?: Prisma.IncidentPersonWhereInput | Prisma.IncidentPersonWhereInput[]
-  id?: Prisma.IntFilter<"IncidentPerson"> | number
-  incidentId?: Prisma.IntFilter<"IncidentPerson"> | number
+  id?: Prisma.StringFilter<"IncidentPerson"> | string
+  incidentId?: Prisma.StringFilter<"IncidentPerson"> | string
   name?: Prisma.StringFilter<"IncidentPerson"> | string
   role?: Prisma.StringFilter<"IncidentPerson"> | string
   contact?: Prisma.StringNullableFilter<"IncidentPerson"> | string | null
@@ -236,18 +198,17 @@ export type IncidentPersonOrderByWithRelationInput = {
   incidentId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
-  contact?: Prisma.SortOrderInput | Prisma.SortOrder
-  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  contact?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
   incident?: Prisma.IncidentOrderByWithRelationInput
-  _relevance?: Prisma.IncidentPersonOrderByRelevanceInput
 }
 
 export type IncidentPersonWhereUniqueInput = Prisma.AtLeast<{
-  id?: number
+  id?: string
   AND?: Prisma.IncidentPersonWhereInput | Prisma.IncidentPersonWhereInput[]
   OR?: Prisma.IncidentPersonWhereInput[]
   NOT?: Prisma.IncidentPersonWhereInput | Prisma.IncidentPersonWhereInput[]
-  incidentId?: Prisma.IntFilter<"IncidentPerson"> | number
+  incidentId?: Prisma.StringFilter<"IncidentPerson"> | string
   name?: Prisma.StringFilter<"IncidentPerson"> | string
   role?: Prisma.StringFilter<"IncidentPerson"> | string
   contact?: Prisma.StringNullableFilter<"IncidentPerson"> | string | null
@@ -260,21 +221,19 @@ export type IncidentPersonOrderByWithAggregationInput = {
   incidentId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   role?: Prisma.SortOrder
-  contact?: Prisma.SortOrderInput | Prisma.SortOrder
-  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  contact?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
   _count?: Prisma.IncidentPersonCountOrderByAggregateInput
-  _avg?: Prisma.IncidentPersonAvgOrderByAggregateInput
   _max?: Prisma.IncidentPersonMaxOrderByAggregateInput
   _min?: Prisma.IncidentPersonMinOrderByAggregateInput
-  _sum?: Prisma.IncidentPersonSumOrderByAggregateInput
 }
 
 export type IncidentPersonScalarWhereWithAggregatesInput = {
   AND?: Prisma.IncidentPersonScalarWhereWithAggregatesInput | Prisma.IncidentPersonScalarWhereWithAggregatesInput[]
   OR?: Prisma.IncidentPersonScalarWhereWithAggregatesInput[]
   NOT?: Prisma.IncidentPersonScalarWhereWithAggregatesInput | Prisma.IncidentPersonScalarWhereWithAggregatesInput[]
-  id?: Prisma.IntWithAggregatesFilter<"IncidentPerson"> | number
-  incidentId?: Prisma.IntWithAggregatesFilter<"IncidentPerson"> | number
+  id?: Prisma.StringWithAggregatesFilter<"IncidentPerson"> | string
+  incidentId?: Prisma.StringWithAggregatesFilter<"IncidentPerson"> | string
   name?: Prisma.StringWithAggregatesFilter<"IncidentPerson"> | string
   role?: Prisma.StringWithAggregatesFilter<"IncidentPerson"> | string
   contact?: Prisma.StringNullableWithAggregatesFilter<"IncidentPerson"> | string | null
@@ -282,6 +241,7 @@ export type IncidentPersonScalarWhereWithAggregatesInput = {
 }
 
 export type IncidentPersonCreateInput = {
+  id?: string
   name: string
   role: string
   contact?: string | null
@@ -290,8 +250,8 @@ export type IncidentPersonCreateInput = {
 }
 
 export type IncidentPersonUncheckedCreateInput = {
-  id?: number
-  incidentId: number
+  id?: string
+  incidentId: string
   name: string
   role: string
   contact?: string | null
@@ -307,8 +267,7 @@ export type IncidentPersonUpdateInput = {
 }
 
 export type IncidentPersonUncheckedUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  incidentId?: Prisma.IntFieldUpdateOperationsInput | number
+  incidentId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   contact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -316,8 +275,8 @@ export type IncidentPersonUncheckedUpdateInput = {
 }
 
 export type IncidentPersonCreateManyInput = {
-  id?: number
-  incidentId: number
+  id?: string
+  incidentId: string
   name: string
   role: string
   contact?: string | null
@@ -332,8 +291,7 @@ export type IncidentPersonUpdateManyMutationInput = {
 }
 
 export type IncidentPersonUncheckedUpdateManyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  incidentId?: Prisma.IntFieldUpdateOperationsInput | number
+  incidentId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   contact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -350,12 +308,6 @@ export type IncidentPersonOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type IncidentPersonOrderByRelevanceInput = {
-  fields: Prisma.IncidentPersonOrderByRelevanceFieldEnum | Prisma.IncidentPersonOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
-}
-
 export type IncidentPersonCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   incidentId?: Prisma.SortOrder
@@ -363,11 +315,6 @@ export type IncidentPersonCountOrderByAggregateInput = {
   role?: Prisma.SortOrder
   contact?: Prisma.SortOrder
   notes?: Prisma.SortOrder
-}
-
-export type IncidentPersonAvgOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  incidentId?: Prisma.SortOrder
 }
 
 export type IncidentPersonMaxOrderByAggregateInput = {
@@ -386,11 +333,6 @@ export type IncidentPersonMinOrderByAggregateInput = {
   role?: Prisma.SortOrder
   contact?: Prisma.SortOrder
   notes?: Prisma.SortOrder
-}
-
-export type IncidentPersonSumOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  incidentId?: Prisma.SortOrder
 }
 
 export type IncidentPersonCreateNestedManyWithoutIncidentInput = {
@@ -436,6 +378,7 @@ export type IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput = {
 }
 
 export type IncidentPersonCreateWithoutIncidentInput = {
+  id?: string
   name: string
   role: string
   contact?: string | null
@@ -443,7 +386,7 @@ export type IncidentPersonCreateWithoutIncidentInput = {
 }
 
 export type IncidentPersonUncheckedCreateWithoutIncidentInput = {
-  id?: number
+  id?: string
   name: string
   role: string
   contact?: string | null
@@ -457,7 +400,6 @@ export type IncidentPersonCreateOrConnectWithoutIncidentInput = {
 
 export type IncidentPersonCreateManyIncidentInputEnvelope = {
   data: Prisma.IncidentPersonCreateManyIncidentInput | Prisma.IncidentPersonCreateManyIncidentInput[]
-  skipDuplicates?: boolean
 }
 
 export type IncidentPersonUpsertWithWhereUniqueWithoutIncidentInput = {
@@ -480,8 +422,8 @@ export type IncidentPersonScalarWhereInput = {
   AND?: Prisma.IncidentPersonScalarWhereInput | Prisma.IncidentPersonScalarWhereInput[]
   OR?: Prisma.IncidentPersonScalarWhereInput[]
   NOT?: Prisma.IncidentPersonScalarWhereInput | Prisma.IncidentPersonScalarWhereInput[]
-  id?: Prisma.IntFilter<"IncidentPerson"> | number
-  incidentId?: Prisma.IntFilter<"IncidentPerson"> | number
+  id?: Prisma.StringFilter<"IncidentPerson"> | string
+  incidentId?: Prisma.StringFilter<"IncidentPerson"> | string
   name?: Prisma.StringFilter<"IncidentPerson"> | string
   role?: Prisma.StringFilter<"IncidentPerson"> | string
   contact?: Prisma.StringNullableFilter<"IncidentPerson"> | string | null
@@ -489,7 +431,7 @@ export type IncidentPersonScalarWhereInput = {
 }
 
 export type IncidentPersonCreateManyIncidentInput = {
-  id?: number
+  id?: string
   name: string
   role: string
   contact?: string | null
@@ -504,7 +446,6 @@ export type IncidentPersonUpdateWithoutIncidentInput = {
 }
 
 export type IncidentPersonUncheckedUpdateWithoutIncidentInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   contact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -512,7 +453,6 @@ export type IncidentPersonUncheckedUpdateWithoutIncidentInput = {
 }
 
 export type IncidentPersonUncheckedUpdateManyWithoutIncidentInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   contact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -553,8 +493,8 @@ export type $IncidentPersonPayload<ExtArgs extends runtime.Types.Extensions.Inte
     incident: Prisma.$IncidentPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    id: number
-    incidentId: number
+    id: string
+    incidentId: string
     name: string
     role: string
     contact: string | null
@@ -759,6 +699,29 @@ export interface IncidentPersonDelegate<ExtArgs extends runtime.Types.Extensions
    */
   upsert<T extends IncidentPersonUpsertArgs>(args: Prisma.SelectSubset<T, IncidentPersonUpsertArgs<ExtArgs>>): Prisma.Prisma__IncidentPersonClient<runtime.Types.Result.GetResult<Prisma.$IncidentPersonPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
+  /**
+   * Find zero or more IncidentPeople that matches the filter.
+   * @param {IncidentPersonFindRawArgs} args - Select which filters you would like to apply.
+   * @example
+   * const incidentPerson = await prisma.incidentPerson.findRaw({
+   *   filter: { age: { $gt: 25 } }
+   * })
+   */
+  findRaw(args?: Prisma.IncidentPersonFindRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
+  /**
+   * Perform aggregation operations on a IncidentPerson.
+   * @param {IncidentPersonAggregateRawArgs} args - Select which aggregations you would like to apply.
+   * @example
+   * const incidentPerson = await prisma.incidentPerson.aggregateRaw({
+   *   pipeline: [
+   *     { $match: { status: "registered" } },
+   *     { $group: { _id: "$country", total: { $sum: 1 } } }
+   *   ]
+   * })
+   */
+  aggregateRaw(args?: Prisma.IncidentPersonAggregateRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
 
   /**
    * Count the number of IncidentPeople.
@@ -929,8 +892,8 @@ export interface Prisma__IncidentPersonClient<T, Null = never, ExtArgs extends r
  * Fields of the IncidentPerson model
  */
 export interface IncidentPersonFieldRefs {
-  readonly id: Prisma.FieldRef<"IncidentPerson", 'Int'>
-  readonly incidentId: Prisma.FieldRef<"IncidentPerson", 'Int'>
+  readonly id: Prisma.FieldRef<"IncidentPerson", 'String'>
+  readonly incidentId: Prisma.FieldRef<"IncidentPerson", 'String'>
   readonly name: Prisma.FieldRef<"IncidentPerson", 'String'>
   readonly role: Prisma.FieldRef<"IncidentPerson", 'String'>
   readonly contact: Prisma.FieldRef<"IncidentPerson", 'String'>
@@ -1131,11 +1094,6 @@ export type IncidentPersonFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Skip the first `n` IncidentPeople.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of IncidentPeople.
-   */
   distinct?: Prisma.IncidentPersonScalarFieldEnum | Prisma.IncidentPersonScalarFieldEnum[]
 }
 
@@ -1169,7 +1127,6 @@ export type IncidentPersonCreateManyArgs<ExtArgs extends runtime.Types.Extension
    * The data used to create many IncidentPeople.
    */
   data: Prisma.IncidentPersonCreateManyInput | Prisma.IncidentPersonCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1280,6 +1237,34 @@ export type IncidentPersonDeleteManyArgs<ExtArgs extends runtime.Types.Extension
    * Limit how many IncidentPeople to delete.
    */
   limit?: number
+}
+
+/**
+ * IncidentPerson findRaw
+ */
+export type IncidentPersonFindRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+   */
+  filter?: runtime.InputJsonValue
+  /**
+   * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
+}
+
+/**
+ * IncidentPerson aggregateRaw
+ */
+export type IncidentPersonAggregateRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+   */
+  pipeline?: runtime.InputJsonValue[]
+  /**
+   * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
 }
 
 /**

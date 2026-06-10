@@ -14,7 +14,7 @@ describe("ReportController", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockRequest = {
-      user: { companyId: 5, userId: 10, role: "admin" },
+      user: { companyId: "5", userId: "10", role: "admin" },
     };
     mockReply = {
       code: jest.fn().mockReturnThis(),
@@ -36,7 +36,7 @@ describe("ReportController", () => {
 
       await ReportController.summary(mockRequest, mockReply);
 
-      expect(ReportService.summary).toHaveBeenCalledWith(5, 10);
+      expect(ReportService.summary).toHaveBeenCalledWith("5", "10");
       expect(mockReply.code).toHaveBeenCalledWith(200);
       expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: mockData });
     });

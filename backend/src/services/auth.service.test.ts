@@ -24,11 +24,11 @@ jest.mock("../lib/db", () => ({
       update: jest.fn(),
     },
     subscriptionPlan: {
-      findFirst: jest.fn().mockResolvedValue({ id: 1, name: "Starter", price: 0, reportLimit: 20, userLimit: 1, features: "[]" }),
+      findFirst: jest.fn().mockResolvedValue({ id: "1", name: "Starter", price: 0, reportLimit: 20, userLimit: 1, features: "[]" }),
     },
     companySubscription: {
       findUnique: jest.fn().mockResolvedValue(null),
-      create: jest.fn().mockResolvedValue({ id: 1, companyId: 1, planId: 1, status: "active" }),
+      create: jest.fn().mockResolvedValue({ id: "1", companyId: "1", planId: "1", status: "active" }),
     },
     $transaction: jest.fn((fn: any) => fn(prisma)),
   },
@@ -43,19 +43,19 @@ jest.mock("../lib/mail", () => ({
 }));
 
 const mockUser = {
-  id: 1,
-  companyId: 1,
+  id: "1",
+  companyId: "1",
   name: "Test User",
   email: "test@example.com",
   passwordHash: "$2b$12$hashedpassword",
-  role: "owner" as const,
+  role: "owner",
   status: "active",
   createdAt: new Date(),
   updatedAt: new Date(),
 };
 
 const mockCompany = {
-  id: 1,
+  id: "1",
   name: "Test Company",
   email: "test@example.com",
   createdAt: new Date(),
@@ -101,7 +101,7 @@ describe("AuthService", () => {
 
   describe("refresh", () => {
     it("returns new tokens for valid refresh token", async () => {
-      (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: 1, role: "owner", companyId: 1 });
+      (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: "1", role: "owner", companyId: "1" });
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
       (jwt.signAccessToken as jest.Mock).mockReturnValue("new-access-token");
       (jwt.signRefreshToken as jest.Mock).mockReturnValue("new-refresh-token");
@@ -121,7 +121,7 @@ describe("AuthService", () => {
     });
 
     it("throws UnauthorizedError when user from token no longer exists", async () => {
-      (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: 999, role: "owner", companyId: 1 });
+      (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: "999", role: "owner", companyId: "1" });
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(AuthService.refresh("token-for-deleted-user")).rejects.toThrow(UnauthorizedError);
@@ -177,8 +177,8 @@ describe("AuthService", () => {
         name: "Test User",
         email: "test@example.com",
         password: "password123",
-        companyId: 1,
-        createdBy: 1,
+        companyId: "1",
+        createdBy: "1",
       });
 
       expect(result).toEqual(expect.objectContaining({ email: "test@example.com" }));
@@ -192,8 +192,8 @@ describe("AuthService", () => {
           name: "Test User",
           email: "test@example.com",
           password: "password123",
-          companyId: 1,
-          createdBy: 1,
+          companyId: "1",
+          createdBy: "1",
         }),
       ).rejects.toThrow(ConflictError);
     });
@@ -203,7 +203,7 @@ describe("AuthService", () => {
     it("returns user by id", async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
-      const result = await AuthService.getMe(1);
+      const result = await AuthService.getMe("1");
 
       expect(result.email).toBe("test@example.com");
     });
@@ -211,14 +211,14 @@ describe("AuthService", () => {
     it("throws UnauthorizedError for non-existent user", async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-      await expect(AuthService.getMe(999)).rejects.toThrow(UnauthorizedError);
+      await expect(AuthService.getMe("999")).rejects.toThrow(UnauthorizedError);
     });
   });
 
   describe("forgotPassword", () => {
     it("creates a reset token and calls sendPasswordResetEmail when user exists", async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
-      (prisma.passwordResetToken.create as jest.Mock).mockResolvedValue({ id: 1 });
+      (prisma.passwordResetToken.create as jest.Mock).mockResolvedValue({ id: "1" });
 
       await AuthService.forgotPassword("test@example.com");
 
@@ -243,7 +243,7 @@ describe("AuthService", () => {
   describe("resetPassword", () => {
     const futureDate = new Date(Date.now() + 3600000);
     const validRecord = {
-      id: 1,
+      id: "1",
       email: "test@example.com",
       tokenHash: "somehash",
       usedAt: null,
@@ -258,7 +258,7 @@ describe("AuthService", () => {
       await AuthService.resetPassword("valid-token", "newpassword123");
 
       expect(prisma.passwordResetToken.update).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: "1" },
         data: { usedAt: expect.any(Date) },
       });
       expect(prisma.user.update).toHaveBeenCalledWith({
@@ -294,10 +294,10 @@ describe("changePassword", () => {
     (hash.comparePassword as jest.Mock).mockResolvedValue(true);
     (hash.hashPassword as jest.Mock).mockResolvedValue("$2b$12$newhash");
 
-    await AuthService.changePassword(1, "current-password", "new-password");
+    await AuthService.changePassword("1", "current-password", "new-password");
 
     expect(prisma.user.update).toHaveBeenCalledWith({
-      where: { id: 1 },
+      where: { id: "1" },
       data: { passwordHash: "$2b$12$newhash" },
     });
   });
@@ -305,30 +305,30 @@ describe("changePassword", () => {
   it("throws UnauthorizedError when user not found", async () => {
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-    await expect(AuthService.changePassword(1, "current", "new")).rejects.toThrow(UnauthorizedError);
+    await expect(AuthService.changePassword("1", "current", "new")).rejects.toThrow(UnauthorizedError);
   });
 
   it("throws UnauthorizedError when current password is incorrect", async () => {
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
     (hash.comparePassword as jest.Mock).mockResolvedValue(false);
 
-    await expect(AuthService.changePassword(1, "wrong", "new")).rejects.toThrow(UnauthorizedError);
+    await expect(AuthService.changePassword("1", "wrong", "new")).rejects.toThrow(UnauthorizedError);
   });
 });
 
 describe("listUsers", () => {
   it("returns all users for the company", async () => {
     const users = [
-      { id: 1, name: "User A", email: "a@test.com", role: "senior", status: "active", createdAt: new Date() },
-      { id: 2, name: "User B", email: "b@test.com", role: "owner", status: "active", createdAt: new Date() },
+      { id: "1", name: "User A", email: "a@test.com", role: "senior", status: "active", createdAt: new Date() },
+      { id: "2", name: "User B", email: "b@test.com", role: "owner", status: "active", createdAt: new Date() },
     ];
     (prisma.user.findMany as jest.Mock).mockResolvedValue(users);
 
-    const result = await AuthService.listUsers(1);
+    const result = await AuthService.listUsers("1");
 
     expect(result).toEqual(users);
     expect(prisma.user.findMany).toHaveBeenCalledWith({
-      where: { companyId: 1 },
+      where: { companyId: "1" },
       select: expect.any(Object),
       orderBy: { createdAt: "desc" },
     });
@@ -338,12 +338,12 @@ describe("listUsers", () => {
 describe("getUserById", () => {
   it("returns user when found in same company", async () => {
     const user = {
-      id: 1, name: "Test User", email: "test@example.com", role: "owner",
+      id: "1", name: "Test User", email: "test@example.com", role: "owner",
       status: "active", createdAt: new Date(), updatedAt: new Date(),
     };
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(user);
 
-    const result = await AuthService.getUserById(1, 1);
+    const result = await AuthService.getUserById("1", "1");
 
     expect(result).toEqual(user);
   });
@@ -351,7 +351,7 @@ describe("getUserById", () => {
   it("throws NotFoundError when user not found", async () => {
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
 
-    await expect(AuthService.getUserById(1, 999)).rejects.toThrow(NotFoundError);
+    await expect(AuthService.getUserById("1", "999")).rejects.toThrow(NotFoundError);
   });
 });
 
@@ -362,7 +362,7 @@ describe("updateUser", () => {
     const updatedUser = { ...mockUser, name: "Updated Name", email: "updated@test.com", role: "manager" };
     (prisma.user.update as jest.Mock).mockResolvedValue(updatedUser);
 
-    const result = await AuthService.updateUser(1, 1, { name: "Updated Name", email: "updated@test.com", role: "manager" });
+    const result = await AuthService.updateUser("1", "1", { name: "Updated Name", email: "updated@test.com", role: "manager" });
 
     expect(result.name).toBe("Updated Name");
   });
@@ -370,14 +370,14 @@ describe("updateUser", () => {
   it("throws NotFoundError when user not in company", async () => {
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
 
-    await expect(AuthService.updateUser(1, 999, { name: "New" })).rejects.toThrow(NotFoundError);
+    await expect(AuthService.updateUser("1", "999", { name: "New" })).rejects.toThrow(NotFoundError);
   });
 
   it("throws ConflictError when email already in use", async () => {
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
-    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ ...mockUser, id: 2, email: "other@test.com" });
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ ...mockUser, id: "2", email: "other@test.com" });
 
-    await expect(AuthService.updateUser(1, 1, { email: "other@test.com" })).rejects.toThrow(ConflictError);
+    await expect(AuthService.updateUser("1", "1", { email: "other@test.com" })).rejects.toThrow(ConflictError);
   });
 });
 

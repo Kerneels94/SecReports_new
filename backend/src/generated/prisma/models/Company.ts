@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -20,22 +20,12 @@ export type CompanyModel = runtime.Types.Result.DefaultSelection<Prisma.$Company
 
 export type AggregateCompany = {
   _count: CompanyCountAggregateOutputType | null
-  _avg: CompanyAvgAggregateOutputType | null
-  _sum: CompanySumAggregateOutputType | null
   _min: CompanyMinAggregateOutputType | null
   _max: CompanyMaxAggregateOutputType | null
 }
 
-export type CompanyAvgAggregateOutputType = {
-  id: number | null
-}
-
-export type CompanySumAggregateOutputType = {
-  id: number | null
-}
-
 export type CompanyMinAggregateOutputType = {
-  id: number | null
+  id: string | null
   name: string | null
   email: string | null
   createdAt: Date | null
@@ -43,7 +33,7 @@ export type CompanyMinAggregateOutputType = {
 }
 
 export type CompanyMaxAggregateOutputType = {
-  id: number | null
+  id: string | null
   name: string | null
   email: string | null
   createdAt: Date | null
@@ -59,14 +49,6 @@ export type CompanyCountAggregateOutputType = {
   _all: number
 }
 
-
-export type CompanyAvgAggregateInputType = {
-  id?: true
-}
-
-export type CompanySumAggregateInputType = {
-  id?: true
-}
 
 export type CompanyMinAggregateInputType = {
   id?: true
@@ -131,18 +113,6 @@ export type CompanyAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: CompanyAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: CompanySumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: CompanyMinAggregateInputType
@@ -173,26 +143,22 @@ export type CompanyGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: CompanyCountAggregateInputType | true
-  _avg?: CompanyAvgAggregateInputType
-  _sum?: CompanySumAggregateInputType
   _min?: CompanyMinAggregateInputType
   _max?: CompanyMaxAggregateInputType
 }
 
 export type CompanyGroupByOutputType = {
-  id: number
+  id: string
   name: string
   email: string
   createdAt: Date
   updatedAt: Date
   _count: CompanyCountAggregateOutputType | null
-  _avg: CompanyAvgAggregateOutputType | null
-  _sum: CompanySumAggregateOutputType | null
   _min: CompanyMinAggregateOutputType | null
   _max: CompanyMaxAggregateOutputType | null
 }
 
-export type GetCompanyGroupByPayload<T extends CompanyGroupByArgs> = Prisma.PrismaPromise<
+type GetCompanyGroupByPayload<T extends CompanyGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<CompanyGroupByOutputType, T['by']> &
       {
@@ -211,7 +177,7 @@ export type CompanyWhereInput = {
   AND?: Prisma.CompanyWhereInput | Prisma.CompanyWhereInput[]
   OR?: Prisma.CompanyWhereInput[]
   NOT?: Prisma.CompanyWhereInput | Prisma.CompanyWhereInput[]
-  id?: Prisma.IntFilter<"Company"> | number
+  id?: Prisma.StringFilter<"Company"> | string
   name?: Prisma.StringFilter<"Company"> | string
   email?: Prisma.StringFilter<"Company"> | string
   createdAt?: Prisma.DateTimeFilter<"Company"> | Date | string
@@ -234,11 +200,10 @@ export type CompanyOrderByWithRelationInput = {
   subscription?: Prisma.CompanySubscriptionOrderByWithRelationInput
   payments?: Prisma.PaymentHistoryOrderByRelationAggregateInput
   apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
-  _relevance?: Prisma.CompanyOrderByRelevanceInput
 }
 
 export type CompanyWhereUniqueInput = Prisma.AtLeast<{
-  id?: number
+  id?: string
   email?: string
   AND?: Prisma.CompanyWhereInput | Prisma.CompanyWhereInput[]
   OR?: Prisma.CompanyWhereInput[]
@@ -260,17 +225,15 @@ export type CompanyOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CompanyCountOrderByAggregateInput
-  _avg?: Prisma.CompanyAvgOrderByAggregateInput
   _max?: Prisma.CompanyMaxOrderByAggregateInput
   _min?: Prisma.CompanyMinOrderByAggregateInput
-  _sum?: Prisma.CompanySumOrderByAggregateInput
 }
 
 export type CompanyScalarWhereWithAggregatesInput = {
   AND?: Prisma.CompanyScalarWhereWithAggregatesInput | Prisma.CompanyScalarWhereWithAggregatesInput[]
   OR?: Prisma.CompanyScalarWhereWithAggregatesInput[]
   NOT?: Prisma.CompanyScalarWhereWithAggregatesInput | Prisma.CompanyScalarWhereWithAggregatesInput[]
-  id?: Prisma.IntWithAggregatesFilter<"Company"> | number
+  id?: Prisma.StringWithAggregatesFilter<"Company"> | string
   name?: Prisma.StringWithAggregatesFilter<"Company"> | string
   email?: Prisma.StringWithAggregatesFilter<"Company"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Company"> | Date | string
@@ -278,6 +241,7 @@ export type CompanyScalarWhereWithAggregatesInput = {
 }
 
 export type CompanyCreateInput = {
+  id?: string
   name: string
   email: string
   createdAt?: Date | string
@@ -290,7 +254,7 @@ export type CompanyCreateInput = {
 }
 
 export type CompanyUncheckedCreateInput = {
-  id?: number
+  id?: string
   name: string
   email: string
   createdAt?: Date | string
@@ -315,7 +279,6 @@ export type CompanyUpdateInput = {
 }
 
 export type CompanyUncheckedUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -328,7 +291,7 @@ export type CompanyUncheckedUpdateInput = {
 }
 
 export type CompanyCreateManyInput = {
-  id?: number
+  id?: string
   name: string
   email: string
   createdAt?: Date | string
@@ -343,17 +306,10 @@ export type CompanyUpdateManyMutationInput = {
 }
 
 export type CompanyUncheckedUpdateManyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type CompanyOrderByRelevanceInput = {
-  fields: Prisma.CompanyOrderByRelevanceFieldEnum | Prisma.CompanyOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type CompanyCountOrderByAggregateInput = {
@@ -362,10 +318,6 @@ export type CompanyCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type CompanyAvgOrderByAggregateInput = {
-  id?: Prisma.SortOrder
 }
 
 export type CompanyMaxOrderByAggregateInput = {
@@ -384,10 +336,6 @@ export type CompanyMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type CompanySumOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-}
-
 export type CompanyScalarRelationFilter = {
   is?: Prisma.CompanyWhereInput
   isNot?: Prisma.CompanyWhereInput
@@ -399,14 +347,6 @@ export type StringFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
-}
-
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
 }
 
 export type CompanyCreateNestedOneWithoutUsersInput = {
@@ -480,6 +420,7 @@ export type CompanyUpdateOneRequiredWithoutApiKeysNestedInput = {
 }
 
 export type CompanyCreateWithoutUsersInput = {
+  id?: string
   name: string
   email: string
   createdAt?: Date | string
@@ -491,7 +432,7 @@ export type CompanyCreateWithoutUsersInput = {
 }
 
 export type CompanyUncheckedCreateWithoutUsersInput = {
-  id?: number
+  id?: string
   name: string
   email: string
   createdAt?: Date | string
@@ -530,7 +471,6 @@ export type CompanyUpdateWithoutUsersInput = {
 }
 
 export type CompanyUncheckedUpdateWithoutUsersInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -542,6 +482,7 @@ export type CompanyUncheckedUpdateWithoutUsersInput = {
 }
 
 export type CompanyCreateWithoutIncidentsInput = {
+  id?: string
   name: string
   email: string
   createdAt?: Date | string
@@ -553,7 +494,7 @@ export type CompanyCreateWithoutIncidentsInput = {
 }
 
 export type CompanyUncheckedCreateWithoutIncidentsInput = {
-  id?: number
+  id?: string
   name: string
   email: string
   createdAt?: Date | string
@@ -592,7 +533,6 @@ export type CompanyUpdateWithoutIncidentsInput = {
 }
 
 export type CompanyUncheckedUpdateWithoutIncidentsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -604,6 +544,7 @@ export type CompanyUncheckedUpdateWithoutIncidentsInput = {
 }
 
 export type CompanyCreateWithoutSubscriptionInput = {
+  id?: string
   name: string
   email: string
   createdAt?: Date | string
@@ -615,7 +556,7 @@ export type CompanyCreateWithoutSubscriptionInput = {
 }
 
 export type CompanyUncheckedCreateWithoutSubscriptionInput = {
-  id?: number
+  id?: string
   name: string
   email: string
   createdAt?: Date | string
@@ -654,7 +595,6 @@ export type CompanyUpdateWithoutSubscriptionInput = {
 }
 
 export type CompanyUncheckedUpdateWithoutSubscriptionInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -666,6 +606,7 @@ export type CompanyUncheckedUpdateWithoutSubscriptionInput = {
 }
 
 export type CompanyCreateWithoutPaymentsInput = {
+  id?: string
   name: string
   email: string
   createdAt?: Date | string
@@ -677,7 +618,7 @@ export type CompanyCreateWithoutPaymentsInput = {
 }
 
 export type CompanyUncheckedCreateWithoutPaymentsInput = {
-  id?: number
+  id?: string
   name: string
   email: string
   createdAt?: Date | string
@@ -716,7 +657,6 @@ export type CompanyUpdateWithoutPaymentsInput = {
 }
 
 export type CompanyUncheckedUpdateWithoutPaymentsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -728,6 +668,7 @@ export type CompanyUncheckedUpdateWithoutPaymentsInput = {
 }
 
 export type CompanyCreateWithoutApiKeysInput = {
+  id?: string
   name: string
   email: string
   createdAt?: Date | string
@@ -739,7 +680,7 @@ export type CompanyCreateWithoutApiKeysInput = {
 }
 
 export type CompanyUncheckedCreateWithoutApiKeysInput = {
-  id?: number
+  id?: string
   name: string
   email: string
   createdAt?: Date | string
@@ -778,7 +719,6 @@ export type CompanyUpdateWithoutApiKeysInput = {
 }
 
 export type CompanyUncheckedUpdateWithoutApiKeysInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -891,7 +831,7 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     apiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    id: number
+    id: string
     name: string
     email: string
     createdAt: Date
@@ -1096,6 +1036,29 @@ export interface CompanyDelegate<ExtArgs extends runtime.Types.Extensions.Intern
    */
   upsert<T extends CompanyUpsertArgs>(args: Prisma.SelectSubset<T, CompanyUpsertArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
+  /**
+   * Find zero or more Companies that matches the filter.
+   * @param {CompanyFindRawArgs} args - Select which filters you would like to apply.
+   * @example
+   * const company = await prisma.company.findRaw({
+   *   filter: { age: { $gt: 25 } }
+   * })
+   */
+  findRaw(args?: Prisma.CompanyFindRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
+  /**
+   * Perform aggregation operations on a Company.
+   * @param {CompanyAggregateRawArgs} args - Select which aggregations you would like to apply.
+   * @example
+   * const company = await prisma.company.aggregateRaw({
+   *   pipeline: [
+   *     { $match: { status: "registered" } },
+   *     { $group: { _id: "$country", total: { $sum: 1 } } }
+   *   ]
+   * })
+   */
+  aggregateRaw(args?: Prisma.CompanyAggregateRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
 
   /**
    * Count the number of Companies.
@@ -1270,7 +1233,7 @@ export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.
  * Fields of the Company model
  */
 export interface CompanyFieldRefs {
-  readonly id: Prisma.FieldRef<"Company", 'Int'>
+  readonly id: Prisma.FieldRef<"Company", 'String'>
   readonly name: Prisma.FieldRef<"Company", 'String'>
   readonly email: Prisma.FieldRef<"Company", 'String'>
   readonly createdAt: Prisma.FieldRef<"Company", 'DateTime'>
@@ -1471,11 +1434,6 @@ export type CompanyFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Skip the first `n` Companies.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of Companies.
-   */
   distinct?: Prisma.CompanyScalarFieldEnum | Prisma.CompanyScalarFieldEnum[]
 }
 
@@ -1509,7 +1467,6 @@ export type CompanyCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * The data used to create many Companies.
    */
   data: Prisma.CompanyCreateManyInput | Prisma.CompanyCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1620,6 +1577,34 @@ export type CompanyDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Companies to delete.
    */
   limit?: number
+}
+
+/**
+ * Company findRaw
+ */
+export type CompanyFindRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+   */
+  filter?: runtime.InputJsonValue
+  /**
+   * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
+}
+
+/**
+ * Company aggregateRaw
+ */
+export type CompanyAggregateRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+   */
+  pipeline?: runtime.InputJsonValue[]
+  /**
+   * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
 }
 
 /**

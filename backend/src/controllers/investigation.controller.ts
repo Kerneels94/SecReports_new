@@ -14,14 +14,14 @@ const upsertSchema = z.object({
 
 const createActionSchema = z.object({
   description: z.string().min(1),
-  ownerId: z.number().int().positive(),
+  ownerId: z.string().min(1),
   dueDate: z.string().min(1),
 });
 
 const updateActionSchema = z.object({
   status: z.enum(["open", "in_progress", "completed", "overdue"]).optional(),
   description: z.string().optional(),
-  ownerId: z.number().int().positive().optional(),
+  ownerId: z.string().optional(),
   dueDate: z.string().optional(),
   completedAt: z.string().optional(),
 });
@@ -32,7 +32,7 @@ export const InvestigationController = {
 
     const { id } = request.params as { id: string };
     const investigation = await prisma.investigation.findUnique({
-      where: { incidentId: Number(id) },
+      where: { incidentId: id },
     });
     if (!investigation) {
       reply.code(200).send({ success: true, data: null });
@@ -48,7 +48,7 @@ export const InvestigationController = {
     const parsed = upsertSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const incident = await prisma.incident.findUnique({ where: { id: Number(id) } });
+    const incident = await prisma.incident.findUnique({ where: { id } });
     if (!incident) throw new NotFoundError("Incident");
 
     const data: any = {};
@@ -72,7 +72,7 @@ export const InvestigationController = {
 
     const { id } = request.params as { id: string };
     const actions = await prisma.correctiveAction.findMany({
-      where: { incidentId: Number(id) },
+      where: { incidentId: id },
       include: { owner: { select: { id: true, name: true } } },
       orderBy: { dueDate: "asc" },
     });
@@ -87,7 +87,7 @@ export const InvestigationController = {
     const parsed = createActionSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const incident = await prisma.incident.findUnique({ where: { id: Number(id) } });
+    const incident = await prisma.incident.findUnique({ where: { id } });
     if (!incident) throw new NotFoundError("Incident");
 
     const action = await prisma.correctiveAction.create({
@@ -118,7 +118,7 @@ export const InvestigationController = {
     if (parsed.data.completedAt !== undefined) data.completedAt = new Date(parsed.data.completedAt);
 
     const action = await prisma.correctiveAction.update({
-      where: { id: Number(actionId) },
+      where: { id: actionId },
       data,
       include: { owner: { select: { id: true, name: true } } },
     });

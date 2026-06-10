@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -20,43 +20,29 @@ export type CorrectiveActionModel = runtime.Types.Result.DefaultSelection<Prisma
 
 export type AggregateCorrectiveAction = {
   _count: CorrectiveActionCountAggregateOutputType | null
-  _avg: CorrectiveActionAvgAggregateOutputType | null
-  _sum: CorrectiveActionSumAggregateOutputType | null
   _min: CorrectiveActionMinAggregateOutputType | null
   _max: CorrectiveActionMaxAggregateOutputType | null
 }
 
-export type CorrectiveActionAvgAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
-  ownerId: number | null
-}
-
-export type CorrectiveActionSumAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
-  ownerId: number | null
-}
-
 export type CorrectiveActionMinAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
+  id: string | null
+  incidentId: string | null
   description: string | null
-  ownerId: number | null
+  ownerId: string | null
   dueDate: Date | null
-  status: $Enums.ActionStatus | null
+  status: string | null
   completedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type CorrectiveActionMaxAggregateOutputType = {
-  id: number | null
-  incidentId: number | null
+  id: string | null
+  incidentId: string | null
   description: string | null
-  ownerId: number | null
+  ownerId: string | null
   dueDate: Date | null
-  status: $Enums.ActionStatus | null
+  status: string | null
   completedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -75,18 +61,6 @@ export type CorrectiveActionCountAggregateOutputType = {
   _all: number
 }
 
-
-export type CorrectiveActionAvgAggregateInputType = {
-  id?: true
-  incidentId?: true
-  ownerId?: true
-}
-
-export type CorrectiveActionSumAggregateInputType = {
-  id?: true
-  incidentId?: true
-  ownerId?: true
-}
 
 export type CorrectiveActionMinAggregateInputType = {
   id?: true
@@ -163,18 +137,6 @@ export type CorrectiveActionAggregateArgs<ExtArgs extends runtime.Types.Extensio
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: CorrectiveActionAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: CorrectiveActionSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: CorrectiveActionMinAggregateInputType
@@ -205,30 +167,26 @@ export type CorrectiveActionGroupByArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   _count?: CorrectiveActionCountAggregateInputType | true
-  _avg?: CorrectiveActionAvgAggregateInputType
-  _sum?: CorrectiveActionSumAggregateInputType
   _min?: CorrectiveActionMinAggregateInputType
   _max?: CorrectiveActionMaxAggregateInputType
 }
 
 export type CorrectiveActionGroupByOutputType = {
-  id: number
-  incidentId: number
+  id: string
+  incidentId: string
   description: string
-  ownerId: number
+  ownerId: string
   dueDate: Date
-  status: $Enums.ActionStatus
+  status: string
   completedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: CorrectiveActionCountAggregateOutputType | null
-  _avg: CorrectiveActionAvgAggregateOutputType | null
-  _sum: CorrectiveActionSumAggregateOutputType | null
   _min: CorrectiveActionMinAggregateOutputType | null
   _max: CorrectiveActionMaxAggregateOutputType | null
 }
 
-export type GetCorrectiveActionGroupByPayload<T extends CorrectiveActionGroupByArgs> = Prisma.PrismaPromise<
+type GetCorrectiveActionGroupByPayload<T extends CorrectiveActionGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<CorrectiveActionGroupByOutputType, T['by']> &
       {
@@ -247,12 +205,12 @@ export type CorrectiveActionWhereInput = {
   AND?: Prisma.CorrectiveActionWhereInput | Prisma.CorrectiveActionWhereInput[]
   OR?: Prisma.CorrectiveActionWhereInput[]
   NOT?: Prisma.CorrectiveActionWhereInput | Prisma.CorrectiveActionWhereInput[]
-  id?: Prisma.IntFilter<"CorrectiveAction"> | number
-  incidentId?: Prisma.IntFilter<"CorrectiveAction"> | number
+  id?: Prisma.StringFilter<"CorrectiveAction"> | string
+  incidentId?: Prisma.StringFilter<"CorrectiveAction"> | string
   description?: Prisma.StringFilter<"CorrectiveAction"> | string
-  ownerId?: Prisma.IntFilter<"CorrectiveAction"> | number
+  ownerId?: Prisma.StringFilter<"CorrectiveAction"> | string
   dueDate?: Prisma.DateTimeFilter<"CorrectiveAction"> | Date | string
-  status?: Prisma.EnumActionStatusFilter<"CorrectiveAction"> | $Enums.ActionStatus
+  status?: Prisma.StringFilter<"CorrectiveAction"> | string
   completedAt?: Prisma.DateTimeNullableFilter<"CorrectiveAction"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"CorrectiveAction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CorrectiveAction"> | Date | string
@@ -267,24 +225,23 @@ export type CorrectiveActionOrderByWithRelationInput = {
   ownerId?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   incident?: Prisma.IncidentOrderByWithRelationInput
   owner?: Prisma.UserOrderByWithRelationInput
-  _relevance?: Prisma.CorrectiveActionOrderByRelevanceInput
 }
 
 export type CorrectiveActionWhereUniqueInput = Prisma.AtLeast<{
-  id?: number
+  id?: string
   AND?: Prisma.CorrectiveActionWhereInput | Prisma.CorrectiveActionWhereInput[]
   OR?: Prisma.CorrectiveActionWhereInput[]
   NOT?: Prisma.CorrectiveActionWhereInput | Prisma.CorrectiveActionWhereInput[]
-  incidentId?: Prisma.IntFilter<"CorrectiveAction"> | number
+  incidentId?: Prisma.StringFilter<"CorrectiveAction"> | string
   description?: Prisma.StringFilter<"CorrectiveAction"> | string
-  ownerId?: Prisma.IntFilter<"CorrectiveAction"> | number
+  ownerId?: Prisma.StringFilter<"CorrectiveAction"> | string
   dueDate?: Prisma.DateTimeFilter<"CorrectiveAction"> | Date | string
-  status?: Prisma.EnumActionStatusFilter<"CorrectiveAction"> | $Enums.ActionStatus
+  status?: Prisma.StringFilter<"CorrectiveAction"> | string
   completedAt?: Prisma.DateTimeNullableFilter<"CorrectiveAction"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"CorrectiveAction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CorrectiveAction"> | Date | string
@@ -299,35 +256,34 @@ export type CorrectiveActionOrderByWithAggregationInput = {
   ownerId?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CorrectiveActionCountOrderByAggregateInput
-  _avg?: Prisma.CorrectiveActionAvgOrderByAggregateInput
   _max?: Prisma.CorrectiveActionMaxOrderByAggregateInput
   _min?: Prisma.CorrectiveActionMinOrderByAggregateInput
-  _sum?: Prisma.CorrectiveActionSumOrderByAggregateInput
 }
 
 export type CorrectiveActionScalarWhereWithAggregatesInput = {
   AND?: Prisma.CorrectiveActionScalarWhereWithAggregatesInput | Prisma.CorrectiveActionScalarWhereWithAggregatesInput[]
   OR?: Prisma.CorrectiveActionScalarWhereWithAggregatesInput[]
   NOT?: Prisma.CorrectiveActionScalarWhereWithAggregatesInput | Prisma.CorrectiveActionScalarWhereWithAggregatesInput[]
-  id?: Prisma.IntWithAggregatesFilter<"CorrectiveAction"> | number
-  incidentId?: Prisma.IntWithAggregatesFilter<"CorrectiveAction"> | number
+  id?: Prisma.StringWithAggregatesFilter<"CorrectiveAction"> | string
+  incidentId?: Prisma.StringWithAggregatesFilter<"CorrectiveAction"> | string
   description?: Prisma.StringWithAggregatesFilter<"CorrectiveAction"> | string
-  ownerId?: Prisma.IntWithAggregatesFilter<"CorrectiveAction"> | number
+  ownerId?: Prisma.StringWithAggregatesFilter<"CorrectiveAction"> | string
   dueDate?: Prisma.DateTimeWithAggregatesFilter<"CorrectiveAction"> | Date | string
-  status?: Prisma.EnumActionStatusWithAggregatesFilter<"CorrectiveAction"> | $Enums.ActionStatus
+  status?: Prisma.StringWithAggregatesFilter<"CorrectiveAction"> | string
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CorrectiveAction"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CorrectiveAction"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CorrectiveAction"> | Date | string
 }
 
 export type CorrectiveActionCreateInput = {
+  id?: string
   description: string
   dueDate: Date | string
-  status?: $Enums.ActionStatus
+  status?: string
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -336,12 +292,12 @@ export type CorrectiveActionCreateInput = {
 }
 
 export type CorrectiveActionUncheckedCreateInput = {
-  id?: number
-  incidentId: number
+  id?: string
+  incidentId: string
   description: string
-  ownerId: number
+  ownerId: string
   dueDate: Date | string
-  status?: $Enums.ActionStatus
+  status?: string
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -350,7 +306,7 @@ export type CorrectiveActionUncheckedCreateInput = {
 export type CorrectiveActionUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumActionStatusFieldUpdateOperationsInput | $Enums.ActionStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -359,24 +315,23 @@ export type CorrectiveActionUpdateInput = {
 }
 
 export type CorrectiveActionUncheckedUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  incidentId?: Prisma.IntFieldUpdateOperationsInput | number
+  incidentId?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  ownerId?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumActionStatusFieldUpdateOperationsInput | $Enums.ActionStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CorrectiveActionCreateManyInput = {
-  id?: number
-  incidentId: number
+  id?: string
+  incidentId: string
   description: string
-  ownerId: number
+  ownerId: string
   dueDate: Date | string
-  status?: $Enums.ActionStatus
+  status?: string
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -385,19 +340,18 @@ export type CorrectiveActionCreateManyInput = {
 export type CorrectiveActionUpdateManyMutationInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumActionStatusFieldUpdateOperationsInput | $Enums.ActionStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CorrectiveActionUncheckedUpdateManyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  incidentId?: Prisma.IntFieldUpdateOperationsInput | number
+  incidentId?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  ownerId?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumActionStatusFieldUpdateOperationsInput | $Enums.ActionStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -413,12 +367,6 @@ export type CorrectiveActionOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type CorrectiveActionOrderByRelevanceInput = {
-  fields: Prisma.CorrectiveActionOrderByRelevanceFieldEnum | Prisma.CorrectiveActionOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
-}
-
 export type CorrectiveActionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   incidentId?: Prisma.SortOrder
@@ -429,12 +377,6 @@ export type CorrectiveActionCountOrderByAggregateInput = {
   completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type CorrectiveActionAvgOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  incidentId?: Prisma.SortOrder
-  ownerId?: Prisma.SortOrder
 }
 
 export type CorrectiveActionMaxOrderByAggregateInput = {
@@ -459,12 +401,6 @@ export type CorrectiveActionMinOrderByAggregateInput = {
   completedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type CorrectiveActionSumOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  incidentId?: Prisma.SortOrder
-  ownerId?: Prisma.SortOrder
 }
 
 export type CorrectiveActionCreateNestedManyWithoutOwnerInput = {
@@ -551,14 +487,11 @@ export type CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput = {
   deleteMany?: Prisma.CorrectiveActionScalarWhereInput | Prisma.CorrectiveActionScalarWhereInput[]
 }
 
-export type EnumActionStatusFieldUpdateOperationsInput = {
-  set?: $Enums.ActionStatus
-}
-
 export type CorrectiveActionCreateWithoutOwnerInput = {
+  id?: string
   description: string
   dueDate: Date | string
-  status?: $Enums.ActionStatus
+  status?: string
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -566,11 +499,11 @@ export type CorrectiveActionCreateWithoutOwnerInput = {
 }
 
 export type CorrectiveActionUncheckedCreateWithoutOwnerInput = {
-  id?: number
-  incidentId: number
+  id?: string
+  incidentId: string
   description: string
   dueDate: Date | string
-  status?: $Enums.ActionStatus
+  status?: string
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -583,7 +516,6 @@ export type CorrectiveActionCreateOrConnectWithoutOwnerInput = {
 
 export type CorrectiveActionCreateManyOwnerInputEnvelope = {
   data: Prisma.CorrectiveActionCreateManyOwnerInput | Prisma.CorrectiveActionCreateManyOwnerInput[]
-  skipDuplicates?: boolean
 }
 
 export type CorrectiveActionUpsertWithWhereUniqueWithoutOwnerInput = {
@@ -606,21 +538,22 @@ export type CorrectiveActionScalarWhereInput = {
   AND?: Prisma.CorrectiveActionScalarWhereInput | Prisma.CorrectiveActionScalarWhereInput[]
   OR?: Prisma.CorrectiveActionScalarWhereInput[]
   NOT?: Prisma.CorrectiveActionScalarWhereInput | Prisma.CorrectiveActionScalarWhereInput[]
-  id?: Prisma.IntFilter<"CorrectiveAction"> | number
-  incidentId?: Prisma.IntFilter<"CorrectiveAction"> | number
+  id?: Prisma.StringFilter<"CorrectiveAction"> | string
+  incidentId?: Prisma.StringFilter<"CorrectiveAction"> | string
   description?: Prisma.StringFilter<"CorrectiveAction"> | string
-  ownerId?: Prisma.IntFilter<"CorrectiveAction"> | number
+  ownerId?: Prisma.StringFilter<"CorrectiveAction"> | string
   dueDate?: Prisma.DateTimeFilter<"CorrectiveAction"> | Date | string
-  status?: Prisma.EnumActionStatusFilter<"CorrectiveAction"> | $Enums.ActionStatus
+  status?: Prisma.StringFilter<"CorrectiveAction"> | string
   completedAt?: Prisma.DateTimeNullableFilter<"CorrectiveAction"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"CorrectiveAction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CorrectiveAction"> | Date | string
 }
 
 export type CorrectiveActionCreateWithoutIncidentInput = {
+  id?: string
   description: string
   dueDate: Date | string
-  status?: $Enums.ActionStatus
+  status?: string
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -628,11 +561,11 @@ export type CorrectiveActionCreateWithoutIncidentInput = {
 }
 
 export type CorrectiveActionUncheckedCreateWithoutIncidentInput = {
-  id?: number
+  id?: string
   description: string
-  ownerId: number
+  ownerId: string
   dueDate: Date | string
-  status?: $Enums.ActionStatus
+  status?: string
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -645,7 +578,6 @@ export type CorrectiveActionCreateOrConnectWithoutIncidentInput = {
 
 export type CorrectiveActionCreateManyIncidentInputEnvelope = {
   data: Prisma.CorrectiveActionCreateManyIncidentInput | Prisma.CorrectiveActionCreateManyIncidentInput[]
-  skipDuplicates?: boolean
 }
 
 export type CorrectiveActionUpsertWithWhereUniqueWithoutIncidentInput = {
@@ -665,11 +597,11 @@ export type CorrectiveActionUpdateManyWithWhereWithoutIncidentInput = {
 }
 
 export type CorrectiveActionCreateManyOwnerInput = {
-  id?: number
-  incidentId: number
+  id?: string
+  incidentId: string
   description: string
   dueDate: Date | string
-  status?: $Enums.ActionStatus
+  status?: string
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -678,7 +610,7 @@ export type CorrectiveActionCreateManyOwnerInput = {
 export type CorrectiveActionUpdateWithoutOwnerInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumActionStatusFieldUpdateOperationsInput | $Enums.ActionStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -686,33 +618,31 @@ export type CorrectiveActionUpdateWithoutOwnerInput = {
 }
 
 export type CorrectiveActionUncheckedUpdateWithoutOwnerInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  incidentId?: Prisma.IntFieldUpdateOperationsInput | number
+  incidentId?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumActionStatusFieldUpdateOperationsInput | $Enums.ActionStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CorrectiveActionUncheckedUpdateManyWithoutOwnerInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  incidentId?: Prisma.IntFieldUpdateOperationsInput | number
+  incidentId?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumActionStatusFieldUpdateOperationsInput | $Enums.ActionStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CorrectiveActionCreateManyIncidentInput = {
-  id?: number
+  id?: string
   description: string
-  ownerId: number
+  ownerId: string
   dueDate: Date | string
-  status?: $Enums.ActionStatus
+  status?: string
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -721,7 +651,7 @@ export type CorrectiveActionCreateManyIncidentInput = {
 export type CorrectiveActionUpdateWithoutIncidentInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumActionStatusFieldUpdateOperationsInput | $Enums.ActionStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -729,22 +659,20 @@ export type CorrectiveActionUpdateWithoutIncidentInput = {
 }
 
 export type CorrectiveActionUncheckedUpdateWithoutIncidentInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  ownerId?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumActionStatusFieldUpdateOperationsInput | $Enums.ActionStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CorrectiveActionUncheckedUpdateManyWithoutIncidentInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   description?: Prisma.StringFieldUpdateOperationsInput | string
-  ownerId?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.EnumActionStatusFieldUpdateOperationsInput | $Enums.ActionStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -793,12 +721,12 @@ export type $CorrectiveActionPayload<ExtArgs extends runtime.Types.Extensions.In
     owner: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    id: number
-    incidentId: number
+    id: string
+    incidentId: string
     description: string
-    ownerId: number
+    ownerId: string
     dueDate: Date
-    status: $Enums.ActionStatus
+    status: string
     completedAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -1002,6 +930,29 @@ export interface CorrectiveActionDelegate<ExtArgs extends runtime.Types.Extensio
    */
   upsert<T extends CorrectiveActionUpsertArgs>(args: Prisma.SelectSubset<T, CorrectiveActionUpsertArgs<ExtArgs>>): Prisma.Prisma__CorrectiveActionClient<runtime.Types.Result.GetResult<Prisma.$CorrectiveActionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
+  /**
+   * Find zero or more CorrectiveActions that matches the filter.
+   * @param {CorrectiveActionFindRawArgs} args - Select which filters you would like to apply.
+   * @example
+   * const correctiveAction = await prisma.correctiveAction.findRaw({
+   *   filter: { age: { $gt: 25 } }
+   * })
+   */
+  findRaw(args?: Prisma.CorrectiveActionFindRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
+  /**
+   * Perform aggregation operations on a CorrectiveAction.
+   * @param {CorrectiveActionAggregateRawArgs} args - Select which aggregations you would like to apply.
+   * @example
+   * const correctiveAction = await prisma.correctiveAction.aggregateRaw({
+   *   pipeline: [
+   *     { $match: { status: "registered" } },
+   *     { $group: { _id: "$country", total: { $sum: 1 } } }
+   *   ]
+   * })
+   */
+  aggregateRaw(args?: Prisma.CorrectiveActionAggregateRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
 
   /**
    * Count the number of CorrectiveActions.
@@ -1173,12 +1124,12 @@ export interface Prisma__CorrectiveActionClient<T, Null = never, ExtArgs extends
  * Fields of the CorrectiveAction model
  */
 export interface CorrectiveActionFieldRefs {
-  readonly id: Prisma.FieldRef<"CorrectiveAction", 'Int'>
-  readonly incidentId: Prisma.FieldRef<"CorrectiveAction", 'Int'>
+  readonly id: Prisma.FieldRef<"CorrectiveAction", 'String'>
+  readonly incidentId: Prisma.FieldRef<"CorrectiveAction", 'String'>
   readonly description: Prisma.FieldRef<"CorrectiveAction", 'String'>
-  readonly ownerId: Prisma.FieldRef<"CorrectiveAction", 'Int'>
+  readonly ownerId: Prisma.FieldRef<"CorrectiveAction", 'String'>
   readonly dueDate: Prisma.FieldRef<"CorrectiveAction", 'DateTime'>
-  readonly status: Prisma.FieldRef<"CorrectiveAction", 'ActionStatus'>
+  readonly status: Prisma.FieldRef<"CorrectiveAction", 'String'>
   readonly completedAt: Prisma.FieldRef<"CorrectiveAction", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"CorrectiveAction", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"CorrectiveAction", 'DateTime'>
@@ -1378,11 +1329,6 @@ export type CorrectiveActionFindManyArgs<ExtArgs extends runtime.Types.Extension
    * Skip the first `n` CorrectiveActions.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of CorrectiveActions.
-   */
   distinct?: Prisma.CorrectiveActionScalarFieldEnum | Prisma.CorrectiveActionScalarFieldEnum[]
 }
 
@@ -1416,7 +1362,6 @@ export type CorrectiveActionCreateManyArgs<ExtArgs extends runtime.Types.Extensi
    * The data used to create many CorrectiveActions.
    */
   data: Prisma.CorrectiveActionCreateManyInput | Prisma.CorrectiveActionCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1527,6 +1472,34 @@ export type CorrectiveActionDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many CorrectiveActions to delete.
    */
   limit?: number
+}
+
+/**
+ * CorrectiveAction findRaw
+ */
+export type CorrectiveActionFindRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+   */
+  filter?: runtime.InputJsonValue
+  /**
+   * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
+}
+
+/**
+ * CorrectiveAction aggregateRaw
+ */
+export type CorrectiveActionAggregateRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+   */
+  pipeline?: runtime.InputJsonValue[]
+  /**
+   * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
 }
 
 /**

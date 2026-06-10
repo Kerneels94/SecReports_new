@@ -24,30 +24,28 @@ export const Decimal = runtime.Decimal
 
 
 export const NullTypes = {
-  DbNull: runtime.NullTypes.DbNull as (new (secret: never) => typeof runtime.DbNull),
-  JsonNull: runtime.NullTypes.JsonNull as (new (secret: never) => typeof runtime.JsonNull),
-  AnyNull: runtime.NullTypes.AnyNull as (new (secret: never) => typeof runtime.AnyNull),
+  DbNull: runtime.objectEnumValues.classes.DbNull as (new (secret: never) => typeof runtime.objectEnumValues.instances.DbNull),
+  JsonNull: runtime.objectEnumValues.classes.JsonNull as (new (secret: never) => typeof runtime.objectEnumValues.instances.JsonNull),
+  AnyNull: runtime.objectEnumValues.classes.AnyNull as (new (secret: never) => typeof runtime.objectEnumValues.instances.AnyNull),
 }
 /**
  * Helper for filtering JSON entries that have `null` on the database (empty on the db)
  *
  * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
  */
-export const DbNull = runtime.DbNull
-
+export const DbNull = runtime.objectEnumValues.instances.DbNull
 /**
  * Helper for filtering JSON entries that have JSON `null` values (not empty on the db)
  *
  * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
  */
-export const JsonNull = runtime.JsonNull
-
+export const JsonNull = runtime.objectEnumValues.instances.JsonNull
 /**
  * Helper for filtering JSON entries that are `Prisma.DbNull` or `Prisma.JsonNull`
  *
  * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
  */
-export const AnyNull = runtime.AnyNull
+export const AnyNull = runtime.objectEnumValues.instances.AnyNull
 
 
 export const ModelName = {
@@ -72,16 +70,6 @@ export type ModelName = (typeof ModelName)[keyof typeof ModelName]
 /*
  * Enums
  */
-
-export const TransactionIsolationLevel = runtime.makeStrictEnum({
-  ReadUncommitted: 'ReadUncommitted',
-  ReadCommitted: 'ReadCommitted',
-  RepeatableRead: 'RepeatableRead',
-  Serializable: 'Serializable'
-} as const)
-
-export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
-
 
 export const CompanyScalarFieldEnum = {
   id: 'id',
@@ -301,145 +289,10 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const CompanyOrderByRelevanceFieldEnum = {
-  name: 'name',
-  email: 'email'
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
 } as const
 
-export type CompanyOrderByRelevanceFieldEnum = (typeof CompanyOrderByRelevanceFieldEnum)[keyof typeof CompanyOrderByRelevanceFieldEnum]
-
-
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
-export const UserOrderByRelevanceFieldEnum = {
-  name: 'name',
-  email: 'email',
-  passwordHash: 'passwordHash',
-  status: 'status'
-} as const
-
-export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
-
-
-export const IncidentOrderByRelevanceFieldEnum = {
-  referenceNumber: 'referenceNumber',
-  title: 'title',
-  description: 'description',
-  type: 'type',
-  location: 'location',
-  operatorName: 'operatorName',
-  dispatcher: 'dispatcher',
-  callSign: 'callSign',
-  propertyAddress: 'propertyAddress',
-  clientName: 'clientName',
-  clientCode: 'clientCode',
-  businessOrComplex: 'businessOrComplex',
-  sapsReference: 'sapsReference'
-} as const
-
-export type IncidentOrderByRelevanceFieldEnum = (typeof IncidentOrderByRelevanceFieldEnum)[keyof typeof IncidentOrderByRelevanceFieldEnum]
-
-
-export const IncidentPersonOrderByRelevanceFieldEnum = {
-  name: 'name',
-  role: 'role',
-  contact: 'contact',
-  notes: 'notes'
-} as const
-
-export type IncidentPersonOrderByRelevanceFieldEnum = (typeof IncidentPersonOrderByRelevanceFieldEnum)[keyof typeof IncidentPersonOrderByRelevanceFieldEnum]
-
-
-export const EvidenceOrderByRelevanceFieldEnum = {
-  fileName: 'fileName',
-  originalName: 'originalName',
-  mimeType: 'mimeType',
-  checksum: 'checksum'
-} as const
-
-export type EvidenceOrderByRelevanceFieldEnum = (typeof EvidenceOrderByRelevanceFieldEnum)[keyof typeof EvidenceOrderByRelevanceFieldEnum]
-
-
-export const CommentOrderByRelevanceFieldEnum = {
-  message: 'message'
-} as const
-
-export type CommentOrderByRelevanceFieldEnum = (typeof CommentOrderByRelevanceFieldEnum)[keyof typeof CommentOrderByRelevanceFieldEnum]
-
-
-export const InvestigationOrderByRelevanceFieldEnum = {
-  findings: 'findings',
-  rootCause: 'rootCause',
-  recommendations: 'recommendations',
-  closureNotes: 'closureNotes'
-} as const
-
-export type InvestigationOrderByRelevanceFieldEnum = (typeof InvestigationOrderByRelevanceFieldEnum)[keyof typeof InvestigationOrderByRelevanceFieldEnum]
-
-
-export const CorrectiveActionOrderByRelevanceFieldEnum = {
-  description: 'description'
-} as const
-
-export type CorrectiveActionOrderByRelevanceFieldEnum = (typeof CorrectiveActionOrderByRelevanceFieldEnum)[keyof typeof CorrectiveActionOrderByRelevanceFieldEnum]
-
-
-export const PasswordResetTokenOrderByRelevanceFieldEnum = {
-  email: 'email',
-  tokenHash: 'tokenHash'
-} as const
-
-export type PasswordResetTokenOrderByRelevanceFieldEnum = (typeof PasswordResetTokenOrderByRelevanceFieldEnum)[keyof typeof PasswordResetTokenOrderByRelevanceFieldEnum]
-
-
-export const SubscriptionPlanOrderByRelevanceFieldEnum = {
-  name: 'name',
-  features: 'features'
-} as const
-
-export type SubscriptionPlanOrderByRelevanceFieldEnum = (typeof SubscriptionPlanOrderByRelevanceFieldEnum)[keyof typeof SubscriptionPlanOrderByRelevanceFieldEnum]
-
-
-export const CompanySubscriptionOrderByRelevanceFieldEnum = {
-  status: 'status',
-  paystackSubscriptionCode: 'paystackSubscriptionCode',
-  paystackCustomerCode: 'paystackCustomerCode',
-  authorizationCode: 'authorizationCode'
-} as const
-
-export type CompanySubscriptionOrderByRelevanceFieldEnum = (typeof CompanySubscriptionOrderByRelevanceFieldEnum)[keyof typeof CompanySubscriptionOrderByRelevanceFieldEnum]
-
-
-export const PaymentHistoryOrderByRelevanceFieldEnum = {
-  currency: 'currency',
-  reference: 'reference',
-  status: 'status',
-  paystackData: 'paystackData'
-} as const
-
-export type PaymentHistoryOrderByRelevanceFieldEnum = (typeof PaymentHistoryOrderByRelevanceFieldEnum)[keyof typeof PaymentHistoryOrderByRelevanceFieldEnum]
-
-
-export const ApiKeyOrderByRelevanceFieldEnum = {
-  name: 'name',
-  key: 'key'
-} as const
-
-export type ApiKeyOrderByRelevanceFieldEnum = (typeof ApiKeyOrderByRelevanceFieldEnum)[keyof typeof ApiKeyOrderByRelevanceFieldEnum]
-
-
-export const AuditLogOrderByRelevanceFieldEnum = {
-  entityType: 'entityType',
-  action: 'action',
-  oldValues: 'oldValues',
-  newValues: 'newValues'
-} as const
-
-export type AuditLogOrderByRelevanceFieldEnum = (typeof AuditLogOrderByRelevanceFieldEnum)[keyof typeof AuditLogOrderByRelevanceFieldEnum]
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 

@@ -15,7 +15,7 @@
  * model files in the `model` directory!
  */
 
-import * as runtime from "@prisma/client/runtime/client"
+import * as runtime from "@prisma/client/runtime/library"
 import type * as Prisma from "../models"
 import { type PrismaClient } from "./class"
 
@@ -65,6 +65,14 @@ export type Decimal = runtime.Decimal
 export type DecimalJsLike = runtime.DecimalJsLike
 
 /**
+ * Metrics
+ */
+export type Metrics = runtime.Metrics
+export type Metric<T> = runtime.Metric<T>
+export type MetricHistogram = runtime.MetricHistogram
+export type MetricHistogramBucket = runtime.MetricHistogramBucket
+
+/**
 * Extensions
 */
 export type Extension = runtime.Types.Extensions.UserArgs
@@ -80,12 +88,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.8.0
- * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
+ * Prisma Client JS version: 6.19.3
+ * Query Engine version: c2990dca591cba766e3b7ef5d9e8a84796e47ab7
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.8.0",
-  engine: "3c6e192761c0362d496ed980de936e2f3cebcd3a"
+  client: "6.19.3",
+  engine: "c2990dca591cba766e3b7ef5d9e8a84796e47ab7"
 }
 
 /**
@@ -102,30 +110,28 @@ export type InputJsonValue = runtime.InputJsonValue
 
 
 export const NullTypes = {
-  DbNull: runtime.NullTypes.DbNull as (new (secret: never) => typeof runtime.DbNull),
-  JsonNull: runtime.NullTypes.JsonNull as (new (secret: never) => typeof runtime.JsonNull),
-  AnyNull: runtime.NullTypes.AnyNull as (new (secret: never) => typeof runtime.AnyNull),
+  DbNull: runtime.objectEnumValues.classes.DbNull as (new (secret: never) => typeof runtime.objectEnumValues.instances.DbNull),
+  JsonNull: runtime.objectEnumValues.classes.JsonNull as (new (secret: never) => typeof runtime.objectEnumValues.instances.JsonNull),
+  AnyNull: runtime.objectEnumValues.classes.AnyNull as (new (secret: never) => typeof runtime.objectEnumValues.instances.AnyNull),
 }
 /**
  * Helper for filtering JSON entries that have `null` on the database (empty on the db)
  *
  * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
  */
-export const DbNull = runtime.DbNull
-
+export const DbNull = runtime.objectEnumValues.instances.DbNull
 /**
  * Helper for filtering JSON entries that have JSON `null` values (not empty on the db)
  *
  * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
  */
-export const JsonNull = runtime.JsonNull
-
+export const JsonNull = runtime.objectEnumValues.instances.JsonNull
 /**
  * Helper for filtering JSON entries that are `Prisma.DbNull` or `Prisma.JsonNull`
  *
  * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
  */
-export const AnyNull = runtime.AnyNull
+export const AnyNull = runtime.objectEnumValues.instances.AnyNull
 
 
 type SelectAndInclude = {
@@ -414,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
   }
   meta: {
     modelProps: "company" | "user" | "incident" | "incidentPerson" | "evidence" | "comment" | "investigation" | "correctiveAction" | "passwordResetToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "apiKey" | "auditLog"
-    txIsolationLevel: TransactionIsolationLevel
+    txIsolationLevel: never
   }
   model: {
     Company: {
@@ -476,6 +482,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         groupBy: {
           args: Prisma.CompanyGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CompanyGroupByOutputType>[]
+        }
+        findRaw: {
+          args: Prisma.CompanyFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.CompanyAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
         }
         count: {
           args: Prisma.CompanyCountArgs<ExtArgs>
@@ -543,6 +557,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
           args: Prisma.UserGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserGroupByOutputType>[]
         }
+        findRaw: {
+          args: Prisma.UserFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.UserAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
@@ -608,6 +630,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         groupBy: {
           args: Prisma.IncidentGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.IncidentGroupByOutputType>[]
+        }
+        findRaw: {
+          args: Prisma.IncidentFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.IncidentAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
         }
         count: {
           args: Prisma.IncidentCountArgs<ExtArgs>
@@ -675,6 +705,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
           args: Prisma.IncidentPersonGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.IncidentPersonGroupByOutputType>[]
         }
+        findRaw: {
+          args: Prisma.IncidentPersonFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.IncidentPersonAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
         count: {
           args: Prisma.IncidentPersonCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.IncidentPersonCountAggregateOutputType> | number
@@ -740,6 +778,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         groupBy: {
           args: Prisma.EvidenceGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.EvidenceGroupByOutputType>[]
+        }
+        findRaw: {
+          args: Prisma.EvidenceFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.EvidenceAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
         }
         count: {
           args: Prisma.EvidenceCountArgs<ExtArgs>
@@ -807,6 +853,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
           args: Prisma.CommentGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CommentGroupByOutputType>[]
         }
+        findRaw: {
+          args: Prisma.CommentFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.CommentAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
         count: {
           args: Prisma.CommentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CommentCountAggregateOutputType> | number
@@ -872,6 +926,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         groupBy: {
           args: Prisma.InvestigationGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.InvestigationGroupByOutputType>[]
+        }
+        findRaw: {
+          args: Prisma.InvestigationFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.InvestigationAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
         }
         count: {
           args: Prisma.InvestigationCountArgs<ExtArgs>
@@ -939,6 +1001,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
           args: Prisma.CorrectiveActionGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CorrectiveActionGroupByOutputType>[]
         }
+        findRaw: {
+          args: Prisma.CorrectiveActionFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.CorrectiveActionAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
         count: {
           args: Prisma.CorrectiveActionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CorrectiveActionCountAggregateOutputType> | number
@@ -1004,6 +1074,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         groupBy: {
           args: Prisma.PasswordResetTokenGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PasswordResetTokenGroupByOutputType>[]
+        }
+        findRaw: {
+          args: Prisma.PasswordResetTokenFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.PasswordResetTokenAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
         }
         count: {
           args: Prisma.PasswordResetTokenCountArgs<ExtArgs>
@@ -1071,6 +1149,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
           args: Prisma.SubscriptionPlanGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SubscriptionPlanGroupByOutputType>[]
         }
+        findRaw: {
+          args: Prisma.SubscriptionPlanFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.SubscriptionPlanAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
         count: {
           args: Prisma.SubscriptionPlanCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SubscriptionPlanCountAggregateOutputType> | number
@@ -1136,6 +1222,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         groupBy: {
           args: Prisma.CompanySubscriptionGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CompanySubscriptionGroupByOutputType>[]
+        }
+        findRaw: {
+          args: Prisma.CompanySubscriptionFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.CompanySubscriptionAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
         }
         count: {
           args: Prisma.CompanySubscriptionCountArgs<ExtArgs>
@@ -1203,6 +1297,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
           args: Prisma.PaymentHistoryGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PaymentHistoryGroupByOutputType>[]
         }
+        findRaw: {
+          args: Prisma.PaymentHistoryFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.PaymentHistoryAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
         count: {
           args: Prisma.PaymentHistoryCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PaymentHistoryCountAggregateOutputType> | number
@@ -1268,6 +1370,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         groupBy: {
           args: Prisma.ApiKeyGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ApiKeyGroupByOutputType>[]
+        }
+        findRaw: {
+          args: Prisma.ApiKeyFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.ApiKeyAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
         }
         count: {
           args: Prisma.ApiKeyCountArgs<ExtArgs>
@@ -1335,6 +1445,14 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
           args: Prisma.AuditLogGroupByArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AuditLogGroupByOutputType>[]
         }
+        findRaw: {
+          args: Prisma.AuditLogFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.AuditLogAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
         count: {
           args: Prisma.AuditLogCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AuditLogCountAggregateOutputType> | number
@@ -1346,21 +1464,9 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
   other: {
     payload: any
     operations: {
-      $executeRaw: {
-        args: [query: TemplateStringsArray | Sql, ...values: any[]],
-        result: any
-      }
-      $executeRawUnsafe: {
-        args: [query: string, ...values: any[]],
-        result: any
-      }
-      $queryRaw: {
-        args: [query: TemplateStringsArray | Sql, ...values: any[]],
-        result: any
-      }
-      $queryRawUnsafe: {
-        args: [query: string, ...values: any[]],
-        result: any
+      $runCommandRaw: {
+        args: Prisma.InputJsonObject,
+        result: JsonObject
       }
     }
   }
@@ -1369,16 +1475,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
 /**
  * Enums
  */
-
-export const TransactionIsolationLevel = runtime.makeStrictEnum({
-  ReadUncommitted: 'ReadUncommitted',
-  ReadCommitted: 'ReadCommitted',
-  RepeatableRead: 'RepeatableRead',
-  Serializable: 'Serializable'
-} as const)
-
-export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
-
 
 export const CompanyScalarFieldEnum = {
   id: 'id',
@@ -1598,147 +1694,12 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const CompanyOrderByRelevanceFieldEnum = {
-  name: 'name',
-  email: 'email'
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
 } as const
 
-export type CompanyOrderByRelevanceFieldEnum = (typeof CompanyOrderByRelevanceFieldEnum)[keyof typeof CompanyOrderByRelevanceFieldEnum]
-
-
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
-export const UserOrderByRelevanceFieldEnum = {
-  name: 'name',
-  email: 'email',
-  passwordHash: 'passwordHash',
-  status: 'status'
-} as const
-
-export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
-
-
-export const IncidentOrderByRelevanceFieldEnum = {
-  referenceNumber: 'referenceNumber',
-  title: 'title',
-  description: 'description',
-  type: 'type',
-  location: 'location',
-  operatorName: 'operatorName',
-  dispatcher: 'dispatcher',
-  callSign: 'callSign',
-  propertyAddress: 'propertyAddress',
-  clientName: 'clientName',
-  clientCode: 'clientCode',
-  businessOrComplex: 'businessOrComplex',
-  sapsReference: 'sapsReference'
-} as const
-
-export type IncidentOrderByRelevanceFieldEnum = (typeof IncidentOrderByRelevanceFieldEnum)[keyof typeof IncidentOrderByRelevanceFieldEnum]
-
-
-export const IncidentPersonOrderByRelevanceFieldEnum = {
-  name: 'name',
-  role: 'role',
-  contact: 'contact',
-  notes: 'notes'
-} as const
-
-export type IncidentPersonOrderByRelevanceFieldEnum = (typeof IncidentPersonOrderByRelevanceFieldEnum)[keyof typeof IncidentPersonOrderByRelevanceFieldEnum]
-
-
-export const EvidenceOrderByRelevanceFieldEnum = {
-  fileName: 'fileName',
-  originalName: 'originalName',
-  mimeType: 'mimeType',
-  checksum: 'checksum'
-} as const
-
-export type EvidenceOrderByRelevanceFieldEnum = (typeof EvidenceOrderByRelevanceFieldEnum)[keyof typeof EvidenceOrderByRelevanceFieldEnum]
-
-
-export const CommentOrderByRelevanceFieldEnum = {
-  message: 'message'
-} as const
-
-export type CommentOrderByRelevanceFieldEnum = (typeof CommentOrderByRelevanceFieldEnum)[keyof typeof CommentOrderByRelevanceFieldEnum]
-
-
-export const InvestigationOrderByRelevanceFieldEnum = {
-  findings: 'findings',
-  rootCause: 'rootCause',
-  recommendations: 'recommendations',
-  closureNotes: 'closureNotes'
-} as const
-
-export type InvestigationOrderByRelevanceFieldEnum = (typeof InvestigationOrderByRelevanceFieldEnum)[keyof typeof InvestigationOrderByRelevanceFieldEnum]
-
-
-export const CorrectiveActionOrderByRelevanceFieldEnum = {
-  description: 'description'
-} as const
-
-export type CorrectiveActionOrderByRelevanceFieldEnum = (typeof CorrectiveActionOrderByRelevanceFieldEnum)[keyof typeof CorrectiveActionOrderByRelevanceFieldEnum]
-
-
-export const PasswordResetTokenOrderByRelevanceFieldEnum = {
-  email: 'email',
-  tokenHash: 'tokenHash'
-} as const
-
-export type PasswordResetTokenOrderByRelevanceFieldEnum = (typeof PasswordResetTokenOrderByRelevanceFieldEnum)[keyof typeof PasswordResetTokenOrderByRelevanceFieldEnum]
-
-
-export const SubscriptionPlanOrderByRelevanceFieldEnum = {
-  name: 'name',
-  features: 'features'
-} as const
-
-export type SubscriptionPlanOrderByRelevanceFieldEnum = (typeof SubscriptionPlanOrderByRelevanceFieldEnum)[keyof typeof SubscriptionPlanOrderByRelevanceFieldEnum]
-
-
-export const CompanySubscriptionOrderByRelevanceFieldEnum = {
-  status: 'status',
-  paystackSubscriptionCode: 'paystackSubscriptionCode',
-  paystackCustomerCode: 'paystackCustomerCode',
-  authorizationCode: 'authorizationCode'
-} as const
-
-export type CompanySubscriptionOrderByRelevanceFieldEnum = (typeof CompanySubscriptionOrderByRelevanceFieldEnum)[keyof typeof CompanySubscriptionOrderByRelevanceFieldEnum]
-
-
-export const PaymentHistoryOrderByRelevanceFieldEnum = {
-  currency: 'currency',
-  reference: 'reference',
-  status: 'status',
-  paystackData: 'paystackData'
-} as const
-
-export type PaymentHistoryOrderByRelevanceFieldEnum = (typeof PaymentHistoryOrderByRelevanceFieldEnum)[keyof typeof PaymentHistoryOrderByRelevanceFieldEnum]
-
-
-export const ApiKeyOrderByRelevanceFieldEnum = {
-  name: 'name',
-  key: 'key'
-} as const
-
-export type ApiKeyOrderByRelevanceFieldEnum = (typeof ApiKeyOrderByRelevanceFieldEnum)[keyof typeof ApiKeyOrderByRelevanceFieldEnum]
-
-
-export const AuditLogOrderByRelevanceFieldEnum = {
-  entityType: 'entityType',
-  action: 'action',
-  oldValues: 'oldValues',
-  newValues: 'newValues'
-} as const
-
-export type AuditLogOrderByRelevanceFieldEnum = (typeof AuditLogOrderByRelevanceFieldEnum)[keyof typeof AuditLogOrderByRelevanceFieldEnum]
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
 
@@ -1748,16 +1709,16 @@ export type AuditLogOrderByRelevanceFieldEnum = (typeof AuditLogOrderByRelevance
 
 
 /**
- * Reference to a field of type 'Int'
+ * Reference to a field of type 'String'
  */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
     
 
 
 /**
- * Reference to a field of type 'String'
+ * Reference to a field of type 'String[]'
  */
-export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
+export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
     
 
 
@@ -1769,30 +1730,23 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
 
 
 /**
- * Reference to a field of type 'UserRole'
+ * Reference to a field of type 'DateTime[]'
  */
-export type EnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole'>
+export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
 
 
 /**
- * Reference to a field of type 'Severity'
+ * Reference to a field of type 'Int'
  */
-export type EnumSeverityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Severity'>
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
     
 
 
 /**
- * Reference to a field of type 'IncidentStatus'
+ * Reference to a field of type 'Int[]'
  */
-export type EnumIncidentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IncidentStatus'>
-    
-
-
-/**
- * Reference to a field of type 'ActionStatus'
- */
-export type EnumActionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ActionStatus'>
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 
@@ -1809,6 +1763,13 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
 
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -1816,22 +1777,26 @@ export type BatchPayload = {
   count: number
 }
 
+
+export type Datasource = {
+  url?: string
+}
+export type Datasources = {
+  db?: Datasource
+}
+
 export const defineExtension = runtime.Extensions.defineExtension as unknown as runtime.Types.Extensions.ExtendsHook<"define", TypeMapCb, runtime.Types.Extensions.DefaultArgs>
 export type DefaultPrismaClient = PrismaClient
 export type ErrorFormat = 'pretty' | 'colorless' | 'minimal'
-export type PrismaClientOptions = ({
+export interface PrismaClientOptions {
   /**
-   * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-pg`.
+   * Overwrites the datasource url from your schema.prisma file
    */
-  adapter: runtime.SqlDriverAdapterFactory
-  accelerateUrl?: never
-} | {
+  datasources?: Datasources
   /**
-   * Prisma Accelerate URL allowing the client to connect through Accelerate instead of a direct database.
+   * Overwrites the datasource url from your schema.prisma file
    */
-  accelerateUrl: string
-  adapter?: never
-}) & {
+  datasourceUrl?: string
   /**
    * @default "colorless"
    */
@@ -1858,7 +1823,7 @@ export type PrismaClientOptions = ({
    *  { emit: 'stdout', level: 'error' }
    * 
    * ```
-   * Read more in our [docs](https://pris.ly/d/logging).
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
    */
   log?: (LogLevel | LogDefinition)[]
   /**
@@ -1869,8 +1834,11 @@ export type PrismaClientOptions = ({
   transactionOptions?: {
     maxWait?: number
     timeout?: number
-    isolationLevel?: TransactionIsolationLevel
   }
+  /**
+   * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-planetscale`
+   */
+  adapter?: runtime.SqlDriverAdapterFactory | null
   /**
    * Global configuration for omitting model fields by default.
    * 
@@ -1886,37 +1854,6 @@ export type PrismaClientOptions = ({
    * ```
    */
   omit?: GlobalOmitConfig
-  /**
-   * SQL commenter plugins that add metadata to SQL queries as comments.
-   * Comments follow the sqlcommenter format: https://google.github.io/sqlcommenter/
-   * 
-   * @example
-   * ```
-   * const prisma = new PrismaClient({
-   *   adapter,
-   *   comments: [
-   *     traceContext(),
-   *     queryInsights(),
-   *   ],
-   * })
-   * ```
-   */
-  comments?: runtime.SqlCommenterPlugin[]
-  /**
-   * Optional maximum size for the query plan cache. If not provided, a default size will be used.
-   * A value of `0` can be used to disable the cache entirely. A higher cache size can improve
-   * performance for applications that execute a large number of unique queries, while a smaller
-   * cache size can reduce memory usage.
-   * 
-   * @example
-   * ```
-   * const prisma = new PrismaClient({
-   *   adapter,
-   *   queryPlanCacheMaxSize: 100,
-   * })
-   * ```
-   */
-  queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
   company?: Prisma.CompanyOmit

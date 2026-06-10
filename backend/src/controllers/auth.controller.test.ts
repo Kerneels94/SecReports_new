@@ -47,7 +47,7 @@ describe("AuthController", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockRequest = {
-      user: { userId: 1, companyId: 1, role: "owner" },
+      user: { userId: "1", companyId: "1", role: "owner" },
       body: {},
     };
     mockReply = {
@@ -61,7 +61,7 @@ describe("AuthController", () => {
       const body = { email: "test@test.com", password: "secret" };
       mockRequest.body = body;
       (loginSchema.safeParse as jest.Mock).mockReturnValue({ success: true, data: body });
-      (AuthService.login as jest.Mock).mockResolvedValue({ accessToken: "at", refreshToken: "rt", user: { id: 1 } });
+      (AuthService.login as jest.Mock).mockResolvedValue({ accessToken: "at", refreshToken: "rt", user: { id: "1" } });
 
       await AuthController.login(mockRequest, mockReply);
 
@@ -104,13 +104,13 @@ describe("AuthController", () => {
 
   describe("me", () => {
     it("calls AuthService.getMe with userId and responds 200", async () => {
-      (AuthService.getMe as jest.Mock).mockResolvedValue({ id: 1, name: "Test User" });
+      (AuthService.getMe as jest.Mock).mockResolvedValue({ id: "1", name: "Test User" });
 
       await AuthController.me(mockRequest, mockReply);
 
-      expect(AuthService.getMe).toHaveBeenCalledWith(1);
+      expect(AuthService.getMe).toHaveBeenCalledWith("1");
       expect(mockReply.code).toHaveBeenCalledWith(200);
-      expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: { id: 1, name: "Test User" } });
+      expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: { id: "1", name: "Test User" } });
     });
   });
 
@@ -149,11 +149,11 @@ describe("AuthController", () => {
     it("valid input: calls service with companyId and createdBy, responds 201", async () => {
       mockRequest.body = validBody;
       (createUserSchema.safeParse as jest.Mock).mockReturnValue({ success: true, data: validBody });
-      (AuthService.createUser as jest.Mock).mockResolvedValue({ id: 2, name: "New" });
+      (AuthService.createUser as jest.Mock).mockResolvedValue({ id: "2", name: "New" });
 
       await AuthController.createUser(mockRequest, mockReply);
 
-      expect(AuthService.createUser).toHaveBeenCalledWith({ ...validBody, companyId: 1, createdBy: 1 });
+      expect(AuthService.createUser).toHaveBeenCalledWith({ ...validBody, companyId: "1", createdBy: "1" });
       expect(mockReply.code).toHaveBeenCalledWith(201);
     });
 
@@ -225,7 +225,7 @@ describe("changePassword", () => {
 
     await AuthController.changePassword(mockRequest, mockReply);
 
-    expect(AuthService.changePassword).toHaveBeenCalledWith(1, "old", "newpassword123");
+    expect(AuthService.changePassword).toHaveBeenCalledWith("1", "old", "newpassword123");
     expect(mockReply.code).toHaveBeenCalledWith(200);
   });
 
@@ -241,12 +241,12 @@ describe("changePassword", () => {
 
 describe("listUsers", () => {
   it("admin: calls AuthService.listUsers and responds 200", async () => {
-    const users = [{ id: 1, name: "User" }];
+    const users = [{ id: "1", name: "User" }];
     (AuthService.listUsers as jest.Mock).mockResolvedValue(users);
 
     await AuthController.listUsers(mockRequest, mockReply);
 
-    expect(AuthService.listUsers).toHaveBeenCalledWith(1);
+    expect(AuthService.listUsers).toHaveBeenCalledWith("1");
     expect(mockReply.code).toHaveBeenCalledWith(200);
     expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: users });
   });
@@ -261,12 +261,12 @@ describe("listUsers", () => {
 describe("getUserById", () => {
   it("admin: calls AuthService.getUserById and responds 200", async () => {
     mockRequest.params = { id: "1" };
-    const user = { id: 1, name: "Test User" };
+    const user = { id: "1", name: "Test User" };
     (AuthService.getUserById as jest.Mock).mockResolvedValue(user);
 
     await AuthController.getUserById(mockRequest, mockReply);
 
-    expect(AuthService.getUserById).toHaveBeenCalledWith(1, 1);
+    expect(AuthService.getUserById).toHaveBeenCalledWith("1", "1");
     expect(mockReply.code).toHaveBeenCalledWith(200);
     expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: user });
   });
@@ -286,11 +286,11 @@ describe("updateUser", () => {
       success: true,
       data: { name: "Updated" },
     });
-    (AuthService.updateUser as jest.Mock).mockResolvedValue({ id: 2, name: "Updated" });
+    (AuthService.updateUser as jest.Mock).mockResolvedValue({ id: "2", name: "Updated" });
 
     await AuthController.updateUser(mockRequest, mockReply);
 
-    expect(AuthService.updateUser).toHaveBeenCalledWith(1, 2, { name: "Updated" });
+    expect(AuthService.updateUser).toHaveBeenCalledWith("1", "2", { name: "Updated" });
     expect(mockReply.code).toHaveBeenCalledWith(200);
   });
 

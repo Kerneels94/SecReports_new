@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -27,21 +27,19 @@ export type AggregateSubscriptionPlan = {
 }
 
 export type SubscriptionPlanAvgAggregateOutputType = {
-  id: number | null
   price: number | null
   reportLimit: number | null
   userLimit: number | null
 }
 
 export type SubscriptionPlanSumAggregateOutputType = {
-  id: number | null
   price: number | null
   reportLimit: number | null
   userLimit: number | null
 }
 
 export type SubscriptionPlanMinAggregateOutputType = {
-  id: number | null
+  id: string | null
   name: string | null
   price: number | null
   reportLimit: number | null
@@ -53,7 +51,7 @@ export type SubscriptionPlanMinAggregateOutputType = {
 }
 
 export type SubscriptionPlanMaxAggregateOutputType = {
-  id: number | null
+  id: string | null
   name: string | null
   price: number | null
   reportLimit: number | null
@@ -79,14 +77,12 @@ export type SubscriptionPlanCountAggregateOutputType = {
 
 
 export type SubscriptionPlanAvgAggregateInputType = {
-  id?: true
   price?: true
   reportLimit?: true
   userLimit?: true
 }
 
 export type SubscriptionPlanSumAggregateInputType = {
-  id?: true
   price?: true
   reportLimit?: true
   userLimit?: true
@@ -216,7 +212,7 @@ export type SubscriptionPlanGroupByArgs<ExtArgs extends runtime.Types.Extensions
 }
 
 export type SubscriptionPlanGroupByOutputType = {
-  id: number
+  id: string
   name: string
   price: number
   reportLimit: number
@@ -232,7 +228,7 @@ export type SubscriptionPlanGroupByOutputType = {
   _max: SubscriptionPlanMaxAggregateOutputType | null
 }
 
-export type GetSubscriptionPlanGroupByPayload<T extends SubscriptionPlanGroupByArgs> = Prisma.PrismaPromise<
+type GetSubscriptionPlanGroupByPayload<T extends SubscriptionPlanGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SubscriptionPlanGroupByOutputType, T['by']> &
       {
@@ -251,7 +247,7 @@ export type SubscriptionPlanWhereInput = {
   AND?: Prisma.SubscriptionPlanWhereInput | Prisma.SubscriptionPlanWhereInput[]
   OR?: Prisma.SubscriptionPlanWhereInput[]
   NOT?: Prisma.SubscriptionPlanWhereInput | Prisma.SubscriptionPlanWhereInput[]
-  id?: Prisma.IntFilter<"SubscriptionPlan"> | number
+  id?: Prisma.StringFilter<"SubscriptionPlan"> | string
   name?: Prisma.StringFilter<"SubscriptionPlan"> | string
   price?: Prisma.IntFilter<"SubscriptionPlan"> | number
   reportLimit?: Prisma.IntFilter<"SubscriptionPlan"> | number
@@ -274,11 +270,10 @@ export type SubscriptionPlanOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   subscriptions?: Prisma.CompanySubscriptionOrderByRelationAggregateInput
-  _relevance?: Prisma.SubscriptionPlanOrderByRelevanceInput
 }
 
 export type SubscriptionPlanWhereUniqueInput = Prisma.AtLeast<{
-  id?: number
+  id?: string
   AND?: Prisma.SubscriptionPlanWhereInput | Prisma.SubscriptionPlanWhereInput[]
   OR?: Prisma.SubscriptionPlanWhereInput[]
   NOT?: Prisma.SubscriptionPlanWhereInput | Prisma.SubscriptionPlanWhereInput[]
@@ -314,7 +309,7 @@ export type SubscriptionPlanScalarWhereWithAggregatesInput = {
   AND?: Prisma.SubscriptionPlanScalarWhereWithAggregatesInput | Prisma.SubscriptionPlanScalarWhereWithAggregatesInput[]
   OR?: Prisma.SubscriptionPlanScalarWhereWithAggregatesInput[]
   NOT?: Prisma.SubscriptionPlanScalarWhereWithAggregatesInput | Prisma.SubscriptionPlanScalarWhereWithAggregatesInput[]
-  id?: Prisma.IntWithAggregatesFilter<"SubscriptionPlan"> | number
+  id?: Prisma.StringWithAggregatesFilter<"SubscriptionPlan"> | string
   name?: Prisma.StringWithAggregatesFilter<"SubscriptionPlan"> | string
   price?: Prisma.IntWithAggregatesFilter<"SubscriptionPlan"> | number
   reportLimit?: Prisma.IntWithAggregatesFilter<"SubscriptionPlan"> | number
@@ -326,6 +321,7 @@ export type SubscriptionPlanScalarWhereWithAggregatesInput = {
 }
 
 export type SubscriptionPlanCreateInput = {
+  id?: string
   name: string
   price: number
   reportLimit: number
@@ -338,7 +334,7 @@ export type SubscriptionPlanCreateInput = {
 }
 
 export type SubscriptionPlanUncheckedCreateInput = {
-  id?: number
+  id?: string
   name: string
   price: number
   reportLimit: number
@@ -363,7 +359,6 @@ export type SubscriptionPlanUpdateInput = {
 }
 
 export type SubscriptionPlanUncheckedUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   reportLimit?: Prisma.IntFieldUpdateOperationsInput | number
@@ -376,7 +371,7 @@ export type SubscriptionPlanUncheckedUpdateInput = {
 }
 
 export type SubscriptionPlanCreateManyInput = {
-  id?: number
+  id?: string
   name: string
   price: number
   reportLimit: number
@@ -399,7 +394,6 @@ export type SubscriptionPlanUpdateManyMutationInput = {
 }
 
 export type SubscriptionPlanUncheckedUpdateManyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   reportLimit?: Prisma.IntFieldUpdateOperationsInput | number
@@ -408,12 +402,6 @@ export type SubscriptionPlanUncheckedUpdateManyInput = {
   highlighted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type SubscriptionPlanOrderByRelevanceInput = {
-  fields: Prisma.SubscriptionPlanOrderByRelevanceFieldEnum | Prisma.SubscriptionPlanOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type SubscriptionPlanCountOrderByAggregateInput = {
@@ -429,7 +417,6 @@ export type SubscriptionPlanCountOrderByAggregateInput = {
 }
 
 export type SubscriptionPlanAvgOrderByAggregateInput = {
-  id?: Prisma.SortOrder
   price?: Prisma.SortOrder
   reportLimit?: Prisma.SortOrder
   userLimit?: Prisma.SortOrder
@@ -460,7 +447,6 @@ export type SubscriptionPlanMinOrderByAggregateInput = {
 }
 
 export type SubscriptionPlanSumOrderByAggregateInput = {
-  id?: Prisma.SortOrder
   price?: Prisma.SortOrder
   reportLimit?: Prisma.SortOrder
   userLimit?: Prisma.SortOrder
@@ -490,6 +476,7 @@ export type SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput = {
 }
 
 export type SubscriptionPlanCreateWithoutSubscriptionsInput = {
+  id?: string
   name: string
   price: number
   reportLimit: number
@@ -501,7 +488,7 @@ export type SubscriptionPlanCreateWithoutSubscriptionsInput = {
 }
 
 export type SubscriptionPlanUncheckedCreateWithoutSubscriptionsInput = {
-  id?: number
+  id?: string
   name: string
   price: number
   reportLimit: number
@@ -540,7 +527,6 @@ export type SubscriptionPlanUpdateWithoutSubscriptionsInput = {
 }
 
 export type SubscriptionPlanUncheckedUpdateWithoutSubscriptionsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   reportLimit?: Prisma.IntFieldUpdateOperationsInput | number
@@ -622,7 +608,7 @@ export type $SubscriptionPlanPayload<ExtArgs extends runtime.Types.Extensions.In
     subscriptions: Prisma.$CompanySubscriptionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    id: number
+    id: string
     name: string
     price: number
     reportLimit: number
@@ -831,6 +817,29 @@ export interface SubscriptionPlanDelegate<ExtArgs extends runtime.Types.Extensio
    */
   upsert<T extends SubscriptionPlanUpsertArgs>(args: Prisma.SelectSubset<T, SubscriptionPlanUpsertArgs<ExtArgs>>): Prisma.Prisma__SubscriptionPlanClient<runtime.Types.Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
+  /**
+   * Find zero or more SubscriptionPlans that matches the filter.
+   * @param {SubscriptionPlanFindRawArgs} args - Select which filters you would like to apply.
+   * @example
+   * const subscriptionPlan = await prisma.subscriptionPlan.findRaw({
+   *   filter: { age: { $gt: 25 } }
+   * })
+   */
+  findRaw(args?: Prisma.SubscriptionPlanFindRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
+  /**
+   * Perform aggregation operations on a SubscriptionPlan.
+   * @param {SubscriptionPlanAggregateRawArgs} args - Select which aggregations you would like to apply.
+   * @example
+   * const subscriptionPlan = await prisma.subscriptionPlan.aggregateRaw({
+   *   pipeline: [
+   *     { $match: { status: "registered" } },
+   *     { $group: { _id: "$country", total: { $sum: 1 } } }
+   *   ]
+   * })
+   */
+  aggregateRaw(args?: Prisma.SubscriptionPlanAggregateRawArgs): Prisma.PrismaPromise<Prisma.JsonObject>
+
 
   /**
    * Count the number of SubscriptionPlans.
@@ -1001,7 +1010,7 @@ export interface Prisma__SubscriptionPlanClient<T, Null = never, ExtArgs extends
  * Fields of the SubscriptionPlan model
  */
 export interface SubscriptionPlanFieldRefs {
-  readonly id: Prisma.FieldRef<"SubscriptionPlan", 'Int'>
+  readonly id: Prisma.FieldRef<"SubscriptionPlan", 'String'>
   readonly name: Prisma.FieldRef<"SubscriptionPlan", 'String'>
   readonly price: Prisma.FieldRef<"SubscriptionPlan", 'Int'>
   readonly reportLimit: Prisma.FieldRef<"SubscriptionPlan", 'Int'>
@@ -1206,11 +1215,6 @@ export type SubscriptionPlanFindManyArgs<ExtArgs extends runtime.Types.Extension
    * Skip the first `n` SubscriptionPlans.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of SubscriptionPlans.
-   */
   distinct?: Prisma.SubscriptionPlanScalarFieldEnum | Prisma.SubscriptionPlanScalarFieldEnum[]
 }
 
@@ -1244,7 +1248,6 @@ export type SubscriptionPlanCreateManyArgs<ExtArgs extends runtime.Types.Extensi
    * The data used to create many SubscriptionPlans.
    */
   data: Prisma.SubscriptionPlanCreateManyInput | Prisma.SubscriptionPlanCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1355,6 +1358,34 @@ export type SubscriptionPlanDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many SubscriptionPlans to delete.
    */
   limit?: number
+}
+
+/**
+ * SubscriptionPlan findRaw
+ */
+export type SubscriptionPlanFindRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+   */
+  filter?: runtime.InputJsonValue
+  /**
+   * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
+}
+
+/**
+ * SubscriptionPlan aggregateRaw
+ */
+export type SubscriptionPlanAggregateRawArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+   */
+  pipeline?: runtime.InputJsonValue[]
+  /**
+   * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+   */
+  options?: runtime.InputJsonValue
 }
 
 /**

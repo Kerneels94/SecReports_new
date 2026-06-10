@@ -26,7 +26,7 @@ export const IncidentController = {
 
   async getById(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    const incident = await IncidentService.getById(Number(id));
+    const incident = await IncidentService.getById(id);
     reply.code(200).send({ success: true, data: incident });
   },
 
@@ -51,7 +51,7 @@ export const IncidentController = {
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
     const incident = await IncidentService.update(
-      Number(id),
+      id,
       parsed.data,
       request.user!.userId,
       request.user!.role,
@@ -66,7 +66,7 @@ export const IncidentController = {
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
     const incident = await IncidentService.updateStatus(
-      Number(id),
+      id,
       parsed.data.status,
       request.user!.userId,
     );
@@ -76,7 +76,7 @@ export const IncidentController = {
 
   async delete(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    await IncidentService.delete(Number(id), request.user!.userId, request.user!.role);
+    await IncidentService.delete(id, request.user!.userId, request.user!.role);
     reply.code(204).send();
   },
 };

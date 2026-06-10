@@ -1,82 +1,43 @@
 generator client {
-  provider   = "prisma-client"
-  output     = "../src/generated/prisma"
-  engineType = "client"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "mysql"
-}
-
-enum UserRole {
-  owner
-  manager
-  senior
-
-  @@map("user_role")
-}
-
-enum IncidentStatus {
-  draft
-  submitted
-  under_review
-  assigned
-  investigating
-  resolved
-  closed
-  rejected
-
-  @@map("incident_status")
-}
-
-enum Severity {
-  low
-  medium
-  high
-  critical
-
-  @@map("severity")
-}
-
-enum ActionStatus {
-  open
-  in_progress
-  completed
-  overdue
-
-  @@map("action_status")
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 model Company {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(255)
-  email     String   @unique @db.VarChar(255)
-  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(0)
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  users            User[]
-  incidents        Incident[]
-  subscription     CompanySubscription?
-  payments         PaymentHistory[]
-  apiKeys          ApiKey[]
+  users        User[]
+  incidents    Incident[]
+  subscription CompanySubscription?
+  payments     PaymentHistory[]
+  apiKeys      ApiKey[]
 
   @@map("companies")
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  companyId    Int      @map("company_id")
-  name         String   @db.VarChar(255)
-  email        String   @unique @db.VarChar(255)
-  passwordHash String   @map("password_hash") @db.VarChar(255)
-  role         UserRole @default(senior)
-  status       String   @default("active") @db.VarChar(50)
-  createdBy    Int?     @map("created_by")
-  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt    DateTime @updatedAt @map("updated_at") @db.DateTime(0)
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  companyId    String   @map("company_id") @db.ObjectId
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("senior")
+  status       String   @default("active")
+  createdBy    String?  @map("created_by") @db.ObjectId
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  company           Company            @relation(fields: [companyId], references: [id])
-  creator           User?              @relation("created_users", fields: [createdBy], references: [id])
+  company           Company            @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  creator           User?              @relation("created_users", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdUsers      User[]             @relation("created_users")
   reportedIncidents Incident[]         @relation("reporter")
   assignedIncidents Incident[]         @relation("assigned_investigator")
@@ -91,34 +52,34 @@ model User {
 }
 
 model Incident {
-  id              Int            @id @default(autoincrement())
-  companyId       Int            @map("company_id")
-  referenceNumber String         @unique @map("reference_number") @db.VarChar(50)
-  title           String         @db.VarChar(255)
-  description     String         @db.Text
-  type              String          @db.VarChar(100)
-  severity          Severity        @default(medium)
-  status            IncidentStatus  @default(draft)
-  incidentDate      DateTime        @map("incident_date") @db.DateTime(0)
-  location          String?         @db.VarChar(255)
-  operatorName      String          @map("operator_name") @db.VarChar(255)
-  dispatcher        String          @map("dispatcher") @db.VarChar(255)
-  dispatchTime      DateTime?       @map("dispatch_time") @db.DateTime(0)
-  arrivalTime       DateTime?       @map("arrival_time") @db.DateTime(0)
-  callSign          String?         @map("call_sign") @db.VarChar(100)
-  propertyAddress   String?         @map("property_address") @db.VarChar(500)
-  clientName        String?         @map("client_name") @db.VarChar(255)
-  clientCode        String?         @map("client_code") @db.VarChar(100)
-  businessOrComplex String?         @map("business_or_complex") @db.VarChar(255)
-  sapsReference     String?         @map("saps_reference") @db.VarChar(100)
-  reporterId        Int             @map("reporter_id")
-  assignedTo        Int?            @map("assigned_to")
-  createdAt         DateTime        @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt         DateTime        @updatedAt @map("updated_at") @db.DateTime(0)
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  companyId         String   @map("company_id") @db.ObjectId
+  referenceNumber   String   @unique @map("reference_number")
+  title             String
+  description       String
+  type              String
+  severity          String   @default("medium")
+  status            String   @default("draft")
+  incidentDate      DateTime @map("incident_date")
+  location          String?
+  operatorName      String   @map("operator_name")
+  dispatcher        String   @map("dispatcher")
+  dispatchTime      DateTime? @map("dispatch_time")
+  arrivalTime       DateTime? @map("arrival_time")
+  callSign          String?  @map("call_sign")
+  propertyAddress   String?  @map("property_address")
+  clientName        String?  @map("client_name")
+  clientCode        String?  @map("client_code")
+  businessOrComplex String?  @map("business_or_complex")
+  sapsReference     String?  @map("saps_reference")
+  reporterId        String   @map("reporter_id") @db.ObjectId
+  assignedTo        String?  @map("assigned_to") @db.ObjectId
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
-  company           Company            @relation(fields: [companyId], references: [id])
-  reporter          User               @relation("reporter", fields: [reporterId], references: [id])
-  assignedInvestigator User?           @relation("assigned_investigator", fields: [assignedTo], references: [id])
+  company           Company            @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  reporter          User               @relation("reporter", fields: [reporterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  assignedInvestigator User?           @relation("assigned_investigator", fields: [assignedTo], references: [id], onDelete: NoAction, onUpdate: NoAction)
   people            IncidentPerson[]
   evidence          Evidence[]
   comments          Comment[]
@@ -135,32 +96,32 @@ model Incident {
 }
 
 model IncidentPerson {
-  id         Int     @id @default(autoincrement())
-  incidentId Int     @map("incident_id")
-  name       String  @db.VarChar(255)
-  role       String  @db.VarChar(100)
-  contact    String? @db.VarChar(255)
-  notes      String? @db.Text
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  incidentId String @map("incident_id") @db.ObjectId
+  name       String
+  role       String
+  contact    String?
+  notes      String?
 
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([incidentId])
   @@map("incident_people")
 }
 
 model Evidence {
-  id           Int      @id @default(autoincrement())
-  incidentId   Int      @map("incident_id")
-  fileName     String   @map("file_name") @db.VarChar(255)
-  originalName String   @map("original_name") @db.VarChar(255)
-  mimeType     String   @map("mime_type") @db.VarChar(100)
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  incidentId   String   @map("incident_id") @db.ObjectId
+  fileName     String   @map("file_name")
+  originalName String   @map("original_name")
+  mimeType     String   @map("mime_type")
   fileSize     Int      @map("file_size")
-  checksum     String   @db.VarChar(64)
-  uploadedBy   Int      @map("uploaded_by")
-  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(0)
+  checksum     String
+  uploadedBy   String   @map("uploaded_by") @db.ObjectId
+  createdAt    DateTime @default(now()) @map("created_at")
 
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
-  uploader User     @relation(fields: [uploadedBy], references: [id])
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  uploader User     @relation(fields: [uploadedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([incidentId])
   @@index([uploadedBy])
@@ -168,48 +129,48 @@ model Evidence {
 }
 
 model Comment {
-  id         Int      @id @default(autoincrement())
-  incidentId Int      @map("incident_id")
-  userId     Int      @map("user_id")
-  message    String   @db.Text
-  createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(0)
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  incidentId String   @map("incident_id") @db.ObjectId
+  userId     String   @map("user_id") @db.ObjectId
+  message    String
+  createdAt  DateTime @default(now()) @map("created_at")
 
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id])
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user     User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([incidentId])
   @@map("comments")
 }
 
 model Investigation {
-  id            Int       @id @default(autoincrement())
-  incidentId    Int       @unique @map("incident_id")
-  findings      String?   @db.Text
-  rootCause     String?   @map("root_cause") @db.Text
-  recommendations String? @db.Text
-  closureNotes  String?   @map("closure_notes") @db.Text
-  completedAt   DateTime? @map("completed_at") @db.DateTime(0)
-  createdAt     DateTime  @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt     DateTime  @updatedAt @map("updated_at") @db.DateTime(0)
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  incidentId      String    @unique @map("incident_id") @db.ObjectId
+  findings        String?
+  rootCause       String?   @map("root_cause")
+  recommendations String?
+  closureNotes    String?   @map("closure_notes")
+  completedAt     DateTime? @map("completed_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("investigations")
 }
 
 model CorrectiveAction {
-  id           Int          @id @default(autoincrement())
-  incidentId   Int          @map("incident_id")
-  description  String       @db.Text
-  ownerId      Int          @map("owner_id")
-  dueDate      DateTime     @map("due_date") @db.DateTime(0)
-  status       ActionStatus @default(open)
-  completedAt  DateTime?    @map("completed_at") @db.DateTime(0)
-  createdAt    DateTime     @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt    DateTime     @updatedAt @map("updated_at") @db.DateTime(0)
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  incidentId   String    @map("incident_id") @db.ObjectId
+  description  String
+  ownerId      String    @map("owner_id") @db.ObjectId
+  dueDate      DateTime  @map("due_date")
+  status       String    @default("open")
+  completedAt  DateTime? @map("completed_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
-  owner    User     @relation(fields: [ownerId], references: [id])
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  owner    User     @relation(fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([incidentId])
   @@index([ownerId])
@@ -218,28 +179,27 @@ model CorrectiveAction {
 }
 
 model PasswordResetToken {
-  id        Int       @id @default(autoincrement())
-  email     String    @map("email") @db.VarChar(255)
-  tokenHash String    @unique @map("token_hash") @db.VarChar(255)
-  expiresAt DateTime  @map("expires_at") @db.DateTime(0)
-  usedAt    DateTime? @map("used_at") @db.DateTime(0)
-  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(0)
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  email     String
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
 
   @@index([email])
-  @@index([tokenHash])
   @@map("password_reset_tokens")
 }
 
 model SubscriptionPlan {
-  id          Int      @id @default(autoincrement())
-  name        String   @db.VarChar(100)
-  price       Int      @map("price")
-  reportLimit Int      @map("report_limit")
-  userLimit   Int      @map("user_limit")
-  features    String   @db.Text
-  highlighted Boolean  @default(false)
-  createdAt   DateTime @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.DateTime(0)
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  price        Int      @map("price")
+  reportLimit  Int      @map("report_limit")
+  userLimit    Int      @map("user_limit")
+  features     String
+  highlighted  Boolean  @default(false)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   subscriptions CompanySubscription[]
 
@@ -247,67 +207,66 @@ model SubscriptionPlan {
 }
 
 model CompanySubscription {
-  id                       Int       @id @default(autoincrement())
-  companyId                Int       @unique @map("company_id")
-  planId                   Int       @map("plan_id")
-  status                   String    @default("active") @db.VarChar(50)
-  paystackSubscriptionCode String?   @map("paystack_subscription_code") @db.VarChar(255)
-  paystackCustomerCode     String?   @map("paystack_customer_code") @db.VarChar(255)
-  authorizationCode        String?   @map("authorization_code") @db.VarChar(255)
-  currentPeriodStart       DateTime? @map("current_period_start") @db.DateTime(0)
-  currentPeriodEnd         DateTime? @map("current_period_end") @db.DateTime(0)
-  createdAt                DateTime  @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt                DateTime  @updatedAt @map("updated_at") @db.DateTime(0)
+  id                       String   @id @default(auto()) @map("_id") @db.ObjectId
+  companyId                String   @unique @map("company_id") @db.ObjectId
+  planId                   String   @map("plan_id") @db.ObjectId
+  status                   String   @default("active")
+  paystackSubscriptionCode String?  @map("paystack_subscription_code")
+  paystackCustomerCode     String?  @map("paystack_customer_code")
+  authorizationCode        String?  @map("authorization_code")
+  currentPeriodStart       DateTime? @map("current_period_start")
+  currentPeriodEnd         DateTime? @map("current_period_end")
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
 
-  company Company          @relation(fields: [companyId], references: [id])
-  plan    SubscriptionPlan @relation(fields: [planId], references: [id])
+  company Company          @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  plan    SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("company_subscriptions")
 }
 
 model PaymentHistory {
-  id           Int      @id @default(autoincrement())
-  companyId    Int      @map("company_id")
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  companyId    String   @map("company_id") @db.ObjectId
   amount       Int      @map("amount")
-  currency     String   @default("ZAR") @db.VarChar(10)
-  reference    String   @unique @db.VarChar(255)
-  status       String   @default("pending") @db.VarChar(50)
-  paystackData String?  @map("paystack_data") @db.Text
-  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(0)
+  currency     String   @default("ZAR")
+  reference    String   @unique
+  status       String   @default("pending")
+  paystackData String?  @map("paystack_data")
+  createdAt    DateTime @default(now()) @map("created_at")
 
-  company Company @relation(fields: [companyId], references: [id])
+  company Company @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([companyId])
   @@map("payment_history")
 }
 
 model ApiKey {
-  id         Int       @id @default(autoincrement())
-  companyId  Int       @map("company_id")
-  name       String    @db.VarChar(255)
-  key        String    @unique @db.VarChar(255)
-  lastUsedAt DateTime? @map("last_used_at") @db.DateTime(0)
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  companyId  String    @map("company_id") @db.ObjectId
+  name       String
+  key        String    @unique
+  lastUsedAt DateTime? @map("last_used_at")
   active     Boolean   @default(true)
-  createdAt  DateTime  @default(now()) @map("created_at") @db.DateTime(0)
+  createdAt  DateTime  @default(now()) @map("created_at")
 
-  company Company @relation(fields: [companyId], references: [id])
+  company Company @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([companyId])
-  @@index([key])
   @@map("api_keys")
 }
 
 model AuditLog {
-  id           Int      @id @default(autoincrement())
-  entityType   String   @map("entity_type") @db.VarChar(100)
-  entityId     Int      @map("entity_id")
-  action       String   @db.VarChar(50)
-  oldValues    String?  @map("old_values") @db.Text
-  newValues    String?  @map("new_values") @db.Text
-  performedBy  Int      @map("performed_by")
-  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime(0)
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  entityType   String   @map("entity_type")
+  entityId     String   @map("entity_id")
+  action       String
+  oldValues    String?  @map("old_values")
+  newValues    String?  @map("new_values")
+  performedBy  String   @map("performed_by") @db.ObjectId
+  createdAt    DateTime @default(now()) @map("created_at")
 
-  performedByUser User @relation(fields: [performedBy], references: [id])
+  performedByUser User @relation(fields: [performedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([entityType, entityId])
   @@index([performedBy])

@@ -6,6 +6,7 @@ const config = {
   testMatch: ["**/*.test.ts"],
   moduleFileExtensions: ["ts", "js", "json"],
   clearMocks: true,
+  setupFiles: ["<rootDir>/jest.setup.ts"],
 };
 
 module.exports = config;

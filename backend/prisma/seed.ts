@@ -1,17 +1,8 @@
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import bcrypt from "bcrypt";
 
-const adapter = new PrismaMariaDb({
-  host: process.env.DATABASE_HOST || "localhost",
-  user: process.env.DATABASE_USER || "root",
-  password: process.env.DATABASE_PASSWORD || "password",
-  database: process.env.DATABASE_NAME || "SecReports",
-  port: Number(process.env.DATABASE_PORT) || 3306,
-  connectionLimit: 5,
-});
-
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 async function main() {
   await prisma.paymentHistory.deleteMany();

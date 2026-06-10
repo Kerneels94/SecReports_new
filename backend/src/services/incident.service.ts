@@ -3,7 +3,7 @@ import { NotFoundError, ForbiddenError } from "../lib/errors";
 import { generateReferenceNumber } from "../lib/utils";
 
 interface CreateIncidentParams {
-  companyId: number;
+  companyId: string;
   title: string;
   description: string;
   type: string;
@@ -20,7 +20,7 @@ interface CreateIncidentParams {
   clientCode?: string;
   businessOrComplex?: string;
   sapsReference?: string;
-  reporterId: number;
+  reporterId: string;
   people?: { name: string; role: string; contact?: string; notes?: string }[];
 }
 
@@ -46,13 +46,13 @@ interface UpdateIncidentParams {
 interface ListParams {
   page: number;
   perPage: number;
-  companyId: number;
+  companyId: string;
   status?: string;
   severity?: string;
   search?: string;
   dateFrom?: string;
   dateTo?: string;
-  userId?: number;
+  userId?: string;
   role?: string;
 }
 
@@ -90,7 +90,7 @@ export const IncidentService = {
     return { data, total, page: params.page, perPage: params.perPage };
   },
 
-  async getById(id: number) {
+  async getById(id: string) {
     const incident = await prisma.incident.findUnique({
       where: { id },
       include: {
@@ -157,7 +157,7 @@ export const IncidentService = {
     return incident;
   },
 
-  async update(id: number, params: UpdateIncidentParams, userId: number, userRole: string) {
+  async update(id: string, params: UpdateIncidentParams, userId: string, userRole: string) {
     const incident = await prisma.incident.findUnique({ where: { id } });
     if (!incident) throw new NotFoundError("Incident");
 
@@ -210,7 +210,7 @@ export const IncidentService = {
     return updated;
   },
 
-  async updateStatus(id: number, status: string, userId: number) {
+  async updateStatus(id: string, status: string, userId: string) {
     const incident = await prisma.incident.findUnique({ where: { id } });
     if (!incident) throw new NotFoundError("Incident");
 
@@ -235,7 +235,7 @@ export const IncidentService = {
     return updated;
   },
 
-  async delete(id: number, userId: number, userRole: string) {
+  async delete(id: string, userId: string, userRole: string) {
     const incident = await prisma.incident.findUnique({ where: { id } });
     if (!incident) throw new NotFoundError("Incident");
 

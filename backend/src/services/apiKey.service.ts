@@ -3,7 +3,7 @@ import { prisma } from "../lib/db";
 import { NotFoundError, ConflictError } from "../lib/errors";
 
 export const ApiKeyService = {
-  async generate(companyId: number, name: string) {
+  async generate(companyId: string, name: string) {
     const key = `sk_${crypto.randomBytes(32).toString("hex")}`;
 
     return prisma.apiKey.create({
@@ -11,7 +11,7 @@ export const ApiKeyService = {
     });
   },
 
-  async list(companyId: number) {
+  async list(companyId: string) {
     return prisma.apiKey.findMany({
       where: { companyId },
       orderBy: { createdAt: "desc" },
@@ -26,7 +26,7 @@ export const ApiKeyService = {
     });
   },
 
-  async revoke(id: number, companyId: number) {
+  async revoke(id: string, companyId: string) {
     const key = await prisma.apiKey.findFirst({ where: { id, companyId } });
     if (!key) throw new NotFoundError("API key");
 

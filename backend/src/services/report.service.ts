@@ -1,25 +1,18 @@
 import { prisma } from "../lib/db";
 
 export const ReportService = {
-  async summary(companyId: number, userId: number) {
+  async summary(companyId: string, userId: string) {
     const [
       total,
-      byStatus,
-      bySeverity,
+      allIncidents,
       recent,
       assignedToMe,
       overdueActions,
     ] = await Promise.all([
       prisma.incident.count({ where: { companyId } }),
-      prisma.incident.groupBy({
-        by: ["status"],
+      prisma.incident.findMany({
         where: { companyId },
-        _count: { id: true },
-      }),
-      prisma.incident.groupBy({
-        by: ["severity"],
-        where: { companyId },
-        _count: { id: true },
+        select: { status: true, severity: true },
       }),
       prisma.incident.findMany({
         where: { companyId },
@@ -37,6 +30,21 @@ export const ReportService = {
         },
       }),
     ]);
+
+    const byStatusMap: Record<string, number> = {};
+    const bySeverityMap: Record<string, number> = {};
+    for (const inc of allIncidents) {
+      byStatusMap[inc.status] = (byStatusMap[inc.status] || 0) + 1;
+      bySeverityMap[inc.severity] = (bySeverityMap[inc.severity] || 0) + 1;
+    }
+    const byStatus = Object.entries(byStatusMap).map(([status, count]) => ({
+      status,
+      _count: { id: count },
+    }));
+    const bySeverity = Object.entries(bySeverityMap).map(([severity, count]) => ({
+      severity,
+      _count: { id: count },
+    }));
 
     return { total, byStatus, bySeverity, recent, assignedToMe, overdueActions };
   },

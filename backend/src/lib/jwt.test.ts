@@ -3,7 +3,7 @@ import { signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToke
 
 jest.mock("jsonwebtoken");
 
-const payload = { userId: 1, role: "admin", companyId: 1 };
+const payload = { userId: "1", role: "admin", companyId: "1" };
 
 describe("signAccessToken", () => {
   beforeEach(() => { jest.clearAllMocks(); });

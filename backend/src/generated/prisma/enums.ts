@@ -9,44 +9,7 @@
 * 🟢 You can import this file directly.
 */
 
-export const UserRole = {
-  owner: 'owner',
-  manager: 'manager',
-  senior: 'senior'
-} as const
-
-export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 
 
-export const IncidentStatus = {
-  draft: 'draft',
-  submitted: 'submitted',
-  under_review: 'under_review',
-  assigned: 'assigned',
-  investigating: 'investigating',
-  resolved: 'resolved',
-  closed: 'closed',
-  rejected: 'rejected'
-} as const
-
-export type IncidentStatus = (typeof IncidentStatus)[keyof typeof IncidentStatus]
-
-
-export const Severity = {
-  low: 'low',
-  medium: 'medium',
-  high: 'high',
-  critical: 'critical'
-} as const
-
-export type Severity = (typeof Severity)[keyof typeof Severity]
-
-
-export const ActionStatus = {
-  open: 'open',
-  in_progress: 'in_progress',
-  completed: 'completed',
-  overdue: 'overdue'
-} as const
-
-export type ActionStatus = (typeof ActionStatus)[keyof typeof ActionStatus]
+// This file is empty because there are no enums in the schema.
+export {}

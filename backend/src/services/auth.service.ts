@@ -23,8 +23,8 @@ interface CreateUserParams {
   email: string;
   password: string;
   role?: string;
-  companyId: number;
-  createdBy: number;
+  companyId: string;
+  createdBy: string;
 }
 
 export const AuthService = {
@@ -78,7 +78,7 @@ export const AuthService = {
     };
   },
 
-  async getMe(userId: number) {
+  async getMe(userId: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new UnauthorizedError("User not found");
 
@@ -132,9 +132,9 @@ export const AuthService = {
         id: result.user.id,
         name: result.user.name,
         email: result.user.email,
-      role: result.user.role,
-      status: result.user.status,
-      companyId: result.user.companyId,
+        role: result.user.role,
+        status: result.user.status,
+        companyId: result.user.companyId,
       },
       company: {
         id: result.company.id,
@@ -223,7 +223,7 @@ export const AuthService = {
     );
   },
 
-  async changePassword(userId: number, currentPassword: string, newPassword: string) {
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new UnauthorizedError("User not found");
 
@@ -237,7 +237,7 @@ export const AuthService = {
     });
   },
 
-  async listUsers(companyId: number) {
+  async listUsers(companyId: string) {
     return prisma.user.findMany({
       where: { companyId },
       select: {
@@ -252,7 +252,7 @@ export const AuthService = {
     });
   },
 
-  async getUserById(companyId: number, userId: number) {
+  async getUserById(companyId: string, userId: string) {
     const user = await prisma.user.findFirst({
       where: { id: userId, companyId },
       select: {
@@ -269,7 +269,7 @@ export const AuthService = {
     return user;
   },
 
-  async updateUser(companyId: number, userId: number, data: { name?: string; email?: string; role?: string }) {
+  async updateUser(companyId: string, userId: string, data: { name?: string; email?: string; role?: string }) {
     const user = await prisma.user.findFirst({
       where: { id: userId, companyId },
     });
