@@ -36,7 +36,7 @@ jest.mock("../lib/db", () => ({
 
 jest.mock("../lib/hash");
 jest.mock("../lib/jwt");
-jest.mock("../lib/mail", () => ({
+jest.mock("./email.service", () => ({
   sendWelcomeEmail: jest.fn().mockResolvedValue(undefined),
   sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
   sendPasswordChangedEmail: jest.fn().mockResolvedValue(undefined),

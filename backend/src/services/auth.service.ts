@@ -3,7 +3,7 @@ import { prisma } from "../lib/db";
 import { hashPassword, comparePassword } from "../lib/hash";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../lib/jwt";
 import { UnauthorizedError, ConflictError, NotFoundError } from "../lib/errors";
-import { sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail } from "../lib/mail";
+import { sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail } from "./email.service";
 import { SubscriptionService } from "./subscription.service";
 
 interface LoginParams {
