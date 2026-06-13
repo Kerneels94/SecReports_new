@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { cn } from "@/lib/cn";
+import { useDashboardMode } from "@/hooks/useDashboardMode";
 
 interface HeaderProps {
   user?: { name: string; email: string; role: string } | null;
@@ -9,6 +11,7 @@ interface HeaderProps {
 }
 
 export function Header({ user, onLogout }: HeaderProps) {
+  const { mode, setMode } = useDashboardMode();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -21,7 +24,32 @@ export function Header({ user, onLogout }: HeaderProps) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 hidden h-16 items-center justify-end gap-4 border-b border-border-light bg-surface/80 backdrop-blur-md px-8 lg:flex">
+    <header className="sticky top-0 z-30 hidden h-16 items-center justify-between border-b border-border-light bg-surface/80 backdrop-blur-md px-8 lg:flex">
+      <div className="flex items-center gap-1 rounded-lg bg-surface-elevated/50 p-0.5 ring-1 ring-border-light">
+        <button
+          onClick={() => setMode("incidents")}
+          className={cn(
+            "rounded-md px-4 py-1.5 text-sm font-medium transition-all",
+            mode === "incidents"
+              ? "bg-surface text-text shadow-sm"
+              : "text-text-secondary hover:text-text",
+          )}
+        >
+          Incident Reports
+        </button>
+        <button
+          onClick={() => setMode("guarding")}
+          className={cn(
+            "rounded-md px-4 py-1.5 text-sm font-medium transition-all",
+            mode === "guarding"
+              ? "bg-surface text-text shadow-sm"
+              : "text-text-secondary hover:text-text",
+          )}
+        >
+          Guarding
+        </button>
+      </div>
+
       {user && (
         <div ref={ref} className="relative">
           <button

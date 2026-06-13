@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { reportService } from "@/services";
 
 const statusLabels: Record<string, string> = {
@@ -16,19 +15,11 @@ const statusLabels: Record<string, string> = {
   rejected: "Rejected",
 };
 
-const severityColors: Record<string, "default" | "warning" | "danger" | "info"> = {
-  low: "default",
-  medium: "warning",
-  high: "danger",
-  critical: "danger",
-};
-
 export default function ReportsPage() {
   const [data, setData] = useState<{
     total: number;
     byStatus: { status: string; _count: { id: number } }[];
-    bySeverity: { severity: string; _count: { id: number } }[];
-    recent: { id: number; title: string; severity: string; status: string; createdAt: string; reporter?: { name: string } }[];
+    recent: { id: number; title: string; status: string; createdAt: string; reporter?: { name: string } }[];
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,17 +77,6 @@ export default function ReportsPage() {
             <p className="mt-2 text-3xl font-bold text-text">{data.total}</p>
           </CardContent>
         </Card>
-        {data.bySeverity.map((s) => (
-          <Card key={s.severity} className="relative overflow-hidden">
-            <div className={`absolute inset-0 bg-gradient-to-br ${s.severity === "critical" || s.severity === "high" ? "from-red-500/10" : s.severity === "medium" ? "from-amber-500/10" : "from-primary/5"} to-transparent`} />
-            <CardContent className="relative">
-              <p className="text-sm text-text-secondary capitalize">{s.severity}</p>
-              <p className={`mt-2 text-3xl font-bold ${s.severity === "critical" || s.severity === "high" ? "text-danger" : s.severity === "medium" ? "text-warning" : "text-text"}`}>
-                {s._count.id}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -130,15 +110,12 @@ export default function ReportsPage() {
             ) : (
               <div className="flex flex-col gap-3">
                 {data.recent.map((inc) => (
-                  <div key={inc.id} className="flex items-center justify-between">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-text truncate">{inc.title}</p>
-                      <p className="text-xs text-text-secondary">{inc.reporter?.name} &middot; {new Date(inc.createdAt).toLocaleDateString()}</p>
+                    <div key={inc.id}>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-text truncate">{inc.title}</p>
+                        <p className="text-xs text-text-secondary">{inc.reporter?.name} &middot; {new Date(inc.createdAt).toLocaleDateString()}</p>
+                      </div>
                     </div>
-                    <div className="flex gap-2 ml-3">
-                      <Badge variant={severityColors[inc.severity] || "default"} dot>{inc.severity}</Badge>
-                    </div>
-                  </div>
                 ))}
               </div>
             )}

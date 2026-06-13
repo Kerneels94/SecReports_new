@@ -24,7 +24,6 @@ describe("NewIncidentPage", () => {
   it("renders form with all section headings", () => {
     render(<NewIncidentPage />);
     expect(screen.getByRole("heading", { name: /report incident/i })).toBeInTheDocument();
-    expect(screen.getByText("Personnel")).toBeInTheDocument();
     expect(screen.getByText("Response Details")).toBeInTheDocument();
     expect(screen.getByText("Client & Property")).toBeInTheDocument();
     expect(screen.getByText("Incident")).toBeInTheDocument();
@@ -46,10 +45,10 @@ describe("NewIncidentPage", () => {
     expect(screen.getByLabelText("SAPS Reference")).toBeInTheDocument();
     expect(screen.getByLabelText("Title")).toBeInTheDocument();
     expect(screen.getByLabelText("Report")).toBeInTheDocument();
-    expect(screen.getByLabelText("Type")).toBeInTheDocument();
-    expect(screen.getByLabelText("Severity")).toBeInTheDocument();
+    expect(screen.getByText("Type")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Type" })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Describe the type...")).toBeInTheDocument();
     expect(screen.getByLabelText("Incident Date")).toBeInTheDocument();
-    expect(screen.getByLabelText("Location")).toBeInTheDocument();
   });
 
   it("shows validation errors for required fields", async () => {
@@ -82,8 +81,8 @@ describe("NewIncidentPage", () => {
     await user.type(screen.getByLabelText("SAPS Reference"), "SAPS-123");
     await user.type(screen.getByLabelText("Title"), "Server Down");
     await user.type(screen.getByLabelText("Report"), "Server is down");
-    await user.type(screen.getByLabelText("Type"), "outage");
-    await user.type(screen.getByLabelText("Location"), "DC-1");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Type" }), "Attempted");
+    await user.type(screen.getByPlaceholderText("Describe the type..."), "house break in");
 
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
@@ -101,10 +100,8 @@ describe("NewIncidentPage", () => {
         sapsReference: "SAPS-123",
         title: "Server Down",
         description: "Server is down",
-        type: "outage",
-        severity: "medium",
+        type: "Attempted house break in",
         incidentDate: expect.any(String),
-        location: "DC-1",
       });
       expect(mockRouter.push).toHaveBeenCalledWith("/incidents");
     });
@@ -119,7 +116,8 @@ describe("NewIncidentPage", () => {
     await user.type(screen.getByLabelText("Dispatcher"), "Jane");
     await user.type(screen.getByLabelText("Title"), "Server Down");
     await user.type(screen.getByLabelText("Report"), "Server is down");
-    await user.type(screen.getByLabelText("Type"), "outage");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Type" }), "Attempted");
+    await user.type(screen.getByPlaceholderText("Describe the type..."), "fire");
 
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
@@ -136,9 +134,5 @@ describe("NewIncidentPage", () => {
     expect(mockRouter.push).toHaveBeenCalledWith("/incidents");
   });
 
-  it("severity select defaults to medium", () => {
-    render(<NewIncidentPage />);
-    const select = screen.getByLabelText("Severity");
-    expect(select).toHaveValue("medium");
-  });
 });
+

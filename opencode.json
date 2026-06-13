@@ -27,8 +27,8 @@
         }
       }
     },
-    "mariadb": {
-      "description": "Generates and manages the database layer (Prisma schema, migrations, seeds, data-access helpers) for MariaDB, with Jest tests.",
+    "mongodb": {
+      "description": "Generates and manages the database layer (Prisma schema, seeds, data-access helpers) for MongoDB, with Jest tests.",
       "mode": "subagent",
       "model": "anthropic/claude-sonnet-4-6",
       "permission": {

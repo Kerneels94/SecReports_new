@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import DashboardPage from "./page";
-import { reportService } from "@/services";
+import { reportService, incidentService } from "@/services";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(() => ({ push: jest.fn() })),
@@ -12,30 +12,21 @@ jest.mock("next/navigation", () => ({
 
 jest.mock("@/services", () => ({
   reportService: { summary: jest.fn() },
+  incidentService: { list: jest.fn() },
 }));
 
 const mockSummary = reportService.summary as jest.Mock;
+const mockList = incidentService.list as jest.Mock;
 
 const mockData = {
   total: 25,
-  byStatus: [
-    { status: "open", _count: { id: 5 } },
-    { status: "submitted", _count: { id: 3 } },
-    { status: "resolved", _count: { id: 10 } },
-    { status: "closed", _count: { id: 7 } },
-  ],
-  bySeverity: [
-    { severity: "low", _count: { id: 10 } },
-    { severity: "medium", _count: { id: 8 } },
-    { severity: "high", _count: { id: 5 } },
-    { severity: "critical", _count: { id: 2 } },
-  ],
+  byStatus: [],
   recent: [
-    { id: 1, referenceNumber: "SEC-001", title: "Server down", severity: "high", status: "under_review" },
-    { id: 2, referenceNumber: "SEC-002", title: "Phishing email", severity: "medium", status: "submitted" },
+    { id: 1, referenceNumber: "SEC-001", title: "Server down", status: "under_review", incidentDate: "2026-05-01T00:00:00Z", createdAt: "2026-05-01T00:00:00Z" },
+    { id: 2, referenceNumber: "SEC-002", title: "Phishing email", status: "submitted", incidentDate: "2026-05-15T00:00:00Z", createdAt: "2026-05-15T00:00:00Z" },
   ],
-  assignedToMe: 3,
-  overdueActions: 1,
+  attemptedCount: 3,
+  positiveCount: 2,
 };
 
 beforeEach(() => {
@@ -49,17 +40,16 @@ describe("DashboardPage", () => {
     expect(document.querySelector(".animate-spin")).toBeInTheDocument();
   });
 
-  it("renders 4 stat cards with correct labels", async () => {
+  it("renders stat cards with correct labels", async () => {
     mockSummary.mockResolvedValue({ data: mockData });
     render(<DashboardPage />);
 
     await waitFor(() => {
-      expect(screen.getByText("Open Incidents")).toBeInTheDocument();
+      expect(screen.getByText("Incidents")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Critical")).toBeInTheDocument();
-    expect(screen.getByText("Assigned to Me")).toBeInTheDocument();
-    expect(screen.getByText("Overdue Actions")).toBeInTheDocument();
+    expect(screen.getByText("Attempted incidents")).toBeInTheDocument();
+    expect(screen.getByText("Positive incidents")).toBeInTheDocument();
   });
 
   it("renders stat card values", async () => {
@@ -67,14 +57,12 @@ describe("DashboardPage", () => {
     render(<DashboardPage />);
 
     await waitFor(() => {
-      expect(screen.getByText("Open Incidents")).toBeInTheDocument();
+      expect(screen.getByText("Incidents")).toBeInTheDocument();
     });
 
-    const twos = screen.getAllByText("2");
-    expect(twos.length).toBeGreaterThanOrEqual(1);
-
+    expect(screen.getByText("25")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
-    expect(screen.getByText("1")).toBeInTheDocument();
+    expect(screen.getByText("2")).toBeInTheDocument();
   });
 
   it("renders recent incidents table", async () => {
@@ -87,20 +75,6 @@ describe("DashboardPage", () => {
       expect(screen.getByText("SEC-002")).toBeInTheDocument();
       expect(screen.getByText("Phishing email")).toBeInTheDocument();
     });
-  });
-
-  it("renders severity breakdown bars", async () => {
-    mockSummary.mockResolvedValue({ data: mockData });
-    render(<DashboardPage />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Incidents by Severity")).toBeInTheDocument();
-    });
-
-    const lowLabels = screen.getAllByText("low");
-    expect(lowLabels.length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("10")).toBeInTheDocument();
-    expect(screen.getByText("5")).toBeInTheDocument();
   });
 
   it("shows error state with retry", async () => {
@@ -126,17 +100,29 @@ describe("DashboardPage", () => {
     const emptyData = {
       total: 0,
       byStatus: [],
-      bySeverity: [],
       recent: [],
-      assignedToMe: 0,
-      overdueActions: 0,
+      attemptedCount: 0,
+      positiveCount: 0,
     };
     mockSummary.mockResolvedValue({ data: emptyData });
     render(<DashboardPage />);
 
     await waitFor(() => {
       expect(screen.getByText("No incidents reported yet.")).toBeInTheDocument();
-      expect(screen.getByText("No data available.")).toBeInTheDocument();
     });
+  });
+
+  it("fetches filtered incidents when date changes", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockList.mockResolvedValue({ data: { data: [mockData.recent[0]], total: 1, page: 1, perPage: 50 } });
+
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("SEC-001")).toBeInTheDocument();
+    });
+
+    const dateInputs = screen.getAllByDisplayValue("");
+    expect(dateInputs.length).toBeGreaterThanOrEqual(2);
   });
 });

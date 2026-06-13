@@ -1,34 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Modal } from "@/components/ui/Modal";
-import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { incidentService } from "@/services";
 import type { Incident } from "@/types";
-
-const severityVariant: Record<
-  string,
-  "default" | "warning" | "danger" | "info"
-> = {
-  low: "default",
-  medium: "warning",
-  high: "danger",
-  critical: "danger",
-};
-
-const statusVariant: Record<
-  string,
-  "default" | "success" | "warning" | "danger" | "info"
-> = {
-  draft: "default",
-  submitted: "info",
-  under_review: "warning",
-  assigned: "info",
-  investigating: "info",
-  resolved: "success",
-  closed: "success",
-  rejected: "danger",
-};
 
 function DetailRow({
   label,
@@ -61,6 +37,7 @@ export function IncidentDetailModal({
   const [incident, setIncident] = useState<Incident | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const fetchIncident = useCallback(async () => {
     setLoading(true);
@@ -82,13 +59,27 @@ export function IncidentDetailModal({
     }
   }, [open, fetchIncident]);
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <Modal
       open={open}
       onClose={onClose}
       title=""
-      className="max-w-2xl max-h-[85vh] overflow-y-auto"
+      className="w-[70%] max-h-[85vh] overflow-y-auto"
     >
+      <button
+        onClick={onClose}
+        className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors z-20"
+        aria-label="Close"
+      >
+        <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+        </svg>
+      </button>
+
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <div className="flex flex-col items-center gap-3">
@@ -120,7 +111,7 @@ export function IncidentDetailModal({
           </button>
         </div>
       ) : incident ? (
-        <div className="flex flex-col gap-5">
+        <div ref={contentRef} className="flex flex-col gap-5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex flex-col gap-1.5 min-w-0">
               <span className="font-mono text-[11px] text-text-secondary/40 tracking-wider uppercase">
@@ -129,17 +120,6 @@ export function IncidentDetailModal({
               <h2 className="text-lg font-bold text-text leading-snug wrap-break-word">
                 {incident.title}
               </h2>
-            </div>
-            <div className="flex gap-1.5 shrink-0">
-              <Badge
-                variant={severityVariant[incident.severity] || "default"}
-                dot
-              >
-                {incident.severity}
-              </Badge>
-              <Badge variant={statusVariant[incident.status] || "default"} dot>
-                {incident.status.replace(/_/g, " ")}
-              </Badge>
             </div>
           </div>
 
@@ -260,6 +240,17 @@ export function IncidentDetailModal({
                 minute: "2-digit",
               })}
             </DetailRow>
+          </div>
+
+          <div className="flex justify-end pt-2 border-t border-border-light/50">
+            <Button onClick={handlePrint} variant="secondary" size="sm">
+              <svg className="h-4 w-4 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 9V2h12v7" />
+                <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
+                <path d="M6 14h12v8H6z" />
+              </svg>
+              Download PDF
+            </Button>
           </div>
         </div>
       ) : null}

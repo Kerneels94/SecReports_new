@@ -15,6 +15,11 @@ import evidenceRoutes from "./routes/evidence.routes";
 import exportRoutes from "./routes/export.routes";
 import investigationRoutes from "./routes/investigation.routes";
 import apiKeyRoutes from "./routes/apiKey.routes";
+import guardingSiteRoutes from "./routes/guardingSite.routes";
+import guardRoutes from "./routes/guard.routes";
+import patrolReportRoutes from "./routes/patrolReport.routes";
+import entryLogRoutes from "./routes/entryLog.routes";
+import flaggedVehicleRoutes from "./routes/flaggedVehicle.routes";
 
 export async function buildApp() {
   const fastify = Fastify({ logger: true });
@@ -62,6 +67,11 @@ export async function buildApp() {
   await fastify.register(exportRoutes);
   await fastify.register(investigationRoutes);
   await fastify.register(apiKeyRoutes);
+  await fastify.register(guardingSiteRoutes);
+  await fastify.register(guardRoutes);
+  await fastify.register(patrolReportRoutes);
+  await fastify.register(entryLogRoutes);
+  await fastify.register(flaggedVehicleRoutes);
 
   fastify.setErrorHandler((error, request, reply) => {
     if (error instanceof AppError) {

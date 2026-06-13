@@ -2,31 +2,23 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { IncidentDetailModal } from "@/components/incidents/IncidentDetailModal";
-import { reportService } from "@/services";
+import { reportService, incidentService } from "@/services";
 import { DashboardSearch } from "./components/DashboardSearch";
 import type { Incident } from "@/types";
 
-const closedStatuses = new Set(["resolved", "closed", "rejected"]);
-
-const severityColor: Record<string, string> = {
-  low: "text-text-secondary",
-  medium: "text-warning",
-  high: "text-danger",
-  critical: "text-danger",
-};
-
 export default function DashboardPage() {
   const [total, setTotal] = useState(0);
-  const [byStatus, setByStatus] = useState<{ status: string; _count: { id: number } }[]>([]);
-  const [bySeverity, setBySeverity] = useState<{ severity: string; _count: { id: number } }[]>([]);
+  const [attemptedCount, setAttemptedCount] = useState(0);
+  const [positiveCount, setPositiveCount] = useState(0);
   const [recent, setRecent] = useState<Incident[]>([]);
-  const [assignedToMe, setAssignedToMe] = useState(0);
-  const [overdueActions, setOverdueActions] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(null);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [tableLoading, setTableLoading] = useState(false);
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -34,11 +26,9 @@ export default function DashboardPage() {
     try {
       const res = await reportService.summary();
       setTotal(res.data.total);
-      setByStatus(res.data.byStatus);
-      setBySeverity(res.data.bySeverity);
+      setAttemptedCount(res.data.attemptedCount);
+      setPositiveCount(res.data.positiveCount);
       setRecent(res.data.recent);
-      setAssignedToMe(res.data.assignedToMe);
-      setOverdueActions(res.data.overdueActions);
     } catch {
       setError("Failed to load dashboard data");
     } finally {
@@ -50,13 +40,48 @@ export default function DashboardPage() {
     fetchSummary();
   }, [fetchSummary]);
 
-  const openCount = byStatus
-    .filter((s) => !closedStatuses.has(s.status))
-    .reduce((sum, s) => sum + s._count.id, 0);
+  const fetchFiltered = useCallback(async (from: string, to: string, type: string) => {
+    setTableLoading(true);
+    try {
+      const params: Record<string, string> = { page: "1", perPage: "50" };
+      if (from) params.dateFrom = from;
+      if (to) params.dateTo = to;
+      if (type) params.type = type;
+      const res = await incidentService.list(params);
+      setRecent(res.data.data);
+    } catch {
+      // silently fall back to summary data
+    } finally {
+      setTableLoading(false);
+    }
+  }, []);
 
-  const criticalCount = bySeverity.find((s) => s.severity === "critical")?._count.id ?? 0;
+  const handleDateFromChange = (v: string) => {
+    setDateFrom(v);
+    if (v || dateTo || typeFilter) {
+      fetchFiltered(v, dateTo, typeFilter);
+    } else {
+      fetchSummary();
+    }
+  };
 
-  const severityTotal = bySeverity.reduce((sum, s) => sum + s._count.id, 0);
+  const handleDateToChange = (v: string) => {
+    setDateTo(v);
+    if (dateFrom || v || typeFilter) {
+      fetchFiltered(dateFrom, v, typeFilter);
+    } else {
+      fetchSummary();
+    }
+  };
+
+  const handleTypeFilterChange = (v: string) => {
+    setTypeFilter(v);
+    if (dateFrom || dateTo || v) {
+      fetchFiltered(dateFrom, dateTo, v);
+    } else {
+      fetchSummary();
+    }
+  };
 
   if (loading) {
     return (
@@ -84,10 +109,9 @@ export default function DashboardPage() {
   }
 
   const statCards = [
-    { label: "Open Incidents", value: openCount, color: "text-warning", gradient: "from-amber-500/10 to-amber-500/5", icon: "M12 9v2m0 4h.01" },
-    { label: "Critical", value: criticalCount, color: "text-danger", gradient: "from-red-500/10 to-red-500/5", icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" },
-    { label: "Assigned to Me", value: assignedToMe, color: "text-primary", gradient: "from-primary/10 to-primary/5", icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" },
-    { label: "Overdue Actions", value: overdueActions, color: "text-danger", gradient: "from-red-500/10 to-red-500/5", icon: "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
+    { label: "Incidents", value: total, color: "text-primary", gradient: "from-primary/10 to-primary/5", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
+    { label: "Attempted incidents", value: attemptedCount, color: "text-warning", gradient: "from-amber-500/10 to-amber-500/5", icon: "M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
+    { label: "Positive incidents", value: positiveCount, color: "text-success", gradient: "from-emerald-500/10 to-emerald-500/5", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
   ];
 
   return (
@@ -105,9 +129,16 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <DashboardSearch />
+      <DashboardSearch
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        typeFilter={typeFilter}
+        onDateFromChange={handleDateFromChange}
+        onDateToChange={handleDateToChange}
+        onTypeFilterChange={handleTypeFilterChange}
+      />
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
         {statCards.map((stat) => (
           <Card key={stat.label} className="relative overflow-hidden">
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient}`} />
@@ -126,13 +157,17 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div>
         <Card>
           <CardHeader>
             <CardTitle>Recent Incidents</CardTitle>
           </CardHeader>
           <CardContent>
-            {recent.length === 0 ? (
+            {tableLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            ) : recent.length === 0 ? (
               <p className="text-sm text-text-secondary">No incidents reported yet.</p>
             ) : (
               <div className="overflow-x-auto">
@@ -141,8 +176,9 @@ export default function DashboardPage() {
                     <tr className="border-b border-border">
                       <th className="pb-2 pr-4 text-left font-medium text-text-secondary">Ref #</th>
                       <th className="pb-2 pr-4 text-left font-medium text-text-secondary">Title</th>
-                      <th className="pb-2 pr-4 text-left font-medium text-text-secondary">Severity</th>
-                      <th className="pb-2 text-left font-medium text-text-secondary">Status</th>
+                      <th className="pb-2 pr-4 text-left font-medium text-text-secondary">Created by</th>
+                      <th className="pb-2 pr-4 text-left font-medium text-text-secondary">Dispatcher</th>
+                      <th className="pb-2 text-left font-medium text-text-secondary">Date</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -166,79 +202,23 @@ export default function DashboardPage() {
                             {incident.title}
                           </button>
                         </td>
-                        <td className="py-3 pr-4">
-                          <Badge
-                            variant={
-                              incident.severity === "critical" || incident.severity === "high"
-                                ? "danger"
-                                : incident.severity === "medium"
-                                  ? "warning"
-                                  : "default"
-                            }
-                          >
-                            {incident.severity}
-                          </Badge>
+                        <td className="py-3 pr-4 text-sm text-text-secondary">
+                          {incident.operatorName}
                         </td>
-                        <td className="py-3">
-                          <Badge
-                            variant={
-                              incident.status === "resolved" || incident.status === "closed"
-                                ? "success"
-                                : incident.status === "rejected"
-                                  ? "danger"
-                                  : incident.status === "under_review" || incident.status === "assigned" || incident.status === "investigating"
-                                    ? "info"
-                                    : incident.status === "submitted"
-                                      ? "warning"
-                                      : "default"
-                            }
-                          >
-                            {incident.status.replace("_", " ")}
-                          </Badge>
+                        <td className="py-3 pr-4 text-sm text-text-secondary">
+                          {incident.dispatcher}
+                        </td>
+                        <td className="py-3 text-sm text-text-secondary">
+                          {new Date(incident.incidentDate).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Incidents by Severity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {bySeverity.length === 0 ? (
-              <p className="text-sm text-text-secondary">No data available.</p>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {bySeverity.map((s) => {
-                  const pct = severityTotal > 0 ? Math.round((s._count.id / severityTotal) * 100) : 0;
-                  return (
-                    <div key={s.severity}>
-                      <div className="mb-1 flex items-center justify-between text-sm">
-                        <span className="font-medium text-text capitalize">{s.severity}</span>
-                        <span className="text-text-secondary">{s._count.id}</span>
-                      </div>
-                      <div className="h-2 w-full rounded-full bg-border">
-                        <div
-                          className={`h-2 rounded-full ${
-                            s.severity === "critical"
-                              ? "bg-danger"
-                              : s.severity === "high"
-                                ? "bg-orange-500"
-                                : s.severity === "medium"
-                                  ? "bg-warning"
-                                  : "bg-slate-600"
-                          }`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
               </div>
             )}
           </CardContent>

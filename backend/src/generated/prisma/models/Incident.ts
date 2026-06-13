@@ -31,7 +31,6 @@ export type IncidentMinAggregateOutputType = {
   title: string | null
   description: string | null
   type: string | null
-  severity: string | null
   status: string | null
   incidentDate: Date | null
   location: string | null
@@ -58,7 +57,6 @@ export type IncidentMaxAggregateOutputType = {
   title: string | null
   description: string | null
   type: string | null
-  severity: string | null
   status: string | null
   incidentDate: Date | null
   location: string | null
@@ -85,7 +83,6 @@ export type IncidentCountAggregateOutputType = {
   title: number
   description: number
   type: number
-  severity: number
   status: number
   incidentDate: number
   location: number
@@ -114,7 +111,6 @@ export type IncidentMinAggregateInputType = {
   title?: true
   description?: true
   type?: true
-  severity?: true
   status?: true
   incidentDate?: true
   location?: true
@@ -141,7 +137,6 @@ export type IncidentMaxAggregateInputType = {
   title?: true
   description?: true
   type?: true
-  severity?: true
   status?: true
   incidentDate?: true
   location?: true
@@ -168,7 +163,6 @@ export type IncidentCountAggregateInputType = {
   title?: true
   description?: true
   type?: true
-  severity?: true
   status?: true
   incidentDate?: true
   location?: true
@@ -268,7 +262,6 @@ export type IncidentGroupByOutputType = {
   title: string
   description: string
   type: string
-  severity: string
   status: string
   incidentDate: Date
   location: string | null
@@ -316,7 +309,6 @@ export type IncidentWhereInput = {
   title?: Prisma.StringFilter<"Incident"> | string
   description?: Prisma.StringFilter<"Incident"> | string
   type?: Prisma.StringFilter<"Incident"> | string
-  severity?: Prisma.StringFilter<"Incident"> | string
   status?: Prisma.StringFilter<"Incident"> | string
   incidentDate?: Prisma.DateTimeFilter<"Incident"> | Date | string
   location?: Prisma.StringNullableFilter<"Incident"> | string | null
@@ -351,7 +343,6 @@ export type IncidentOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  severity?: Prisma.SortOrder
   status?: Prisma.SortOrder
   incidentDate?: Prisma.SortOrder
   location?: Prisma.SortOrder
@@ -389,7 +380,6 @@ export type IncidentWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Incident"> | string
   description?: Prisma.StringFilter<"Incident"> | string
   type?: Prisma.StringFilter<"Incident"> | string
-  severity?: Prisma.StringFilter<"Incident"> | string
   status?: Prisma.StringFilter<"Incident"> | string
   incidentDate?: Prisma.DateTimeFilter<"Incident"> | Date | string
   location?: Prisma.StringNullableFilter<"Incident"> | string | null
@@ -424,7 +414,6 @@ export type IncidentOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  severity?: Prisma.SortOrder
   status?: Prisma.SortOrder
   incidentDate?: Prisma.SortOrder
   location?: Prisma.SortOrder
@@ -457,7 +446,6 @@ export type IncidentScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Incident"> | string
   description?: Prisma.StringWithAggregatesFilter<"Incident"> | string
   type?: Prisma.StringWithAggregatesFilter<"Incident"> | string
-  severity?: Prisma.StringWithAggregatesFilter<"Incident"> | string
   status?: Prisma.StringWithAggregatesFilter<"Incident"> | string
   incidentDate?: Prisma.DateTimeWithAggregatesFilter<"Incident"> | Date | string
   location?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
@@ -483,7 +471,6 @@ export type IncidentCreateInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -516,7 +503,6 @@ export type IncidentUncheckedCreateInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -546,7 +532,6 @@ export type IncidentUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -578,7 +563,6 @@ export type IncidentUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -610,7 +594,6 @@ export type IncidentCreateManyInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -635,7 +618,6 @@ export type IncidentUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -659,7 +641,6 @@ export type IncidentUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -696,7 +677,6 @@ export type IncidentCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  severity?: Prisma.SortOrder
   status?: Prisma.SortOrder
   incidentDate?: Prisma.SortOrder
   location?: Prisma.SortOrder
@@ -723,7 +703,6 @@ export type IncidentMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  severity?: Prisma.SortOrder
   status?: Prisma.SortOrder
   incidentDate?: Prisma.SortOrder
   location?: Prisma.SortOrder
@@ -750,7 +729,6 @@ export type IncidentMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  severity?: Prisma.SortOrder
   status?: Prisma.SortOrder
   incidentDate?: Prisma.SortOrder
   location?: Prisma.SortOrder
@@ -982,7 +960,6 @@ export type IncidentCreateWithoutCompanyInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1013,7 +990,6 @@ export type IncidentUncheckedCreateWithoutCompanyInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1073,7 +1049,6 @@ export type IncidentScalarWhereInput = {
   title?: Prisma.StringFilter<"Incident"> | string
   description?: Prisma.StringFilter<"Incident"> | string
   type?: Prisma.StringFilter<"Incident"> | string
-  severity?: Prisma.StringFilter<"Incident"> | string
   status?: Prisma.StringFilter<"Incident"> | string
   incidentDate?: Prisma.DateTimeFilter<"Incident"> | Date | string
   location?: Prisma.StringNullableFilter<"Incident"> | string | null
@@ -1099,7 +1074,6 @@ export type IncidentCreateWithoutReporterInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1131,7 +1105,6 @@ export type IncidentUncheckedCreateWithoutReporterInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1170,7 +1143,6 @@ export type IncidentCreateWithoutAssignedInvestigatorInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1202,7 +1174,6 @@ export type IncidentUncheckedCreateWithoutAssignedInvestigatorInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1273,7 +1244,6 @@ export type IncidentCreateWithoutPeopleInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1305,7 +1275,6 @@ export type IncidentUncheckedCreateWithoutPeopleInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1350,7 +1319,6 @@ export type IncidentUpdateWithoutPeopleInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1381,7 +1349,6 @@ export type IncidentUncheckedUpdateWithoutPeopleInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1411,7 +1378,6 @@ export type IncidentCreateWithoutEvidenceInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1443,7 +1409,6 @@ export type IncidentUncheckedCreateWithoutEvidenceInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1488,7 +1453,6 @@ export type IncidentUpdateWithoutEvidenceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1519,7 +1483,6 @@ export type IncidentUncheckedUpdateWithoutEvidenceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1549,7 +1512,6 @@ export type IncidentCreateWithoutCommentsInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1581,7 +1543,6 @@ export type IncidentUncheckedCreateWithoutCommentsInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1626,7 +1587,6 @@ export type IncidentUpdateWithoutCommentsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1657,7 +1617,6 @@ export type IncidentUncheckedUpdateWithoutCommentsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1687,7 +1646,6 @@ export type IncidentCreateWithoutInvestigationInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1719,7 +1677,6 @@ export type IncidentUncheckedCreateWithoutInvestigationInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1764,7 +1721,6 @@ export type IncidentUpdateWithoutInvestigationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1795,7 +1751,6 @@ export type IncidentUncheckedUpdateWithoutInvestigationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1825,7 +1780,6 @@ export type IncidentCreateWithoutCorrectiveActionsInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1857,7 +1811,6 @@ export type IncidentUncheckedCreateWithoutCorrectiveActionsInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1902,7 +1855,6 @@ export type IncidentUpdateWithoutCorrectiveActionsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1933,7 +1885,6 @@ export type IncidentUncheckedUpdateWithoutCorrectiveActionsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1963,7 +1914,6 @@ export type IncidentCreateManyCompanyInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -1988,7 +1938,6 @@ export type IncidentUpdateWithoutCompanyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2018,7 +1967,6 @@ export type IncidentUncheckedUpdateWithoutCompanyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2048,7 +1996,6 @@ export type IncidentUncheckedUpdateManyWithoutCompanyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2075,7 +2022,6 @@ export type IncidentCreateManyReporterInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -2101,7 +2047,6 @@ export type IncidentCreateManyAssignedInvestigatorInput = {
   title: string
   description: string
   type: string
-  severity?: string
   status?: string
   incidentDate: Date | string
   location?: string | null
@@ -2125,7 +2070,6 @@ export type IncidentUpdateWithoutReporterInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2156,7 +2100,6 @@ export type IncidentUncheckedUpdateWithoutReporterInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2186,7 +2129,6 @@ export type IncidentUncheckedUpdateManyWithoutReporterInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2210,7 +2152,6 @@ export type IncidentUpdateWithoutAssignedInvestigatorInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2241,7 +2182,6 @@ export type IncidentUncheckedUpdateWithoutAssignedInvestigatorInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2271,7 +2211,6 @@ export type IncidentUncheckedUpdateManyWithoutAssignedInvestigatorInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  severity?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2355,7 +2294,6 @@ export type IncidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   title?: boolean
   description?: boolean
   type?: boolean
-  severity?: boolean
   status?: boolean
   incidentDate?: boolean
   location?: boolean
@@ -2393,7 +2331,6 @@ export type IncidentSelectScalar = {
   title?: boolean
   description?: boolean
   type?: boolean
-  severity?: boolean
   status?: boolean
   incidentDate?: boolean
   location?: boolean
@@ -2413,7 +2350,7 @@ export type IncidentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type IncidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "referenceNumber" | "title" | "description" | "type" | "severity" | "status" | "incidentDate" | "location" | "operatorName" | "dispatcher" | "dispatchTime" | "arrivalTime" | "callSign" | "propertyAddress" | "clientName" | "clientCode" | "businessOrComplex" | "sapsReference" | "reporterId" | "assignedTo" | "createdAt" | "updatedAt", ExtArgs["result"]["incident"]>
+export type IncidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "referenceNumber" | "title" | "description" | "type" | "status" | "incidentDate" | "location" | "operatorName" | "dispatcher" | "dispatchTime" | "arrivalTime" | "callSign" | "propertyAddress" | "clientName" | "clientCode" | "businessOrComplex" | "sapsReference" | "reporterId" | "assignedTo" | "createdAt" | "updatedAt", ExtArgs["result"]["incident"]>
 export type IncidentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   reporter?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -2445,7 +2382,6 @@ export type $IncidentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     title: string
     description: string
     type: string
-    severity: string
     status: string
     incidentDate: Date
     location: string | null
@@ -2869,7 +2805,6 @@ export interface IncidentFieldRefs {
   readonly title: Prisma.FieldRef<"Incident", 'String'>
   readonly description: Prisma.FieldRef<"Incident", 'String'>
   readonly type: Prisma.FieldRef<"Incident", 'String'>
-  readonly severity: Prisma.FieldRef<"Incident", 'String'>
   readonly status: Prisma.FieldRef<"Incident", 'String'>
   readonly incidentDate: Prisma.FieldRef<"Incident", 'DateTime'>
   readonly location: Prisma.FieldRef<"Incident", 'String'>

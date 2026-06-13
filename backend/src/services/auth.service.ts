@@ -51,6 +51,29 @@ export const AuthService = {
     };
   },
 
+  async employeeLogin(params: { email: string; password: string }) {
+    const user = await prisma.user.findUnique({ where: { email: params.email } });
+    if (!user || user.role !== "guard") throw new UnauthorizedError("Invalid email or password");
+
+    const valid = await comparePassword(params.password, user.passwordHash);
+    if (!valid) throw new UnauthorizedError("Invalid email or password");
+
+    const payload = { userId: user.id, role: user.role, companyId: user.companyId };
+
+    return {
+      accessToken: signAccessToken(payload),
+      refreshToken: signRefreshToken(payload),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        companyId: user.companyId,
+      },
+    };
+  },
+
   async refresh(refreshToken: string) {
     let payload;
     try {

@@ -15,7 +15,7 @@ export const ExportController = {
     });
 
     const headers = [
-      "Reference", "Title", "Type", "Severity", "Status",
+      "Reference", "Title", "Type", "Status",
       "Date", "Location", "Operator", "Dispatcher", "Reporter", "Created",
     ];
 
@@ -23,7 +23,6 @@ export const ExportController = {
       i.referenceNumber,
       `"${i.title.replace(/"/g, '""')}"`,
       i.type,
-      i.severity,
       i.status,
       i.incidentDate.toISOString().split("T")[0],
       i.location || "",

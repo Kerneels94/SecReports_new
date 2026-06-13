@@ -10,7 +10,6 @@ describe("incident schemas", () => {
     title: "Test Incident",
     description: "A description",
     type: "equipment_failure",
-    severity: "high",
     incidentDate: "2026-05-23",
     operatorName: "John Operator",
     dispatcher: "Jane Dispatcher",
@@ -25,11 +24,6 @@ describe("incident schemas", () => {
     it("fails when title is missing", () => {
       const { title, ...rest } = validCreate;
       const result = createIncidentSchema.safeParse(rest);
-      expect(result.success).toBe(false);
-    });
-
-    it("fails for invalid severity", () => {
-      const result = createIncidentSchema.safeParse({ ...validCreate, severity: "urgent" });
       expect(result.success).toBe(false);
     });
 

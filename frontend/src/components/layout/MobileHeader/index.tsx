@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { cn } from "@/lib/cn";
+import { useDashboardMode } from "@/hooks/useDashboardMode";
 
 interface MobileHeaderProps {
   user?: { name: string; email: string; role: string } | null;
@@ -10,6 +12,7 @@ interface MobileHeaderProps {
 }
 
 export function MobileHeader({ user, onToggleSidebar, onLogout }: MobileHeaderProps) {
+  const { mode, setMode } = useDashboardMode();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -33,14 +36,29 @@ export function MobileHeader({ user, onToggleSidebar, onLogout }: MobileHeaderPr
         </svg>
       </button>
 
-      <div className="flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-hover text-gray-900 text-sm font-bold shadow-lg shadow-primary/25">
-          S
-        </div>
-        <div>
-          <span className="text-sm font-semibold text-text">SecReports</span>
-          <p className="text-[10px] text-text-secondary/60 leading-none">Incident System</p>
-        </div>
+      <div className="flex items-center gap-1 rounded-lg bg-surface-elevated/50 p-0.5 ring-1 ring-border-light">
+        <button
+          onClick={() => setMode("incidents")}
+          className={cn(
+            "rounded-md px-2.5 py-1 text-xs font-medium transition-all",
+            mode === "incidents"
+              ? "bg-surface text-text shadow-sm"
+              : "text-text-secondary hover:text-text",
+          )}
+        >
+          Incidents
+        </button>
+        <button
+          onClick={() => setMode("guarding")}
+          className={cn(
+            "rounded-md px-2.5 py-1 text-xs font-medium transition-all",
+            mode === "guarding"
+              ? "bg-surface text-text shadow-sm"
+              : "text-text-secondary hover:text-text",
+          )}
+        >
+          Guarding
+        </button>
       </div>
 
       <div ref={ref} className="relative">

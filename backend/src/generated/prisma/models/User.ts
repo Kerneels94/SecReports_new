@@ -231,6 +231,7 @@ export type UserWhereInput = {
   uploadedEvidence?: Prisma.EvidenceListRelationFilter
   actionOwner?: Prisma.CorrectiveActionListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
+  guard?: Prisma.XOR<Prisma.GuardNullableScalarRelationFilter, Prisma.GuardWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
@@ -253,6 +254,7 @@ export type UserOrderByWithRelationInput = {
   uploadedEvidence?: Prisma.EvidenceOrderByRelationAggregateInput
   actionOwner?: Prisma.CorrectiveActionOrderByRelationAggregateInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
+  guard?: Prisma.GuardOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -278,6 +280,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   uploadedEvidence?: Prisma.EvidenceListRelationFilter
   actionOwner?: Prisma.CorrectiveActionListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
+  guard?: Prisma.XOR<Prisma.GuardNullableScalarRelationFilter, Prisma.GuardWhereInput> | null
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -330,6 +333,7 @@ export type UserCreateInput = {
   uploadedEvidence?: Prisma.EvidenceCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -350,6 +354,7 @@ export type UserUncheckedCreateInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -369,6 +374,7 @@ export type UserUpdateInput = {
   uploadedEvidence?: Prisma.EvidenceUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -388,6 +394,7 @@ export type UserUncheckedUpdateInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -675,6 +682,20 @@ export type UserUpdateOneRequiredWithoutAuditLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.UserUpdateWithoutAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
 }
 
+export type UserCreateNestedOneWithoutGuardInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutGuardInput, Prisma.UserUncheckedCreateWithoutGuardInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutGuardInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutGuardNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutGuardInput, Prisma.UserUncheckedCreateWithoutGuardInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutGuardInput
+  upsert?: Prisma.UserUpsertWithoutGuardInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutGuardInput, Prisma.UserUpdateWithoutGuardInput>, Prisma.UserUncheckedUpdateWithoutGuardInput>
+}
+
 export type UserCreateWithoutCompanyInput = {
   id?: string
   name: string
@@ -692,6 +713,7 @@ export type UserCreateWithoutCompanyInput = {
   uploadedEvidence?: Prisma.EvidenceCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCompanyInput = {
@@ -711,6 +733,7 @@ export type UserUncheckedCreateWithoutCompanyInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCompanyInput = {
@@ -771,6 +794,7 @@ export type UserCreateWithoutCreatedUsersInput = {
   uploadedEvidence?: Prisma.EvidenceCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedUsersInput = {
@@ -790,6 +814,7 @@ export type UserUncheckedCreateWithoutCreatedUsersInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedUsersInput = {
@@ -814,6 +839,7 @@ export type UserCreateWithoutCreatorInput = {
   uploadedEvidence?: Prisma.EvidenceCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatorInput = {
@@ -833,6 +859,7 @@ export type UserUncheckedCreateWithoutCreatorInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatorInput = {
@@ -871,6 +898,7 @@ export type UserUpdateWithoutCreatedUsersInput = {
   uploadedEvidence?: Prisma.EvidenceUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedUsersInput = {
@@ -889,6 +917,7 @@ export type UserUncheckedUpdateWithoutCreatedUsersInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutCreatorInput = {
@@ -924,6 +953,7 @@ export type UserCreateWithoutReportedIncidentsInput = {
   uploadedEvidence?: Prisma.EvidenceCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReportedIncidentsInput = {
@@ -943,6 +973,7 @@ export type UserUncheckedCreateWithoutReportedIncidentsInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReportedIncidentsInput = {
@@ -967,6 +998,7 @@ export type UserCreateWithoutAssignedIncidentsInput = {
   uploadedEvidence?: Prisma.EvidenceCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAssignedIncidentsInput = {
@@ -986,6 +1018,7 @@ export type UserUncheckedCreateWithoutAssignedIncidentsInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAssignedIncidentsInput = {
@@ -1020,6 +1053,7 @@ export type UserUpdateWithoutReportedIncidentsInput = {
   uploadedEvidence?: Prisma.EvidenceUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReportedIncidentsInput = {
@@ -1038,6 +1072,7 @@ export type UserUncheckedUpdateWithoutReportedIncidentsInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutAssignedIncidentsInput = {
@@ -1067,6 +1102,7 @@ export type UserUpdateWithoutAssignedIncidentsInput = {
   uploadedEvidence?: Prisma.EvidenceUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedIncidentsInput = {
@@ -1085,6 +1121,7 @@ export type UserUncheckedUpdateWithoutAssignedIncidentsInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutUploadedEvidenceInput = {
@@ -1104,6 +1141,7 @@ export type UserCreateWithoutUploadedEvidenceInput = {
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUploadedEvidenceInput = {
@@ -1123,6 +1161,7 @@ export type UserUncheckedCreateWithoutUploadedEvidenceInput = {
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUploadedEvidenceInput = {
@@ -1157,6 +1196,7 @@ export type UserUpdateWithoutUploadedEvidenceInput = {
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUploadedEvidenceInput = {
@@ -1175,6 +1215,7 @@ export type UserUncheckedUpdateWithoutUploadedEvidenceInput = {
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCommentsInput = {
@@ -1194,6 +1235,7 @@ export type UserCreateWithoutCommentsInput = {
   uploadedEvidence?: Prisma.EvidenceCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCommentsInput = {
@@ -1213,6 +1255,7 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCommentsInput = {
@@ -1247,6 +1290,7 @@ export type UserUpdateWithoutCommentsInput = {
   uploadedEvidence?: Prisma.EvidenceUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommentsInput = {
@@ -1265,6 +1309,7 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutActionOwnerInput = {
@@ -1284,6 +1329,7 @@ export type UserCreateWithoutActionOwnerInput = {
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   uploadedEvidence?: Prisma.EvidenceCreateNestedManyWithoutUploaderInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutActionOwnerInput = {
@@ -1303,6 +1349,7 @@ export type UserUncheckedCreateWithoutActionOwnerInput = {
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   uploadedEvidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutUploaderInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutActionOwnerInput = {
@@ -1337,6 +1384,7 @@ export type UserUpdateWithoutActionOwnerInput = {
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   uploadedEvidence?: Prisma.EvidenceUpdateManyWithoutUploaderNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActionOwnerInput = {
@@ -1355,6 +1403,7 @@ export type UserUncheckedUpdateWithoutActionOwnerInput = {
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   uploadedEvidence?: Prisma.EvidenceUncheckedUpdateManyWithoutUploaderNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuditLogsInput = {
@@ -1374,6 +1423,7 @@ export type UserCreateWithoutAuditLogsInput = {
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   uploadedEvidence?: Prisma.EvidenceCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
+  guard?: Prisma.GuardCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -1393,6 +1443,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   uploadedEvidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutUploaderInput
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
+  guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -1427,6 +1478,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   uploadedEvidence?: Prisma.EvidenceUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
+  guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -1445,6 +1497,101 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   uploadedEvidence?: Prisma.EvidenceUncheckedUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
+  guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutGuardInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  role?: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  creator?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
+  createdUsers?: Prisma.UserCreateNestedManyWithoutCreatorInput
+  reportedIncidents?: Prisma.IncidentCreateNestedManyWithoutReporterInput
+  assignedIncidents?: Prisma.IncidentCreateNestedManyWithoutAssignedInvestigatorInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  uploadedEvidence?: Prisma.EvidenceCreateNestedManyWithoutUploaderInput
+  actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
+}
+
+export type UserUncheckedCreateWithoutGuardInput = {
+  id?: string
+  companyId: string
+  name: string
+  email: string
+  passwordHash: string
+  role?: string
+  status?: string
+  createdBy?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCreatorInput
+  reportedIncidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutReporterInput
+  assignedIncidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutAssignedInvestigatorInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  uploadedEvidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutUploaderInput
+  actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
+}
+
+export type UserCreateOrConnectWithoutGuardInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutGuardInput, Prisma.UserUncheckedCreateWithoutGuardInput>
+}
+
+export type UserUpsertWithoutGuardInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutGuardInput, Prisma.UserUncheckedUpdateWithoutGuardInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutGuardInput, Prisma.UserUncheckedCreateWithoutGuardInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutGuardInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutGuardInput, Prisma.UserUncheckedUpdateWithoutGuardInput>
+}
+
+export type UserUpdateWithoutGuardInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  creator?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
+  createdUsers?: Prisma.UserUpdateManyWithoutCreatorNestedInput
+  reportedIncidents?: Prisma.IncidentUpdateManyWithoutReporterNestedInput
+  assignedIncidents?: Prisma.IncidentUpdateManyWithoutAssignedInvestigatorNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  uploadedEvidence?: Prisma.EvidenceUpdateManyWithoutUploaderNestedInput
+  actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutGuardInput = {
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdUsers?: Prisma.UserUncheckedUpdateManyWithoutCreatorNestedInput
+  reportedIncidents?: Prisma.IncidentUncheckedUpdateManyWithoutReporterNestedInput
+  assignedIncidents?: Prisma.IncidentUncheckedUpdateManyWithoutAssignedInvestigatorNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  uploadedEvidence?: Prisma.EvidenceUncheckedUpdateManyWithoutUploaderNestedInput
+  actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
 }
 
 export type UserCreateManyCompanyInput = {
@@ -1475,6 +1622,7 @@ export type UserUpdateWithoutCompanyInput = {
   uploadedEvidence?: Prisma.EvidenceUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCompanyInput = {
@@ -1493,6 +1641,7 @@ export type UserUncheckedUpdateWithoutCompanyInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutCompanyInput = {
@@ -1534,6 +1683,7 @@ export type UserUpdateWithoutCreatorInput = {
   uploadedEvidence?: Prisma.EvidenceUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatorInput = {
@@ -1552,6 +1702,7 @@ export type UserUncheckedUpdateWithoutCreatorInput = {
   uploadedEvidence?: Prisma.EvidenceUncheckedUpdateManyWithoutUploaderNestedInput
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutCreatorInput = {
@@ -1670,6 +1821,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   uploadedEvidence?: boolean | Prisma.User$uploadedEvidenceArgs<ExtArgs>
   actionOwner?: boolean | Prisma.User$actionOwnerArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
+  guard?: boolean | Prisma.User$guardArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1699,6 +1851,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   uploadedEvidence?: boolean | Prisma.User$uploadedEvidenceArgs<ExtArgs>
   actionOwner?: boolean | Prisma.User$actionOwnerArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
+  guard?: boolean | Prisma.User$guardArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1714,6 +1867,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     uploadedEvidence: Prisma.$EvidencePayload<ExtArgs>[]
     actionOwner: Prisma.$CorrectiveActionPayload<ExtArgs>[]
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
+    guard: Prisma.$GuardPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2098,6 +2252,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   uploadedEvidence<T extends Prisma.User$uploadedEvidenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$uploadedEvidenceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EvidencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   actionOwner<T extends Prisma.User$actionOwnerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$actionOwnerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CorrectiveActionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  guard<T extends Prisma.User$guardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$guardArgs<ExtArgs>>): Prisma.Prisma__GuardClient<runtime.Types.Result.GetResult<Prisma.$GuardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2691,6 +2846,25 @@ export type User$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[]
+}
+
+/**
+ * User.guard
+ */
+export type User$guardArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Guard
+   */
+  select?: Prisma.GuardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Guard
+   */
+  omit?: Prisma.GuardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GuardInclude<ExtArgs> | null
+  where?: Prisma.GuardWhereInput
 }
 
 /**

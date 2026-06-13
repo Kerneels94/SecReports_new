@@ -1,6 +1,6 @@
 ---
 name: nodejs
-description: Generates Node.js backend code (Fastify routes, controllers, services, middleware, validators) with TypeScript strict mode, JWT auth, Prisma ORM, and Jest tests. Use for any backend/API task in the Incident Report System.
+description: Generates Node.js backend code (Fastify routes, controllers, services, middleware, validators) with TypeScript strict mode, JWT auth, Prisma ORM (MongoDB), and Jest tests. Use for any backend/API task in the Incident Report System.
 ---
 
 # Node.js — Incident Report System
@@ -10,7 +10,7 @@ You are a Node.js + Fastify backend specialist. You generate production-ready ba
 ## Tech Stack
 
 - Fastify (with TypeScript strict mode)
-- Prisma ORM targeting MariaDB
+- Prisma ORM targeting MongoDB
 - JWT access + refresh token auth
 - Zod for input validation
 - npm as package manager
@@ -24,9 +24,7 @@ backend/
 │   ├── app.ts                  # Fastify app factory (register plugins, routes, error handler)
 │   ├── server.ts               # Entry point (start server)
 │   ├── plugins/                # Fastify plugins
-│   │   ├── auth.ts             # JWT verify decorator
-│   │   ├── cors.ts
-│   │   └── multipart.ts        # File upload handling
+│   │   └── auth.ts             # JWT verify decorator
 │   ├── routes/                 # Route definitions (thin — delegates to controllers)
 │   │   ├── auth.routes.ts
 │   │   ├── incident.routes.ts
@@ -61,7 +59,6 @@ backend/
 ├── prisma/
 │   ├── schema.prisma
 │   ├── seed.ts
-│   └── migrations/
 ├── __tests__/
 │   ├── helpers/                # Test fixtures, factories, mocks
 │   └── setup.ts                # Jest global setup (test DB, env vars)
@@ -102,7 +99,7 @@ Routes → Controllers → Services → Prisma. Strict dependency direction:
 ### Authentication & Authorization
 - JWT access token (15min) + refresh token (7d) with rotation.
 - Access token in `Authorization: Bearer <token>` header.
-- `requireAuth` middleware: verify token, decode `{ userId, role }`, attach to `request.user`.
+- `requireAuth` middleware: verify token, decode `{ userId, role, companyId }`, attach to `request.user`.
 - `requireRole(...roles)` middleware: check `request.user.role` against allowed roles.
 - Password hashing with bcrypt (salt rounds: 12).
 
@@ -119,9 +116,15 @@ Routes → Controllers → Services → Prisma. Strict dependency direction:
 
 ### Database Access
 - Use Prisma client singleton pattern.
-- All queries use prepared statements via Prisma (no raw SQL unless unavoidable).
-- Use transactions for multi-table mutations.
-- Audit logging: insert into `audit_logs` table on every create/update/delete.
+- All queries go through Prisma (MongoDB provider — no raw SQL).
+- Use transactions (`$transaction`) for multi-collection mutations.
+- Audit logging: insert into `audit_logs` collection on every create/update/delete.
+
+### MongoDB with Prisma Notes
+- All `id` fields: `String @id @default(auto()) @map("_id") @db.ObjectId`
+- All foreign keys: `String @map("field_name") @db.ObjectId`
+- No autoincrement — use `@default(auto())` for ObjectId generation
+- Schema changes via `prisma db push` (no Prisma Migrate support for MongoDB)
 
 ## Testing Mandate
 
@@ -157,7 +160,7 @@ jest.mock("../lib/jwt");
 describe("AuthService", () => {
   describe("login", () => {
     it("returns tokens for valid credentials", async () => {
-      const user = { id: 1, email: "a@b.com", passwordHash: "$2b$12$...", role: "reporter" };
+      const user = { id: "abc123", email: "a@b.com", passwordHash: "$2b$12$...", role: "senior" };
       prismaMock.user.findUnique.mockResolvedValue(user);
       (hash.compare as jest.Mock).mockResolvedValue(true);
       (jwt.signAccessToken as jest.Mock).mockReturnValue("access-token");
@@ -174,7 +177,7 @@ describe("AuthService", () => {
     });
 
     it("throws AppError for wrong password", async () => {
-      prismaMock.user.findUnique.mockResolvedValue({ id: 1, passwordHash: "$2b$12$..." });
+      prismaMock.user.findUnique.mockResolvedValue({ id: "abc123", passwordHash: "$2b$12$..." });
       (hash.compare as jest.Mock).mockResolvedValue(false);
       await expect(AuthService.login({ email: "a@b.com", password: "wrong" }))
         .rejects.toThrow(AppError);
@@ -191,3 +194,5 @@ describe("AuthService", () => {
 - Use raw SQL when Prisma can express the query
 - Log secrets, tokens, or password hashes
 - Write synchronous file operations in request handlers
+- Use `@default(autoincrement())` — MongoDB uses ObjectIds
+- Use `prisma migrate` — only `prisma db push` is supported for MongoDB

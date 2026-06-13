@@ -1,6 +1,7 @@
 import { api } from "./api";
 import type {
   LoginRequest,
+  EmployeeLoginRequest,
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
@@ -11,15 +12,19 @@ import type {
   Evidence,
   Investigation,
   CorrectiveAction,
+  GuardingSite,
+  Guard,
+  PatrolReport,
+  EntryLog,
+  FlaggedVehicle,
 } from "@/types";
 
 interface ReportSummary {
   total: number;
   byStatus: { status: string; _count: { id: number } }[];
-  bySeverity: { severity: string; _count: { id: number } }[];
   recent: Incident[];
-  assignedToMe: number;
-  overdueActions: number;
+  attemptedCount: number;
+  positiveCount: number;
 }
 
 export interface UserListItem {
@@ -34,6 +39,7 @@ export interface UserListItem {
 
 export const authService = {
   login: (data: LoginRequest) => api.post<LoginResponse>("/auth/login", data),
+  employeeLogin: (data: EmployeeLoginRequest) => api.post<LoginResponse>("/auth/employee-login", data),
   register: (data: RegisterRequest) => api.post<RegisterResponse>("/auth/register", data),
   logout: () => api.post<void>("/auth/logout"),
   refresh: (token: string) => api.post<LoginResponse>("/auth/refresh", { refreshToken: token }),
@@ -141,4 +147,83 @@ export const paymentService = {
   upgrade: (planId: number) => api.post<UpgradeResponse>("/payments/upgrade", { planId }),
   cancel: () => api.post<SubscriptionData>("/payments/cancel"),
   history: () => api.get<PaymentHistoryItem[]>("/payments/history"),
+};
+
+export const guardingSiteService = {
+  list: () => api.get<GuardingSite[]>("/guarding-sites"),
+  getById: (id: string) => api.get<GuardingSite>(`/guarding-sites/${id}`),
+  create: (data: { name: string; address?: string; guards?: { name: string; surname: string; cellphone: string; email: string; employeeId: string; password: string }[] }) => api.post<GuardingSite>("/guarding-sites", data),
+  update: (id: string, data: { name?: string; address?: string; status?: string }) =>
+    api.put<GuardingSite>(`/guarding-sites/${id}`, data),
+  delete: (id: string) => api.delete<void>(`/guarding-sites/${id}`),
+};
+
+export const guardService = {
+  list: (siteId?: string) => api.get<Guard[]>(`/guards${siteId ? `?siteId=${siteId}` : ""}`),
+  getById: (id: string) => api.get<Guard>(`/guards/${id}`),
+  create: (data: {
+    name: string;
+    surname: string;
+    cellphone: string;
+    email: string;
+    employeeId: string;
+    siteId?: string;
+    password: string;
+  }) => api.post<Guard>("/guards", data),
+  update: (id: string, data: Partial<Guard>) => api.put<Guard>(`/guards/${id}`, data),
+  delete: (id: string) => api.delete<void>(`/guards/${id}`),
+};
+
+export const patrolReportService = {
+  listByCompany: (params?: { siteId?: string; dateFrom?: string; dateTo?: string }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.siteId) searchParams.set("siteId", params.siteId);
+    if (params?.dateFrom) searchParams.set("dateFrom", params.dateFrom);
+    if (params?.dateTo) searchParams.set("dateTo", params.dateTo);
+    const qs = searchParams.toString();
+    return api.get<PatrolReport[]>(`/patrol-reports${qs ? `?${qs}` : ""}`);
+  },
+  listBySite: (siteId: string) => api.get<PatrolReport[]>(`/sites/${siteId}/patrol-reports`),
+  listByGuard: (guardId: string) => api.get<PatrolReport[]>(`/guards/${guardId}/patrol-reports`),
+  getById: (id: string) => api.get<PatrolReport>(`/patrol-reports/${id}`),
+  create: (data: {
+    siteId: string;
+    guardId: string;
+    startedAt: string;
+    notes?: string;
+    checkpoints?: { name: string; scannedAt: string; status?: string }[];
+  }) => api.post<PatrolReport>("/patrol-reports", data),
+  update: (id: string, data: { completedAt?: string; status?: string; notes?: string }) =>
+    api.put<PatrolReport>(`/patrol-reports/${id}`, data),
+  delete: (id: string) => api.delete<void>(`/patrol-reports/${id}`),
+};
+
+export const entryLogService = {
+  listBySite: (siteId: string) => api.get<EntryLog[]>(`/sites/${siteId}/entry-logs`),
+  listByCompany: () => api.get<EntryLog[]>("/entry-logs"),
+  getById: (id: string) => api.get<EntryLog>(`/entry-logs/${id}`),
+  create: (data: {
+    siteId: string;
+    driverName: string;
+    vehicleReg: string;
+    entryTime: string;
+    driverContact?: string;
+    vehicleDesc?: string;
+    purpose?: string;
+  }) => api.post<EntryLog>("/entry-logs", data),
+  update: (id: string, data: { exitTime?: string; driverName?: string; vehicleDesc?: string; purpose?: string }) =>
+    api.put<EntryLog>(`/entry-logs/${id}`, data),
+  flagVehicle: (id: string, data: { vehicleReg: string; reason: string }) =>
+    api.post<FlaggedVehicle>(`/entry-logs/${id}/flag`, data),
+  delete: (id: string) => api.delete<void>(`/entry-logs/${id}`),
+};
+
+export const flaggedVehicleService = {
+  list: (includeResolved?: boolean) =>
+    api.get<FlaggedVehicle[]>(`/flagged-vehicles${includeResolved ? "?includeResolved=true" : ""}`),
+  getById: (id: string) => api.get<FlaggedVehicle>(`/flagged-vehicles/${id}`),
+  create: (data: { vehicleReg: string; reason: string; entryLogId?: string }) =>
+    api.post<FlaggedVehicle>("/flagged-vehicles", data),
+  resolve: (id: string) => api.post<FlaggedVehicle>(`/flagged-vehicles/${id}/resolve`, {}),
+  delete: (id: string) => api.delete<void>(`/flagged-vehicles/${id}`),
 };

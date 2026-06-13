@@ -2,12 +2,100 @@ import { prisma } from "../lib/db";
 import { NotFoundError, ForbiddenError } from "../lib/errors";
 import { generateReferenceNumber } from "../lib/utils";
 
+const MONTH_NAMES: Record<string, number> = {
+  jan: 0, january: 0,
+  feb: 1, february: 1,
+  mar: 2, march: 2,
+  apr: 3, april: 3,
+  may: 4,
+  jun: 5, june: 5,
+  jul: 6, july: 6,
+  aug: 7, august: 7,
+  sep: 8, september: 8,
+  oct: 9, october: 9,
+  nov: 10, november: 10,
+  dec: 11, december: 11,
+};
+
+function tryParseDate(str: string): { gte: Date; lte: Date } | null {
+  const s = str.trim().toLowerCase();
+  const monthPat = Object.keys(MONTH_NAMES).join("|");
+
+  // "DD Month" or "DD Month YYYY"
+  const m1 = s.match(new RegExp(`^(\\d{1,2})\\s+(${monthPat})(?:\\s+(\\d{4}))?$`));
+  if (m1) {
+    const d = parseInt(m1[1], 10);
+    const m = MONTH_NAMES[m1[2]];
+    const y = m1[3] ? parseInt(m1[3], 10) : new Date().getFullYear();
+    if (d >= 1 && d <= 31) {
+      const start = new Date(y, m, d);
+      const end = new Date(y, m, d);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+      return { gte: start, lte: end };
+    }
+  }
+
+  // "Month DD" or "Month DD YYYY"
+  const m2 = s.match(new RegExp(`^(${monthPat})\\s+(\\d{1,2})(?:\\s+(\\d{4}))?$`));
+  if (m2) {
+    const m = MONTH_NAMES[m2[1]];
+    const d = parseInt(m2[2], 10);
+    const y = m2[3] ? parseInt(m2[3], 10) : new Date().getFullYear();
+    if (d >= 1 && d <= 31) {
+      const start = new Date(y, m, d);
+      const end = new Date(y, m, d);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+      return { gte: start, lte: end };
+    }
+  }
+
+  // "Month" alone → entire month of current year
+  const m3 = s.match(new RegExp(`^(${monthPat})$`));
+  if (m3) {
+    const m = MONTH_NAMES[m3[1]];
+    const y = new Date().getFullYear();
+    const start = new Date(y, m, 1);
+    const end = new Date(y, m + 1, 0);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
+    return { gte: start, lte: end };
+  }
+
+  // "Month YYYY" → entire month of that year
+  const m4 = s.match(new RegExp(`^(${monthPat})\\s+(\\d{4})$`));
+  if (m4) {
+    const m = MONTH_NAMES[m4[1]];
+    const y = parseInt(m4[2], 10);
+    const start = new Date(y, m, 1);
+    const end = new Date(y, m + 1, 0);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
+    return { gte: start, lte: end };
+  }
+
+  // ISO-style date strings
+  const ts = Date.parse(str);
+  if (!isNaN(ts)) {
+    const d = new Date(ts);
+    if (d.getFullYear() >= 2020 && d.getFullYear() <= 2100) {
+      const start = new Date(d);
+      const end = new Date(d);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+      return { gte: start, lte: end };
+    }
+  }
+
+  return null;
+}
+
 interface CreateIncidentParams {
   companyId: string;
   title: string;
   description: string;
   type: string;
-  severity: string;
   incidentDate: string;
   location?: string;
   operatorName: string;
@@ -28,7 +116,6 @@ interface UpdateIncidentParams {
   title?: string;
   description?: string;
   type?: string;
-  severity?: string;
   incidentDate?: string;
   location?: string;
   operatorName?: string;
@@ -48,10 +135,10 @@ interface ListParams {
   perPage: number;
   companyId: string;
   status?: string;
-  severity?: string;
   search?: string;
   dateFrom?: string;
   dateTo?: string;
+  type?: string;
   userId?: string;
   role?: string;
 }
@@ -61,13 +148,18 @@ export const IncidentService = {
     const where: any = { companyId: params.companyId };
 
     if (params.status) where.status = params.status;
-    if (params.severity) where.severity = params.severity;
+    if (params.type) where.type = { contains: params.type, mode: "insensitive" };
     if (params.search) {
       where.OR = [
         ...(where.OR || []),
         { title: { contains: params.search } },
         { referenceNumber: { contains: params.search } },
       ];
+
+      const parsed = tryParseDate(params.search);
+      if (parsed) {
+        where.OR.push({ incidentDate: { gte: parsed.gte, lte: parsed.lte } });
+      }
     }
 
     if (params.dateFrom || params.dateTo) {
@@ -120,7 +212,6 @@ export const IncidentService = {
         title: params.title,
         description: params.description,
         type: params.type,
-        severity: params.severity as any,
         incidentDate: new Date(params.incidentDate),
         location: params.location,
         operatorName: params.operatorName,
@@ -149,7 +240,7 @@ export const IncidentService = {
         entityType: "incident",
         entityId: incident.id,
         action: "create",
-        newValues: JSON.stringify({ title: params.title, severity: params.severity }),
+        newValues: JSON.stringify({ title: params.title }),
         performedBy: params.reporterId,
       },
     });
@@ -169,7 +260,6 @@ export const IncidentService = {
     if (params.title !== undefined) data.title = params.title;
     if (params.description !== undefined) data.description = params.description;
     if (params.type !== undefined) data.type = params.type;
-    if (params.severity !== undefined) data.severity = params.severity;
     if (params.incidentDate !== undefined) data.incidentDate = new Date(params.incidentDate);
     if (params.location !== undefined) data.location = params.location;
     if (params.operatorName !== undefined) data.operatorName = params.operatorName;
@@ -199,10 +289,9 @@ export const IncidentService = {
         action: "update",
         oldValues: JSON.stringify({
           title: incident.title,
-          severity: incident.severity,
           status: incident.status,
         }),
-        newValues: JSON.stringify({ title: params.title, severity: params.severity }),
+        newValues: JSON.stringify({ title: params.title }),
         performedBy: userId,
       },
     });

@@ -10,31 +10,43 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { useAuth } from "@/hooks/useAuth";
 
-const loginSchema = z.object({
+const companySchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+const employeeSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+type CompanyFormData = z.infer<typeof companySchema>;
+type EmployeeFormData = z.infer<typeof employeeSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, employeeLogin } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<"company" | "employee">("company");
+
+  const isCompany = tab === "company";
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<CompanyFormData | EmployeeFormData>({
+    resolver: zodResolver(isCompany ? companySchema : employeeSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: CompanyFormData | EmployeeFormData) => {
     try {
       setError(null);
-      await login(data);
+      if (isCompany) {
+        await login(data as CompanyFormData);
+      } else {
+        await employeeLogin(data as EmployeeFormData);
+      }
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -93,15 +105,15 @@ export default function LoginPage() {
                 {error}
               </div>
             )}
+
             <Input
               label="Email"
               type="email"
-              placeholder={
-                tab === "company" ? "company@example.com" : "you@example.com"
-              }
-              error={errors.email?.message}
+              placeholder={isCompany ? "company@example.com" : "you@example.com"}
+              error={(errors as any).email?.message}
               {...register("email")}
             />
+
             <Input
               label="Password"
               type="password"
@@ -110,17 +122,24 @@ export default function LoginPage() {
               {...register("password")}
             />
             <Button type="submit" loading={isSubmitting} className="w-full">
-              {tab === "company" ? "Sign In as Company" : "Sign In as Employee"}
+              {isCompany ? "Sign In as Company" : "Sign In as Employee"}
             </Button>
           </form>
-          <p className="mt-4 text-center text-sm text-text-secondary">
+          <div className="mt-4 flex items-center justify-center gap-3 text-sm text-text-secondary">
             <a
               href="/forgot-password"
               className="text-primary hover:underline transition-colors"
             >
               Forgot password?
             </a>
-          </p>
+            <span className="text-border-light">|</span>
+            <a
+              href="/"
+              className="text-primary hover:underline transition-colors"
+            >
+              Back to Homepage
+            </a>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -14,11 +14,12 @@ jest.mock("@/hooks/useAuth", () => ({
 
 const mockRouter = { push: jest.fn() };
 const mockLogin = jest.fn();
+const mockEmployeeLogin = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
   (useRouter as jest.Mock).mockReturnValue(mockRouter);
-  (useAuth as jest.Mock).mockReturnValue({ login: mockLogin });
+  (useAuth as jest.Mock).mockReturnValue({ login: mockLogin, employeeLogin: mockEmployeeLogin });
 });
 
 describe("LoginPage", () => {
@@ -87,6 +88,23 @@ describe("LoginPage", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Invalid credentials")).toBeInTheDocument();
+    });
+  });
+
+  it("calls employeeLogin with email and password", async () => {
+    mockEmployeeLogin.mockResolvedValue(undefined);
+    render(<LoginPage />);
+    const user = userEvent.setup();
+
+    await user.click(screen.getByText("Employee"));
+
+    await user.type(screen.getByLabelText("Email"), "guard@example.com");
+    await user.type(screen.getByLabelText("Password"), "emp123");
+    await user.click(screen.getByRole("button", { name: /sign in as employee/i }));
+
+    await waitFor(() => {
+      expect(mockEmployeeLogin).toHaveBeenCalledWith({ email: "guard@example.com", password: "emp123" });
+      expect(mockRouter.push).toHaveBeenCalledWith("/dashboard");
     });
   });
 

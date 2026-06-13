@@ -25,7 +25,6 @@ const baseIncident = {
   title: "Test Incident",
   description: "Description",
   type: "equipment_failure",
-  severity: "high",
   status: "submitted",
   incidentDate: new Date(),
   location: "Server Room",
@@ -78,16 +77,6 @@ describe("IncidentService", () => {
       );
     });
 
-    it("filters by severity", async () => {
-      (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
-      (prisma.incident.count as jest.Mock).mockResolvedValue(0);
-
-      await IncidentService.list({ ...defaultListParams, severity: "critical" });
-
-      const where = (prisma.incident.findMany as jest.Mock).mock.calls[0][0].where;
-      expect(where.severity).toBe("critical");
-    });
-
     it("filters by search on title and referenceNumber", async () => {
       (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.incident.count as jest.Mock).mockResolvedValue(0);
@@ -103,6 +92,82 @@ describe("IncidentService", () => {
       );
     });
 
+    it("adds date filter when search matches a date", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.incident.count as jest.Mock).mockResolvedValue(0);
+
+      await IncidentService.list({ ...defaultListParams, search: "13 June" });
+
+      const where = (prisma.incident.findMany as jest.Mock).mock.calls[0][0].where;
+      const dateCond = where.OR.find(
+        (c: any) => c.incidentDate?.gte && c.incidentDate?.lte,
+      );
+      expect(dateCond).toBeDefined();
+      expect(dateCond.incidentDate.gte.getMonth()).toBe(5);
+      expect(dateCond.incidentDate.gte.getDate()).toBe(13);
+      expect(dateCond.incidentDate.lte.getDate()).toBe(13);
+    });
+
+    it("does not add date filter when search is not a date", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.incident.count as jest.Mock).mockResolvedValue(0);
+
+      await IncidentService.list({ ...defaultListParams, search: "server room" });
+
+      const where = (prisma.incident.findMany as jest.Mock).mock.calls[0][0].where;
+      const dateCond = where.OR?.find(
+        (c: any) => c.incidentDate?.gte,
+      );
+      expect(dateCond).toBeUndefined();
+    });
+
+    it("parses 'June 13' format as a date search", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.incident.count as jest.Mock).mockResolvedValue(0);
+
+      await IncidentService.list({ ...defaultListParams, search: "June 13" });
+
+      const where = (prisma.incident.findMany as jest.Mock).mock.calls[0][0].where;
+      const dateCond = where.OR.find(
+        (c: any) => c.incidentDate?.gte,
+      );
+      expect(dateCond).toBeDefined();
+      expect(dateCond.incidentDate.gte.getMonth()).toBe(5);
+      expect(dateCond.incidentDate.gte.getDate()).toBe(13);
+    });
+
+    it("parses month name alone as full month range", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.incident.count as jest.Mock).mockResolvedValue(0);
+
+      await IncidentService.list({ ...defaultListParams, search: "june" });
+
+      const where = (prisma.incident.findMany as jest.Mock).mock.calls[0][0].where;
+      const dateCond = where.OR.find((c: any) => c.incidentDate?.gte);
+      expect(dateCond).toBeDefined();
+      expect(dateCond.incidentDate.gte.getMonth()).toBe(5);
+      expect(dateCond.incidentDate.gte.getDate()).toBe(1);
+      expect(dateCond.incidentDate.lte.getMonth()).toBe(5);
+      expect(dateCond.incidentDate.lte.getDate()).toBe(30);
+    });
+
+    it("parses 'Month YYYY' as full month range of that year", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.incident.count as jest.Mock).mockResolvedValue(0);
+
+      await IncidentService.list({ ...defaultListParams, search: "June 2025" });
+
+      const where = (prisma.incident.findMany as jest.Mock).mock.calls[0][0].where;
+      const dateCond = where.OR.find((c: any) => c.incidentDate?.gte);
+      expect(dateCond).toBeDefined();
+      expect(dateCond.incidentDate.gte.getFullYear()).toBe(2025);
+      expect(dateCond.incidentDate.gte.getMonth()).toBe(5);
+      expect(dateCond.incidentDate.gte.getDate()).toBe(1);
+      expect(dateCond.incidentDate.lte.getFullYear()).toBe(2025);
+      expect(dateCond.incidentDate.lte.getMonth()).toBe(5);
+      expect(dateCond.incidentDate.lte.getDate()).toBe(30);
+    });
+
     it("applies pagination skip and take", async () => {
       (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.incident.count as jest.Mock).mockResolvedValue(0);
@@ -114,17 +179,16 @@ describe("IncidentService", () => {
       );
     });
 
-    it("combines status, severity, and search filters", async () => {
+    it("combines status and search filters", async () => {
       (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.incident.count as jest.Mock).mockResolvedValue(0);
 
       await IncidentService.list({
-        ...defaultListParams, status: "open", severity: "critical", search: "server",
+        ...defaultListParams, status: "open", search: "server",
       });
 
       const where = (prisma.incident.findMany as jest.Mock).mock.calls[0][0].where;
       expect(where.status).toBe("open");
-      expect(where.severity).toBe("critical");
       expect(where.OR).toBeDefined();
     });
 
@@ -182,7 +246,6 @@ describe("IncidentService", () => {
       title: "New Incident",
       description: "Description",
       type: "equipment_failure",
-      severity: "high",
       incidentDate: new Date().toISOString(),
       location: "Office",
       operatorName: "John Operator",
@@ -206,7 +269,7 @@ describe("IncidentService", () => {
           entityType: "incident",
           entityId: "1",
           action: "create",
-          newValues: JSON.stringify({ title: "New Incident", severity: "high" }),
+          newValues: JSON.stringify({ title: "New Incident" }),
           performedBy: "1",
         },
       });
@@ -249,7 +312,7 @@ describe("IncidentService", () => {
   });
 
   describe("update", () => {
-    const updateParams = { title: "Updated Title", severity: "critical" };
+    const updateParams = { title: "Updated Title" };
 
     it("allows reporter to update own incident and creates audit log", async () => {
       (prisma.incident.findUnique as jest.Mock).mockResolvedValue(baseIncident);
@@ -322,7 +385,6 @@ describe("IncidentService", () => {
 
       const updateData = (prisma.incident.update as jest.Mock).mock.calls[0][0].data;
       expect(updateData.title).toBe("Only title changed");
-      expect(updateData.severity).toBeUndefined();
       expect(updateData.description).toBeUndefined();
     });
 
@@ -334,7 +396,7 @@ describe("IncidentService", () => {
       ).rejects.toThrow(NotFoundError);
     });
 
-    it("includes oldValues in audit log with previous title, severity, status", async () => {
+    it("includes oldValues in audit log with previous title and status", async () => {
       (prisma.incident.findUnique as jest.Mock).mockResolvedValue(baseIncident);
       (prisma.incident.update as jest.Mock).mockResolvedValue({
         ...baseIncident,
@@ -350,7 +412,6 @@ describe("IncidentService", () => {
           data: expect.objectContaining({
             oldValues: JSON.stringify({
               title: "Test Incident",
-              severity: "high",
               status: "submitted",
             }),
           }),
