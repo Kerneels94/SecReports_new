@@ -62,7 +62,13 @@ export const ModelName = {
   CompanySubscription: 'CompanySubscription',
   PaymentHistory: 'PaymentHistory',
   ApiKey: 'ApiKey',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  GuardingSite: 'GuardingSite',
+  Guard: 'Guard',
+  PatrolReport: 'PatrolReport',
+  PatrolCheckpoint: 'PatrolCheckpoint',
+  EntryLog: 'EntryLog',
+  FlaggedVehicle: 'FlaggedVehicle'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -105,7 +111,6 @@ export const IncidentScalarFieldEnum = {
   title: 'title',
   description: 'description',
   type: 'type',
-  severity: 'severity',
   status: 'status',
   incidentDate: 'incidentDate',
   location: 'location',
@@ -279,6 +284,96 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const GuardingSiteScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  name: 'name',
+  address: 'address',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuardingSiteScalarFieldEnum = (typeof GuardingSiteScalarFieldEnum)[keyof typeof GuardingSiteScalarFieldEnum]
+
+
+export const GuardScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  siteId: 'siteId',
+  userId: 'userId',
+  name: 'name',
+  surname: 'surname',
+  cellphone: 'cellphone',
+  email: 'email',
+  employeeId: 'employeeId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GuardScalarFieldEnum = (typeof GuardScalarFieldEnum)[keyof typeof GuardScalarFieldEnum]
+
+
+export const PatrolReportScalarFieldEnum = {
+  id: 'id',
+  siteId: 'siteId',
+  guardId: 'guardId',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PatrolReportScalarFieldEnum = (typeof PatrolReportScalarFieldEnum)[keyof typeof PatrolReportScalarFieldEnum]
+
+
+export const PatrolCheckpointScalarFieldEnum = {
+  id: 'id',
+  patrolReportId: 'patrolReportId',
+  name: 'name',
+  scannedAt: 'scannedAt',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type PatrolCheckpointScalarFieldEnum = (typeof PatrolCheckpointScalarFieldEnum)[keyof typeof PatrolCheckpointScalarFieldEnum]
+
+
+export const EntryLogScalarFieldEnum = {
+  id: 'id',
+  siteId: 'siteId',
+  guardId: 'guardId',
+  driverName: 'driverName',
+  driverContact: 'driverContact',
+  vehicleReg: 'vehicleReg',
+  vehicleDesc: 'vehicleDesc',
+  entryTime: 'entryTime',
+  exitTime: 'exitTime',
+  purpose: 'purpose',
+  flaggedVehicleId: 'flaggedVehicleId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EntryLogScalarFieldEnum = (typeof EntryLogScalarFieldEnum)[keyof typeof EntryLogScalarFieldEnum]
+
+
+export const FlaggedVehicleScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  vehicleReg: 'vehicleReg',
+  reason: 'reason',
+  flaggedById: 'flaggedById',
+  resolvedAt: 'resolvedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type FlaggedVehicleScalarFieldEnum = (typeof FlaggedVehicleScalarFieldEnum)[keyof typeof FlaggedVehicleScalarFieldEnum]
 
 
 export const SortOrder = {

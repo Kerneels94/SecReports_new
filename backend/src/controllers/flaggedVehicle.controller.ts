@@ -1,0 +1,51 @@
+import { FastifyRequest, FastifyReply } from "fastify";
+import { FlaggedVehicleService } from "../services/flaggedVehicle.service";
+import { createFlaggedVehicleSchema, resolveFlaggedVehicleSchema } from "../validators/flaggedVehicle.schema";
+import { ValidationError } from "../lib/errors";
+
+export const FlaggedVehicleController = {
+  async list(request: FastifyRequest, reply: FastifyReply) {
+    const query = request.query as { includeResolved?: string };
+    const vehicles = await FlaggedVehicleService.listByCompany(
+      request.user!.companyId,
+      query.includeResolved === "true",
+    );
+    reply.code(200).send({ success: true, data: vehicles });
+  },
+
+  async getById(request: FastifyRequest, reply: FastifyReply) {
+    const { id } = request.params as { id: string };
+    const vehicle = await FlaggedVehicleService.getById(id);
+    reply.code(200).send({ success: true, data: vehicle });
+  },
+
+  async create(request: FastifyRequest, reply: FastifyReply) {
+    const parsed = createFlaggedVehicleSchema.safeParse(request.body);
+    if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
+
+    const vehicle = await FlaggedVehicleService.create({
+      companyId: request.user!.companyId,
+      vehicleReg: parsed.data.vehicleReg,
+      reason: parsed.data.reason,
+      flaggedById: request.user!.userId,
+      entryLogId: parsed.data.entryLogId,
+    });
+
+    reply.code(201).send({ success: true, data: vehicle });
+  },
+
+  async resolve(request: FastifyRequest, reply: FastifyReply) {
+    const { id } = request.params as { id: string };
+    const parsed = resolveFlaggedVehicleSchema.safeParse(request.body);
+    if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
+
+    const vehicle = await FlaggedVehicleService.resolve(id);
+    reply.code(200).send({ success: true, data: vehicle });
+  },
+
+  async delete(request: FastifyRequest, reply: FastifyReply) {
+    const { id } = request.params as { id: string };
+    await FlaggedVehicleService.delete(id);
+    reply.code(204).send();
+  },
+};

@@ -9,13 +9,6 @@ import { IncidentDetailModal } from "@/components/incidents/IncidentDetailModal"
 import { incidentService } from "@/services";
 import type { Incident } from "@/types";
 
-const severityVariant: Record<string, "default" | "warning" | "danger" | "info"> = {
-  low: "default",
-  medium: "warning",
-  high: "danger",
-  critical: "danger",
-};
-
 const statusVariant: Record<string, "default" | "success" | "warning" | "danger" | "info"> = {
   draft: "default",
   submitted: "info",
@@ -101,7 +94,6 @@ export default function IncidentsPage() {
                   <tr className="border-b border-border-light bg-surface-elevated/20">
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Ref #</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Title</th>
-                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Severity</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Type</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Reporter</th>
@@ -128,11 +120,6 @@ export default function IncidentsPage() {
                         >
                           {incident.title}
                         </button>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Badge variant={severityVariant[incident.severity] || "default"} dot>
-                          {incident.severity}
-                        </Badge>
                       </td>
                       <td className="px-6 py-4">
                         <Badge variant={statusVariant[incident.status] || "default"} dot>

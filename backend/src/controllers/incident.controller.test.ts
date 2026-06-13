@@ -90,7 +90,6 @@ describe("IncidentController", () => {
       title: "New",
       description: "Desc",
       type: "equipment_failure",
-      severity: "high",
       incidentDate: "2026-01-01",
       operatorName: "John Operator",
       dispatcher: "Jane Dispatcher",

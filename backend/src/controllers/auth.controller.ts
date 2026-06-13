@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { AuthService } from "../services/auth.service";
-import { loginSchema, refreshSchema, registerSchema, createUserSchema, forgotPasswordSchema, resetPasswordSchema, changePasswordSchema, updateUserSchema } from "../validators/auth.schema";
+import { loginSchema, employeeLoginSchema, refreshSchema, registerSchema, createUserSchema, forgotPasswordSchema, resetPasswordSchema, changePasswordSchema, updateUserSchema } from "../validators/auth.schema";
 import { ValidationError, ForbiddenError } from "../lib/errors";
 
 export const AuthController = {
@@ -9,6 +9,14 @@ export const AuthController = {
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
     const result = await AuthService.login(parsed.data);
+    reply.code(200).send({ success: true, data: result });
+  },
+
+  async employeeLogin(request: FastifyRequest, reply: FastifyReply) {
+    const parsed = employeeLoginSchema.safeParse(request.body);
+    if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
+
+    const result = await AuthService.employeeLogin(parsed.data);
     reply.code(200).send({ success: true, data: result });
   },
 

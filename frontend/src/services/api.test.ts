@@ -21,13 +21,13 @@ describe("ApiClient", () => {
   });
 
   describe("request", () => {
-    it("sets Content-Type: application/json", async () => {
+    it("sets Content-Type: application/json only when body is present", async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ success: true, data: { id: 1 } }),
       });
 
-      await api.get("/test");
+      await api.post("/test", { foo: "bar" });
 
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/test"),
@@ -35,6 +35,21 @@ describe("ApiClient", () => {
           headers: expect.objectContaining({ "Content-Type": "application/json" }),
         }),
       );
+    });
+
+    it("omits Content-Type on GET/DELETE with no body", async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ success: true, data: {} }),
+      });
+
+      await api.get("/no-body");
+      let call = mockFetch.mock.calls[0][1];
+      expect(call.headers).not.toHaveProperty("Content-Type");
+
+      await api.delete("/no-body");
+      call = mockFetch.mock.calls[1][1];
+      expect(call.headers).not.toHaveProperty("Content-Type");
     });
 
     it("sets Authorization header when token exists", async () => {

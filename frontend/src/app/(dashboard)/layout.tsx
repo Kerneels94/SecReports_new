@@ -1,16 +1,41 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, type ReactNode } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { DashboardModeProvider, useDashboardMode } from "@/hooks/useDashboardMode";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { MobileHeader } from "@/components/layout/MobileHeader";
 
 function DashboardShell({ children }: { children: ReactNode }) {
   const { user, isLoading, logout } = useAuth();
+  const { mode, setMode } = useDashboardMode();
   const router = useRouter();
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Sync mode to pathname on first load (handles direct URL nav / refresh / bookmarks)
+  useEffect(() => {
+    if (!isLoading) {
+      if (pathname.startsWith("/guarding") && mode !== "guarding") {
+        setMode("guarding");
+      } else if (!pathname.startsWith("/guarding") && mode !== "incidents") {
+        setMode("incidents");
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (mode === "guarding" && !pathname.startsWith("/guarding")) {
+      router.push("/guarding");
+    } else if (mode === "incidents" && pathname.startsWith("/guarding")) {
+      router.push("/dashboard");
+    }
+  }, [mode, pathname, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -44,7 +69,9 @@ function DashboardShell({ children }: { children: ReactNode }) {
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <AuthProvider>
-      <DashboardShell>{children}</DashboardShell>
+      <DashboardModeProvider>
+        <DashboardShell>{children}</DashboardShell>
+      </DashboardModeProvider>
     </AuthProvider>
   );
 }

@@ -19,8 +19,9 @@ class ApiClient {
     options: RequestInit = {},
   ): Promise<ApiResponse<T>> {
     const token = this.getToken();
+    const hasBody = options.body !== undefined && options.body !== null;
     const headers: HeadersInit = {
-      "Content-Type": "application/json",
+      ...(hasBody ? { "Content-Type": "application/json" } : {}),
       ...options.headers,
     };
 
@@ -33,11 +34,15 @@ class ApiClient {
       headers,
     });
 
+    if (res.status === 204) {
+      return { success: true, data: undefined as unknown as T };
+    }
+
     const json = await res.json();
 
     if (!res.ok) {
       const error = json as ApiError;
-      throw new Error(error.error?.message || "Request failed");
+      throw new Error(error.error?.message || error.message || "Request failed");
     }
 
     return json as ApiResponse<T>;
@@ -89,7 +94,7 @@ class ApiClient {
 
     if (!res.ok) {
       const error = json as ApiError;
-      throw new Error(error.error?.message || "Upload failed");
+      throw new Error(error.error?.message || error.message || "Upload failed");
     }
 
     return json as ApiResponse<T>;

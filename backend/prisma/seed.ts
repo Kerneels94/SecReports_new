@@ -5,6 +5,12 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.patrolCheckpoint.deleteMany();
+  await prisma.patrolReport.deleteMany();
+  await prisma.entryLog.deleteMany();
+  await prisma.flaggedVehicle.deleteMany();
+  await prisma.guard.deleteMany();
+  await prisma.guardingSite.deleteMany();
   await prisma.paymentHistory.deleteMany();
   await prisma.companySubscription.deleteMany();
   await prisma.subscriptionPlan.deleteMany();
@@ -104,7 +110,6 @@ async function main() {
       title: "Server Room Temperature Spike",
       description: "Temperature in server room A-12 exceeded safe threshold for 15 minutes.",
       type: "equipment_failure",
-      severity: "high",
       status: "investigating",
       incidentDate: new Date("2026-05-20"),
       location: "Server Room A-12",
@@ -166,8 +171,120 @@ async function main() {
       entityType: "incident",
       entityId: incident.id,
       action: "create",
-      newValues: JSON.stringify({ title: incident.title, severity: incident.severity }),
+      newValues: JSON.stringify({ title: incident.title }),
       performedBy: admin.id,
+    },
+  });
+
+  // Guarding seed data
+  const site1 = await prisma.guardingSite.create({
+    data: { companyId: company.id, name: "Riverside Industrial Park", address: "42 Riverside Rd, Industria" },
+  });
+
+  const site2 = await prisma.guardingSite.create({
+    data: { companyId: company.id, name: "Sunset Mall", address: "100 Sunset Blvd, Central" },
+  });
+
+  const guardHash = await bcrypt.hash("guard123", 12);
+
+  const guardUser1 = await prisma.user.create({
+    data: {
+      companyId: company.id,
+      name: "Thabo Molefe",
+      email: "thabo@example.com",
+      passwordHash: guardHash,
+      role: "guard",
+    },
+  });
+
+  const guard1 = await prisma.guard.create({
+    data: {
+      companyId: company.id,
+      siteId: site1.id,
+      userId: guardUser1.id,
+      name: "Thabo",
+      surname: "Molefe",
+      cellphone: "0821234567",
+      email: "thabo@example.com",
+      employeeId: "GRD-001",
+    },
+  });
+
+  const guardUser2 = await prisma.user.create({
+    data: {
+      companyId: company.id,
+      name: "Lerato Ndlovu",
+      email: "lerato@example.com",
+      passwordHash: guardHash,
+      role: "guard",
+    },
+  });
+
+  const guard2 = await prisma.guard.create({
+    data: {
+      companyId: company.id,
+      siteId: site2.id,
+      userId: guardUser2.id,
+      name: "Lerato",
+      surname: "Ndlovu",
+      cellphone: "0839876543",
+      email: "lerato@example.com",
+      employeeId: "GRD-002",
+    },
+  });
+
+  await prisma.patrolReport.create({
+    data: {
+      siteId: site1.id,
+      guardId: guard1.id,
+      startedAt: new Date("2026-06-12T22:00:00Z"),
+      completedAt: new Date("2026-06-13T06:00:00Z"),
+      status: "completed",
+      notes: "All clear. No incidents.",
+      checkpoints: {
+        create: [
+          { name: "Main Gate", scannedAt: new Date("2026-06-12T22:15:00Z"), status: "ok" },
+          { name: "Warehouse A", scannedAt: new Date("2026-06-12T23:00:00Z"), status: "ok" },
+          { name: "Parking Lot", scannedAt: new Date("2026-06-13T00:30:00Z"), status: "ok" },
+          { name: "Back Fence", scannedAt: new Date("2026-06-13T02:00:00Z"), status: "ok" },
+          { name: "Main Gate", scannedAt: new Date("2026-06-13T05:45:00Z"), status: "ok" },
+        ],
+      },
+    },
+  });
+
+  await prisma.entryLog.create({
+    data: {
+      siteId: site1.id,
+      guardId: guard1.id,
+      driverName: "James Delivery",
+      driverContact: "0725551234",
+      vehicleReg: "CF 123-456 GP",
+      vehicleDesc: "White Toyota Hino truck",
+      entryTime: new Date("2026-06-13T08:30:00Z"),
+      purpose: "Goods delivery",
+    },
+  });
+
+  const flagged = await prisma.flaggedVehicle.create({
+    data: {
+      companyId: company.id,
+      vehicleReg: "BK 789-012 GP",
+      reason: "Suspicious activity reported at Riverside site",
+      flaggedById: guard1.id,
+    },
+  });
+
+  await prisma.entryLog.create({
+    data: {
+      siteId: site2.id,
+      guardId: guard2.id,
+      driverName: "Unknown",
+      vehicleReg: "BK 789-012 GP",
+      vehicleDesc: "Silver Volkswagen Golf",
+      entryTime: new Date("2026-06-13T14:00:00Z"),
+      purpose: "Unverified",
+      flaggedVehicleId: flagged.id,
     },
   });
 
@@ -176,6 +293,8 @@ async function main() {
   console.log(`Admin: admin@example.com / password123`);
   console.log(`Manager: manager@example.com / password123`);
   console.log(`Senior: senior@example.com / password123`);
+  console.log(`Guard 1 (Thabo): thabo@example.com / guard123`);
+  console.log(`Guard 2 (Lerato): lerato@example.com / guard123`);
 }
 
 main()

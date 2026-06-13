@@ -3,6 +3,7 @@ import { AuthController } from "../controllers/auth.controller";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   fastify.post("/auth/login", AuthController.login);
+  fastify.post("/auth/employee-login", AuthController.employeeLogin);
   fastify.post("/auth/register", AuthController.register);
   fastify.post("/auth/refresh", AuthController.refresh);
 

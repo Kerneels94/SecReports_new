@@ -13,7 +13,7 @@ jest.mock("@/components/ui/Modal", () => ({
   }) =>
     open ? (
       <div role="dialog" aria-label={title} className={className}>
-        <button aria-label="Close" onClick={onClose}>×</button>
+        {title && <button aria-label="Close" onClick={onClose}>×</button>}
         {children}
       </div>
     ) : null,
@@ -33,7 +33,6 @@ const mockIncident = {
   title: "Server Breach",
   description: "Unauthorized access detected in server room B.",
   type: "Security",
-  severity: "critical",
   status: "under_review",
   incidentDate: "2026-05-01T00:00:00Z",
   location: "Server Room B",

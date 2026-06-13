@@ -3,23 +3,21 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { incidentService } from "@/services";
-import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/cn";
 import { IncidentDetailModal } from "@/components/incidents/IncidentDetailModal";
 import type { Incident } from "@/types";
 
-const severityVariant: Record<string, "default" | "warning" | "danger" | "info"> = {
-  low: "default",
-  medium: "warning",
-  high: "danger",
-  critical: "danger",
-};
+interface DashboardSearchProps {
+  dateFrom: string;
+  dateTo: string;
+  typeFilter: string;
+  onDateFromChange: (v: string) => void;
+  onDateToChange: (v: string) => void;
+  onTypeFilterChange: (v: string) => void;
+}
 
-export function DashboardSearch() {
+export function DashboardSearch({ dateFrom, dateTo, typeFilter, onDateFromChange, onDateToChange, onTypeFilterChange }: DashboardSearchProps) {
   const [query, setQuery] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-  const [showDates, setShowDates] = useState(false);
   const [results, setResults] = useState<Incident[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -48,8 +46,8 @@ export function DashboardSearch() {
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
-  const fetchResults = useCallback(async (q: string, from: string, to: string) => {
-    if (!q && !from && !to) {
+  const fetchResults = useCallback(async (q: string) => {
+    if (!q) {
       setResults([]);
       setTotal(0);
       setLoading(false);
@@ -62,8 +60,7 @@ export function DashboardSearch() {
     try {
       const params: Record<string, string> = { page: "1", perPage: "5" };
       if (q) params.search = q;
-      if (from) params.dateFrom = from;
-      if (to) params.dateTo = to;
+      if (typeFilter) params.type = typeFilter;
       const res = await incidentService.list(params);
       setResults(res.data.data);
       setTotal(res.data.total);
@@ -72,15 +69,14 @@ export function DashboardSearch() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [typeFilter]);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    const hasFilters = query || dateFrom || dateTo;
-    if (hasFilters) {
+    if (query) {
       if (interactedRef.current) setOpen(true);
       debounceRef.current = setTimeout(() => {
-        fetchResults(query, dateFrom, dateTo);
+        fetchResults(query);
       }, 300);
     } else {
       setResults([]);
@@ -90,11 +86,11 @@ export function DashboardSearch() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [query, dateFrom, dateTo, fetchResults]);
+  }, [query, fetchResults]);
 
   const handleFocus = () => {
     interactedRef.current = true;
-    if (query || dateFrom || dateTo) setOpen(true);
+    if (query) setOpen(true);
   };
 
   const buildSearchParams = () => {
@@ -102,15 +98,14 @@ export function DashboardSearch() {
     if (query) params.set("search", query);
     if (dateFrom) params.set("dateFrom", dateFrom);
     if (dateTo) params.set("dateTo", dateTo);
+    if (typeFilter) params.set("type", typeFilter);
     return params.toString();
   };
-
-  const hasActiveFilters = !!(query || dateFrom || dateTo);
 
   return (
     <>
     <div ref={containerRef} className="relative">
-      <div className="relative flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <svg
             className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary/60 pointer-events-none"
@@ -123,11 +118,11 @@ export function DashboardSearch() {
             value={query}
             onChange={(e) => { interactedRef.current = true; setQuery(e.target.value); }}
             onFocus={handleFocus}
-            placeholder="Search incidents by title or reference..."
+            placeholder="Search by reference or keywords..."
             className={cn(
               "w-full rounded-xl border bg-surface/60 backdrop-blur-sm pl-10 pr-4 py-3 text-sm text-text placeholder:text-text-secondary/40 transition-all duration-150",
               "focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15",
-              hasActiveFilters ? "border-primary/20" : "border-border-light",
+              query ? "border-primary/20" : "border-border-light",
             )}
           />
           {loading && (
@@ -135,60 +130,56 @@ export function DashboardSearch() {
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowDates(!showDates)}
+        <select
+          aria-label="Type"
+          value={typeFilter}
+          onChange={(e) => onTypeFilterChange(e.target.value)}
           className={cn(
-            "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-all duration-150",
-            showDates
-              ? "bg-primary/10 text-primary ring-1 ring-primary/25"
-              : "text-text-secondary/60 hover:text-text hover:bg-surface-elevated ring-1 ring-border-light",
+            "h-11 shrink-0 rounded-xl border bg-surface/60 backdrop-blur-sm px-3.5 py-2.5 text-sm text-text transition-all duration-150 focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15",
+            typeFilter ? "border-primary/20" : "border-border-light",
           )}
-          aria-label="Toggle date filter"
         >
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
-        </button>
+          <option value="">All types</option>
+          <option value="attempted">Attempted</option>
+          <option value="positive">Positive</option>
+        </select>
       </div>
 
-      {showDates && (
-        <div className="mt-2 flex items-center gap-2 animate-slide-up">
-          <div className="relative flex-1">
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => { interactedRef.current = true; setDateFrom(e.target.value); }}
-              className="w-full rounded-xl border border-border-light bg-surface/60 backdrop-blur-sm px-3.5 py-2.5 text-sm text-text transition-all duration-150 focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15 [color-scheme:dark]"
-              placeholder="From"
-            />
-          </div>
-          <span className="text-text-secondary/40 text-xs shrink-0">to</span>
-          <div className="relative flex-1">
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => { interactedRef.current = true; setDateTo(e.target.value); }}
-              className="w-full rounded-xl border border-border-light bg-surface/60 backdrop-blur-sm px-3.5 py-2.5 text-sm text-text transition-all duration-150 focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15 [color-scheme:dark]"
-              placeholder="To"
-            />
-          </div>
-          {(dateFrom || dateTo) && (
-            <button
-              type="button"
-              onClick={() => { interactedRef.current = true; setDateFrom(""); setDateTo(""); }}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-text-secondary/60 hover:text-text hover:bg-surface-elevated ring-1 ring-border-light transition-all duration-150"
-              aria-label="Clear dates"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          )}
+      <div className="mt-3 flex items-center gap-2">
+        <div className="relative flex-1">
+          <label className="block text-[11px] font-medium text-text-secondary/50 uppercase tracking-wider mb-1">Start Date</label>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => onDateFromChange(e.target.value)}
+            className="w-full rounded-xl border border-border-light bg-surface/60 backdrop-blur-sm px-3.5 py-2.5 text-sm text-text transition-all duration-150 focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15 [color-scheme:dark]"
+          />
         </div>
-      )}
+        <span className="text-text-secondary/30 text-xs shrink-0 mt-5">to</span>
+        <div className="relative flex-1">
+          <label className="block text-[11px] font-medium text-text-secondary/50 uppercase tracking-wider mb-1">End Date</label>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => onDateToChange(e.target.value)}
+            className="w-full rounded-xl border border-border-light bg-surface/60 backdrop-blur-sm px-3.5 py-2.5 text-sm text-text transition-all duration-150 focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15 [color-scheme:dark]"
+          />
+        </div>
+        {(dateFrom || dateTo) && (
+          <button
+            type="button"
+            onClick={() => { onDateFromChange(""); onDateToChange(""); }}
+            className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-xl text-text-secondary/60 hover:text-text hover:bg-surface-elevated ring-1 ring-border-light transition-all duration-150 mt-5"
+            aria-label="Clear dates"
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        )}
+      </div>
 
-      {open && (query || dateFrom || dateTo) && (
+      {open && query && (
         <div className="absolute left-0 right-0 top-full mt-2 z-50 rounded-xl bg-surface shadow-2xl shadow-black/40 ring-1 ring-border-light animate-slide-up overflow-hidden">
           {error ? (
             <div className="flex flex-col items-center gap-3 py-10">
@@ -197,7 +188,7 @@ export function DashboardSearch() {
               </svg>
               <p className="text-sm text-danger">{error}</p>
               <button
-                onClick={() => fetchResults(query, dateFrom, dateTo)}
+                onClick={() => fetchResults(query)}
                 className="text-xs font-medium text-primary hover:underline"
               >
                 Try again
@@ -209,7 +200,6 @@ export function DashboardSearch() {
                 <div key={i} className="flex items-center gap-3 animate-pulse">
                   <div className="h-3 w-24 rounded bg-surface-elevated/50" />
                   <div className="h-3 flex-1 rounded bg-surface-elevated/50" />
-                  <div className="h-5 w-14 rounded-full bg-surface-elevated/50" />
                 </div>
               ))}
             </div>
@@ -236,9 +226,6 @@ export function DashboardSearch() {
                     <span className="flex-1 text-sm font-medium text-text truncate">
                       {incident.title}
                     </span>
-                    <Badge variant={severityVariant[incident.severity] || "default"} dot>
-                      {incident.severity}
-                    </Badge>
                     <span className="text-xs text-text-secondary/50 w-20 text-right shrink-0">
                       {new Date(incident.incidentDate).toLocaleDateString()}
                     </span>

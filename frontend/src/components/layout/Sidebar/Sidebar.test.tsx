@@ -6,6 +6,10 @@ jest.mock("next/navigation", () => ({
   usePathname: jest.fn(),
 }));
 
+jest.mock("@/hooks/useDashboardMode", () => ({
+  useDashboardMode: () => ({ mode: "incidents", setMode: jest.fn() }),
+}));
+
 jest.mock("next/link", () => {
   const MockLink = ({ children, href, ...props }: { children: React.ReactNode; href: string }) => (
     <a href={href} {...props}>{children}</a>
@@ -20,26 +24,31 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+function getNavLink(name: string): HTMLAnchorElement | null {
+  const links = screen.getAllByRole("link");
+  return links.find((l) => l.textContent?.includes(name)) || null;
+}
+
 describe("Sidebar", () => {
   it("renders all 5 nav items", () => {
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar />);
 
-    expect(screen.getByText("Dashboard")).toBeInTheDocument();
-    expect(screen.getByText("Incidents")).toBeInTheDocument();
-    expect(screen.getByText("Report Incident")).toBeInTheDocument();
-    expect(screen.getByText("Reports")).toBeInTheDocument();
-    expect(screen.getByText("Users")).toBeInTheDocument();
+    expect(getNavLink("Dashboard")).toHaveAttribute("href", "/dashboard");
+    expect(getNavLink("Incidents")).toHaveAttribute("href", "/incidents");
+    expect(getNavLink("Report Incident")).toHaveAttribute("href", "/incidents/new");
+    expect(getNavLink("Reports")).toHaveAttribute("href", "/reports");
+    expect(getNavLink("Users")).toHaveAttribute("href", "/admin/users");
   });
 
   it("highlights active link based on pathname", () => {
     mockUsePathname.mockReturnValue("/incidents");
     render(<Sidebar />);
 
-    const incidentsLink = screen.getByText("Incidents").closest("a");
+    const incidentsLink = getNavLink("Incidents");
     expect(incidentsLink).toHaveClass("text-primary");
 
-    const dashboardLink = screen.getByText("Dashboard").closest("a");
+    const dashboardLink = getNavLink("Dashboard");
     expect(dashboardLink).not.toHaveClass("text-primary");
   });
 
@@ -47,18 +56,18 @@ describe("Sidebar", () => {
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar />);
 
-    expect(screen.getByText("Dashboard").closest("a")).toHaveAttribute("href", "/dashboard");
-    expect(screen.getByText("Incidents").closest("a")).toHaveAttribute("href", "/incidents");
-    expect(screen.getByText("Report Incident").closest("a")).toHaveAttribute("href", "/incidents/new");
-    expect(screen.getByText("Reports").closest("a")).toHaveAttribute("href", "/reports");
-    expect(screen.getByText("Users").closest("a")).toHaveAttribute("href", "/admin/users");
+    expect(getNavLink("Dashboard")).toHaveAttribute("href", "/dashboard");
+    expect(getNavLink("Incidents")).toHaveAttribute("href", "/incidents");
+    expect(getNavLink("Report Incident")).toHaveAttribute("href", "/incidents/new");
+    expect(getNavLink("Reports")).toHaveAttribute("href", "/reports");
+    expect(getNavLink("Users")).toHaveAttribute("href", "/admin/users");
   });
 
   it("highlights parent route when on child detail path", () => {
     mockUsePathname.mockReturnValue("/incidents/123");
     render(<Sidebar />);
 
-    const incidentsLink = screen.getByText("Incidents").closest("a");
+    const incidentsLink = getNavLink("Incidents");
     expect(incidentsLink).toHaveClass("text-primary");
   });
 
@@ -66,16 +75,17 @@ describe("Sidebar", () => {
     mockUsePathname.mockReturnValue("/incidents/new");
     render(<Sidebar />);
 
-    const incidentsLink = screen.getByText("Incidents").closest("a");
+    const incidentsLink = getNavLink("Incidents");
     expect(incidentsLink).not.toHaveClass("text-primary");
 
-    const reportLink = screen.getByText("Report Incident").closest("a");
+    const reportLink = getNavLink("Report Incident");
     expect(reportLink).toHaveClass("text-primary");
   });
 
-  it("shows app title", () => {
+  it("shows app title and mode subtitle", () => {
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar />);
     expect(screen.getByText("SecReports")).toBeInTheDocument();
+    expect(screen.getByText("Incident System")).toBeInTheDocument();
   });
 });

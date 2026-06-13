@@ -87,3 +87,33 @@ export type ApiKey = Prisma.ApiKeyModel
  * 
  */
 export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model GuardingSite
+ * 
+ */
+export type GuardingSite = Prisma.GuardingSiteModel
+/**
+ * Model Guard
+ * 
+ */
+export type Guard = Prisma.GuardModel
+/**
+ * Model PatrolReport
+ * 
+ */
+export type PatrolReport = Prisma.PatrolReportModel
+/**
+ * Model PatrolCheckpoint
+ * 
+ */
+export type PatrolCheckpoint = Prisma.PatrolCheckpointModel
+/**
+ * Model EntryLog
+ * 
+ */
+export type EntryLog = Prisma.EntryLogModel
+/**
+ * Model FlaggedVehicle
+ * 
+ */
+export type FlaggedVehicle = Prisma.FlaggedVehicleModel

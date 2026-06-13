@@ -1,13 +1,14 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
-import type { User, LoginRequest } from "@/types";
+import type { User, LoginRequest, EmployeeLoginRequest } from "@/types";
 import { authService } from "@/services";
 
 interface AuthState {
   user: User | null;
   isLoading: boolean;
   login: (data: LoginRequest) => Promise<void>;
+  employeeLogin: (data: EmployeeLoginRequest) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -38,6 +39,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.data.user);
   }, []);
 
+  const employeeLogin = useCallback(async (data: EmployeeLoginRequest) => {
+    const res = await authService.employeeLogin(data);
+    localStorage.setItem("accessToken", res.data.accessToken);
+    localStorage.setItem("refreshToken", res.data.refreshToken);
+    setUser(res.data.user);
+  }, []);
+
   const logout = useCallback(() => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
@@ -54,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [logout]);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, isLoading, login, employeeLogin, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

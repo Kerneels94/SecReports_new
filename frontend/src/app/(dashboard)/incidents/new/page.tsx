@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,15 +8,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { cn } from "@/lib/cn";
 import { incidentService } from "@/services";
 
 const createIncidentSchema = z.object({
   title: z.string().min(1, "Title is required").max(255),
   description: z.string().min(1, "Description is required"),
   type: z.string().min(1, "Type is required").max(100),
-  severity: z.enum(["low", "medium", "high", "critical"]),
   incidentDate: z.string().min(1, "Date is required"),
-  location: z.string().max(255).optional(),
   operatorName: z.string().min(1, "Operator name is required").max(255),
   dispatcher: z.string().min(1, "Dispatcher is required").max(255),
   dispatchTime: z.string().optional(),
@@ -34,18 +33,30 @@ type CreateIncidentForm = z.infer<typeof createIncidentSchema>;
 export default function NewIncidentPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [typePrefix, setTypePrefix] = useState("");
+  const [typeCustom, setTypeCustom] = useState("");
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<CreateIncidentForm>({
     resolver: zodResolver(createIncidentSchema),
     defaultValues: {
-      severity: "medium",
       incidentDate: new Date().toISOString().split("T")[0],
     },
   });
+
+  const currentType = watch("type");
+
+  useEffect(() => {
+    const combined = [typePrefix, typeCustom].filter(Boolean).join(" ").trim();
+    if (combined !== currentType) {
+      setValue("type", combined, { shouldValidate: combined.length > 0 });
+    }
+  }, [typePrefix, typeCustom, setValue, currentType]);
 
   const onSubmit = async (data: CreateIncidentForm) => {
     try {
@@ -60,19 +71,19 @@ export default function NewIncidentPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-text">Report Incident</h1>
+    <div className="mx-auto w-full max-w-[70%] min-w-[640px]">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-text">Report Incident</h1>
         <p className="text-sm text-text-secondary mt-1">
           Fill in the details of the incident.
         </p>
       </div>
 
-      <Card>
-        <CardContent>
+      <Card className="w-full">
+        <CardContent className="p-8">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-6"
           >
             {error && (
               <div
@@ -83,11 +94,7 @@ export default function NewIncidentPage() {
               </div>
             )}
 
-            <h3 className="text-sm font-semibold text-text-secondary/80 uppercase tracking-wider pt-2">
-              Personnel
-            </h3>
-
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-6">
               <Input
                 label="Operator Name"
                 placeholder="Person creating the report"
@@ -106,7 +113,7 @@ export default function NewIncidentPage() {
               Response Details
             </h3>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-6">
               <Input
                 label="Dispatch Time"
                 type="datetime-local"
@@ -139,7 +146,7 @@ export default function NewIncidentPage() {
               {...register("propertyAddress")}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-6">
               <Input
                 label="Client Name and Surname"
                 placeholder="Client full name"
@@ -154,7 +161,7 @@ export default function NewIncidentPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-6">
               <Input
                 label="Business or Complex Name"
                 placeholder="Business or complex name"
@@ -189,9 +196,9 @@ export default function NewIncidentPage() {
               </label>
               <textarea
                 id="description"
-                rows={4}
+                rows={5}
                 placeholder="Detailed description of what happened"
-                className="rounded-lg border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text placeholder:text-text-secondary/60 transition-all duration-150 focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 focus:bg-surface-elevated/60"
+                className="w-full rounded-lg border border-border-light bg-surface px-3 py-2.5 text-sm text-text placeholder:text-text-secondary/60 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary resize-y"
                 aria-invalid={!!errors.description}
                 {...register("description")}
               />
@@ -202,61 +209,57 @@ export default function NewIncidentPage() {
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Type"
-                placeholder="e.g. Attempted house break in"
-                error={errors.type?.message}
-                {...register("type")}
-              />
-
-              <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="severity"
-                  className="text-sm font-medium text-text/90"
-                >
-                  Severity
-                </label>
+            <div className="grid grid-cols-2 gap-6">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-text/90">Type</label>
+              <div className="flex gap-2">
                 <select
-                  id="severity"
-                  className="rounded-lg border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
-                  {...register("severity")}
+                  aria-label="Type"
+                  value={typePrefix}
+                  onChange={(e) => setTypePrefix(e.target.value)}
+                  className={cn(
+                    "h-11 shrink-0 rounded-xl border bg-surface/60 backdrop-blur-sm px-3.5 py-2.5 text-sm text-text transition-all duration-150 focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15",
+                    typePrefix ? "border-primary/20" : "border-border-light",
+                  )}
                 >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="critical">Critical</option>
+                  <option value="">Select type</option>
+                  <option value="Attempted">Attempted</option>
+                  <option value="Positive">Positive</option>
                 </select>
-                {errors.severity && (
-                  <p className="text-sm text-danger" role="alert">
-                    {errors.severity.message}
-                  </p>
-                )}
+                <input
+                  type="text"
+                  value={typeCustom}
+                  onChange={(e) => setTypeCustom(e.target.value)}
+                  placeholder="Describe the type..."
+                  className={cn(
+                    "flex-1 rounded-xl border bg-surface/60 backdrop-blur-sm px-3.5 py-2.5 text-sm text-text placeholder:text-text-secondary/60 transition-all duration-150 focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15",
+                    typeCustom ? "border-primary/20" : "border-border-light",
+                  )}
+                />
               </div>
+              {errors.type && (
+                <p className="text-sm text-danger" role="alert">
+                  {errors.type.message}
+                </p>
+              )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <Input
                 label="Incident Date"
                 type="date"
                 error={errors.incidentDate?.message}
                 {...register("incidentDate")}
               />
-              <Input
-                label="Location"
-                placeholder="Where did it happen?"
-                error={errors.location?.message}
-                {...register("location")}
-              />
             </div>
 
             <div className="flex gap-3 pt-2">
-              <Button type="submit" loading={isSubmitting}>
+              <Button type="submit" loading={isSubmitting} size="lg">
                 Submit Report
               </Button>
               <Button
                 type="button"
                 variant="secondary"
+                size="lg"
                 onClick={() => router.push("/incidents")}
               >
                 Cancel
