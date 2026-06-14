@@ -30,6 +30,12 @@ jest.mock("../lib/db", () => ({
       findUnique: jest.fn().mockResolvedValue(null),
       create: jest.fn().mockResolvedValue({ id: "1", companyId: "1", planId: "1", status: "active" }),
     },
+    refreshToken: {
+      create: jest.fn().mockResolvedValue({ id: "rt1" }),
+      findUnique: jest.fn().mockResolvedValue({ id: "rt1", userId: "1", familyId: "fam1" }),
+      delete: jest.fn(),
+      deleteMany: jest.fn(),
+    },
     $transaction: jest.fn((fn: any) => fn(prisma)),
   },
 }));
@@ -78,7 +84,7 @@ describe("AuthService", () => {
 
       expect(result).toEqual({
         accessToken: "access-token",
-        refreshToken: "refresh-token",
+        refreshToken: expect.any(String),
         user: expect.objectContaining({ email: "test@example.com" }),
       });
     });
@@ -109,7 +115,7 @@ describe("AuthService", () => {
       const result = await AuthService.refresh("valid-refresh-token");
 
       expect(result.accessToken).toBe("new-access-token");
-      expect(result.refreshToken).toBe("new-refresh-token");
+      expect(result.refreshToken).toEqual(expect.any(String));
     });
 
     it("throws UnauthorizedError for invalid refresh token", async () => {
@@ -147,7 +153,7 @@ describe("AuthService", () => {
 
       expect(result).toEqual({
         accessToken: "access-token",
-        refreshToken: "refresh-token",
+        refreshToken: expect.any(String),
         user: expect.objectContaining({ email: "test@example.com" }),
         company: expect.objectContaining({ name: "Test Company" }),
       });

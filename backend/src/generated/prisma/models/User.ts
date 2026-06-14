@@ -20,8 +20,18 @@ export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayloa
 
 export type AggregateUser = {
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
+}
+
+export type UserAvgAggregateOutputType = {
+  loginAttempts: number | null
+}
+
+export type UserSumAggregateOutputType = {
+  loginAttempts: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -32,6 +42,8 @@ export type UserMinAggregateOutputType = {
   passwordHash: string | null
   role: string | null
   status: string | null
+  loginAttempts: number | null
+  lockedUntil: Date | null
   createdBy: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -45,6 +57,8 @@ export type UserMaxAggregateOutputType = {
   passwordHash: string | null
   role: string | null
   status: string | null
+  loginAttempts: number | null
+  lockedUntil: Date | null
   createdBy: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -58,12 +72,22 @@ export type UserCountAggregateOutputType = {
   passwordHash: number
   role: number
   status: number
+  loginAttempts: number
+  lockedUntil: number
   createdBy: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type UserAvgAggregateInputType = {
+  loginAttempts?: true
+}
+
+export type UserSumAggregateInputType = {
+  loginAttempts?: true
+}
 
 export type UserMinAggregateInputType = {
   id?: true
@@ -73,6 +97,8 @@ export type UserMinAggregateInputType = {
   passwordHash?: true
   role?: true
   status?: true
+  loginAttempts?: true
+  lockedUntil?: true
   createdBy?: true
   createdAt?: true
   updatedAt?: true
@@ -86,6 +112,8 @@ export type UserMaxAggregateInputType = {
   passwordHash?: true
   role?: true
   status?: true
+  loginAttempts?: true
+  lockedUntil?: true
   createdBy?: true
   createdAt?: true
   updatedAt?: true
@@ -99,6 +127,8 @@ export type UserCountAggregateInputType = {
   passwordHash?: true
   role?: true
   status?: true
+  loginAttempts?: true
+  lockedUntil?: true
   createdBy?: true
   createdAt?: true
   updatedAt?: true
@@ -143,6 +173,18 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UserAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UserSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserMinAggregateInputType
@@ -173,6 +215,8 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: UserCountAggregateInputType | true
+  _avg?: UserAvgAggregateInputType
+  _sum?: UserSumAggregateInputType
   _min?: UserMinAggregateInputType
   _max?: UserMaxAggregateInputType
 }
@@ -185,10 +229,14 @@ export type UserGroupByOutputType = {
   passwordHash: string
   role: string
   status: string
+  loginAttempts: number
+  lockedUntil: Date | null
   createdBy: string | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
 }
@@ -219,6 +267,8 @@ export type UserWhereInput = {
   passwordHash?: Prisma.StringFilter<"User"> | string
   role?: Prisma.StringFilter<"User"> | string
   status?: Prisma.StringFilter<"User"> | string
+  loginAttempts?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdBy?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -231,6 +281,7 @@ export type UserWhereInput = {
   actionOwner?: Prisma.CorrectiveActionListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
   guard?: Prisma.XOR<Prisma.GuardNullableScalarRelationFilter, Prisma.GuardWhereInput> | null
+  refreshTokens?: Prisma.RefreshTokenListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -241,6 +292,8 @@ export type UserOrderByWithRelationInput = {
   passwordHash?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  loginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -253,6 +306,7 @@ export type UserOrderByWithRelationInput = {
   actionOwner?: Prisma.CorrectiveActionOrderByRelationAggregateInput
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   guard?: Prisma.GuardOrderByWithRelationInput
+  refreshTokens?: Prisma.RefreshTokenOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -266,6 +320,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   passwordHash?: Prisma.StringFilter<"User"> | string
   role?: Prisma.StringFilter<"User"> | string
   status?: Prisma.StringFilter<"User"> | string
+  loginAttempts?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdBy?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -278,6 +334,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   actionOwner?: Prisma.CorrectiveActionListRelationFilter
   auditLogs?: Prisma.AuditLogListRelationFilter
   guard?: Prisma.XOR<Prisma.GuardNullableScalarRelationFilter, Prisma.GuardWhereInput> | null
+  refreshTokens?: Prisma.RefreshTokenListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -288,12 +345,16 @@ export type UserOrderByWithAggregationInput = {
   passwordHash?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  loginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
+  _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
+  _sum?: Prisma.UserSumOrderByAggregateInput
 }
 
 export type UserScalarWhereWithAggregatesInput = {
@@ -307,6 +368,8 @@ export type UserScalarWhereWithAggregatesInput = {
   passwordHash?: Prisma.StringWithAggregatesFilter<"User"> | string
   role?: Prisma.StringWithAggregatesFilter<"User"> | string
   status?: Prisma.StringWithAggregatesFilter<"User"> | string
+  loginAttempts?: Prisma.IntWithAggregatesFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdBy?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -319,6 +382,8 @@ export type UserCreateInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -330,6 +395,7 @@ export type UserCreateInput = {
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -340,6 +406,8 @@ export type UserUncheckedCreateInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -350,6 +418,7 @@ export type UserUncheckedCreateInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -358,6 +427,8 @@ export type UserUpdateInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -369,6 +440,7 @@ export type UserUpdateInput = {
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -378,6 +450,8 @@ export type UserUncheckedUpdateInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -388,6 +462,7 @@ export type UserUncheckedUpdateInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -398,6 +473,8 @@ export type UserCreateManyInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -409,6 +486,8 @@ export type UserUpdateManyMutationInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -420,6 +499,8 @@ export type UserUncheckedUpdateManyInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -448,9 +529,15 @@ export type UserCountOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  loginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserAvgOrderByAggregateInput = {
+  loginAttempts?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -461,6 +548,8 @@ export type UserMaxOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  loginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -474,9 +563,15 @@ export type UserMinOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  loginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserSumOrderByAggregateInput = {
+  loginAttempts?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -546,6 +641,19 @@ export type UserUncheckedCreateNestedManyWithoutCreatorInput = {
   connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
 }
 
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+  unset?: boolean
+}
+
 export type UserUpdateOneWithoutCreatedUsersNestedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedUsersInput, Prisma.UserUncheckedCreateWithoutCreatedUsersInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedUsersInput
@@ -587,6 +695,20 @@ export type UserUncheckedUpdateManyWithoutCreatorNestedInput = {
   update?: Prisma.UserUpdateWithWhereUniqueWithoutCreatorInput | Prisma.UserUpdateWithWhereUniqueWithoutCreatorInput[]
   updateMany?: Prisma.UserUpdateManyWithWhereWithoutCreatorInput | Prisma.UserUpdateManyWithWhereWithoutCreatorInput[]
   deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserCreateNestedOneWithoutRefreshTokensInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRefreshTokensInput, Prisma.UserUncheckedCreateWithoutRefreshTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRefreshTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutRefreshTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRefreshTokensInput, Prisma.UserUncheckedCreateWithoutRefreshTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRefreshTokensInput
+  upsert?: Prisma.UserUpsertWithoutRefreshTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRefreshTokensInput, Prisma.UserUpdateWithoutRefreshTokensInput>, Prisma.UserUncheckedUpdateWithoutRefreshTokensInput>
 }
 
 export type UserCreateNestedOneWithoutReportedIncidentsInput = {
@@ -682,6 +804,8 @@ export type UserCreateWithoutCompanyInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   creator?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
@@ -692,6 +816,7 @@ export type UserCreateWithoutCompanyInput = {
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCompanyInput = {
@@ -701,6 +826,8 @@ export type UserUncheckedCreateWithoutCompanyInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -711,6 +838,7 @@ export type UserUncheckedCreateWithoutCompanyInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCompanyInput = {
@@ -749,6 +877,8 @@ export type UserScalarWhereInput = {
   passwordHash?: Prisma.StringFilter<"User"> | string
   role?: Prisma.StringFilter<"User"> | string
   status?: Prisma.StringFilter<"User"> | string
+  loginAttempts?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdBy?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -761,6 +891,8 @@ export type UserCreateWithoutCreatedUsersInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -771,6 +903,7 @@ export type UserCreateWithoutCreatedUsersInput = {
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedUsersInput = {
@@ -781,6 +914,8 @@ export type UserUncheckedCreateWithoutCreatedUsersInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -790,6 +925,7 @@ export type UserUncheckedCreateWithoutCreatedUsersInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedUsersInput = {
@@ -804,6 +940,8 @@ export type UserCreateWithoutCreatorInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -814,6 +952,7 @@ export type UserCreateWithoutCreatorInput = {
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatorInput = {
@@ -824,6 +963,8 @@ export type UserUncheckedCreateWithoutCreatorInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCreatorInput
@@ -833,6 +974,7 @@ export type UserUncheckedCreateWithoutCreatorInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatorInput = {
@@ -861,6 +1003,8 @@ export type UserUpdateWithoutCreatedUsersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -871,6 +1015,7 @@ export type UserUpdateWithoutCreatedUsersInput = {
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedUsersInput = {
@@ -880,6 +1025,8 @@ export type UserUncheckedUpdateWithoutCreatedUsersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -889,6 +1036,7 @@ export type UserUncheckedUpdateWithoutCreatedUsersInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutCreatorInput = {
@@ -907,6 +1055,108 @@ export type UserUpdateManyWithWhereWithoutCreatorInput = {
   data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutCreatorInput>
 }
 
+export type UserCreateWithoutRefreshTokensInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  role?: string
+  status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  creator?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
+  createdUsers?: Prisma.UserCreateNestedManyWithoutCreatorInput
+  reportedIncidents?: Prisma.IncidentCreateNestedManyWithoutReporterInput
+  assignedIncidents?: Prisma.IncidentCreateNestedManyWithoutAssignedInvestigatorInput
+  comments?: Prisma.CommentCreateNestedManyWithoutUserInput
+  actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutRefreshTokensInput = {
+  id?: string
+  companyId?: string | null
+  name: string
+  email: string
+  passwordHash: string
+  role?: string
+  status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
+  createdBy?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCreatorInput
+  reportedIncidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutReporterInput
+  assignedIncidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutAssignedInvestigatorInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
+  actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
+  guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutRefreshTokensInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutRefreshTokensInput, Prisma.UserUncheckedCreateWithoutRefreshTokensInput>
+}
+
+export type UserUpsertWithoutRefreshTokensInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutRefreshTokensInput, Prisma.UserUncheckedUpdateWithoutRefreshTokensInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutRefreshTokensInput, Prisma.UserUncheckedCreateWithoutRefreshTokensInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutRefreshTokensInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutRefreshTokensInput, Prisma.UserUncheckedUpdateWithoutRefreshTokensInput>
+}
+
+export type UserUpdateWithoutRefreshTokensInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
+  creator?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
+  createdUsers?: Prisma.UserUpdateManyWithoutCreatorNestedInput
+  reportedIncidents?: Prisma.IncidentUpdateManyWithoutReporterNestedInput
+  assignedIncidents?: Prisma.IncidentUpdateManyWithoutAssignedInvestigatorNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
+  actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutRefreshTokensInput = {
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdUsers?: Prisma.UserUncheckedUpdateManyWithoutCreatorNestedInput
+  reportedIncidents?: Prisma.IncidentUncheckedUpdateManyWithoutReporterNestedInput
+  assignedIncidents?: Prisma.IncidentUncheckedUpdateManyWithoutAssignedInvestigatorNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
+  actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
+  guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
+}
+
 export type UserCreateWithoutReportedIncidentsInput = {
   id?: string
   name: string
@@ -914,6 +1164,8 @@ export type UserCreateWithoutReportedIncidentsInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -924,6 +1176,7 @@ export type UserCreateWithoutReportedIncidentsInput = {
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReportedIncidentsInput = {
@@ -934,6 +1187,8 @@ export type UserUncheckedCreateWithoutReportedIncidentsInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -943,6 +1198,7 @@ export type UserUncheckedCreateWithoutReportedIncidentsInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReportedIncidentsInput = {
@@ -957,6 +1213,8 @@ export type UserCreateWithoutAssignedIncidentsInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -967,6 +1225,7 @@ export type UserCreateWithoutAssignedIncidentsInput = {
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAssignedIncidentsInput = {
@@ -977,6 +1236,8 @@ export type UserUncheckedCreateWithoutAssignedIncidentsInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -986,6 +1247,7 @@ export type UserUncheckedCreateWithoutAssignedIncidentsInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAssignedIncidentsInput = {
@@ -1010,6 +1272,8 @@ export type UserUpdateWithoutReportedIncidentsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -1020,6 +1284,7 @@ export type UserUpdateWithoutReportedIncidentsInput = {
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReportedIncidentsInput = {
@@ -1029,6 +1294,8 @@ export type UserUncheckedUpdateWithoutReportedIncidentsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1038,6 +1305,7 @@ export type UserUncheckedUpdateWithoutReportedIncidentsInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutAssignedIncidentsInput = {
@@ -1057,6 +1325,8 @@ export type UserUpdateWithoutAssignedIncidentsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -1067,6 +1337,7 @@ export type UserUpdateWithoutAssignedIncidentsInput = {
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedIncidentsInput = {
@@ -1076,6 +1347,8 @@ export type UserUncheckedUpdateWithoutAssignedIncidentsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1085,6 +1358,7 @@ export type UserUncheckedUpdateWithoutAssignedIncidentsInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCommentsInput = {
@@ -1094,6 +1368,8 @@ export type UserCreateWithoutCommentsInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1104,6 +1380,7 @@ export type UserCreateWithoutCommentsInput = {
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCommentsInput = {
@@ -1114,6 +1391,8 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1123,6 +1402,7 @@ export type UserUncheckedCreateWithoutCommentsInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCommentsInput = {
@@ -1147,6 +1427,8 @@ export type UserUpdateWithoutCommentsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -1157,6 +1439,7 @@ export type UserUpdateWithoutCommentsInput = {
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommentsInput = {
@@ -1166,6 +1449,8 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1175,6 +1460,7 @@ export type UserUncheckedUpdateWithoutCommentsInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutActionOwnerInput = {
@@ -1184,6 +1470,8 @@ export type UserCreateWithoutActionOwnerInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1194,6 +1482,7 @@ export type UserCreateWithoutActionOwnerInput = {
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutActionOwnerInput = {
@@ -1204,6 +1493,8 @@ export type UserUncheckedCreateWithoutActionOwnerInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1213,6 +1504,7 @@ export type UserUncheckedCreateWithoutActionOwnerInput = {
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
   guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutActionOwnerInput = {
@@ -1237,6 +1529,8 @@ export type UserUpdateWithoutActionOwnerInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -1247,6 +1541,7 @@ export type UserUpdateWithoutActionOwnerInput = {
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActionOwnerInput = {
@@ -1256,6 +1551,8 @@ export type UserUncheckedUpdateWithoutActionOwnerInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1265,6 +1562,7 @@ export type UserUncheckedUpdateWithoutActionOwnerInput = {
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuditLogsInput = {
@@ -1274,6 +1572,8 @@ export type UserCreateWithoutAuditLogsInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1284,6 +1584,7 @@ export type UserCreateWithoutAuditLogsInput = {
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   guard?: Prisma.GuardCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -1294,6 +1595,8 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1303,6 +1606,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   guard?: Prisma.GuardUncheckedCreateNestedOneWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -1327,6 +1631,8 @@ export type UserUpdateWithoutAuditLogsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -1337,6 +1643,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -1346,6 +1653,8 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1355,6 +1664,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutGuardInput = {
@@ -1364,6 +1674,8 @@ export type UserCreateWithoutGuardInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1374,6 +1686,7 @@ export type UserCreateWithoutGuardInput = {
   comments?: Prisma.CommentCreateNestedManyWithoutUserInput
   actionOwner?: Prisma.CorrectiveActionCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutPerformedByUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGuardInput = {
@@ -1384,6 +1697,8 @@ export type UserUncheckedCreateWithoutGuardInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1393,6 +1708,7 @@ export type UserUncheckedCreateWithoutGuardInput = {
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutUserInput
   actionOwner?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutOwnerInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutPerformedByUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGuardInput = {
@@ -1417,6 +1733,8 @@ export type UserUpdateWithoutGuardInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -1427,6 +1745,7 @@ export type UserUpdateWithoutGuardInput = {
   comments?: Prisma.CommentUpdateManyWithoutUserNestedInput
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGuardInput = {
@@ -1436,6 +1755,8 @@ export type UserUncheckedUpdateWithoutGuardInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1445,6 +1766,7 @@ export type UserUncheckedUpdateWithoutGuardInput = {
   comments?: Prisma.CommentUncheckedUpdateManyWithoutUserNestedInput
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyCompanyInput = {
@@ -1454,6 +1776,8 @@ export type UserCreateManyCompanyInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1465,6 +1789,8 @@ export type UserUpdateWithoutCompanyInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creator?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
@@ -1475,6 +1801,7 @@ export type UserUpdateWithoutCompanyInput = {
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCompanyInput = {
@@ -1483,6 +1810,8 @@ export type UserUncheckedUpdateWithoutCompanyInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1493,6 +1822,7 @@ export type UserUncheckedUpdateWithoutCompanyInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutCompanyInput = {
@@ -1501,6 +1831,8 @@ export type UserUncheckedUpdateManyWithoutCompanyInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1514,6 +1846,8 @@ export type UserCreateManyCreatorInput = {
   passwordHash: string
   role?: string
   status?: string
+  loginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1524,6 +1858,8 @@ export type UserUpdateWithoutCreatorInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -1534,6 +1870,7 @@ export type UserUpdateWithoutCreatorInput = {
   actionOwner?: Prisma.CorrectiveActionUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatorInput = {
@@ -1543,6 +1880,8 @@ export type UserUncheckedUpdateWithoutCreatorInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdUsers?: Prisma.UserUncheckedUpdateManyWithoutCreatorNestedInput
@@ -1552,6 +1891,7 @@ export type UserUncheckedUpdateWithoutCreatorInput = {
   actionOwner?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutOwnerNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutPerformedByUserNestedInput
   guard?: Prisma.GuardUncheckedUpdateOneWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutCreatorInput = {
@@ -1561,6 +1901,8 @@ export type UserUncheckedUpdateManyWithoutCreatorInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1577,6 +1919,7 @@ export type UserCountOutputType = {
   comments: number
   actionOwner: number
   auditLogs: number
+  refreshTokens: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1586,6 +1929,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   comments?: boolean | UserCountOutputTypeCountCommentsArgs
   actionOwner?: boolean | UserCountOutputTypeCountActionOwnerArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
+  refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
 }
 
 /**
@@ -1640,6 +1984,13 @@ export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.AuditLogWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountRefreshTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RefreshTokenWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1649,6 +2000,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   passwordHash?: boolean
   role?: boolean
   status?: boolean
+  loginAttempts?: boolean
+  lockedUntil?: boolean
   createdBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1661,6 +2014,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   actionOwner?: boolean | Prisma.User$actionOwnerArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   guard?: boolean | Prisma.User$guardArgs<ExtArgs>
+  refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1674,12 +2028,14 @@ export type UserSelectScalar = {
   passwordHash?: boolean
   role?: boolean
   status?: boolean
+  loginAttempts?: boolean
+  lockedUntil?: boolean
   createdBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "name" | "email" | "passwordHash" | "role" | "status" | "createdBy" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "name" | "email" | "passwordHash" | "role" | "status" | "loginAttempts" | "lockedUntil" | "createdBy" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.User$companyArgs<ExtArgs>
   creator?: boolean | Prisma.User$creatorArgs<ExtArgs>
@@ -1690,6 +2046,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   actionOwner?: boolean | Prisma.User$actionOwnerArgs<ExtArgs>
   auditLogs?: boolean | Prisma.User$auditLogsArgs<ExtArgs>
   guard?: boolean | Prisma.User$guardArgs<ExtArgs>
+  refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1705,6 +2062,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     actionOwner: Prisma.$CorrectiveActionPayload<ExtArgs>[]
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     guard: Prisma.$GuardPayload<ExtArgs> | null
+    refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1714,6 +2072,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     passwordHash: string
     role: string
     status: string
+    loginAttempts: number
+    lockedUntil: Date | null
     createdBy: string | null
     createdAt: Date
     updatedAt: Date
@@ -2089,6 +2449,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   actionOwner<T extends Prisma.User$actionOwnerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$actionOwnerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CorrectiveActionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.User$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   guard<T extends Prisma.User$guardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$guardArgs<ExtArgs>>): Prisma.Prisma__GuardClient<runtime.Types.Result.GetResult<Prisma.$GuardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  refreshTokens<T extends Prisma.User$refreshTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2125,6 +2486,8 @@ export interface UserFieldRefs {
   readonly passwordHash: Prisma.FieldRef<"User", 'String'>
   readonly role: Prisma.FieldRef<"User", 'String'>
   readonly status: Prisma.FieldRef<"User", 'String'>
+  readonly loginAttempts: Prisma.FieldRef<"User", 'Int'>
+  readonly lockedUntil: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdBy: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
@@ -2696,6 +3059,30 @@ export type User$guardArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   include?: Prisma.GuardInclude<ExtArgs> | null
   where?: Prisma.GuardWhereInput
+}
+
+/**
+ * User.refreshTokens
+ */
+export type User$refreshTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RefreshToken
+   */
+  select?: Prisma.RefreshTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RefreshToken
+   */
+  omit?: Prisma.RefreshTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RefreshTokenInclude<ExtArgs> | null
+  where?: Prisma.RefreshTokenWhereInput
+  orderBy?: Prisma.RefreshTokenOrderByWithRelationInput | Prisma.RefreshTokenOrderByWithRelationInput[]
+  cursor?: Prisma.RefreshTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RefreshTokenScalarFieldEnum | Prisma.RefreshTokenScalarFieldEnum[]
 }
 
 /**

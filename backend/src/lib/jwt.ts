@@ -1,11 +1,13 @@
 /**
  * JWT token helpers — sign and verify access (15m) and refresh (7d) tokens
  * using secrets from environment variables.
+ * NOTE: JWT_SECRET and JWT_REFRESH_SECRET must be set in production.
+ * The server will refuse to start if either is missing.
  */
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "dev-refresh-secret";
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 
 /** Shape of the JWT payload embedded in both access and refresh tokens. */
 interface TokenPayload {
@@ -20,7 +22,7 @@ interface TokenPayload {
  * @returns A signed JWT string.
  */
 export function signAccessToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "15m" });
+  return jwt.sign(payload, JWT_SECRET!, { expiresIn: "15m" });
 }
 
 /**
@@ -29,7 +31,7 @@ export function signAccessToken(payload: TokenPayload): string {
  * @returns A signed JWT string.
  */
 export function signRefreshToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: "7d" });
+  return jwt.sign(payload, JWT_REFRESH_SECRET!, { expiresIn: "7d" });
 }
 
 /**
@@ -39,7 +41,7 @@ export function signRefreshToken(payload: TokenPayload): string {
  * @throws {JsonWebTokenError} If the token is invalid or expired.
  */
 export function verifyAccessToken(token: string): TokenPayload {
-  return jwt.verify(token, JWT_SECRET) as TokenPayload;
+  return jwt.verify(token, JWT_SECRET!) as TokenPayload;
 }
 
 /**
@@ -49,5 +51,5 @@ export function verifyAccessToken(token: string): TokenPayload {
  * @throws {JsonWebTokenError} If the token is invalid or expired.
  */
 export function verifyRefreshToken(token: string): TokenPayload {
-  return jwt.verify(token, JWT_REFRESH_SECRET) as TokenPayload;
+  return jwt.verify(token, JWT_REFRESH_SECRET!) as TokenPayload;
 }

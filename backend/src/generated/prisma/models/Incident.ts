@@ -872,11 +872,6 @@ export type IncidentUncheckedUpdateManyWithoutAssignedInvestigatorNestedInput = 
   deleteMany?: Prisma.IncidentScalarWhereInput | Prisma.IncidentScalarWhereInput[]
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-  unset?: boolean
-}
-
 export type IncidentCreateNestedOneWithoutPeopleInput = {
   create?: Prisma.XOR<Prisma.IncidentCreateWithoutPeopleInput, Prisma.IncidentUncheckedCreateWithoutPeopleInput>
   connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutPeopleInput

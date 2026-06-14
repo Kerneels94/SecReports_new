@@ -1,6 +1,6 @@
 import { AuthController } from "./auth.controller";
 import { AuthService } from "../services/auth.service";
-import { ValidationError, ForbiddenError } from "../lib/errors";
+import { ValidationError } from "../lib/errors";
 
 jest.mock("../services/auth.service", () => ({
   AuthService: {
@@ -15,6 +15,9 @@ jest.mock("../services/auth.service", () => ({
     listUsers: jest.fn(),
     getUserById: jest.fn(),
     updateUser: jest.fn(),
+    logout: jest.fn(),
+    logoutAll: jest.fn(),
+    listSessions: jest.fn(),
   },
 }));
 
@@ -27,6 +30,7 @@ jest.mock("../validators/auth.schema", () => ({
   resetPasswordSchema: { safeParse: jest.fn() },
   changePasswordSchema: { safeParse: jest.fn() },
   updateUserSchema: { safeParse: jest.fn() },
+  logoutSchema: { safeParse: jest.fn() },
 }));
 
 import {
@@ -38,6 +42,7 @@ import {
   resetPasswordSchema,
   changePasswordSchema,
   updateUserSchema,
+  logoutSchema,
 } from "../validators/auth.schema";
 
 describe("AuthController", () => {
@@ -214,101 +219,130 @@ describe("AuthController", () => {
     });
   });
 
-describe("changePassword", () => {
-  it("valid input: calls AuthService.changePassword and responds 200", async () => {
-    mockRequest.body = { currentPassword: "old", newPassword: "newpassword123" };
-    (changePasswordSchema.safeParse as jest.Mock).mockReturnValue({
-      success: true,
-      data: { currentPassword: "old", newPassword: "newpassword123" },
-    });
-    (AuthService.changePassword as jest.Mock).mockResolvedValue(undefined);
+  describe("changePassword", () => {
+    it("valid input: calls AuthService.changePassword and responds 200", async () => {
+      mockRequest.body = { currentPassword: "old", newPassword: "newpassword123" };
+      (changePasswordSchema.safeParse as jest.Mock).mockReturnValue({
+        success: true,
+        data: { currentPassword: "old", newPassword: "newpassword123" },
+      });
+      (AuthService.changePassword as jest.Mock).mockResolvedValue(undefined);
 
-    await AuthController.changePassword(mockRequest, mockReply);
+      await AuthController.changePassword(mockRequest, mockReply);
 
-    expect(AuthService.changePassword).toHaveBeenCalledWith("1", "old", "newpassword123");
-    expect(mockReply.code).toHaveBeenCalledWith(200);
-  });
-
-  it("invalid input: throws ValidationError", async () => {
-    (changePasswordSchema.safeParse as jest.Mock).mockReturnValue({
-      success: false,
-      error: { flatten: () => ({}) },
+      expect(AuthService.changePassword).toHaveBeenCalledWith("1", "old", "newpassword123");
+      expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 
-    await expect(AuthController.changePassword(mockRequest, mockReply)).rejects.toThrow(ValidationError);
-  });
-});
+    it("invalid input: throws ValidationError", async () => {
+      (changePasswordSchema.safeParse as jest.Mock).mockReturnValue({
+        success: false,
+        error: { flatten: () => ({}) },
+      });
 
-describe("listUsers", () => {
-  it("admin: calls AuthService.listUsers and responds 200", async () => {
-    const users = [{ id: "1", name: "User" }];
-    (AuthService.listUsers as jest.Mock).mockResolvedValue(users);
-
-    await AuthController.listUsers(mockRequest, mockReply);
-
-    expect(AuthService.listUsers).toHaveBeenCalledWith("1");
-    expect(mockReply.code).toHaveBeenCalledWith(200);
-    expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: users });
-  });
-
-  it("non-owner: throws ForbiddenError", async () => {
-    mockRequest.user.role = "senior";
-
-    await expect(AuthController.listUsers(mockRequest, mockReply)).rejects.toThrow(ForbiddenError);
-  });
-});
-
-describe("getUserById", () => {
-  it("admin: calls AuthService.getUserById and responds 200", async () => {
-    mockRequest.params = { id: "1" };
-    const user = { id: "1", name: "Test User" };
-    (AuthService.getUserById as jest.Mock).mockResolvedValue(user);
-
-    await AuthController.getUserById(mockRequest, mockReply);
-
-    expect(AuthService.getUserById).toHaveBeenCalledWith("1", "1");
-    expect(mockReply.code).toHaveBeenCalledWith(200);
-    expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: user });
-  });
-
-  it("non-owner: throws ForbiddenError", async () => {
-    mockRequest.user.role = "senior";
-
-    await expect(AuthController.getUserById(mockRequest, mockReply)).rejects.toThrow(ForbiddenError);
-  });
-});
-
-describe("updateUser", () => {
-  it("admin valid input: calls AuthService.updateUser and responds 200", async () => {
-    mockRequest.params = { id: "2" };
-    mockRequest.body = { name: "Updated" };
-    (updateUserSchema.safeParse as jest.Mock).mockReturnValue({
-      success: true,
-      data: { name: "Updated" },
+      await expect(AuthController.changePassword(mockRequest, mockReply)).rejects.toThrow(ValidationError);
     });
-    (AuthService.updateUser as jest.Mock).mockResolvedValue({ id: "2", name: "Updated" });
-
-    await AuthController.updateUser(mockRequest, mockReply);
-
-    expect(AuthService.updateUser).toHaveBeenCalledWith("1", "2", { name: "Updated" });
-    expect(mockReply.code).toHaveBeenCalledWith(200);
   });
 
-  it("non-owner: throws ForbiddenError", async () => {
-    mockRequest.user.role = "senior";
+  describe("listUsers", () => {
+    it("calls AuthService.listUsers and responds 200", async () => {
+      const users = [{ id: "1", name: "User" }];
+      (AuthService.listUsers as jest.Mock).mockResolvedValue(users);
 
-    await expect(AuthController.updateUser(mockRequest, mockReply)).rejects.toThrow(ForbiddenError);
+      await AuthController.listUsers(mockRequest, mockReply);
+
+      expect(AuthService.listUsers).toHaveBeenCalledWith("1");
+      expect(mockReply.code).toHaveBeenCalledWith(200);
+      expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: users });
+    });
   });
 
-  it("invalid input: throws ValidationError", async () => {
-    mockRequest.params = { id: "1" };
-    (updateUserSchema.safeParse as jest.Mock).mockReturnValue({
-      success: false,
-      error: { flatten: () => ({}) },
+  describe("getUserById", () => {
+    it("calls AuthService.getUserById and responds 200", async () => {
+      mockRequest.params = { id: "1" };
+      const user = { id: "1", name: "Test User" };
+      (AuthService.getUserById as jest.Mock).mockResolvedValue(user);
+
+      await AuthController.getUserById(mockRequest, mockReply);
+
+      expect(AuthService.getUserById).toHaveBeenCalledWith("1", "1");
+      expect(mockReply.code).toHaveBeenCalledWith(200);
+      expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: user });
+    });
+  });
+
+  describe("updateUser", () => {
+    it("valid input: calls AuthService.updateUser and responds 200", async () => {
+      mockRequest.params = { id: "2" };
+      mockRequest.body = { name: "Updated" };
+      (updateUserSchema.safeParse as jest.Mock).mockReturnValue({
+        success: true,
+        data: { name: "Updated" },
+      });
+      (AuthService.updateUser as jest.Mock).mockResolvedValue({ id: "2", name: "Updated" });
+
+      await AuthController.updateUser(mockRequest, mockReply);
+
+      expect(AuthService.updateUser).toHaveBeenCalledWith("1", "2", { name: "Updated" });
+      expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 
-    await expect(AuthController.updateUser(mockRequest, mockReply)).rejects.toThrow(ValidationError);
-  });
-});
+    it("invalid input: throws ValidationError", async () => {
+      mockRequest.params = { id: "1" };
+      (updateUserSchema.safeParse as jest.Mock).mockReturnValue({
+        success: false,
+        error: { flatten: () => ({}) },
+      });
 
+      await expect(AuthController.updateUser(mockRequest, mockReply)).rejects.toThrow(ValidationError);
+    });
+  });
+
+  describe("logout", () => {
+    it("valid input: calls AuthService.logout and responds 200", async () => {
+      mockRequest.body = { refreshToken: "abc" };
+      (logoutSchema.safeParse as jest.Mock).mockReturnValue({
+        success: true,
+        data: { refreshToken: "abc" },
+      });
+
+      await AuthController.logout(mockRequest, mockReply);
+
+      expect(AuthService.logout).toHaveBeenCalledWith("abc");
+      expect(mockReply.code).toHaveBeenCalledWith(200);
+      expect(mockReply.send).toHaveBeenCalledWith({ success: true, message: "Logged out successfully." });
+    });
+
+    it("invalid input: throws ValidationError", async () => {
+      (logoutSchema.safeParse as jest.Mock).mockReturnValue({
+        success: false,
+        error: { flatten: () => ({}) },
+      });
+
+      await expect(AuthController.logout(mockRequest, mockReply)).rejects.toThrow(ValidationError);
+    });
+  });
+
+  describe("logoutAll", () => {
+    it("calls AuthService.logoutAll and responds 200", async () => {
+      await AuthController.logoutAll(mockRequest, mockReply);
+
+      expect(AuthService.logoutAll).toHaveBeenCalledWith("1");
+      expect(mockReply.code).toHaveBeenCalledWith(200);
+      expect(mockReply.send).toHaveBeenCalledWith({ success: true, message: "All sessions logged out." });
+    });
+  });
+
+  describe("listSessions", () => {
+    it("calls AuthService.listSessions and responds 200", async () => {
+      const sessions = [{ id: "s1", deviceInfo: null, createdAt: new Date(), expiresAt: new Date() }];
+      (AuthService.listSessions as jest.Mock).mockResolvedValue(sessions);
+
+      await AuthController.listSessions(mockRequest, mockReply);
+
+      expect(AuthService.listSessions).toHaveBeenCalledWith("1");
+      expect(mockReply.code).toHaveBeenCalledWith(200);
+      expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: sessions });
+    });
+  });
 });

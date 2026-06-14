@@ -53,6 +53,11 @@ export type Company = Prisma.CompanyModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model RefreshToken
+ * 
+ */
+export type RefreshToken = Prisma.RefreshTokenModel
+/**
  * Model Incident
  * 
  */
