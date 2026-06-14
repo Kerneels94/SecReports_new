@@ -117,7 +117,7 @@ export const userService = {
 export const guardingSiteService = {
   list: () => api.get<GuardingSite[]>("/guarding-sites"),
   getById: (id: string) => api.get<GuardingSite>(`/guarding-sites/${id}`),
-  create: (data: { name: string; address?: string; guards?: { name: string; surname: string; cellphone: string; email: string; employeeId: string; password: string }[] }) => api.post<GuardingSite>("/guarding-sites", data),
+  create: (data: { name: string; address?: string; guards?: { name: string; surname: string; cellphone: string; email?: string; employeeId: string; password: string }[] }) => api.post<GuardingSite>("/guarding-sites", data),
   update: (id: string, data: { name?: string; address?: string; status?: string }) =>
     api.put<GuardingSite>(`/guarding-sites/${id}`, data),
   delete: (id: string) => api.delete<void>(`/guarding-sites/${id}`),
