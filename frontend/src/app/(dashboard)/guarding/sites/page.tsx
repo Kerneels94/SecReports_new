@@ -1,3 +1,7 @@
+/**
+ * Guarding sites page — list all guarding sites with create, view modal, and delete functionality.
+ * @route /guarding/sites
+ */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -23,6 +27,7 @@ const emptyGuard: GuardFormData = {
   password: "",
 };
 
+/** Sites page component with inline creation form, guard rows, view modal, and delete confirmation. */
 export default function SitesPage() {
   const [sites, setSites] = useState<GuardingSite[]>([]);
   const [loading, setLoading] = useState(true);

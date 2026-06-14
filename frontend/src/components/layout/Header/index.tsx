@@ -1,15 +1,22 @@
 "use client";
 
+/**
+ * Header - The top navigation bar for desktop viewports.
+ * Displays dashboard mode toggles (Incidents / Guarding), a user profile dropdown, and logout.
+ */
+
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { useDashboardMode } from "@/hooks/useDashboardMode";
 
+/** Props for the Header component */
 interface HeaderProps {
   user?: { name: string; email: string; role: string } | null;
   onLogout?: () => void;
 }
 
+/** Desktop header bar with mode toggle and user dropdown. Hidden on mobile (< lg). */
 export function Header({ user, onLogout }: HeaderProps) {
   const { mode, setMode } = useDashboardMode();
   const [open, setOpen] = useState(false);

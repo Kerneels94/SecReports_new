@@ -1,3 +1,7 @@
+/**
+ * Reset password page — reads token from query string and allows setting a new password.
+ * @route /reset-password
+ */
 "use client";
 
 import { useState, Suspense } from "react";
@@ -7,6 +11,7 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { authService } from "@/services";
 
+/** Inner form component that reads the token and handles password reset submission. */
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -120,6 +125,7 @@ function ResetPasswordForm() {
   );
 }
 
+/** Reset password page — wraps ResetPasswordForm in Suspense for useSearchParams. */
 export default function ResetPasswordPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-surface-secondary px-4 overflow-hidden">

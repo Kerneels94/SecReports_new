@@ -1,3 +1,8 @@
+/**
+ * Email template sent to a company when a new invoice is generated.
+ *
+ * @module invoice
+ */
 interface InvoiceData {
   companyName: string;
   amount: number;

@@ -1,3 +1,7 @@
+/**
+ * Admin users page — allows owners to create, list, and edit employee users with role management.
+ * @route /admin/users
+ */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -21,6 +25,7 @@ const createUserSchema = z.object({
 
 type CreateUserForm = z.infer<typeof createUserSchema>;
 
+/** Admin users page component with create form, employee list table, and inline edit modal. */
 export default function AdminUsersPage() {
   const { user } = useAuth();
 

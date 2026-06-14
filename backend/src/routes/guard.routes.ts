@@ -1,3 +1,7 @@
+/**
+ * Guard routes — all endpoints require JWT authentication.
+ * Role-restricted: create/update (owner/manager), delete (owner).
+ */
 import { FastifyInstance } from "fastify";
 import { GuardController } from "../controllers/guard.controller";
 import { requireRole } from "../middleware/requireRole";

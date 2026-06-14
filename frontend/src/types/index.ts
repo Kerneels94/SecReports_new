@@ -1,18 +1,24 @@
+/** A user account within a company. */
 export interface User {
   id: number;
   name: string;
   email: string;
-  role: "owner" | "manager" | "senior" | "guard";
+  role: "owner" | "manager" | "senior" | "guard" | "superadmin";
   status: "active" | "inactive";
-  companyId: number;
+  companyId: number | null;
 }
 
+/** An organisation (company) that owns reports and users. */
 export interface Company {
   id: number;
   name: string;
   email: string;
 }
 
+/** Status values for an incident. */
+export type IncidentStatus = "draft" | "investigating" | "resolved" | "closed";
+
+/** A security incident report created by a user. */
 export interface Incident {
   id: number;
   referenceNumber: string;
@@ -40,6 +46,7 @@ export interface Incident {
   assignee?: User;
 }
 
+/** A person associated with a specific incident (e.g. witness, suspect). */
 export interface IncidentPerson {
   id: number;
   incidentId: number;
@@ -49,18 +56,7 @@ export interface IncidentPerson {
   notes: string | null;
 }
 
-export interface Evidence {
-  id: number;
-  incidentId: number;
-  fileName: string;
-  originalName: string;
-  mimeType: string;
-  fileSize: number;
-  checksum: string;
-  uploadedBy: number;
-  createdAt: string;
-}
-
+/** A comment left on an incident by a user. */
 export interface Comment {
   id: number;
   incidentId: number;
@@ -70,6 +66,7 @@ export interface Comment {
   user?: User;
 }
 
+/** Investigation details attached to an incident (findings, root cause, etc.). */
 export interface Investigation {
   id: number;
   incidentId: number;
@@ -80,6 +77,7 @@ export interface Investigation {
   completedAt: string | null;
 }
 
+/** A corrective action assigned to resolve an incident. */
 export interface CorrectiveAction {
   id: number;
   incidentId: number;
@@ -91,6 +89,7 @@ export interface CorrectiveAction {
   owner?: User;
 }
 
+/** An audit trail entry tracking changes to an entity. */
 export interface AuditLog {
   id: number;
   entityType: string;
@@ -102,11 +101,13 @@ export interface AuditLog {
   createdAt: string;
 }
 
+/** Standard success response wrapper from the API. */
 export interface ApiResponse<T> {
   success: true;
   data: T;
 }
 
+/** Error payload returned by the API on failure. */
 export interface ApiError {
   success: false;
   error: {
@@ -118,6 +119,7 @@ export interface ApiError {
   statusCode?: number;
 }
 
+/** Paginated list response from the API. */
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;
@@ -125,16 +127,19 @@ export interface PaginatedResponse<T> {
   perPage: number;
 }
 
+/** Payload for owner/manager login. */
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
+/** Payload for employee (guard) login. */
 export interface EmployeeLoginRequest {
   email: string;
   password: string;
 }
 
+/** Payload for new company registration. */
 export interface RegisterRequest {
   companyName: string;
   name: string;
@@ -142,6 +147,7 @@ export interface RegisterRequest {
   password: string;
 }
 
+/** Response returned after successful registration. */
 export interface RegisterResponse {
   accessToken: string;
   refreshToken: string;
@@ -149,13 +155,14 @@ export interface RegisterResponse {
   company: Company;
 }
 
+/** Response returned after successful login. */
 export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
   user: User;
 }
 
-// Guarding types
+/** A physical site/location that is guarded. */
 export interface GuardingSite {
   id: string;
   companyId: string;
@@ -170,6 +177,7 @@ export interface GuardingSite {
   entryLogs?: EntryLog[];
 }
 
+/** A security guard assigned to a site. */
 export interface Guard {
   id: string;
   companyId: string;
@@ -188,6 +196,7 @@ export interface Guard {
   patrolReports?: PatrolReport[];
 }
 
+/** A patrol route report completed by a guard. */
 export interface PatrolReport {
   id: string;
   siteId: string;
@@ -204,6 +213,7 @@ export interface PatrolReport {
   _count?: { checkpoints: number };
 }
 
+/** A scanned checkpoint within a patrol report. */
 export interface PatrolCheckpoint {
   id: string;
   patrolReportId: string;
@@ -213,6 +223,7 @@ export interface PatrolCheckpoint {
   createdAt: string;
 }
 
+/** A vehicle/person entry/exit log at a guarded site. */
 export interface EntryLog {
   id: string;
   siteId: string;
@@ -232,6 +243,80 @@ export interface EntryLog {
   flaggedVehicle?: FlaggedVehicle | null;
 }
 
+/** An invoice sent to a company. */
+export interface Invoice {
+  id: string;
+  companyId: string;
+  invoiceNumber: string;
+  amount: number;
+  currency: string;
+  status: "draft" | "sent" | "paid" | "overdue" | "cancelled";
+  dueDate: string;
+  paidAt: string | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+  company?: { id: string; name: string; email: string };
+  payments?: PaymentHistory[];
+}
+
+/** Aggregated revenue statistics for the admin dashboard. */
+export interface RevenueStats {
+  totalRevenue: number;
+  monthlyRevenue: number;
+  paidInvoicesThisYear: number;
+  overdueInvoices: number;
+  outstandingAmount: number;
+  activeCompanies: number;
+}
+
+/** Monthly revenue trend data point. */
+export interface RevenueTrend {
+  month: string;
+  year: number;
+  revenue: number;
+  count: number;
+}
+
+/** Company info with subscription for admin view. */
+export interface AdminCompany {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+  subscription: {
+    id: string;
+    status: string;
+    currentPeriodStart: string | null;
+    currentPeriodEnd: string | null;
+    plan: { id: string; name: string; price: number };
+  } | null;
+  _count?: { users: number; invoices: number };
+}
+
+/** Result of generating monthly invoices. */
+export interface MonthlyInvoiceResult {
+  companyId: string;
+  companyName: string;
+  invoiceNumber: string;
+  status: string;
+}
+
+/** A payment record linked to an invoice. */
+export interface PaymentHistory {
+  id: string;
+  companyId: string;
+  amount: number;
+  currency: string;
+  reference: string;
+  status: string;
+  invoiceId: string | null;
+  createdAt: string;
+}
+
+/** A vehicle flagged for security reasons at a site. */
 export interface FlaggedVehicle {
   id: string;
   companyId: string;

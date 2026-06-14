@@ -12,6 +12,7 @@ async function main() {
   await prisma.guard.deleteMany();
   await prisma.guardingSite.deleteMany();
   await prisma.paymentHistory.deleteMany();
+  await prisma.invoice.deleteMany();
   await prisma.companySubscription.deleteMany();
   await prisma.subscriptionPlan.deleteMany();
   await prisma.apiKey.deleteMany();
@@ -19,29 +20,35 @@ async function main() {
   await prisma.correctiveAction.deleteMany();
   await prisma.investigation.deleteMany();
   await prisma.comment.deleteMany();
-  await prisma.evidence.deleteMany();
   await prisma.incidentPerson.deleteMany();
   await prisma.incident.deleteMany();
   await prisma.user.deleteMany();
   await prisma.company.deleteMany();
 
-  const starterPlan = await prisma.subscriptionPlan.create({
+  const allFeatures = JSON.stringify([
+    "basic_crud", "status_changes", "email_notifications",
+    "export_csv_pdf", "priority_support",
+    "full_lifecycle", "api_access",
+  ]);
+
+  const freePlan = await prisma.subscriptionPlan.create({
     data: {
-      name: "Starter",
+      name: "Free",
       price: 0,
-      reportLimit: 20,
+      siteLimit: 5,
       userLimit: 1,
-      features: JSON.stringify(["basic_crud", "status_changes", "email_notifications"]),
+      trialPeriodDays: 14,
+      features: allFeatures,
     },
   });
 
   const professionalPlan = await prisma.subscriptionPlan.create({
     data: {
       name: "Professional",
-      price: 80000,
-      reportLimit: 50,
+      price: 150000,
+      siteLimit: 15,
       userLimit: 5,
-      features: JSON.stringify(["basic_crud", "status_changes", "email_notifications", "evidence_uploads", "export_csv_pdf", "priority_support"]),
+      features: allFeatures,
       highlighted: true,
     },
   });
@@ -49,10 +56,10 @@ async function main() {
   await prisma.subscriptionPlan.create({
     data: {
       name: "Enterprise",
-      price: 150000,
-      reportLimit: 0,
+      price: 450000,
+      siteLimit: 0,
       userLimit: 0,
-      features: JSON.stringify(["basic_crud", "status_changes", "email_notifications", "evidence_uploads", "export_csv_pdf", "priority_support", "full_lifecycle", "api_access"]),
+      features: allFeatures,
     },
   });
 
@@ -98,7 +105,7 @@ async function main() {
   await prisma.companySubscription.create({
     data: {
       companyId: company.id,
-      planId: starterPlan.id,
+      planId: freePlan.id,
       status: "active",
     },
   });
@@ -288,6 +295,22 @@ async function main() {
     },
   });
 
+  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || "corriebotha64@gmail.com";
+  const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || "superadmintest1234";
+  const existingSuperAdmin = await prisma.user.findUnique({ where: { email: superAdminEmail } });
+  if (!existingSuperAdmin) {
+    const superAdminHash = await bcrypt.hash(superAdminPassword, 12);
+    await prisma.user.create({
+      data: {
+        name: "Super Admin",
+        email: superAdminEmail,
+        passwordHash: superAdminHash,
+        role: "superadmin",
+        status: "active",
+      },
+    });
+  }
+
   console.log("Seed completed successfully");
   console.log(`Company: Demo Security Inc.`);
   console.log(`Admin: admin@example.com / password123`);
@@ -295,6 +318,7 @@ async function main() {
   console.log(`Senior: senior@example.com / password123`);
   console.log(`Guard 1 (Thabo): thabo@example.com / guard123`);
   console.log(`Guard 2 (Lerato): lerato@example.com / guard123`);
+  console.log(`Super Admin: ${superAdminEmail} / ${superAdminPassword}`);
 }
 
 main()

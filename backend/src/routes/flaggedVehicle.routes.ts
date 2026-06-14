@@ -1,3 +1,7 @@
+/**
+ * Flagged Vehicle routes — all endpoints require JWT authentication.
+ * Role-restricted: create (owner/manager/guard), resolve (owner/manager), delete (owner).
+ */
 import { FastifyInstance } from "fastify";
 import { FlaggedVehicleController } from "../controllers/flaggedVehicle.controller";
 import { requireRole } from "../middleware/requireRole";

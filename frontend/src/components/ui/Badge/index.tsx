@@ -1,7 +1,13 @@
+/**
+ * Badge - A small label component used to indicate status, category, or count.
+ * Supports multiple color variants and an optional dot indicator.
+ */
+
 import { cn } from "@/lib/cn";
 
 type BadgeVariant = "default" | "success" | "warning" | "danger" | "info";
 
+/** Props for the Badge component */
 interface BadgeProps {
   children: React.ReactNode;
   variant?: BadgeVariant;
@@ -25,6 +31,7 @@ const dotColors: Record<BadgeVariant, string> = {
   info: "bg-blue-400",
 };
 
+/** A themed badge with optional dot. Use to highlight status or metadata inline. */
 export function Badge({ children, variant = "default", dot, className }: BadgeProps) {
   return (
     <span

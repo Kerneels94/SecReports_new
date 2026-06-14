@@ -1,11 +1,17 @@
 "use client";
 
+/**
+ * IncidentDetailModal - A modal that fetches and displays the full details of a single incident.
+ * Shows loading, error, and detail states. Includes a print/download action.
+ */
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { incidentService } from "@/services";
 import type { Incident } from "@/types";
 
+/** A single label-value row used in the detail sections. */
 function DetailRow({
   label,
   children,
@@ -23,12 +29,14 @@ function DetailRow({
   );
 }
 
+/** Props for the IncidentDetailModal component */
 interface IncidentDetailModalProps {
   incidentId: number;
   open: boolean;
   onClose: () => void;
 }
 
+/** Fetches and renders full incident details inside a Modal. Handles loading, error, and empty states. */
 export function IncidentDetailModal({
   incidentId,
   open,

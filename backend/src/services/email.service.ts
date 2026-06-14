@@ -1,7 +1,12 @@
+/**
+ * Email sending service using Resend. Handles transactional emails for registration,
+ * invoices, cancellations, suspensions, and reports using dynamic template imports.
+ */
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+/** Parameters for sending a transactional email. */
 interface SendMailParams {
   to: string;
   subject: "register" | "invoice" | "cancellation" | "suspention" | "report";
@@ -17,6 +22,7 @@ const subjectLabels: Record<string, string> = {
   report: "New Incident Report",
 };
 
+/** Builds HTML from lazy-loaded templates by subject type and sends via Resend. */
 export async function sendMail({
   to,
   subject,
@@ -90,10 +96,12 @@ export async function sendMail({
   }
 }
 
+/** Convenience wrapper to send a welcome email using the "register" template. */
 export async function sendWelcomeEmail(to: string, name: string) {
   return sendMail({ to, subject: "register", data: { name } });
 }
 
+/** Sends a password reset email containing the reset link using a dedicated template. */
 export async function sendPasswordResetEmail(
   to: string,
   name: string,
@@ -117,6 +125,7 @@ export async function sendPasswordResetEmail(
   return { data };
 }
 
+/** Sends a password change confirmation email. */
 export async function sendPasswordChangedEmail(to: string, name: string) {
   const { default: template } = await import("../templates/password-changed");
   const html = template(name);

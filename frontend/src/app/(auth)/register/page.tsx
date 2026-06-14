@@ -1,3 +1,7 @@
+/**
+ * Registration page — company sign-up with name, email, password, and confirm password.
+ * @route /register
+ */
 "use client";
 
 import { useState } from "react";
@@ -26,6 +30,7 @@ const registerSchema = z
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
+/** Registration page component with Zod-validated form and password match check. */
 export default function RegisterPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);

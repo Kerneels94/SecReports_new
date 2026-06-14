@@ -4,7 +4,6 @@ import {
   incidentService,
   reportService,
   commentService,
-  evidenceService,
   investigationService,
   actionService,
   userService,
@@ -116,23 +115,6 @@ describe("commentService", () => {
   it("create calls api.post with correct path and message", () => {
     commentService.create(1, "Nice work");
     expect(mockApi.post).toHaveBeenCalledWith("/incidents/1/comments", { message: "Nice work" });
-  });
-});
-
-describe("evidenceService", () => {
-  it("upload calls api.upload with correct path and formData", () => {
-    const file = new File(["data"], "photo.jpg", { type: "image/jpeg" });
-    evidenceService.upload(1, file);
-
-    expect(mockApi.upload).toHaveBeenCalledTimes(1);
-    const [path, formData] = mockApi.upload.mock.calls[0] as [string, FormData];
-    expect(path).toBe("/incidents/1/evidence");
-    expect(formData.get("file")).toEqual(file);
-  });
-
-  it("delete calls api.delete with correct path", () => {
-    evidenceService.delete(1, 99);
-    expect(mockApi.delete).toHaveBeenCalledWith("/incidents/1/evidence/99");
   });
 });
 

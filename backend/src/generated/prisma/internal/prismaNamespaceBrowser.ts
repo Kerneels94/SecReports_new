@@ -53,7 +53,6 @@ export const ModelName = {
   User: 'User',
   Incident: 'Incident',
   IncidentPerson: 'IncidentPerson',
-  Evidence: 'Evidence',
   Comment: 'Comment',
   Investigation: 'Investigation',
   CorrectiveAction: 'CorrectiveAction',
@@ -61,6 +60,7 @@ export const ModelName = {
   SubscriptionPlan: 'SubscriptionPlan',
   CompanySubscription: 'CompanySubscription',
   PaymentHistory: 'PaymentHistory',
+  Invoice: 'Invoice',
   ApiKey: 'ApiKey',
   AuditLog: 'AuditLog',
   GuardingSite: 'GuardingSite',
@@ -145,21 +145,6 @@ export const IncidentPersonScalarFieldEnum = {
 export type IncidentPersonScalarFieldEnum = (typeof IncidentPersonScalarFieldEnum)[keyof typeof IncidentPersonScalarFieldEnum]
 
 
-export const EvidenceScalarFieldEnum = {
-  id: 'id',
-  incidentId: 'incidentId',
-  fileName: 'fileName',
-  originalName: 'originalName',
-  mimeType: 'mimeType',
-  fileSize: 'fileSize',
-  checksum: 'checksum',
-  uploadedBy: 'uploadedBy',
-  createdAt: 'createdAt'
-} as const
-
-export type EvidenceScalarFieldEnum = (typeof EvidenceScalarFieldEnum)[keyof typeof EvidenceScalarFieldEnum]
-
-
 export const CommentScalarFieldEnum = {
   id: 'id',
   incidentId: 'incidentId',
@@ -217,8 +202,9 @@ export const SubscriptionPlanScalarFieldEnum = {
   id: 'id',
   name: 'name',
   price: 'price',
-  reportLimit: 'reportLimit',
+  siteLimit: 'siteLimit',
   userLimit: 'userLimit',
+  trialPeriodDays: 'trialPeriodDays',
   features: 'features',
   highlighted: 'highlighted',
   createdAt: 'createdAt',
@@ -233,9 +219,6 @@ export const CompanySubscriptionScalarFieldEnum = {
   companyId: 'companyId',
   planId: 'planId',
   status: 'status',
-  paystackSubscriptionCode: 'paystackSubscriptionCode',
-  paystackCustomerCode: 'paystackCustomerCode',
-  authorizationCode: 'authorizationCode',
   currentPeriodStart: 'currentPeriodStart',
   currentPeriodEnd: 'currentPeriodEnd',
   createdAt: 'createdAt',
@@ -252,11 +235,30 @@ export const PaymentHistoryScalarFieldEnum = {
   currency: 'currency',
   reference: 'reference',
   status: 'status',
-  paystackData: 'paystackData',
+  invoiceId: 'invoiceId',
   createdAt: 'createdAt'
 } as const
 
 export type PaymentHistoryScalarFieldEnum = (typeof PaymentHistoryScalarFieldEnum)[keyof typeof PaymentHistoryScalarFieldEnum]
+
+
+export const InvoiceScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  invoiceNumber: 'invoiceNumber',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  dueDate: 'dueDate',
+  paidAt: 'paidAt',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
 
 
 export const ApiKeyScalarFieldEnum = {

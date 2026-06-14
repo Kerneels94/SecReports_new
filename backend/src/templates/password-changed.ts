@@ -1,3 +1,8 @@
+/**
+ * Email template sent to a user after their password has been changed.
+ *
+ * @module password-changed
+ */
 export default function passwordChangedTemplate(name: string): string {
   return `
 <!DOCTYPE html>

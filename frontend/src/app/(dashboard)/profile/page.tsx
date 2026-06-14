@@ -1,3 +1,7 @@
+/**
+ * Profile page — view and edit account information and change password.
+ * @route /profile
+ */
 "use client";
 
 import { useState } from "react";
@@ -7,6 +11,7 @@ import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/hooks/useAuth";
 import { authService, userService } from "@/services";
 
+/** Profile page component with account info display/edit and password change form. */
 export default function ProfilePage() {
   const { user, refreshUser } = useAuth();
 

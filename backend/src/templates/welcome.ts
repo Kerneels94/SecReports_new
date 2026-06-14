@@ -1,3 +1,8 @@
+/**
+ * Email template sent to a new user upon account creation.
+ *
+ * @module welcome
+ */
 export default function welcomeTemplate(name: string): string {
   return `
 <!DOCTYPE html>

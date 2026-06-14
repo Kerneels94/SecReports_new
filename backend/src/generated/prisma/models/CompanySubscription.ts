@@ -29,9 +29,6 @@ export type CompanySubscriptionMinAggregateOutputType = {
   companyId: string | null
   planId: string | null
   status: string | null
-  paystackSubscriptionCode: string | null
-  paystackCustomerCode: string | null
-  authorizationCode: string | null
   currentPeriodStart: Date | null
   currentPeriodEnd: Date | null
   createdAt: Date | null
@@ -43,9 +40,6 @@ export type CompanySubscriptionMaxAggregateOutputType = {
   companyId: string | null
   planId: string | null
   status: string | null
-  paystackSubscriptionCode: string | null
-  paystackCustomerCode: string | null
-  authorizationCode: string | null
   currentPeriodStart: Date | null
   currentPeriodEnd: Date | null
   createdAt: Date | null
@@ -57,9 +51,6 @@ export type CompanySubscriptionCountAggregateOutputType = {
   companyId: number
   planId: number
   status: number
-  paystackSubscriptionCode: number
-  paystackCustomerCode: number
-  authorizationCode: number
   currentPeriodStart: number
   currentPeriodEnd: number
   createdAt: number
@@ -73,9 +64,6 @@ export type CompanySubscriptionMinAggregateInputType = {
   companyId?: true
   planId?: true
   status?: true
-  paystackSubscriptionCode?: true
-  paystackCustomerCode?: true
-  authorizationCode?: true
   currentPeriodStart?: true
   currentPeriodEnd?: true
   createdAt?: true
@@ -87,9 +75,6 @@ export type CompanySubscriptionMaxAggregateInputType = {
   companyId?: true
   planId?: true
   status?: true
-  paystackSubscriptionCode?: true
-  paystackCustomerCode?: true
-  authorizationCode?: true
   currentPeriodStart?: true
   currentPeriodEnd?: true
   createdAt?: true
@@ -101,9 +86,6 @@ export type CompanySubscriptionCountAggregateInputType = {
   companyId?: true
   planId?: true
   status?: true
-  paystackSubscriptionCode?: true
-  paystackCustomerCode?: true
-  authorizationCode?: true
   currentPeriodStart?: true
   currentPeriodEnd?: true
   createdAt?: true
@@ -188,9 +170,6 @@ export type CompanySubscriptionGroupByOutputType = {
   companyId: string
   planId: string
   status: string
-  paystackSubscriptionCode: string | null
-  paystackCustomerCode: string | null
-  authorizationCode: string | null
   currentPeriodStart: Date | null
   currentPeriodEnd: Date | null
   createdAt: Date
@@ -223,9 +202,6 @@ export type CompanySubscriptionWhereInput = {
   companyId?: Prisma.StringFilter<"CompanySubscription"> | string
   planId?: Prisma.StringFilter<"CompanySubscription"> | string
   status?: Prisma.StringFilter<"CompanySubscription"> | string
-  paystackSubscriptionCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
-  paystackCustomerCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
-  authorizationCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
   currentPeriodStart?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"CompanySubscription"> | Date | string
@@ -239,9 +215,6 @@ export type CompanySubscriptionOrderByWithRelationInput = {
   companyId?: Prisma.SortOrder
   planId?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackSubscriptionCode?: Prisma.SortOrder
-  paystackCustomerCode?: Prisma.SortOrder
-  authorizationCode?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -258,9 +231,6 @@ export type CompanySubscriptionWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CompanySubscriptionWhereInput | Prisma.CompanySubscriptionWhereInput[]
   planId?: Prisma.StringFilter<"CompanySubscription"> | string
   status?: Prisma.StringFilter<"CompanySubscription"> | string
-  paystackSubscriptionCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
-  paystackCustomerCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
-  authorizationCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
   currentPeriodStart?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"CompanySubscription"> | Date | string
@@ -274,9 +244,6 @@ export type CompanySubscriptionOrderByWithAggregationInput = {
   companyId?: Prisma.SortOrder
   planId?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackSubscriptionCode?: Prisma.SortOrder
-  paystackCustomerCode?: Prisma.SortOrder
-  authorizationCode?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -294,9 +261,6 @@ export type CompanySubscriptionScalarWhereWithAggregatesInput = {
   companyId?: Prisma.StringWithAggregatesFilter<"CompanySubscription"> | string
   planId?: Prisma.StringWithAggregatesFilter<"CompanySubscription"> | string
   status?: Prisma.StringWithAggregatesFilter<"CompanySubscription"> | string
-  paystackSubscriptionCode?: Prisma.StringNullableWithAggregatesFilter<"CompanySubscription"> | string | null
-  paystackCustomerCode?: Prisma.StringNullableWithAggregatesFilter<"CompanySubscription"> | string | null
-  authorizationCode?: Prisma.StringNullableWithAggregatesFilter<"CompanySubscription"> | string | null
   currentPeriodStart?: Prisma.DateTimeNullableWithAggregatesFilter<"CompanySubscription"> | Date | string | null
   currentPeriodEnd?: Prisma.DateTimeNullableWithAggregatesFilter<"CompanySubscription"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CompanySubscription"> | Date | string
@@ -306,9 +270,6 @@ export type CompanySubscriptionScalarWhereWithAggregatesInput = {
 export type CompanySubscriptionCreateInput = {
   id?: string
   status?: string
-  paystackSubscriptionCode?: string | null
-  paystackCustomerCode?: string | null
-  authorizationCode?: string | null
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
@@ -322,9 +283,6 @@ export type CompanySubscriptionUncheckedCreateInput = {
   companyId: string
   planId: string
   status?: string
-  paystackSubscriptionCode?: string | null
-  paystackCustomerCode?: string | null
-  authorizationCode?: string | null
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
@@ -333,9 +291,6 @@ export type CompanySubscriptionUncheckedCreateInput = {
 
 export type CompanySubscriptionUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authorizationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -348,9 +303,6 @@ export type CompanySubscriptionUncheckedUpdateInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authorizationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -362,9 +314,6 @@ export type CompanySubscriptionCreateManyInput = {
   companyId: string
   planId: string
   status?: string
-  paystackSubscriptionCode?: string | null
-  paystackCustomerCode?: string | null
-  authorizationCode?: string | null
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
@@ -373,9 +322,6 @@ export type CompanySubscriptionCreateManyInput = {
 
 export type CompanySubscriptionUpdateManyMutationInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authorizationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -386,9 +332,6 @@ export type CompanySubscriptionUncheckedUpdateManyInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   planId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authorizationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -415,9 +358,6 @@ export type CompanySubscriptionCountOrderByAggregateInput = {
   companyId?: Prisma.SortOrder
   planId?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackSubscriptionCode?: Prisma.SortOrder
-  paystackCustomerCode?: Prisma.SortOrder
-  authorizationCode?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -429,9 +369,6 @@ export type CompanySubscriptionMaxOrderByAggregateInput = {
   companyId?: Prisma.SortOrder
   planId?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackSubscriptionCode?: Prisma.SortOrder
-  paystackCustomerCode?: Prisma.SortOrder
-  authorizationCode?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -443,9 +380,6 @@ export type CompanySubscriptionMinOrderByAggregateInput = {
   companyId?: Prisma.SortOrder
   planId?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackSubscriptionCode?: Prisma.SortOrder
-  paystackCustomerCode?: Prisma.SortOrder
-  authorizationCode?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -529,9 +463,6 @@ export type CompanySubscriptionUncheckedUpdateManyWithoutPlanNestedInput = {
 export type CompanySubscriptionCreateWithoutCompanyInput = {
   id?: string
   status?: string
-  paystackSubscriptionCode?: string | null
-  paystackCustomerCode?: string | null
-  authorizationCode?: string | null
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
@@ -543,9 +474,6 @@ export type CompanySubscriptionUncheckedCreateWithoutCompanyInput = {
   id?: string
   planId: string
   status?: string
-  paystackSubscriptionCode?: string | null
-  paystackCustomerCode?: string | null
-  authorizationCode?: string | null
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
@@ -570,9 +498,6 @@ export type CompanySubscriptionUpdateToOneWithWhereWithoutCompanyInput = {
 
 export type CompanySubscriptionUpdateWithoutCompanyInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authorizationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -583,9 +508,6 @@ export type CompanySubscriptionUpdateWithoutCompanyInput = {
 export type CompanySubscriptionUncheckedUpdateWithoutCompanyInput = {
   planId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authorizationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -595,9 +517,6 @@ export type CompanySubscriptionUncheckedUpdateWithoutCompanyInput = {
 export type CompanySubscriptionCreateWithoutPlanInput = {
   id?: string
   status?: string
-  paystackSubscriptionCode?: string | null
-  paystackCustomerCode?: string | null
-  authorizationCode?: string | null
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
@@ -609,9 +528,6 @@ export type CompanySubscriptionUncheckedCreateWithoutPlanInput = {
   id?: string
   companyId: string
   status?: string
-  paystackSubscriptionCode?: string | null
-  paystackCustomerCode?: string | null
-  authorizationCode?: string | null
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
@@ -651,9 +567,6 @@ export type CompanySubscriptionScalarWhereInput = {
   companyId?: Prisma.StringFilter<"CompanySubscription"> | string
   planId?: Prisma.StringFilter<"CompanySubscription"> | string
   status?: Prisma.StringFilter<"CompanySubscription"> | string
-  paystackSubscriptionCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
-  paystackCustomerCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
-  authorizationCode?: Prisma.StringNullableFilter<"CompanySubscription"> | string | null
   currentPeriodStart?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"CompanySubscription"> | Date | string
@@ -664,9 +577,6 @@ export type CompanySubscriptionCreateManyPlanInput = {
   id?: string
   companyId: string
   status?: string
-  paystackSubscriptionCode?: string | null
-  paystackCustomerCode?: string | null
-  authorizationCode?: string | null
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
   createdAt?: Date | string
@@ -675,9 +585,6 @@ export type CompanySubscriptionCreateManyPlanInput = {
 
 export type CompanySubscriptionUpdateWithoutPlanInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authorizationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -688,9 +595,6 @@ export type CompanySubscriptionUpdateWithoutPlanInput = {
 export type CompanySubscriptionUncheckedUpdateWithoutPlanInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authorizationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -700,9 +604,6 @@ export type CompanySubscriptionUncheckedUpdateWithoutPlanInput = {
 export type CompanySubscriptionUncheckedUpdateManyWithoutPlanInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackSubscriptionCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  paystackCustomerCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  authorizationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -716,9 +617,6 @@ export type CompanySubscriptionSelect<ExtArgs extends runtime.Types.Extensions.I
   companyId?: boolean
   planId?: boolean
   status?: boolean
-  paystackSubscriptionCode?: boolean
-  paystackCustomerCode?: boolean
-  authorizationCode?: boolean
   currentPeriodStart?: boolean
   currentPeriodEnd?: boolean
   createdAt?: boolean
@@ -734,16 +632,13 @@ export type CompanySubscriptionSelectScalar = {
   companyId?: boolean
   planId?: boolean
   status?: boolean
-  paystackSubscriptionCode?: boolean
-  paystackCustomerCode?: boolean
-  authorizationCode?: boolean
   currentPeriodStart?: boolean
   currentPeriodEnd?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CompanySubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "planId" | "status" | "paystackSubscriptionCode" | "paystackCustomerCode" | "authorizationCode" | "currentPeriodStart" | "currentPeriodEnd" | "createdAt" | "updatedAt", ExtArgs["result"]["companySubscription"]>
+export type CompanySubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "planId" | "status" | "currentPeriodStart" | "currentPeriodEnd" | "createdAt" | "updatedAt", ExtArgs["result"]["companySubscription"]>
 export type CompanySubscriptionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.SubscriptionPlanDefaultArgs<ExtArgs>
@@ -760,9 +655,6 @@ export type $CompanySubscriptionPayload<ExtArgs extends runtime.Types.Extensions
     companyId: string
     planId: string
     status: string
-    paystackSubscriptionCode: string | null
-    paystackCustomerCode: string | null
-    authorizationCode: string | null
     currentPeriodStart: Date | null
     currentPeriodEnd: Date | null
     createdAt: Date
@@ -1165,9 +1057,6 @@ export interface CompanySubscriptionFieldRefs {
   readonly companyId: Prisma.FieldRef<"CompanySubscription", 'String'>
   readonly planId: Prisma.FieldRef<"CompanySubscription", 'String'>
   readonly status: Prisma.FieldRef<"CompanySubscription", 'String'>
-  readonly paystackSubscriptionCode: Prisma.FieldRef<"CompanySubscription", 'String'>
-  readonly paystackCustomerCode: Prisma.FieldRef<"CompanySubscription", 'String'>
-  readonly authorizationCode: Prisma.FieldRef<"CompanySubscription", 'String'>
   readonly currentPeriodStart: Prisma.FieldRef<"CompanySubscription", 'DateTime'>
   readonly currentPeriodEnd: Prisma.FieldRef<"CompanySubscription", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"CompanySubscription", 'DateTime'>

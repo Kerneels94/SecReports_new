@@ -1,3 +1,7 @@
+/**
+ * Incidents list page — paginated table of incidents with status badges, detail modal, and create button.
+ * @route /incidents
+ */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -20,6 +24,7 @@ const statusVariant: Record<string, "default" | "success" | "warning" | "danger"
   rejected: "danger",
 };
 
+/** Incidents page component with paginated table, status badges, and detail modal. */
 export default function IncidentsPage() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [total, setTotal] = useState(0);

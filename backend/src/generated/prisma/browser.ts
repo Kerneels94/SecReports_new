@@ -38,11 +38,6 @@ export type Incident = Prisma.IncidentModel
  */
 export type IncidentPerson = Prisma.IncidentPersonModel
 /**
- * Model Evidence
- * 
- */
-export type Evidence = Prisma.EvidenceModel
-/**
  * Model Comment
  * 
  */
@@ -77,6 +72,11 @@ export type CompanySubscription = Prisma.CompanySubscriptionModel
  * 
  */
 export type PaymentHistory = Prisma.PaymentHistoryModel
+/**
+ * Model Invoice
+ * 
+ */
+export type Invoice = Prisma.InvoiceModel
 /**
  * Model ApiKey
  * 

@@ -1,8 +1,13 @@
+/**
+ * Export controller — handles data export (CSV and PDF) for incidents.
+ * Requires the "export_csv_pdf" subscription feature.
+ */
 import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "../lib/db";
 import { SubscriptionService } from "../services/subscription.service";
 
 export const ExportController = {
+  /** Export all company incidents as a CSV file download. */
   async csv(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
 
@@ -39,6 +44,7 @@ export const ExportController = {
     reply.code(200).send(csv);
   },
 
+  /** Placeholder for PDF export — returns 501 Not Implemented. */
   async pdf(_request: FastifyRequest, _reply: FastifyReply) {
     _reply.code(501).send({ success: false, error: { code: "NOT_IMPLEMENTED", message: "PDF export coming soon" } });
   },

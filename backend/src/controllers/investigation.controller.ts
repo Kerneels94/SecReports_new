@@ -1,3 +1,7 @@
+/**
+ * Investigation controller — manages investigation details and corrective actions for incidents.
+ * Requires the "full_lifecycle" subscription feature for all endpoints.
+ */
 import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "../lib/db";
 import { NotFoundError, ValidationError } from "../lib/errors";
@@ -27,6 +31,7 @@ const updateActionSchema = z.object({
 });
 
 export const InvestigationController = {
+  /** Get the investigation record for an incident (returns null if none exists). */
   async get(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "full_lifecycle");
 
@@ -41,6 +46,7 @@ export const InvestigationController = {
     reply.code(200).send({ success: true, data: investigation });
   },
 
+  /** Create or update the investigation fields (findings, root cause, recommendations, closure notes). */
   async upsert(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "full_lifecycle");
 
@@ -67,6 +73,7 @@ export const InvestigationController = {
     reply.code(200).send({ success: true, data: investigation });
   },
 
+  /** List corrective actions for an incident, ordered by due date ascending. */
   async listActions(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "full_lifecycle");
 
@@ -80,6 +87,7 @@ export const InvestigationController = {
     reply.code(200).send({ success: true, data: actions });
   },
 
+  /** Create a new corrective action for an incident. */
   async createAction(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "full_lifecycle");
 
@@ -103,6 +111,7 @@ export const InvestigationController = {
     reply.code(201).send({ success: true, data: action });
   },
 
+  /** Update a corrective action (status, description, owner, due date, completion). */
   async updateAction(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "full_lifecycle");
 

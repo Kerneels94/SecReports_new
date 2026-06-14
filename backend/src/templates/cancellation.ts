@@ -1,3 +1,8 @@
+/**
+ * Email template sent to a company when their subscription is cancelled.
+ *
+ * @module cancellation
+ */
 interface CancellationData {
   companyName: string;
 }

@@ -1,3 +1,7 @@
+/**
+ * Site detail page — displays a single guarding site's info, guards, patrols, and vehicle access logs in tabs.
+ * @route /guarding/site?id=<siteId>
+ */
 "use client";
 
 import { useState, useEffect, useCallback, Suspense } from "react";
@@ -8,6 +12,7 @@ import { Badge } from "@/components/ui/Badge";
 import { guardingSiteService, patrolReportService, entryLogService } from "@/services";
 import type { GuardingSite, PatrolReport, EntryLog } from "@/types";
 
+/** Inner component that reads site id from query params and loads site, patrol, and entry data. */
 function SiteDetailInner() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -217,6 +222,7 @@ function SiteDetailInner() {
   );
 }
 
+/** Site detail page — wraps SiteDetailInner in Suspense for useSearchParams. */
 export default function SiteDetailPage() {
   return (
     <Suspense fallback={

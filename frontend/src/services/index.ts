@@ -1,3 +1,7 @@
+/**
+ * Typed service layer that wraps ApiClient calls into domain-specific
+ * service objects used by hooks and components.
+ */
 import { api } from "./api";
 import type {
   LoginRequest,
@@ -9,7 +13,6 @@ import type {
   Incident,
   PaginatedResponse,
   Comment,
-  Evidence,
   Investigation,
   CorrectiveAction,
   GuardingSite,
@@ -17,8 +20,14 @@ import type {
   PatrolReport,
   EntryLog,
   FlaggedVehicle,
+  Invoice,
+  RevenueStats,
+  RevenueTrend,
+  AdminCompany,
+  MonthlyInvoiceResult,
 } from "@/types";
 
+/** Aggregated report summary data for the dashboard. */
 interface ReportSummary {
   total: number;
   byStatus: { status: string; _count: { id: number } }[];
@@ -27,6 +36,7 @@ interface ReportSummary {
   positiveCount: number;
 }
 
+/** A user as returned by the user-list endpoint. */
 export interface UserListItem {
   id: number;
   name: string;
@@ -37,6 +47,7 @@ export interface UserListItem {
   updatedAt?: string;
 }
 
+/** Authentication and user-management endpoints. */
 export const authService = {
   login: (data: LoginRequest) => api.post<LoginResponse>("/auth/login", data),
   employeeLogin: (data: EmployeeLoginRequest) => api.post<LoginResponse>("/auth/employee-login", data),
@@ -52,6 +63,7 @@ export const authService = {
   getUserById: (id: number) => api.get<UserListItem>(`/auth/users/${id}`),
 };
 
+/** Incident CRUD and status-update endpoints. */
 export const incidentService = {
   list: (params?: Record<string, string>) =>
     api.get<PaginatedResponse<Incident>>(`/incidents?${new URLSearchParams(params)}`),
@@ -63,28 +75,21 @@ export const incidentService = {
   delete: (id: number) => api.delete<void>(`/incidents/${id}`),
 };
 
+/** Incident comment endpoints. */
 export const commentService = {
   list: (incidentId: number) => api.get<Comment[]>(`/incidents/${incidentId}/comments`),
   create: (incidentId: number, message: string) =>
     api.post<Comment>(`/incidents/${incidentId}/comments`, { message }),
 };
 
-export const evidenceService = {
-  upload: (incidentId: number, file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    return api.upload<Evidence>(`/incidents/${incidentId}/evidence`, formData);
-  },
-  delete: (incidentId: number, evidenceId: number) =>
-    api.delete<void>(`/incidents/${incidentId}/evidence/${evidenceId}`),
-};
-
+/** Incident investigation endpoints. */
 export const investigationService = {
   get: (incidentId: number) => api.get<Investigation>(`/incidents/${incidentId}/investigation`),
   upsert: (incidentId: number, data: Partial<Investigation>) =>
     api.post<Investigation>(`/incidents/${incidentId}/investigation`, data),
 };
 
+/** Corrective-action CRUD endpoints. */
 export const actionService = {
   list: (incidentId: number) => api.get<CorrectiveAction[]>(`/incidents/${incidentId}/actions`),
   create: (incidentId: number, data: Partial<CorrectiveAction>) =>
@@ -93,10 +98,12 @@ export const actionService = {
     api.patch<CorrectiveAction>(`/actions/${actionId}`, data),
 };
 
+/** Dashboard report-summary endpoints. */
 export const reportService = {
   summary: () => api.get<ReportSummary>("/reports/summary"),
 };
 
+/** Manual user-creation and update endpoints (admin). */
 export const userService = {
   create: (data: { name: string; email: string; password: string; role?: string }) =>
     api.post<User>("/auth/users", data),
@@ -104,51 +111,9 @@ export const userService = {
     api.patch<UserListItem>(`/auth/users/${id}`, data),
 };
 
-interface SubscriptionData {
-  id: number;
-  companyId: number;
-  planId: number;
-  status: string;
-  paystackSubscriptionCode: string | null;
-  paystackCustomerCode: string | null;
-  currentPeriodStart: string | null;
-  currentPeriodEnd: string | null;
-  plan: {
-    id: number;
-    name: string;
-    price: number;
-    reportLimit: number;
-    userLimit: number;
-    features: string;
-  };
-  usage: {
-    reports: number;
-    users: number;
-  };
-}
 
-interface PaymentHistoryItem {
-  id: number;
-  companyId: number;
-  amount: number;
-  currency: string;
-  reference: string;
-  status: string;
-  createdAt: string;
-}
 
-interface UpgradeResponse {
-  authorizationUrl: string;
-  reference: string;
-}
-
-export const paymentService = {
-  getSubscription: () => api.get<SubscriptionData>("/payments/subscription"),
-  upgrade: (planId: number) => api.post<UpgradeResponse>("/payments/upgrade", { planId }),
-  cancel: () => api.post<SubscriptionData>("/payments/cancel"),
-  history: () => api.get<PaymentHistoryItem[]>("/payments/history"),
-};
-
+/** Guarding-site CRUD endpoints. */
 export const guardingSiteService = {
   list: () => api.get<GuardingSite[]>("/guarding-sites"),
   getById: (id: string) => api.get<GuardingSite>(`/guarding-sites/${id}`),
@@ -158,6 +123,7 @@ export const guardingSiteService = {
   delete: (id: string) => api.delete<void>(`/guarding-sites/${id}`),
 };
 
+/** Security-guard CRUD endpoints. */
 export const guardService = {
   list: (siteId?: string) => api.get<Guard[]>(`/guards${siteId ? `?siteId=${siteId}` : ""}`),
   getById: (id: string) => api.get<Guard>(`/guards/${id}`),
@@ -174,6 +140,7 @@ export const guardService = {
   delete: (id: string) => api.delete<void>(`/guards/${id}`),
 };
 
+/** Patrol-report CRUD and query endpoints. */
 export const patrolReportService = {
   listByCompany: (params?: { siteId?: string; dateFrom?: string; dateTo?: string }) => {
     const searchParams = new URLSearchParams();
@@ -198,6 +165,7 @@ export const patrolReportService = {
   delete: (id: string) => api.delete<void>(`/patrol-reports/${id}`),
 };
 
+/** Entry-log CRUD and vehicle-flagging endpoints. */
 export const entryLogService = {
   listBySite: (siteId: string) => api.get<EntryLog[]>(`/sites/${siteId}/entry-logs`),
   listByCompany: () => api.get<EntryLog[]>("/entry-logs"),
@@ -218,6 +186,7 @@ export const entryLogService = {
   delete: (id: string) => api.delete<void>(`/entry-logs/${id}`),
 };
 
+/** Flagged-vehicle CRUD and resolve endpoints. */
 export const flaggedVehicleService = {
   list: (includeResolved?: boolean) =>
     api.get<FlaggedVehicle[]>(`/flagged-vehicles${includeResolved ? "?includeResolved=true" : ""}`),
@@ -226,4 +195,36 @@ export const flaggedVehicleService = {
     api.post<FlaggedVehicle>("/flagged-vehicles", data),
   resolve: (id: string) => api.post<FlaggedVehicle>(`/flagged-vehicles/${id}/resolve`, {}),
   delete: (id: string) => api.delete<void>(`/flagged-vehicles/${id}`),
+};
+
+/** Superadmin company-management endpoints. */
+export const adminCompanyService = {
+  list: () => api.get<AdminCompany[]>("/admin/companies"),
+  getById: (id: string) => api.get<AdminCompany>(`/admin/companies/${id}`),
+};
+
+/** Superadmin invoice-management endpoints. */
+export const adminInvoiceService = {
+  list: (params?: { status?: string; companyId?: string; dateFrom?: string; dateTo?: string }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.status) searchParams.set("status", params.status);
+    if (params?.companyId) searchParams.set("companyId", params.companyId);
+    if (params?.dateFrom) searchParams.set("dateFrom", params.dateFrom);
+    if (params?.dateTo) searchParams.set("dateTo", params.dateTo);
+    const qs = searchParams.toString();
+    return api.get<Invoice[]>(`/admin/invoices${qs ? `?${qs}` : ""}`);
+  },
+  getById: (id: string) => api.get<Invoice>(`/admin/invoices/${id}`),
+  create: (data: { companyId: string; amount: number; dueDate: string; description?: string }) =>
+    api.post<Invoice>("/admin/invoices", data),
+  send: (id: string) => api.post<Invoice>(`/admin/invoices/${id}/send`),
+  markAsPaid: (id: string) => api.patch<Invoice>(`/admin/invoices/${id}/paid`),
+  markAsOverdue: (id: string) => api.patch<Invoice>(`/admin/invoices/${id}/overdue`),
+  generateMonthly: () => api.post<MonthlyInvoiceResult[]>("/admin/invoices/generate-monthly"),
+};
+
+/** Superadmin revenue endpoints. */
+export const adminRevenueService = {
+  stats: () => api.get<RevenueStats>("/admin/revenue"),
+  trends: () => api.get<RevenueTrend[]>("/admin/revenue/trends"),
 };

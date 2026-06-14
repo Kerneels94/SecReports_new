@@ -1,7 +1,12 @@
+/**
+ * Business logic for guard management. Handles CRUD with automatic user account
+ * creation and sync between guard records and linked login credentials.
+ */
 import { prisma } from "../lib/db";
 import { NotFoundError, ConflictError } from "../lib/errors";
 import { hashPassword } from "../lib/hash";
 
+/** Parameters for creating a guard and its linked user account. */
 interface CreateGuardParams {
   companyId: string;
   name: string;
@@ -13,6 +18,7 @@ interface CreateGuardParams {
   password: string;
 }
 
+/** Parameters for updating a guard's fields. */
 interface UpdateGuardParams {
   name?: string;
   surname?: string;
@@ -24,6 +30,7 @@ interface UpdateGuardParams {
 }
 
 export const GuardService = {
+  /** Lists guards for a company, optionally filtered by site. */
   async list(companyId: string, siteId?: string) {
     const where: any = { companyId };
     if (siteId) where.siteId = siteId;
@@ -35,6 +42,7 @@ export const GuardService = {
     });
   },
 
+  /** Gets a guard with site, user, and recent patrol reports. */
   async getById(id: string) {
     const guard = await prisma.guard.findUnique({
       where: { id },
@@ -48,6 +56,7 @@ export const GuardService = {
     return guard;
   },
 
+  /** Creates a guard and linked user account in a transaction, enforcing unique email/employee ID. */
   async create(params: CreateGuardParams) {
     const existing = await prisma.guard.findFirst({
       where: { OR: [{ email: params.email }, { employeeId: params.employeeId }], companyId: params.companyId },
@@ -88,6 +97,7 @@ export const GuardService = {
     return guard;
   },
 
+  /** Updates guard fields and syncs name/email changes to the linked user account. */
   async update(id: string, params: UpdateGuardParams) {
     const guard = await prisma.guard.findUnique({ where: { id } });
     if (!guard) throw new NotFoundError("Guard");
@@ -135,6 +145,7 @@ export const GuardService = {
     });
   },
 
+  /** Deletes a guard and its linked user account in a transaction. */
   async delete(id: string) {
     const guard = await prisma.guard.findUnique({ where: { id } });
     if (!guard) throw new NotFoundError("Guard");

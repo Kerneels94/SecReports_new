@@ -1,3 +1,7 @@
+/**
+ * Guarding dashboard — overview of guarding operations: sites count, guards, patrols, flagged vehicles, and site list.
+ * @route /guarding
+ */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -6,6 +10,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { guardingSiteService, flaggedVehicleService } from "@/services";
 import type { GuardingSite, FlaggedVehicle } from "@/types";
 
+/** Guarding dashboard component with stat cards, site list, and flagged vehicles overview. */
 export default function GuardingDashboard() {
   const [sites, setSites] = useState<GuardingSite[]>([]);
   const [flaggedVehicles, setFlaggedVehicles] = useState<FlaggedVehicle[]>([]);

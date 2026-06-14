@@ -1,3 +1,7 @@
+/**
+ * Reports page — incident summary and statistics showing total count, breakdown by status, and recent incidents.
+ * @route /reports
+ */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -15,6 +19,7 @@ const statusLabels: Record<string, string> = {
   rejected: "Rejected",
 };
 
+/** Reports page component showing summary stats, status breakdown, and recent incidents. */
 export default function ReportsPage() {
   const [data, setData] = useState<{
     total: number;

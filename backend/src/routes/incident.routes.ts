@@ -1,3 +1,7 @@
+/**
+ * Incident routes — all endpoints require JWT authentication.
+ * Supports full CRUD plus status transitions for incident reports.
+ */
 import { FastifyInstance } from "fastify";
 import { IncidentController } from "../controllers/incident.controller";
 

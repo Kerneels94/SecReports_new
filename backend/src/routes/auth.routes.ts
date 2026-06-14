@@ -1,3 +1,8 @@
+/**
+ * Auth routes — public and protected authentication endpoints.
+ * Public: login, employee-login, register, refresh, forgot/reset password.
+ * Protected (JWT): me, change-password, user CRUD (owner-only).
+ */
 import { FastifyInstance } from "fastify";
 import { AuthController } from "../controllers/auth.controller";
 

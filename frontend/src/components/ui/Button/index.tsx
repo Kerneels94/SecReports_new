@@ -1,6 +1,12 @@
+/**
+ * Button - A reusable button component with multiple variants, sizes, and a loading state.
+ * Wraps the native <button> element via forwardRef.
+ */
+
 import { ButtonHTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/cn";
 
+/** Props for the Button component */
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "danger" | "ghost" | "gradient";
   size?: "sm" | "md" | "lg";
@@ -26,6 +32,7 @@ const sizeStyles: Record<string, string> = {
   lg: "px-6 py-3 text-base",
 };
 
+/** A styled button with variant/size/loading support. Use for all primary and secondary actions. */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", loading, disabled, children, ...props }, ref) => {
     return (

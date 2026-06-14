@@ -1,7 +1,12 @@
+/**
+ * Business logic for flagged vehicles. Handles flagging, resolution, and deletion
+ * with automatic entry log association.
+ */
 import { prisma } from "../lib/db";
 import { NotFoundError, ValidationError } from "../lib/errors";
 
 export const FlaggedVehicleService = {
+  /** Lists flagged vehicles for a company. Optionally includes resolved flags. */
   async listByCompany(companyId: string, includeResolved = false) {
     const where: any = { companyId };
     if (!includeResolved) where.resolvedAt = null;
@@ -16,6 +21,7 @@ export const FlaggedVehicleService = {
     });
   },
 
+  /** Gets a flagged vehicle with company, flagger, and entry log history. */
   async getById(id: string) {
     const vehicle = await prisma.flaggedVehicle.findUnique({
       where: { id },
@@ -32,6 +38,7 @@ export const FlaggedVehicleService = {
     return vehicle;
   },
 
+  /** Flags a vehicle (prevents duplicate active flags) and optionally links to an entry log. */
   async create(params: { companyId: string; vehicleReg: string; reason: string; flaggedById: string; entryLogId?: string }) {
     const existing = await prisma.flaggedVehicle.findFirst({
       where: { vehicleReg: params.vehicleReg, companyId: params.companyId, resolvedAt: null },
@@ -57,6 +64,7 @@ export const FlaggedVehicleService = {
     return vehicle;
   },
 
+  /** Marks a flagged vehicle as resolved with a timestamp. */
   async resolve(id: string) {
     const vehicle = await prisma.flaggedVehicle.findUnique({ where: { id } });
     if (!vehicle) throw new NotFoundError("Flagged vehicle");
@@ -68,6 +76,7 @@ export const FlaggedVehicleService = {
     });
   },
 
+  /** Removes a flagged vehicle and unlinks it from all associated entry logs. */
   async delete(id: string) {
     const vehicle = await prisma.flaggedVehicle.findUnique({ where: { id } });
     if (!vehicle) throw new NotFoundError("Flagged vehicle");

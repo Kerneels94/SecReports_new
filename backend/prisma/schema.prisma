@@ -19,6 +19,7 @@ model Company {
   incidents       Incident[]
   subscription    CompanySubscription?
   payments        PaymentHistory[]
+  invoices        Invoice[]
   apiKeys         ApiKey[]
   guardingSites   GuardingSite[]
   guards          Guard[]
@@ -29,7 +30,7 @@ model Company {
 
 model User {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  companyId    String   @map("company_id") @db.ObjectId
+  companyId    String?  @map("company_id") @db.ObjectId
   name         String
   email        String   @unique
   passwordHash String   @map("password_hash")
@@ -39,13 +40,12 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  company           Company            @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  company           Company?           @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   creator           User?              @relation("created_users", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdUsers      User[]             @relation("created_users")
   reportedIncidents Incident[]         @relation("reporter")
   assignedIncidents Incident[]         @relation("assigned_investigator")
   comments          Comment[]
-  uploadedEvidence  Evidence[]
   actionOwner       CorrectiveAction[]
   auditLogs         AuditLog[]
   guard             Guard?
@@ -84,7 +84,6 @@ model Incident {
   reporter          User               @relation("reporter", fields: [reporterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   assignedInvestigator User?           @relation("assigned_investigator", fields: [assignedTo], references: [id], onDelete: NoAction, onUpdate: NoAction)
   people            IncidentPerson[]
-  evidence          Evidence[]
   comments          Comment[]
   investigation     Investigation?
   correctiveActions CorrectiveAction[]
@@ -109,25 +108,6 @@ model IncidentPerson {
 
   @@index([incidentId])
   @@map("incident_people")
-}
-
-model Evidence {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  incidentId   String   @map("incident_id") @db.ObjectId
-  fileName     String   @map("file_name")
-  originalName String   @map("original_name")
-  mimeType     String   @map("mime_type")
-  fileSize     Int      @map("file_size")
-  checksum     String
-  uploadedBy   String   @map("uploaded_by") @db.ObjectId
-  createdAt    DateTime @default(now()) @map("created_at")
-
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  uploader User     @relation(fields: [uploadedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([incidentId])
-  @@index([uploadedBy])
-  @@map("evidence")
 }
 
 model Comment {
@@ -196,10 +176,11 @@ model SubscriptionPlan {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   name         String
   price        Int      @map("price")
-  reportLimit  Int      @map("report_limit")
-  userLimit    Int      @map("user_limit")
-  features     String
-  highlighted  Boolean  @default(false)
+  siteLimit      Int      @map("site_limit")
+  userLimit      Int      @map("user_limit")
+  trialPeriodDays Int?    @map("trial_period_days")
+  features       String
+  highlighted    Boolean  @default(false)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -213,11 +194,8 @@ model CompanySubscription {
   companyId                String   @unique @map("company_id") @db.ObjectId
   planId                   String   @map("plan_id") @db.ObjectId
   status                   String   @default("active")
-  paystackSubscriptionCode String?  @map("paystack_subscription_code")
-  paystackCustomerCode     String?  @map("paystack_customer_code")
-  authorizationCode        String?  @map("authorization_code")
-  currentPeriodStart       DateTime? @map("current_period_start")
-  currentPeriodEnd         DateTime? @map("current_period_end")
+  currentPeriodStart DateTime? @map("current_period_start")
+  currentPeriodEnd   DateTime? @map("current_period_end")
   createdAt                DateTime @default(now()) @map("created_at")
   updatedAt                DateTime @updatedAt @map("updated_at")
 
@@ -234,13 +212,40 @@ model PaymentHistory {
   currency     String   @default("ZAR")
   reference    String   @unique
   status       String   @default("pending")
-  paystackData String?  @map("paystack_data")
+  invoiceId    String?  @map("invoice_id") @db.ObjectId
+
   createdAt    DateTime @default(now()) @map("created_at")
 
   company Company @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  invoice Invoice? @relation(fields: [invoiceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([companyId])
+  @@index([invoiceId])
   @@map("payment_history")
+}
+
+model Invoice {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  companyId    String    @map("company_id") @db.ObjectId
+  invoiceNumber String   @unique @map("invoice_number")
+  amount       Int       @map("amount")
+  currency     String    @default("ZAR")
+  status       String    @default("draft")
+  dueDate      DateTime  @map("due_date")
+  paidAt       DateTime? @map("paid_at")
+  periodStart  DateTime? @map("period_start")
+  periodEnd    DateTime? @map("period_end")
+  description  String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  company  Company         @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  payments PaymentHistory[]
+
+  @@index([companyId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("invoices")
 }
 
 model ApiKey {

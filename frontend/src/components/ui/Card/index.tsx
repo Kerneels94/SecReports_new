@@ -1,10 +1,17 @@
+/**
+ * Card - A container component with multiple visual variants.
+ * Also exports CardHeader, CardTitle, and CardContent sub-components for structured layouts.
+ */
+
 import { HTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/cn";
 
+/** Props for the Card component */
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "bordered" | "elevated";
 }
 
+/** A themed container card. Use to group related content into a distinct visual section. */
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = "default", children, ...props }, ref) => {
     return (
@@ -26,6 +33,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
 
 Card.displayName = "Card";
 
+/** Header section of a Card, typically containing the title or actions. */
 export function CardHeader({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={cn("mb-4", className)} {...props}>
@@ -34,6 +42,7 @@ export function CardHeader({ className, children, ...props }: HTMLAttributes<HTM
   );
 }
 
+/** Title element rendered inside CardHeader. */
 export function CardTitle({ className, children, ...props }: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3 className={cn("text-lg font-semibold text-text", className)} {...props}>
@@ -42,6 +51,7 @@ export function CardTitle({ className, children, ...props }: HTMLAttributes<HTML
   );
 }
 
+/** Main body content area of a Card. */
 export function CardContent({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={cn("", className)} {...props}>

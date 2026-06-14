@@ -1,3 +1,7 @@
+/**
+ * Patrol reports page — view and filter patrol reports across all sites with site/date filters.
+ * @route /guarding/patrols
+ */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -7,6 +11,7 @@ import { Badge } from "@/components/ui/Badge";
 import { patrolReportService, guardingSiteService } from "@/services";
 import type { PatrolReport, GuardingSite } from "@/types";
 
+/** Patrol reports page component with filters by site/date and a paginated table of patrol records. */
 export default function PatrolsPage() {
   const [patrols, setPatrols] = useState<PatrolReport[]>([]);
   const [sites, setSites] = useState<GuardingSite[]>([]);

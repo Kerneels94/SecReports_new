@@ -3,9 +3,7 @@ import { IncidentService } from "../services/incident.service";
 import { ValidationError } from "../lib/errors";
 
 jest.mock("../services/subscription.service", () => ({
-  SubscriptionService: {
-    canCreateIncident: jest.fn(),
-  },
+  SubscriptionService: {},
 }));
 
 jest.mock("../services/incident.service", () => ({
