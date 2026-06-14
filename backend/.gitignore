@@ -36,3 +36,4 @@ prisma/generated/
 # misc
 .DS_Store
 *.pem
+*.node.tmp*
