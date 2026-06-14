@@ -19,15 +19,15 @@ A web-based incident reporting platform for workplace safety, security, IT incid
 
 - **Runtime:** Node.js (TypeScript, compiled via `tsc`)
 - **Framework:** Fastify 5 (with `@fastify/cors`, `@fastify/helmet`, `@fastify/rate-limit`, `@fastify/multipart`)
-- **ORM:** Prisma 7 (with `@prisma/adapter-mariadb`)
+- **ORM:** Prisma 7 (with MongoDB adapter)
 - **Auth:** JWT (access + refresh tokens), bcrypt (12 rounds)
 - **Validation:** Zod
-- **Email:** Nodemailer (Ethereal SMTP for dev)
+- **Email:** Resend (transactional emails with dynamic HTML templates)
 - **Testing:** Jest + ts-jest
 
 ### Database
 
-- **Database:** MariaDB (via Prisma ORM)
+- **Database:** MongoDB (via Prisma ORM)
 - **Migrations:** Prisma Migrate
 - **Seed:** TypeScript seed script (`prisma/seed.ts`)
 
@@ -35,7 +35,7 @@ A web-based incident reporting platform for workplace safety, security, IT incid
 
 - **Frontend:** Static files served via Nginx
 - **Backend:** PM2-managed Node.js process
-- **Database:** MariaDB local instance
+- **Database:** MongoDB local instance
 - **File Uploads:** Local disk (`/uploads`)
 - **SSL:** Let's Encrypt
 
@@ -65,11 +65,13 @@ Auth uses **JWT access + refresh token** flow:
 
 ### User Roles
 
-| Role      | Permissions                                                                  |
-| --------- | ---------------------------------------------------------------------------- |
-| `owner`   | Full access — manage users, edit profiles, all features                      |
-| `manager` | Standard access — view all incidents, assign investigators, generate reports |
-| `senior`  | Standard access — create incidents, upload evidence, comment                 |
+| Role          | Permissions                                                                  |
+| ------------- | ---------------------------------------------------------------------------- |
+| `superadmin`  | Platform-wide admin — manage all companies, invoices, revenue dashboard      |
+| `owner`       | Full company access — manage users, subscriptions, all features              |
+| `manager`     | Standard access — view all incidents, assign investigators, generate reports |
+| `senior`      | Standard access — create incidents, comment                                  |
+| `guard`       | Guard employee portal — patrol reports, entry logs, flagged vehicles         |
 
 ---
 
@@ -101,7 +103,7 @@ All authenticated endpoints require `Authorization: Bearer <token>` header.
 ### Prerequisites
 
 - Node.js 20+
-- MariaDB 10.6+ (or MySQL 8+)
+- MongoDB 7+
 - npm
 
 ### 1. Clone & Install
@@ -112,7 +114,6 @@ cd SecReportsNew
 
 # Backend
 cd backend
-cp .env .env.local   # edit credentials as needed
 npm install
 
 # Frontend
@@ -120,51 +121,17 @@ cd ../frontend
 npm install
 ```
 
-### 2. Configure Environment
+### 2. Database Setup
 
-**`backend/.env`:**
-
-```
-DATABASE_URL="mysql://root:password@localhost:3306/SecReports"
-DATABASE_HOST=localhost
-DATABASE_USER=root
-DATABASE_PASSWORD=password
-DATABASE_NAME=SecReports
-DATABASE_PORT=3306
-JWT_SECRET="change-this-in-production"
-JWT_REFRESH_SECRET="change-this-too"
-PORT=4000
-SMTP_HOST=smtp.ethereal.email
-SMTP_PORT=587
-SMTP_USER=<ethereal-user>
-SMTP_PASS=<ethereal-pass>
-SMTP_FROM="SecReports <noreply@secreports.com>"
-APP_URL=http://localhost:3000
-```
-
-**`frontend/.env.local`:**
-
-```
-NEXT_PUBLIC_API_URL=http://localhost:4000
-```
-
-### 3. Database Setup
-
-Create the MariaDB database:
-
-```sql
-CREATE DATABASE SecReports;
-```
-
-Run migrations and seed:
+Run Prisma generate and seed:
 
 ```bash
 cd backend
-npx prisma migrate deploy
+npx prisma generate
 npx tsx prisma/seed.ts
 ```
 
-### 4. Run Development Servers
+### 3. Run Development Servers
 
 ```bash
 # Terminal 1 — Backend (port 4000)
@@ -178,17 +145,6 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### Seed Users
-
-All seed accounts use password `password123`:
-
-| Email                    | Role    |
-| ------------------------ | ------- |
-| admin@example.com        | owner   |
-| manager@example.com      | manager |
-| investigator@example.com | senior  |
-| reporter@example.com     | senior  |
-
 ---
 
 ## Scripts
@@ -201,8 +157,7 @@ All seed accounts use password `password123`:
 | `npm run build`      | Compile TypeScript to `dist/`                |
 | `npm run start`      | Run compiled server                          |
 | `npm test`           | Run Jest tests                               |
-| `npm run db:migrate` | Create/apply Prisma migrations               |
-| `npm run db:deploy`  | Apply migrations in production               |
+| `npm run db:sync`    | Push schema to MongoDB (Prisma db push)      |
 | `npm run db:seed`    | Seed database                                |
 | `npm run db:studio`  | Open Prisma Studio GUI                       |
 
@@ -217,30 +172,4 @@ All seed accounts use password `password123`:
 
 ---
 
-## Database Export
 
-To dump the MariaDB database to a `.sql` file you can open and inspect:
-
-```bash
-mysqldump -u root -p SecReports > secreports_dump.sql
-```
-
-Or with a full path:
-
-```bash
-mysqldump -u root -p SecReports > D:\path\to\secreports_dump.sql
-```
-
-This produces a plain-text `.sql` file with all `CREATE TABLE` and `INSERT` statements, viewable in any text editor or importable into another MariaDB/MySQL instance.
-
-### Schema Only (no data)
-
-```bash
-mysqldump -u root -p --no-data SecReports > secreports_schema.sql
-```
-
-### Data Only (no schema)
-
-```bash
-mysqldump -u root -p --no-create-info SecReports > secreports_data.sql
-```
