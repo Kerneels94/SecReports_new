@@ -1,5 +1,13 @@
+/**
+ * Entry-log (gate register) validation schemas.
+ *
+ * @module entryLog.schema
+ */
 import { z } from "zod";
 
+/**
+ * Validates creation of a new entry-log record.
+ */
 export const createEntryLogSchema = z.object({
   siteId: z.string(),
   guardId: z.string().optional(),
@@ -11,6 +19,9 @@ export const createEntryLogSchema = z.object({
   purpose: z.string().max(500).optional(),
 });
 
+/**
+ * Validates updates to an existing entry-log record.
+ */
 export const updateEntryLogSchema = z.object({
   exitTime: z.string().optional(),
   driverName: z.string().min(1).max(255).optional(),
@@ -19,6 +30,9 @@ export const updateEntryLogSchema = z.object({
   purpose: z.string().max(500).optional(),
 });
 
+/**
+ * Validates manual vehicle-flagging via an entry-log.
+ */
 export const flagVehicleSchema = z.object({
   vehicleReg: z.string().min(1).max(50),
   reason: z.string().min(1),

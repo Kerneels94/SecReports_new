@@ -1,3 +1,7 @@
+/**
+ * Business logic for vehicle/person entry logs at guarding sites.
+ * Handles CRUD with automatic flagged vehicle detection on entry.
+ */
 import { prisma } from "../lib/db";
 import { NotFoundError } from "../lib/errors";
 
@@ -21,6 +25,7 @@ interface UpdateEntryLogParams {
 }
 
 export const EntryLogService = {
+  /** Lists entry logs for a site with guard and flagged vehicle info. */
   async listBySite(siteId: string) {
     return prisma.entryLog.findMany({
       where: { siteId },
@@ -32,6 +37,7 @@ export const EntryLogService = {
     });
   },
 
+  /** Lists entry logs across all company sites, limited to the 50 most recent. */
   async listByCompany(companyId: string) {
     return prisma.entryLog.findMany({
       where: { site: { companyId } },
@@ -45,6 +51,7 @@ export const EntryLogService = {
     });
   },
 
+  /** Gets a single entry log with full site, guard, and flagged vehicle details. */
   async getById(id: string) {
     const log = await prisma.entryLog.findUnique({
       where: { id },
@@ -58,6 +65,7 @@ export const EntryLogService = {
     return log;
   },
 
+  /** Creates an entry log and auto-links any unresolved flagged vehicle by registration. */
   async create(params: CreateEntryLogParams) {
     let flaggedVehicleId: string | undefined;
 
@@ -93,6 +101,7 @@ export const EntryLogService = {
     });
   },
 
+  /** Partially updates an entry log's exit time, driver info, or purpose. */
   async update(id: string, params: UpdateEntryLogParams) {
     const log = await prisma.entryLog.findUnique({ where: { id } });
     if (!log) throw new NotFoundError("Entry log");
@@ -115,6 +124,7 @@ export const EntryLogService = {
     });
   },
 
+  /** Deletes an entry log. */
   async delete(id: string) {
     const log = await prisma.entryLog.findUnique({ where: { id } });
     if (!log) throw new NotFoundError("Entry log");

@@ -1,3 +1,7 @@
+/**
+ * Business logic for authentication and user management. Handles login, registration,
+ * password reset, and user CRUD with subscription limit enforcement.
+ */
 import crypto from "crypto";
 import { prisma } from "../lib/db";
 import { hashPassword, comparePassword } from "../lib/hash";
@@ -6,11 +10,13 @@ import { UnauthorizedError, ConflictError, NotFoundError } from "../lib/errors";
 import { sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail } from "./email.service";
 import { SubscriptionService } from "./subscription.service";
 
+/** Credentials for user login. */
 interface LoginParams {
   email: string;
   password: string;
 }
 
+/** Registration data for a new company and owner user. */
 interface RegisterParams {
   companyName: string;
   name: string;
@@ -18,6 +24,7 @@ interface RegisterParams {
   password: string;
 }
 
+/** Data to create a new user within an existing company. */
 interface CreateUserParams {
   name: string;
   email: string;
@@ -28,6 +35,7 @@ interface CreateUserParams {
 }
 
 export const AuthService = {
+  /** Authenticates a user by email/password and returns JWT access + refresh tokens. */
   async login(params: LoginParams) {
     const user = await prisma.user.findUnique({ where: { email: params.email } });
     if (!user) throw new UnauthorizedError("Invalid email or password");
@@ -51,6 +59,7 @@ export const AuthService = {
     };
   },
 
+  /** Authenticates a guard employee by email/password. Restricted to users with the "guard" role. */
   async employeeLogin(params: { email: string; password: string }) {
     const user = await prisma.user.findUnique({ where: { email: params.email } });
     if (!user || user.role !== "guard") throw new UnauthorizedError("Invalid email or password");
@@ -74,6 +83,7 @@ export const AuthService = {
     };
   },
 
+  /** Validates a refresh token and issues a new JWT access + refresh token pair. */
   async refresh(refreshToken: string) {
     let payload;
     try {
@@ -101,6 +111,7 @@ export const AuthService = {
     };
   },
 
+  /** Returns the authenticated user's profile. */
   async getMe(userId: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new UnauthorizedError("User not found");
@@ -115,6 +126,7 @@ export const AuthService = {
     };
   },
 
+  /** Creates a new company + owner user in a transaction, activates the free subscription, and sends a welcome email. */
   async register(params: RegisterParams) {
     const existingUser = await prisma.user.findUnique({ where: { email: params.email } });
     if (existingUser) throw new ConflictError("Email already in use");
@@ -167,6 +179,7 @@ export const AuthService = {
     };
   },
 
+  /** Creates a user within a company after checking subscription user-limit. Sends welcome email. */
   async createUser(params: CreateUserParams) {
     await SubscriptionService.canAddUser(params.companyId);
 
@@ -198,6 +211,7 @@ export const AuthService = {
     };
   },
 
+  /** Generates a password reset token, stores its sha256 hash, and emails a reset link. Silent if email not found to prevent enumeration. */
   async forgotPassword(email: string) {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return;
@@ -217,6 +231,7 @@ export const AuthService = {
     sendPasswordResetEmail(email, user.name, resetLink).catch((err) => console.error("[AuthService] Password reset email failed:", err));
   },
 
+  /** Consumes a reset token and updates the user's password in a transaction, then sends a confirmation email. */
   async resetPassword(token: string, newPassword: string) {
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -246,6 +261,7 @@ export const AuthService = {
     );
   },
 
+  /** Validates the current password and updates to a new password hash. */
   async changePassword(userId: string, currentPassword: string, newPassword: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new UnauthorizedError("User not found");
@@ -260,6 +276,7 @@ export const AuthService = {
     });
   },
 
+  /** Lists all users in a company, ordered by creation date. */
   async listUsers(companyId: string) {
     return prisma.user.findMany({
       where: { companyId },
@@ -275,6 +292,7 @@ export const AuthService = {
     });
   },
 
+  /** Gets a single user scoped to a company by ID. */
   async getUserById(companyId: string, userId: string) {
     const user = await prisma.user.findFirst({
       where: { id: userId, companyId },
@@ -292,6 +310,7 @@ export const AuthService = {
     return user;
   },
 
+  /** Updates user fields with a duplicate email check before applying changes. */
   async updateUser(companyId: string, userId: string, data: { name?: string; email?: string; role?: string }) {
     const user = await prisma.user.findFirst({
       where: { id: userId, companyId },

@@ -1,3 +1,7 @@
+/**
+ * Landing / home page — marketing page with features, pricing tiers, and a hero section.
+ * @route /
+ */
 "use client";
 
 import Link from "next/link";
@@ -87,6 +91,7 @@ const features = [
   },
 ];
 
+/** Landing page component displaying hero, features, pricing, and footer. */
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-surface-secondary">

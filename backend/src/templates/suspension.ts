@@ -1,3 +1,8 @@
+/**
+ * Email template sent to a company when their account is suspended.
+ *
+ * @module suspension
+ */
 interface SuspensionData {
   companyName: string;
   reason?: string;

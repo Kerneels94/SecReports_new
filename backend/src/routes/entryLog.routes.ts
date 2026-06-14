@@ -1,3 +1,7 @@
+/**
+ * Entry Log routes — all endpoints require JWT authentication.
+ * Role-restricted: create, update, flag (owner/manager/guard); delete (owner/manager).
+ */
 import { FastifyInstance } from "fastify";
 import { EntryLogController } from "../controllers/entryLog.controller";
 import { requireRole } from "../middleware/requireRole";

@@ -1,3 +1,8 @@
+/**
+ * Dashboard layout — wraps all (dashboard) routes with AuthProvider, DashboardModeProvider, Sidebar, and Header.
+ * Redirects unauthenticated users to /login.
+ * @route /dashboard/*
+ */
 "use client";
 
 import { useState, useEffect, type ReactNode } from "react";
@@ -66,6 +71,7 @@ function DashboardShell({ children }: { children: ReactNode }) {
   );
 }
 
+/** Dashboard layout component providing providers, sidebar, header, and main content area. */
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <AuthProvider>

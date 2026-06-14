@@ -1,3 +1,8 @@
+/**
+ * Email template sent to a user requesting a password reset.
+ *
+ * @module reset-password
+ */
 export default function resetPasswordTemplate(name: string, resetLink: string): string {
   return `
 <!DOCTYPE html>

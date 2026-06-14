@@ -1,9 +1,14 @@
+/**
+ * Authentication context and hook.
+ * Provides AuthProvider (wrap your app) and useAuth (consume auth state).
+ */
 "use client";
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import type { User, LoginRequest, EmployeeLoginRequest } from "@/types";
 import { authService } from "@/services";
 
+/** Shape of the authentication context value. */
 interface AuthState {
   user: User | null;
   isLoading: boolean;
@@ -15,6 +20,10 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState | null>(null);
 
+/**
+ * Provides authentication state and methods (login, logout, refreshUser)
+ * to all children via React context.
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/** Consume the AuthContext; throws if used outside AuthProvider. */
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");

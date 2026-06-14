@@ -1,5 +1,13 @@
+/**
+ * Incident report validation schemas.
+ *
+ * @module incident.schema
+ */
 import { z } from "zod";
 
+/**
+ * Validates creation of a new incident report.
+ */
 export const createIncidentSchema = z.object({
   title: z.string().min(1).max(255),
   description: z.string().min(1),
@@ -28,6 +36,9 @@ export const createIncidentSchema = z.object({
     .optional(),
 });
 
+/**
+ * Validates updates to an existing incident report.
+ */
 export const updateIncidentSchema = z.object({
   title: z.string().min(1).max(255).optional(),
   description: z.string().min(1).optional(),
@@ -46,6 +57,9 @@ export const updateIncidentSchema = z.object({
   sapsReference: z.string().max(100).optional(),
 });
 
+/**
+ * Validates incident status transitions.
+ */
 export const updateStatusSchema = z.object({
   status: z.enum([
     "draft",
@@ -59,6 +73,9 @@ export const updateStatusSchema = z.object({
   ]),
 });
 
+/**
+ * Validates query-string pagination and filtering parameters.
+ */
 export const paginationSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   perPage: z.coerce.number().int().positive().max(100).default(20),

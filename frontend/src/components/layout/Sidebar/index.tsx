@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Sidebar - The persistent left-side navigation for both Incident and Guarding modes.
+ * Renders contextual nav items based on the current dashboard mode and highlights the active route.
+ */
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
@@ -24,11 +29,13 @@ const guardingNavItems = [
 
 const settingsItem = { href: "/settings/billing", label: "Billing", icon: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" };
 
+/** Props for the Sidebar component */
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
 }
 
+/** Renders the list of navigation links for the current mode, highlighting the active route. */
 function NavItemsList({ items, onClose }: { items: typeof incidentNavItems; onClose?: () => void }) {
   const pathname = usePathname();
 
@@ -70,6 +77,7 @@ function NavItemsList({ items, onClose }: { items: typeof incidentNavItems; onCl
   );
 }
 
+/** A slide-over sidebar with contextual nav items. Shows on desktop always and on mobile when toggled. */
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { mode, setMode } = useDashboardMode();
   const pathname = usePathname();

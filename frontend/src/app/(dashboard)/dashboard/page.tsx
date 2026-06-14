@@ -1,3 +1,7 @@
+/**
+ * Dashboard page — summary overview with stat cards, date/type filters, and recent incidents table.
+ * @route /dashboard
+ */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -7,6 +11,7 @@ import { reportService, incidentService } from "@/services";
 import { DashboardSearch } from "./components/DashboardSearch";
 import type { Incident } from "@/types";
 
+/** Dashboard page component with summary stats, search/filter bar, and recent incidents list. */
 export default function DashboardPage() {
   const [total, setTotal] = useState(0);
   const [attemptedCount, setAttemptedCount] = useState(0);

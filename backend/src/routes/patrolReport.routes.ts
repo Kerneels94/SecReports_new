@@ -1,3 +1,7 @@
+/**
+ * Patrol Report routes — all endpoints require JWT authentication.
+ * Role-restricted: create/update (owner/manager/guard), delete (owner/manager).
+ */
 import { FastifyInstance } from "fastify";
 import { PatrolReportController } from "../controllers/patrolReport.controller";
 import { requireRole } from "../middleware/requireRole";

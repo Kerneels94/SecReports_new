@@ -1,3 +1,7 @@
+/**
+ * Login page — supports both company and employee sign-in with tabbed form.
+ * @route /login
+ */
 "use client";
 
 import { useState } from "react";
@@ -23,6 +27,7 @@ const employeeSchema = z.object({
 type CompanyFormData = z.infer<typeof companySchema>;
 type EmployeeFormData = z.infer<typeof employeeSchema>;
 
+/** Login page component with company/employee tabs, email/password form, and error handling. */
 export default function LoginPage() {
   const router = useRouter();
   const { login, employeeLogin } = useAuth();

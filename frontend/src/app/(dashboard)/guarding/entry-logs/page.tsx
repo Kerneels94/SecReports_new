@@ -1,3 +1,7 @@
+/**
+ * Entry logs page — view all vehicle access logs across all sites with flagged status badges.
+ * @route /guarding/entry-logs
+ */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -6,6 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { entryLogService } from "@/services";
 import type { EntryLog } from "@/types";
 
+/** Entry logs page component with table of vehicle access records, driver info, and flagged status. */
 export default function EntryLogsPage() {
   const [entries, setEntries] = useState<EntryLog[]>([]);
   const [loading, setLoading] = useState(true);

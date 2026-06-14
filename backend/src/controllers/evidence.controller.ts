@@ -1,3 +1,7 @@
+/**
+ * Evidence controller — handles file upload and deletion for incident evidence.
+ * Requires the "evidence_uploads" subscription feature for uploads.
+ */
 import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "../lib/db";
 import { NotFoundError, ForbiddenError } from "../lib/errors";
@@ -5,6 +9,7 @@ import crypto from "crypto";
 import { SubscriptionService } from "../services/subscription.service";
 
 export const EvidenceController = {
+  /** Upload an evidence file for a given incident. Computes a SHA-256 checksum for integrity. */
   async upload(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "evidence_uploads");
 
@@ -33,6 +38,7 @@ export const EvidenceController = {
     reply.code(201).send({ success: true, data: evidence });
   },
 
+  /** Delete an evidence record by incident and evidence ID. */
   async delete(request: FastifyRequest, reply: FastifyReply) {
     const { id, evidenceId } = request.params as { id: string; evidenceId: string };
     const evidence = await prisma.evidence.findFirst({

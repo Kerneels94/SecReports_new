@@ -1,3 +1,7 @@
+/**
+ * API Key routes — all endpoints require JWT authentication.
+ * Supports listing, generating, and revoking API keys.
+ */
 import { FastifyInstance } from "fastify";
 import { ApiKeyController } from "../controllers/apiKey.controller";
 

@@ -1,3 +1,8 @@
+/**
+ * Email template sent when a new incident report is created.
+ *
+ * @module report
+ */
 interface ReportData {
   name: string;
   incidentTitle: string;

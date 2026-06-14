@@ -1,3 +1,7 @@
+/**
+ * Export routes — all endpoints require JWT authentication.
+ * Supports CSV and (future) PDF export of incidents.
+ */
 import { FastifyInstance } from "fastify";
 import { ExportController } from "../controllers/export.controller";
 

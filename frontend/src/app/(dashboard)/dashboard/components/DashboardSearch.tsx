@@ -1,3 +1,7 @@
+/**
+ * DashboardSearch — search bar with autocomplete dropdown, type filter, and date range inputs.
+ * Used on the Dashboard page to filter and search incidents.
+ */
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -16,6 +20,7 @@ interface DashboardSearchProps {
   onTypeFilterChange: (v: string) => void;
 }
 
+/** DashboardSearch component with text search, type dropdown, start/end date pickers, and result dropdown. */
 export function DashboardSearch({ dateFrom, dateTo, typeFilter, onDateFromChange, onDateToChange, onTypeFilterChange }: DashboardSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Incident[]>([]);

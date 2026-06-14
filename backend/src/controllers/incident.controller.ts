@@ -1,3 +1,7 @@
+/**
+ * Incident controller — manages incident reports lifecycle: list, create, update, status transitions, and delete.
+ * Enforces subscription limits for creation.
+ */
 import { FastifyRequest, FastifyReply } from "fastify";
 import { IncidentService } from "../services/incident.service";
 import {
@@ -10,6 +14,7 @@ import { ValidationError } from "../lib/errors";
 import { SubscriptionService } from "../services/subscription.service";
 
 export const IncidentController = {
+  /** List incidents with pagination, filtered by company and user role. */
   async list(request: FastifyRequest, reply: FastifyReply) {
     const query = paginationSchema.safeParse(request.query);
     if (!query.success) throw new ValidationError("Invalid query", query.error.flatten());
@@ -24,12 +29,14 @@ export const IncidentController = {
     reply.code(200).send({ success: true, data: result });
   },
 
+  /** Get a single incident by ID. */
   async getById(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
     const incident = await IncidentService.getById(id);
     reply.code(200).send({ success: true, data: incident });
   },
 
+  /** Create a new incident report. Checks subscription limits before creation. */
   async create(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.canCreateIncident(request.user!.companyId);
 
@@ -45,6 +52,7 @@ export const IncidentController = {
     reply.code(201).send({ success: true, data: incident });
   },
 
+  /** Update an existing incident. Role-based access is enforced. */
   async update(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
     const parsed = updateIncidentSchema.safeParse(request.body);
@@ -60,6 +68,7 @@ export const IncidentController = {
     reply.code(200).send({ success: true, data: incident });
   },
 
+  /** Transition an incident's status (e.g., open -> investigating -> resolved). */
   async updateStatus(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
     const parsed = updateStatusSchema.safeParse(request.body);
@@ -74,6 +83,7 @@ export const IncidentController = {
     reply.code(200).send({ success: true, data: incident });
   },
 
+  /** Delete an incident. Role-based access is enforced. */
   async delete(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
     await IncidentService.delete(id, request.user!.userId, request.user!.role);

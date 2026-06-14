@@ -1,11 +1,18 @@
+/**
+ * Input - A styled text input with optional label and inline error message.
+ * Wraps the native <input> element via forwardRef and auto-generates ids from labels.
+ */
+
 import { InputHTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/cn";
 
+/** Props for the Input component */
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
 }
 
+/** A labeled input with error display. Use in forms for text entry fields. */
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, id, ...props }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, "-");

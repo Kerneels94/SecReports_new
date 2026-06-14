@@ -41,7 +41,6 @@ export type PaymentHistoryMinAggregateOutputType = {
   currency: string | null
   reference: string | null
   status: string | null
-  paystackData: string | null
   createdAt: Date | null
 }
 
@@ -52,7 +51,6 @@ export type PaymentHistoryMaxAggregateOutputType = {
   currency: string | null
   reference: string | null
   status: string | null
-  paystackData: string | null
   createdAt: Date | null
 }
 
@@ -63,7 +61,6 @@ export type PaymentHistoryCountAggregateOutputType = {
   currency: number
   reference: number
   status: number
-  paystackData: number
   createdAt: number
   _all: number
 }
@@ -84,7 +81,6 @@ export type PaymentHistoryMinAggregateInputType = {
   currency?: true
   reference?: true
   status?: true
-  paystackData?: true
   createdAt?: true
 }
 
@@ -95,7 +91,6 @@ export type PaymentHistoryMaxAggregateInputType = {
   currency?: true
   reference?: true
   status?: true
-  paystackData?: true
   createdAt?: true
 }
 
@@ -106,7 +101,6 @@ export type PaymentHistoryCountAggregateInputType = {
   currency?: true
   reference?: true
   status?: true
-  paystackData?: true
   createdAt?: true
   _all?: true
 }
@@ -204,7 +198,6 @@ export type PaymentHistoryGroupByOutputType = {
   currency: string
   reference: string
   status: string
-  paystackData: string | null
   createdAt: Date
   _count: PaymentHistoryCountAggregateOutputType | null
   _avg: PaymentHistoryAvgAggregateOutputType | null
@@ -238,7 +231,6 @@ export type PaymentHistoryWhereInput = {
   currency?: Prisma.StringFilter<"PaymentHistory"> | string
   reference?: Prisma.StringFilter<"PaymentHistory"> | string
   status?: Prisma.StringFilter<"PaymentHistory"> | string
-  paystackData?: Prisma.StringNullableFilter<"PaymentHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentHistory"> | Date | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
 }
@@ -250,7 +242,6 @@ export type PaymentHistoryOrderByWithRelationInput = {
   currency?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackData?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   company?: Prisma.CompanyOrderByWithRelationInput
 }
@@ -265,7 +256,6 @@ export type PaymentHistoryWhereUniqueInput = Prisma.AtLeast<{
   amount?: Prisma.IntFilter<"PaymentHistory"> | number
   currency?: Prisma.StringFilter<"PaymentHistory"> | string
   status?: Prisma.StringFilter<"PaymentHistory"> | string
-  paystackData?: Prisma.StringNullableFilter<"PaymentHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentHistory"> | Date | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
 }, "id" | "reference">
@@ -277,7 +267,6 @@ export type PaymentHistoryOrderByWithAggregationInput = {
   currency?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackData?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.PaymentHistoryCountOrderByAggregateInput
   _avg?: Prisma.PaymentHistoryAvgOrderByAggregateInput
@@ -296,7 +285,6 @@ export type PaymentHistoryScalarWhereWithAggregatesInput = {
   currency?: Prisma.StringWithAggregatesFilter<"PaymentHistory"> | string
   reference?: Prisma.StringWithAggregatesFilter<"PaymentHistory"> | string
   status?: Prisma.StringWithAggregatesFilter<"PaymentHistory"> | string
-  paystackData?: Prisma.StringNullableWithAggregatesFilter<"PaymentHistory"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentHistory"> | Date | string
 }
 
@@ -306,7 +294,6 @@ export type PaymentHistoryCreateInput = {
   currency?: string
   reference: string
   status?: string
-  paystackData?: string | null
   createdAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutPaymentsInput
 }
@@ -318,7 +305,6 @@ export type PaymentHistoryUncheckedCreateInput = {
   currency?: string
   reference: string
   status?: string
-  paystackData?: string | null
   createdAt?: Date | string
 }
 
@@ -327,7 +313,6 @@ export type PaymentHistoryUpdateInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutPaymentsNestedInput
 }
@@ -338,7 +323,6 @@ export type PaymentHistoryUncheckedUpdateInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -349,7 +333,6 @@ export type PaymentHistoryCreateManyInput = {
   currency?: string
   reference: string
   status?: string
-  paystackData?: string | null
   createdAt?: Date | string
 }
 
@@ -358,7 +341,6 @@ export type PaymentHistoryUpdateManyMutationInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -368,7 +350,6 @@ export type PaymentHistoryUncheckedUpdateManyInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -389,7 +370,6 @@ export type PaymentHistoryCountOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackData?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -404,7 +384,6 @@ export type PaymentHistoryMaxOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackData?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -415,7 +394,6 @@ export type PaymentHistoryMinOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  paystackData?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -471,7 +449,6 @@ export type PaymentHistoryCreateWithoutCompanyInput = {
   currency?: string
   reference: string
   status?: string
-  paystackData?: string | null
   createdAt?: Date | string
 }
 
@@ -481,7 +458,6 @@ export type PaymentHistoryUncheckedCreateWithoutCompanyInput = {
   currency?: string
   reference: string
   status?: string
-  paystackData?: string | null
   createdAt?: Date | string
 }
 
@@ -520,7 +496,6 @@ export type PaymentHistoryScalarWhereInput = {
   currency?: Prisma.StringFilter<"PaymentHistory"> | string
   reference?: Prisma.StringFilter<"PaymentHistory"> | string
   status?: Prisma.StringFilter<"PaymentHistory"> | string
-  paystackData?: Prisma.StringNullableFilter<"PaymentHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentHistory"> | Date | string
 }
 
@@ -530,7 +505,6 @@ export type PaymentHistoryCreateManyCompanyInput = {
   currency?: string
   reference: string
   status?: string
-  paystackData?: string | null
   createdAt?: Date | string
 }
 
@@ -539,7 +513,6 @@ export type PaymentHistoryUpdateWithoutCompanyInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -548,7 +521,6 @@ export type PaymentHistoryUncheckedUpdateWithoutCompanyInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -557,7 +529,6 @@ export type PaymentHistoryUncheckedUpdateManyWithoutCompanyInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
-  paystackData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -570,7 +541,6 @@ export type PaymentHistorySelect<ExtArgs extends runtime.Types.Extensions.Intern
   currency?: boolean
   reference?: boolean
   status?: boolean
-  paystackData?: boolean
   createdAt?: boolean
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["paymentHistory"]>
@@ -584,11 +554,10 @@ export type PaymentHistorySelectScalar = {
   currency?: boolean
   reference?: boolean
   status?: boolean
-  paystackData?: boolean
   createdAt?: boolean
 }
 
-export type PaymentHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "amount" | "currency" | "reference" | "status" | "paystackData" | "createdAt", ExtArgs["result"]["paymentHistory"]>
+export type PaymentHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "amount" | "currency" | "reference" | "status" | "createdAt", ExtArgs["result"]["paymentHistory"]>
 export type PaymentHistoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }
@@ -605,7 +574,6 @@ export type $PaymentHistoryPayload<ExtArgs extends runtime.Types.Extensions.Inte
     currency: string
     reference: string
     status: string
-    paystackData: string | null
     createdAt: Date
   }, ExtArgs["result"]["paymentHistory"]>
   composites: {}
@@ -1006,7 +974,6 @@ export interface PaymentHistoryFieldRefs {
   readonly currency: Prisma.FieldRef<"PaymentHistory", 'String'>
   readonly reference: Prisma.FieldRef<"PaymentHistory", 'String'>
   readonly status: Prisma.FieldRef<"PaymentHistory", 'String'>
-  readonly paystackData: Prisma.FieldRef<"PaymentHistory", 'String'>
   readonly createdAt: Prisma.FieldRef<"PaymentHistory", 'DateTime'>
 }
     

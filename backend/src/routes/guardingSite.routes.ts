@@ -1,3 +1,7 @@
+/**
+ * Guarding Site routes — all endpoints require JWT authentication.
+ * Role-restricted: create/update (owner/manager), delete (owner).
+ */
 import { FastifyInstance } from "fastify";
 import { GuardingSiteController } from "../controllers/guardingSite.controller";
 import { requireRole } from "../middleware/requireRole";

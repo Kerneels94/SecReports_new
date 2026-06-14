@@ -213,11 +213,8 @@ model CompanySubscription {
   companyId                String   @unique @map("company_id") @db.ObjectId
   planId                   String   @map("plan_id") @db.ObjectId
   status                   String   @default("active")
-  paystackSubscriptionCode String?  @map("paystack_subscription_code")
-  paystackCustomerCode     String?  @map("paystack_customer_code")
-  authorizationCode        String?  @map("authorization_code")
-  currentPeriodStart       DateTime? @map("current_period_start")
-  currentPeriodEnd         DateTime? @map("current_period_end")
+  currentPeriodStart DateTime? @map("current_period_start")
+  currentPeriodEnd   DateTime? @map("current_period_end")
   createdAt                DateTime @default(now()) @map("created_at")
   updatedAt                DateTime @updatedAt @map("updated_at")
 
@@ -234,7 +231,7 @@ model PaymentHistory {
   currency     String   @default("ZAR")
   reference    String   @unique
   status       String   @default("pending")
-  paystackData String?  @map("paystack_data")
+
   createdAt    DateTime @default(now()) @map("created_at")
 
   company Company @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)

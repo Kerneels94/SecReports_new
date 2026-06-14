@@ -1,19 +1,12 @@
+/**
+ * Business logic for subscription and billing management. Handles plan activation,
+ * usage-limit enforcement, plan upgrades, cancellation, and payment history.
+ */
 import { prisma } from "../lib/db";
 import { NotFoundError, ForbiddenError, ConflictError } from "../lib/errors";
-import { PaystackService } from "./paystack.service";
-
-interface PaystackTxData {
-  id: number;
-  amount: number;
-  currency: string;
-  status: string;
-  reference: string;
-  metadata: Record<string, unknown>;
-  customer: { customer_code: string } | null;
-  authorization: { authorization_code: string } | null;
-}
 
 export const SubscriptionService = {
+  /** Activates the free (zero-cost) plan for a new company. Idempotent — returns existing if already set. */
   async activateFreePlan(companyId: string) {
     const freePlan = await prisma.subscriptionPlan.findFirst({
       where: { price: 0 },
@@ -35,6 +28,7 @@ export const SubscriptionService = {
     });
   },
 
+  /** Retrieves the company's subscription with current report/user usage counts. */
   async getSubscription(companyId: string) {
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
@@ -56,156 +50,13 @@ export const SubscriptionService = {
     };
   },
 
-  async initializeUpgrade(companyId: string, planId: string) {
-    const company = await prisma.company.findUnique({ where: { id: companyId } });
-    if (!company) throw new NotFoundError("Company");
-
-    const plan = await prisma.subscriptionPlan.findUnique({ where: { id: planId } });
-    if (!plan) throw new NotFoundError("Plan");
-    if (plan.price === 0) throw new ConflictError("Cannot upgrade to free plan");
-
-    let paystackCustomerCode: string | undefined;
-
-    const existingSub = await prisma.companySubscription.findUnique({
-      where: { companyId },
-    });
-
-    if (existingSub?.paystackCustomerCode) {
-      paystackCustomerCode = existingSub.paystackCustomerCode;
-    } else {
-      const customer = await PaystackService.createCustomer(
-        company.email,
-        company.name,
-        ""
-      );
-      if (!customer.status || !("data" in customer) || !customer.data) {
-        throw new Error("Failed to create Paystack customer");
-      }
-      paystackCustomerCode = customer.data.customer_code;
-    }
-
-    const nameParts = company.name.split(" ");
-    const tx = await PaystackService.initializeTransaction(
-      company.email,
-      plan.price,
-      {
-        company_id: companyId,
-        plan_id: planId,
-        plan_name: plan.name,
-        customer_code: paystackCustomerCode,
-        first_name: nameParts[0] || company.name,
-        last_name: nameParts.slice(1).join(" ") || "",
-      }
-    );
-
-    if (!tx.status || !("data" in tx) || !tx.data) {
-      throw new Error("Failed to initialize Paystack transaction");
-    }
-
-    return {
-      authorizationUrl: tx.data.authorization_url,
-      reference: tx.data.reference,
-    };
-  },
-
-  async handleUpgradeCallback(reference: string) {
-    const verification = await PaystackService.verifyTransaction(reference);
-    if (!verification.status || !("data" in verification) || !verification.data) {
-      throw new Error("Transaction verification failed");
-    }
-
-    const tx = verification.data as unknown as PaystackTxData;
-    if (tx.status !== "success") {
-      throw new Error("Transaction was not successful");
-    }
-
-    const metadata = tx.metadata as Record<string, any> | undefined;
-    const companyId = metadata?.company_id as string;
-    const planId = metadata?.plan_id as string;
-    const customerCode = metadata?.customer_code as string;
-
-    if (!companyId || !planId) {
-      throw new Error("Missing metadata in transaction");
-    }
-
-    const plan = await prisma.subscriptionPlan.findUnique({ where: { id: planId } });
-    if (!plan) throw new NotFoundError("Plan");
-
-    await prisma.paymentHistory.create({
-      data: {
-        companyId,
-        amount: tx.amount,
-        currency: tx.currency,
-        reference: tx.reference,
-        status: "success",
-        paystackData: JSON.stringify(tx),
-      },
-    });
-
-    const existingSub = await prisma.companySubscription.findUnique({
-      where: { companyId },
-    });
-
-    if (existingSub?.paystackSubscriptionCode) {
-      return { subscription: existingSub, isNew: false };
-    }
-
-    const authorization = tx.authorization;
-    const planCode = `PLN_${plan?.name?.toLowerCase()}`;
-
-    const subResult = await PaystackService.createSubscription(
-      customerCode || tx.customer?.customer_code || "",
-      planCode,
-      authorization?.authorization_code,
-      new Date()
-    );
-
-    let subscriptionCode: string | undefined;
-
-    if (subResult.status && "data" in subResult && subResult.data) {
-      subscriptionCode = subResult.data.subscription_code;
-    }
-
-    const updated = await prisma.companySubscription.upsert({
-      where: { companyId },
-      create: {
-        companyId,
-        planId,
-        status: "active",
-        paystackSubscriptionCode: subscriptionCode,
-        paystackCustomerCode: customerCode || tx.customer?.customer_code,
-        authorizationCode: authorization?.authorization_code,
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      },
-      update: {
-        planId,
-        status: "active",
-        paystackSubscriptionCode: subscriptionCode,
-        paystackCustomerCode: customerCode || tx.customer?.customer_code,
-        authorizationCode: authorization?.authorization_code,
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      },
-      include: { plan: true },
-    });
-
-    return { subscription: updated, isNew: true };
-  },
-
+  /** Cancels the current subscription and falls back to the free plan. */
   async cancelSubscription(companyId: string) {
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
     });
     if (!sub) throw new NotFoundError("Subscription");
     if (sub.status === "cancelled") throw new ConflictError("Already cancelled");
-
-    if (sub.paystackSubscriptionCode && sub.paystackCustomerCode) {
-      try {
-        await PaystackService.listTransactions(sub.paystackCustomerCode);
-      } catch {
-      }
-    }
 
     const freePlan = await prisma.subscriptionPlan.findFirst({
       where: { price: 0 },
@@ -221,6 +72,7 @@ export const SubscriptionService = {
     });
   },
 
+  /** Retrieves payment history for a company, ordered by most recent. */
   async getPaymentHistory(companyId: string) {
     return prisma.paymentHistory.findMany({
       where: { companyId },
@@ -228,6 +80,7 @@ export const SubscriptionService = {
     });
   },
 
+  /** Checks if the company's plan allows creating more incidents. Throws ForbiddenError if the limit is reached. */
   async canCreateIncident(companyId: string): Promise<void> {
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
@@ -251,6 +104,7 @@ export const SubscriptionService = {
     }
   },
 
+  /** Checks if the company's plan allows adding more users. Throws ForbiddenError if the limit is reached. */
   async canAddUser(companyId: string): Promise<void> {
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
@@ -274,6 +128,7 @@ export const SubscriptionService = {
     }
   },
 
+  /** Checks if the company's plan includes a specific feature string. */
   async hasFeature(companyId: string, feature: string): Promise<boolean> {
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
@@ -284,6 +139,7 @@ export const SubscriptionService = {
     return features.includes(feature);
   },
 
+  /** Throws ForbiddenError if the company's plan does not include the specified feature. */
   async requireFeature(companyId: string, feature: string): Promise<void> {
     const has = await this.hasFeature(companyId, feature);
     if (!has) {

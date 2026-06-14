@@ -2082,9 +2082,6 @@ export const CompanySubscriptionScalarFieldEnum = {
   companyId: 'companyId',
   planId: 'planId',
   status: 'status',
-  paystackSubscriptionCode: 'paystackSubscriptionCode',
-  paystackCustomerCode: 'paystackCustomerCode',
-  authorizationCode: 'authorizationCode',
   currentPeriodStart: 'currentPeriodStart',
   currentPeriodEnd: 'currentPeriodEnd',
   createdAt: 'createdAt',
@@ -2101,7 +2098,6 @@ export const PaymentHistoryScalarFieldEnum = {
   currency: 'currency',
   reference: 'reference',
   status: 'status',
-  paystackData: 'paystackData',
   createdAt: 'createdAt'
 } as const
 

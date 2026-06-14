@@ -1,7 +1,12 @@
+/**
+ * Business logic for guarding sites. Handles CRUD with optional bulk guard creation
+ * during site setup and cascading cleanup on deletion.
+ */
 import { prisma } from "../lib/db";
 import { NotFoundError, ConflictError } from "../lib/errors";
 import { hashPassword } from "../lib/hash";
 
+/** Input for creating a guard inline during site creation. */
 interface GuardInput {
   name: string;
   surname: string;
@@ -11,6 +16,7 @@ interface GuardInput {
   password: string;
 }
 
+/** Parameters for creating a guarding site with optional bulk-guard creation. */
 interface CreateGuardingSiteParams {
   companyId: string;
   name: string;
@@ -18,6 +24,7 @@ interface CreateGuardingSiteParams {
   guards?: GuardInput[];
 }
 
+/** Parameters for updating a guarding site. */
 interface UpdateGuardingSiteParams {
   name?: string;
   address?: string;
@@ -25,6 +32,7 @@ interface UpdateGuardingSiteParams {
 }
 
 export const GuardingSiteService = {
+  /** Lists all sites for a company with counts of guards, patrols, and entry logs. */
   async list(companyId: string) {
     return prisma.guardingSite.findMany({
       where: { companyId },
@@ -33,6 +41,7 @@ export const GuardingSiteService = {
     });
   },
 
+  /** Gets a site with active guards, recent patrol reports, and entry logs. */
   async getById(id: string) {
     const site = await prisma.guardingSite.findUnique({
       where: { id },
@@ -47,6 +56,7 @@ export const GuardingSiteService = {
     return site;
   },
 
+  /** Creates a site and optionally bulk-creates guards with linked user accounts in a transaction. */
   async create(params: CreateGuardingSiteParams) {
     return prisma.$transaction(async (tx) => {
       const site = await tx.guardingSite.create({
@@ -100,6 +110,7 @@ export const GuardingSiteService = {
     });
   },
 
+  /** Updates a site's name, address, or status. */
   async update(id: string, params: UpdateGuardingSiteParams) {
     const site = await prisma.guardingSite.findUnique({ where: { id } });
     if (!site) throw new NotFoundError("Guarding site");
@@ -107,6 +118,7 @@ export const GuardingSiteService = {
     return prisma.guardingSite.update({ where: { id }, data: params });
   },
 
+  /** Deletes a site and cascades to remove related patrol data, entry logs, and unassign guards. */
   async delete(id: string) {
     const site = await prisma.guardingSite.findUnique({ where: { id } });
     if (!site) throw new NotFoundError("Guarding site");

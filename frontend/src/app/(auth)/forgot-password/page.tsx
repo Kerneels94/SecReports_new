@@ -1,3 +1,7 @@
+/**
+ * Forgot password page — accepts email and sends a password reset link.
+ * @route /forgot-password
+ */
 "use client";
 
 import { useState } from "react";
@@ -7,6 +11,7 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { authService } from "@/services";
 
+/** Forgot password page component — shows email form then success state after submission. */
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");

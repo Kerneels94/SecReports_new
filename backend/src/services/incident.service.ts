@@ -1,3 +1,7 @@
+/**
+ * Business logic for incident reports. Handles CRUD with audit logging, ownership
+ * permission checks for reporters, and natural language date parsing for searches.
+ */
 import { prisma } from "../lib/db";
 import { NotFoundError, ForbiddenError } from "../lib/errors";
 import { generateReferenceNumber } from "../lib/utils";
@@ -17,6 +21,7 @@ const MONTH_NAMES: Record<string, number> = {
   dec: 11, december: 11,
 };
 
+/** Parses natural language date strings (e.g. "March 15", "15 March 2024", "January 2023") into a date range filter. */
 function tryParseDate(str: string): { gte: Date; lte: Date } | null {
   const s = str.trim().toLowerCase();
   const monthPat = Object.keys(MONTH_NAMES).join("|");
@@ -91,6 +96,7 @@ function tryParseDate(str: string): { gte: Date; lte: Date } | null {
   return null;
 }
 
+/** Parameters for creating an incident report. */
 interface CreateIncidentParams {
   companyId: string;
   title: string;
@@ -112,6 +118,7 @@ interface CreateIncidentParams {
   people?: { name: string; role: string; contact?: string; notes?: string }[];
 }
 
+/** Parameters for updating an incident report. */
 interface UpdateIncidentParams {
   title?: string;
   description?: string;
@@ -130,6 +137,7 @@ interface UpdateIncidentParams {
   sapsReference?: string;
 }
 
+/** Pagination and filtering options for listing incidents. */
 interface ListParams {
   page: number;
   perPage: number;
@@ -144,6 +152,7 @@ interface ListParams {
 }
 
 export const IncidentService = {
+  /** Paginated listing with filtering by status, type, full-text search, and date range. Search also attempts natural language date parsing. */
   async list(params: ListParams) {
     const where: any = { companyId: params.companyId };
 
@@ -182,6 +191,7 @@ export const IncidentService = {
     return { data, total, page: params.page, perPage: params.perPage };
   },
 
+  /** Gets a full incident with all relations (reporter, investigator, evidence, comments, investigation, corrective actions). */
   async getById(id: string) {
     const incident = await prisma.incident.findUnique({
       where: { id },
@@ -202,6 +212,7 @@ export const IncidentService = {
     return incident;
   },
 
+  /** Creates an incident with auto-generated reference number and an audit log entry. */
   async create(params: CreateIncidentParams) {
     const referenceNumber = generateReferenceNumber();
 
@@ -248,6 +259,7 @@ export const IncidentService = {
     return incident;
   },
 
+  /** Updates an incident with reporter ownership check and audit log of old/new values. */
   async update(id: string, params: UpdateIncidentParams, userId: string, userRole: string) {
     const incident = await prisma.incident.findUnique({ where: { id } });
     if (!incident) throw new NotFoundError("Incident");
@@ -299,6 +311,7 @@ export const IncidentService = {
     return updated;
   },
 
+  /** Changes incident status and logs the transition in the audit log. */
   async updateStatus(id: string, status: string, userId: string) {
     const incident = await prisma.incident.findUnique({ where: { id } });
     if (!incident) throw new NotFoundError("Incident");
@@ -324,6 +337,7 @@ export const IncidentService = {
     return updated;
   },
 
+  /** Deletes an incident with reporter ownership check and audit log. */
   async delete(id: string, userId: string, userRole: string) {
     const incident = await prisma.incident.findUnique({ where: { id } });
     if (!incident) throw new NotFoundError("Incident");

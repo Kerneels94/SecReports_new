@@ -1,5 +1,13 @@
+/**
+ * Guard (security officer) validation schemas.
+ *
+ * @module guard.schema
+ */
 import { z } from "zod";
 
+/**
+ * Validates creation of a new guard.
+ */
 export const createGuardSchema = z.object({
   name: z.string().min(1).max(255),
   surname: z.string().min(1).max(255),
@@ -10,6 +18,9 @@ export const createGuardSchema = z.object({
   password: z.string().min(6),
 });
 
+/**
+ * Validates updates to an existing guard's details.
+ */
 export const updateGuardSchema = z.object({
   name: z.string().min(1).max(255).optional(),
   surname: z.string().min(1).max(255).optional(),

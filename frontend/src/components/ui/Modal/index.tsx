@@ -1,14 +1,21 @@
 "use client";
 
+/**
+ * Modal - An overlay dialog component with backdrop blur, ESC-to-close, and an optional title bar.
+ * Renders nothing when `open` is false. Prevents background scroll while open.
+ */
+
 import { useEffect, useCallback, HTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 
+/** Props for the Modal component */
 interface ModalProps extends HTMLAttributes<HTMLDivElement> {
   open: boolean;
   onClose: () => void;
   title?: string;
 }
 
+/** A centered modal dialog with backdrop and escape-key handling. Use for confirmations, forms, or detail views. */
 export function Modal({ open, onClose, title, children, className, ...props }: ModalProps) {
   const handleEscape = useCallback(
     (e: KeyboardEvent) => {

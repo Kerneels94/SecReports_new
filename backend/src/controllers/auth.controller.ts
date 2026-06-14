@@ -1,9 +1,14 @@
+/**
+ * Authentication controller — handles login, registration, token refresh, password management,
+ * and user administration. Routes are a mix of public and owner-protected endpoints.
+ */
 import { FastifyRequest, FastifyReply } from "fastify";
 import { AuthService } from "../services/auth.service";
 import { loginSchema, employeeLoginSchema, refreshSchema, registerSchema, createUserSchema, forgotPasswordSchema, resetPasswordSchema, changePasswordSchema, updateUserSchema } from "../validators/auth.schema";
 import { ValidationError, ForbiddenError } from "../lib/errors";
 
 export const AuthController = {
+  /** Authenticate a user with email/phone and password, returning tokens. */
   async login(request: FastifyRequest, reply: FastifyReply) {
     const parsed = loginSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
@@ -12,6 +17,7 @@ export const AuthController = {
     reply.code(200).send({ success: true, data: result });
   },
 
+  /** Authenticate a guard employee using their employee code and PIN. */
   async employeeLogin(request: FastifyRequest, reply: FastifyReply) {
     const parsed = employeeLoginSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
@@ -20,6 +26,7 @@ export const AuthController = {
     reply.code(200).send({ success: true, data: result });
   },
 
+  /** Refresh an expired access token using a valid refresh token. */
   async refresh(request: FastifyRequest, reply: FastifyReply) {
     const parsed = refreshSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
@@ -28,11 +35,13 @@ export const AuthController = {
     reply.code(200).send({ success: true, data: result });
   },
 
+  /** Return the currently authenticated user's profile. */
   async me(request: FastifyRequest, reply: FastifyReply) {
     const user = await AuthService.getMe(request.user!.userId);
     reply.code(200).send({ success: true, data: user });
   },
 
+  /** Register a new company and its owner account. */
   async register(request: FastifyRequest, reply: FastifyReply) {
     const parsed = registerSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
@@ -41,6 +50,7 @@ export const AuthController = {
     reply.code(201).send({ success: true, data: result });
   },
 
+  /** Create a new user within the authenticated owner's company. */
   async createUser(request: FastifyRequest, reply: FastifyReply) {
     const parsed = createUserSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
@@ -53,6 +63,7 @@ export const AuthController = {
     reply.code(201).send({ success: true, data: user });
   },
 
+  /** Send a password-reset email to the given address (if the account exists). */
   async forgotPassword(request: FastifyRequest, reply: FastifyReply) {
     const parsed = forgotPasswordSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
@@ -61,6 +72,7 @@ export const AuthController = {
     reply.code(200).send({ success: true, message: "If an account with that email exists, a reset link has been sent." });
   },
 
+  /** Reset a user's password using a valid reset token. */
   async resetPassword(request: FastifyRequest, reply: FastifyReply) {
     const parsed = resetPasswordSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
@@ -69,6 +81,7 @@ export const AuthController = {
     reply.code(200).send({ success: true, message: "Password has been reset successfully." });
   },
 
+  /** Change the authenticated user's password (requires current password). */
   async changePassword(request: FastifyRequest, reply: FastifyReply) {
     const parsed = changePasswordSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
@@ -77,6 +90,7 @@ export const AuthController = {
     reply.code(200).send({ success: true, message: "Password changed successfully." });
   },
 
+  /** List all users in the company (owner-only). */
   async listUsers(request: FastifyRequest, reply: FastifyReply) {
     if (request.user!.role !== "owner") throw new ForbiddenError();
 
@@ -84,6 +98,7 @@ export const AuthController = {
     reply.code(200).send({ success: true, data: users });
   },
 
+  /** Get a single user by ID (owner-only). */
   async getUserById(request: FastifyRequest, reply: FastifyReply) {
     if (request.user!.role !== "owner") throw new ForbiddenError();
 
@@ -92,6 +107,7 @@ export const AuthController = {
     reply.code(200).send({ success: true, data: user });
   },
 
+  /** Update a user's details (owner-only). */
   async updateUser(request: FastifyRequest, reply: FastifyReply) {
     if (request.user!.role !== "owner") throw new ForbiddenError();
 

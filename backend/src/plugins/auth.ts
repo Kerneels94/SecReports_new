@@ -1,3 +1,8 @@
+/**
+ * Fastify plugin that decorates every request with a `user` property and
+ * exposes an `authenticate` decorator on the server instance for route
+ * pre-handler protection.
+ */
 import { FastifyInstance } from "fastify";
 import { verifyAccessToken } from "../lib/jwt";
 import { UnauthorizedError } from "../lib/errors";

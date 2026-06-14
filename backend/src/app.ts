@@ -1,3 +1,8 @@
+/**
+ * Application entry-point factory.
+ * Configures and assembles the Fastify server instance with all plugins,
+ * decorators, route registrations, and a unified error handler.
+ */
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
@@ -9,8 +14,7 @@ import { AppError } from "./lib/errors";
 import authRoutes from "./routes/auth.routes";
 import incidentRoutes from "./routes/incident.routes";
 import reportRoutes from "./routes/report.routes";
-import paystackRoutes from "./routes/paystack.routes";
-import webhookRoutes from "./routes/webhook.routes";
+
 import evidenceRoutes from "./routes/evidence.routes";
 import exportRoutes from "./routes/export.routes";
 import investigationRoutes from "./routes/investigation.routes";
@@ -21,6 +25,12 @@ import patrolReportRoutes from "./routes/patrolReport.routes";
 import entryLogRoutes from "./routes/entryLog.routes";
 import flaggedVehicleRoutes from "./routes/flaggedVehicle.routes";
 
+/**
+ * Creates and returns a fully-configured Fastify instance.
+ * Registers CORS, helmet, rate-limiting, multipart, all route modules,
+ * and a global error handler that serialises AppError subclasses into a
+ * standard JSON envelope.
+ */
 export async function buildApp() {
   const fastify = Fastify({ logger: true });
 
@@ -43,6 +53,11 @@ export async function buildApp() {
 
   fastify.decorateRequest("user", undefined);
 
+  /**
+   * Decorate the Fastify instance with an `authenticate` preHandler.
+   * Extracts the Bearer token from the Authorization header, verifies it,
+   * and attaches the decoded user payload to `request.user`.
+   */
   fastify.decorate("authenticate", async (request: any) => {
     const header = request.headers.authorization;
     if (!header || !header.startsWith("Bearer ")) {
@@ -61,8 +76,7 @@ export async function buildApp() {
   await fastify.register(authRoutes);
   await fastify.register(incidentRoutes);
   await fastify.register(reportRoutes);
-  await fastify.register(paystackRoutes);
-  await fastify.register(webhookRoutes);
+
   await fastify.register(evidenceRoutes);
   await fastify.register(exportRoutes);
   await fastify.register(investigationRoutes);

@@ -1,3 +1,7 @@
+/**
+ * Server bootstrap — loads environment variables, builds the Fastify app,
+ * and begins listening on the configured port (default 4000).
+ */
 import "dotenv/config";
 import { buildApp } from "./app";
 

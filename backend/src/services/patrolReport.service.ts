@@ -1,6 +1,11 @@
+/**
+ * Business logic for patrol reports. Handles CRUD with checkpoint tracking
+ * for guarding site patrols.
+ */
 import { prisma } from "../lib/db";
 import { NotFoundError } from "../lib/errors";
 
+/** Parameters for creating a patrol report with optional checkpoint entries. */
 interface CreatePatrolReportParams {
   siteId: string;
   guardId: string;
@@ -9,6 +14,7 @@ interface CreatePatrolReportParams {
   checkpoints?: { name: string; scannedAt: string; status?: string }[];
 }
 
+/** Parameters for updating a patrol report. */
 interface UpdatePatrolReportParams {
   completedAt?: string;
   status?: string;
@@ -16,6 +22,7 @@ interface UpdatePatrolReportParams {
 }
 
 export const PatrolReportService = {
+  /** Lists patrol reports for a site. */
   async listBySite(siteId: string) {
     return prisma.patrolReport.findMany({
       where: { siteId },
@@ -27,6 +34,7 @@ export const PatrolReportService = {
     });
   },
 
+  /** Lists patrol reports across all company sites with optional date/site filters. */
   async listByCompany(
     companyId: string,
     filters?: { siteId?: string; dateFrom?: string; dateTo?: string },
@@ -49,6 +57,7 @@ export const PatrolReportService = {
     });
   },
 
+  /** Lists patrol reports for a specific guard. */
   async listByGuard(guardId: string) {
     return prisma.patrolReport.findMany({
       where: { guardId },
@@ -60,6 +69,7 @@ export const PatrolReportService = {
     });
   },
 
+  /** Gets a patrol report with full checkpoint details. */
   async getById(id: string) {
     const report = await prisma.patrolReport.findUnique({
       where: { id },
@@ -73,6 +83,7 @@ export const PatrolReportService = {
     return report;
   },
 
+  /** Creates a patrol report with optional checkpoint entries. */
   async create(params: CreatePatrolReportParams) {
     return prisma.patrolReport.create({
       data: {
@@ -98,6 +109,7 @@ export const PatrolReportService = {
     });
   },
 
+  /** Updates a patrol report's completion time, status, or notes. */
   async update(id: string, params: UpdatePatrolReportParams) {
     const report = await prisma.patrolReport.findUnique({ where: { id } });
     if (!report) throw new NotFoundError("Patrol report");
@@ -118,6 +130,7 @@ export const PatrolReportService = {
     });
   },
 
+  /** Deletes a patrol report. */
   async delete(id: string) {
     const report = await prisma.patrolReport.findUnique({ where: { id } });
     if (!report) throw new NotFoundError("Patrol report");

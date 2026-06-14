@@ -1,3 +1,7 @@
+/**
+ * Investigation routes — all endpoints require JWT authentication.
+ * Supports investigation CRUD and corrective action management per incident.
+ */
 import { FastifyInstance } from "fastify";
 import { InvestigationController } from "../controllers/investigation.controller";
 

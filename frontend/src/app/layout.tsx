@@ -1,3 +1,7 @@
+/**
+ * Root layout — wraps the entire app with the AuthProvider and font configuration.
+ * @route /
+ */
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -18,6 +22,7 @@ export const metadata: Metadata = {
   description: "Web-based incident reporting platform",
 };
 
+/** Root layout component. Renders HTML shell, fonts, and AuthProvider. */
 export default function RootLayout({
   children,
 }: Readonly<{

@@ -1,3 +1,7 @@
+/**
+ * Evidence routes — all endpoints require JWT authentication.
+ * Supports file upload and deletion for incident evidence.
+ */
 import { FastifyInstance } from "fastify";
 import { EvidenceController } from "../controllers/evidence.controller";
 

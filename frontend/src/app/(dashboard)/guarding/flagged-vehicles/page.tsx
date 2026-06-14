@@ -1,3 +1,7 @@
+/**
+ * Flagged vehicles page — list all flagged vehicles company-wide with resolve action.
+ * @route /guarding/flagged-vehicles
+ */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -6,6 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { flaggedVehicleService } from "@/services";
 import type { FlaggedVehicle } from "@/types";
 
+/** Flagged vehicles page component with list of flagged vehicles, details, and resolve button. */
 export default function FlaggedVehiclesPage() {
   const [vehicles, setVehicles] = useState<FlaggedVehicle[]>([]);
   const [loading, setLoading] = useState(true);

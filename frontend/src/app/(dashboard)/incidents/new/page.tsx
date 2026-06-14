@@ -1,3 +1,7 @@
+/**
+ * New incident page — detailed form for creating an incident report with operator, dispatch, client, and incident fields.
+ * @route /incidents/new
+ */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -30,6 +34,7 @@ const createIncidentSchema = z.object({
 
 type CreateIncidentForm = z.infer<typeof createIncidentSchema>;
 
+/** New incident page component with Zod-validated form and type prefix + custom input. */
 export default function NewIncidentPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);

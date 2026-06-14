@@ -1,16 +1,23 @@
 "use client";
 
+/**
+ * MobileHeader - The top navigation bar for mobile viewports.
+ * Provides a sidebar toggle, compact mode switcher, and user avatar dropdown.
+ */
+
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { useDashboardMode } from "@/hooks/useDashboardMode";
 
+/** Props for the MobileHeader component */
 interface MobileHeaderProps {
   user?: { name: string; email: string; role: string } | null;
   onToggleSidebar: () => void;
   onLogout?: () => void;
 }
 
+/** Mobile header bar with sidebar toggle and mode switcher. Visible only on small screens (< lg). */
 export function MobileHeader({ user, onToggleSidebar, onLogout }: MobileHeaderProps) {
   const { mode, setMode } = useDashboardMode();
   const [open, setOpen] = useState(false);
