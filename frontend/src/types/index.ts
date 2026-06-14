@@ -53,19 +53,6 @@ export interface IncidentPerson {
   notes: string | null;
 }
 
-/** A file uploaded as evidence for an incident. */
-export interface Evidence {
-  id: number;
-  incidentId: number;
-  fileName: string;
-  originalName: string;
-  mimeType: string;
-  fileSize: number;
-  checksum: string;
-  uploadedBy: number;
-  createdAt: string;
-}
-
 /** A comment left on an incident by a user. */
 export interface Comment {
   id: number;

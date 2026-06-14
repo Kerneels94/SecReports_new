@@ -36,10 +36,8 @@ export const IncidentController = {
     reply.code(200).send({ success: true, data: incident });
   },
 
-  /** Create a new incident report. Checks subscription limits before creation. */
+  /** Create a new incident report. */
   async create(request: FastifyRequest, reply: FastifyReply) {
-    await SubscriptionService.canCreateIncident(request.user!.companyId);
-
     const parsed = createIncidentSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 

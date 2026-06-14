@@ -28,7 +28,7 @@ export const SubscriptionService = {
     });
   },
 
-  /** Retrieves the company's subscription with current report/user usage counts. */
+  /** Retrieves the company's subscription with current site/user usage counts. */
   async getSubscription(companyId: string) {
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
@@ -36,15 +36,15 @@ export const SubscriptionService = {
     });
     if (!sub) throw new NotFoundError("Subscription");
 
-    const [reportCount, userCount] = await Promise.all([
-      prisma.incident.count({ where: { companyId } }),
+    const [siteCount, userCount] = await Promise.all([
+      prisma.guardingSite.count({ where: { companyId } }),
       prisma.user.count({ where: { companyId } }),
     ]);
 
     return {
       ...sub,
       usage: {
-        reports: reportCount,
+        sites: siteCount,
         users: userCount,
       },
     };
@@ -80,8 +80,8 @@ export const SubscriptionService = {
     });
   },
 
-  /** Checks if the company's plan allows creating more incidents. Throws ForbiddenError if the limit is reached. */
-  async canCreateIncident(companyId: string): Promise<void> {
+  /** Checks if the company's plan allows adding more guarding sites. Throws ForbiddenError if the limit is reached. */
+  async canAddSite(companyId: string): Promise<void> {
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
       include: { plan: true },
@@ -89,17 +89,17 @@ export const SubscriptionService = {
     if (!sub || sub.status === "cancelled") {
       const freePlan = await prisma.subscriptionPlan.findFirst({ where: { price: 0 } });
       if (freePlan) {
-        const count = await prisma.incident.count({ where: { companyId } });
-        if (freePlan.reportLimit > 0 && count >= freePlan.reportLimit) {
-          throw new ForbiddenError("Report limit reached. Upgrade to continue.");
+        const count = await prisma.guardingSite.count({ where: { companyId } });
+        if (freePlan.siteLimit > 0 && count >= freePlan.siteLimit) {
+          throw new ForbiddenError("Site limit reached. Upgrade to continue.");
         }
       }
       return;
     }
-    if (sub.plan.reportLimit > 0) {
-      const count = await prisma.incident.count({ where: { companyId } });
-      if (count >= sub.plan.reportLimit) {
-        throw new ForbiddenError("Report limit reached. Upgrade to continue.");
+    if (sub.plan.siteLimit > 0) {
+      const count = await prisma.guardingSite.count({ where: { companyId } });
+      if (count >= sub.plan.siteLimit) {
+        throw new ForbiddenError("Site limit reached. Upgrade to continue.");
       }
     }
   },

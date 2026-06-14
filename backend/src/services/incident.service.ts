@@ -191,7 +191,7 @@ export const IncidentService = {
     return { data, total, page: params.page, perPage: params.perPage };
   },
 
-  /** Gets a full incident with all relations (reporter, investigator, evidence, comments, investigation, corrective actions). */
+  /** Gets a full incident with all relations (reporter, investigator, comments, investigation, corrective actions). */
   async getById(id: string) {
     const incident = await prisma.incident.findUnique({
       where: { id },
@@ -199,7 +199,6 @@ export const IncidentService = {
         reporter: { select: { id: true, name: true, email: true } },
         assignedInvestigator: { select: { id: true, name: true, email: true } },
         people: true,
-        evidence: true,
         comments: { include: { user: { select: { id: true, name: true } } }, orderBy: { createdAt: "asc" } },
         investigation: true,
         correctiveActions: {

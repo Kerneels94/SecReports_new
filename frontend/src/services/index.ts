@@ -13,7 +13,6 @@ import type {
   Incident,
   PaginatedResponse,
   Comment,
-  Evidence,
   Investigation,
   CorrectiveAction,
   GuardingSite,
@@ -76,17 +75,6 @@ export const commentService = {
   list: (incidentId: number) => api.get<Comment[]>(`/incidents/${incidentId}/comments`),
   create: (incidentId: number, message: string) =>
     api.post<Comment>(`/incidents/${incidentId}/comments`, { message }),
-};
-
-/** Incident evidence (file upload/delete) endpoints. */
-export const evidenceService = {
-  upload: (incidentId: number, file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    return api.upload<Evidence>(`/incidents/${incidentId}/evidence`, formData);
-  },
-  delete: (incidentId: number, evidenceId: number) =>
-    api.delete<void>(`/incidents/${incidentId}/evidence/${evidenceId}`),
 };
 
 /** Incident investigation endpoints. */

@@ -7,15 +7,12 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
-import multipart from "@fastify/multipart";
 import { verifyAccessToken } from "./lib/jwt";
 import { UnauthorizedError } from "./lib/errors";
 import { AppError } from "./lib/errors";
 import authRoutes from "./routes/auth.routes";
 import incidentRoutes from "./routes/incident.routes";
 import reportRoutes from "./routes/report.routes";
-
-import evidenceRoutes from "./routes/evidence.routes";
 import exportRoutes from "./routes/export.routes";
 import investigationRoutes from "./routes/investigation.routes";
 import apiKeyRoutes from "./routes/apiKey.routes";
@@ -27,7 +24,7 @@ import flaggedVehicleRoutes from "./routes/flaggedVehicle.routes";
 
 /**
  * Creates and returns a fully-configured Fastify instance.
- * Registers CORS, helmet, rate-limiting, multipart, all route modules,
+ * Registers CORS, helmet, rate-limiting, all route modules,
  * and a global error handler that serialises AppError subclasses into a
  * standard JSON envelope.
  */
@@ -45,10 +42,6 @@ export async function buildApp() {
   await fastify.register(rateLimit, {
     max: 100,
     timeWindow: "1 minute",
-  });
-
-  await fastify.register(multipart, {
-    limits: { fileSize: 10 * 1024 * 1024 },
   });
 
   fastify.decorateRequest("user", undefined);
@@ -77,7 +70,6 @@ export async function buildApp() {
   await fastify.register(incidentRoutes);
   await fastify.register(reportRoutes);
 
-  await fastify.register(evidenceRoutes);
   await fastify.register(exportRoutes);
   await fastify.register(investigationRoutes);
   await fastify.register(apiKeyRoutes);

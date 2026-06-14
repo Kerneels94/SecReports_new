@@ -63,11 +63,6 @@ export type Incident = Prisma.IncidentModel
  */
 export type IncidentPerson = Prisma.IncidentPersonModel
 /**
- * Model Evidence
- * 
- */
-export type Evidence = Prisma.EvidenceModel
-/**
  * Model Comment
  * 
  */

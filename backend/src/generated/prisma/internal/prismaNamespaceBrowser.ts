@@ -53,7 +53,6 @@ export const ModelName = {
   User: 'User',
   Incident: 'Incident',
   IncidentPerson: 'IncidentPerson',
-  Evidence: 'Evidence',
   Comment: 'Comment',
   Investigation: 'Investigation',
   CorrectiveAction: 'CorrectiveAction',
@@ -145,21 +144,6 @@ export const IncidentPersonScalarFieldEnum = {
 export type IncidentPersonScalarFieldEnum = (typeof IncidentPersonScalarFieldEnum)[keyof typeof IncidentPersonScalarFieldEnum]
 
 
-export const EvidenceScalarFieldEnum = {
-  id: 'id',
-  incidentId: 'incidentId',
-  fileName: 'fileName',
-  originalName: 'originalName',
-  mimeType: 'mimeType',
-  fileSize: 'fileSize',
-  checksum: 'checksum',
-  uploadedBy: 'uploadedBy',
-  createdAt: 'createdAt'
-} as const
-
-export type EvidenceScalarFieldEnum = (typeof EvidenceScalarFieldEnum)[keyof typeof EvidenceScalarFieldEnum]
-
-
 export const CommentScalarFieldEnum = {
   id: 'id',
   incidentId: 'incidentId',
@@ -217,8 +201,9 @@ export const SubscriptionPlanScalarFieldEnum = {
   id: 'id',
   name: 'name',
   price: 'price',
-  reportLimit: 'reportLimit',
+  siteLimit: 'siteLimit',
   userLimit: 'userLimit',
+  trialPeriodDays: 'trialPeriodDays',
   features: 'features',
   highlighted: 'highlighted',
   createdAt: 'createdAt',

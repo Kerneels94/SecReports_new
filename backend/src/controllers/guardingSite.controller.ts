@@ -6,6 +6,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { GuardingSiteService } from "../services/guardingSite.service";
 import { createGuardingSiteSchema, updateGuardingSiteSchema } from "../validators/guardingSite.schema";
 import { ValidationError } from "../lib/errors";
+import { SubscriptionService } from "../services/subscription.service";
 
 export const GuardingSiteController = {
   /** List all guarding sites for the authenticated user's company. */
@@ -23,6 +24,8 @@ export const GuardingSiteController = {
 
   /** Create a new guarding site for the company. */
   async create(request: FastifyRequest, reply: FastifyReply) {
+    await SubscriptionService.canAddSite(request.user!.companyId);
+
     const parsed = createGuardingSiteSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 

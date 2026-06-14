@@ -394,7 +394,6 @@ export const ModelName = {
   User: 'User',
   Incident: 'Incident',
   IncidentPerson: 'IncidentPerson',
-  Evidence: 'Evidence',
   Comment: 'Comment',
   Investigation: 'Investigation',
   CorrectiveAction: 'CorrectiveAction',
@@ -425,7 +424,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company" | "user" | "incident" | "incidentPerson" | "evidence" | "comment" | "investigation" | "correctiveAction" | "passwordResetToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "apiKey" | "auditLog" | "guardingSite" | "guard" | "patrolReport" | "patrolCheckpoint" | "entryLog" | "flaggedVehicle"
+    modelProps: "company" | "user" | "incident" | "incidentPerson" | "comment" | "investigation" | "correctiveAction" | "passwordResetToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "apiKey" | "auditLog" | "guardingSite" | "guard" | "patrolReport" | "patrolCheckpoint" | "entryLog" | "flaggedVehicle"
     txIsolationLevel: never
   }
   model: {
@@ -722,80 +721,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.IncidentPersonCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.IncidentPersonCountAggregateOutputType> | number
-        }
-      }
-    }
-    Evidence: {
-      payload: Prisma.$EvidencePayload<ExtArgs>
-      fields: Prisma.EvidenceFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.EvidenceFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvidencePayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.EvidenceFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvidencePayload>
-        }
-        findFirst: {
-          args: Prisma.EvidenceFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvidencePayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.EvidenceFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvidencePayload>
-        }
-        findMany: {
-          args: Prisma.EvidenceFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvidencePayload>[]
-        }
-        create: {
-          args: Prisma.EvidenceCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvidencePayload>
-        }
-        createMany: {
-          args: Prisma.EvidenceCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.EvidenceDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvidencePayload>
-        }
-        update: {
-          args: Prisma.EvidenceUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvidencePayload>
-        }
-        deleteMany: {
-          args: Prisma.EvidenceDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.EvidenceUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.EvidenceUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EvidencePayload>
-        }
-        aggregate: {
-          args: Prisma.EvidenceAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateEvidence>
-        }
-        groupBy: {
-          args: Prisma.EvidenceGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.EvidenceGroupByOutputType>[]
-        }
-        findRaw: {
-          args: Prisma.EvidenceFindRawArgs<ExtArgs>
-          result: Prisma.JsonObject
-        }
-        aggregateRaw: {
-          args: Prisma.EvidenceAggregateRawArgs<ExtArgs>
-          result: Prisma.JsonObject
-        }
-        count: {
-          args: Prisma.EvidenceCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.EvidenceCountAggregateOutputType> | number
         }
       }
     }
@@ -1994,21 +1919,6 @@ export const IncidentPersonScalarFieldEnum = {
 export type IncidentPersonScalarFieldEnum = (typeof IncidentPersonScalarFieldEnum)[keyof typeof IncidentPersonScalarFieldEnum]
 
 
-export const EvidenceScalarFieldEnum = {
-  id: 'id',
-  incidentId: 'incidentId',
-  fileName: 'fileName',
-  originalName: 'originalName',
-  mimeType: 'mimeType',
-  fileSize: 'fileSize',
-  checksum: 'checksum',
-  uploadedBy: 'uploadedBy',
-  createdAt: 'createdAt'
-} as const
-
-export type EvidenceScalarFieldEnum = (typeof EvidenceScalarFieldEnum)[keyof typeof EvidenceScalarFieldEnum]
-
-
 export const CommentScalarFieldEnum = {
   id: 'id',
   incidentId: 'incidentId',
@@ -2066,8 +1976,9 @@ export const SubscriptionPlanScalarFieldEnum = {
   id: 'id',
   name: 'name',
   price: 'price',
-  reportLimit: 'reportLimit',
+  siteLimit: 'siteLimit',
   userLimit: 'userLimit',
+  trialPeriodDays: 'trialPeriodDays',
   features: 'features',
   highlighted: 'highlighted',
   createdAt: 'createdAt',
@@ -2395,7 +2306,6 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   incident?: Prisma.IncidentOmit
   incidentPerson?: Prisma.IncidentPersonOmit
-  evidence?: Prisma.EvidenceOmit
   comment?: Prisma.CommentOmit
   investigation?: Prisma.InvestigationOmit
   correctiveAction?: Prisma.CorrectiveActionOmit

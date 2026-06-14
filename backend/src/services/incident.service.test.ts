@@ -210,7 +210,6 @@ describe("IncidentService", () => {
         reporter: { id: "1", name: "Reporter", email: "reporter@test.com" },
         assignedInvestigator: { id: "2", name: "Investigator", email: "inv@test.com" },
         people: [{ id: "1", name: "Witness", role: "witness" }],
-        evidence: [{ id: "1", fileName: "photo.jpg" }],
         comments: [
           { id: "1", content: "A comment", user: { id: "1", name: "Reporter" }, createdAt: new Date() },
         ],
@@ -227,7 +226,6 @@ describe("IncidentService", () => {
       expect(result.reporter).toBeDefined();
       expect(result.assignedInvestigator).toBeDefined();
       expect(result.people).toHaveLength(1);
-      expect(result.evidence).toHaveLength(1);
       expect(result.comments).toHaveLength(1);
       expect(result.investigation).toBeDefined();
       expect(result.correctiveActions).toHaveLength(1);

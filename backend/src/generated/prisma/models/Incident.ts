@@ -330,7 +330,6 @@ export type IncidentWhereInput = {
   reporter?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   assignedInvestigator?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   people?: Prisma.IncidentPersonListRelationFilter
-  evidence?: Prisma.EvidenceListRelationFilter
   comments?: Prisma.CommentListRelationFilter
   investigation?: Prisma.XOR<Prisma.InvestigationNullableScalarRelationFilter, Prisma.InvestigationWhereInput> | null
   correctiveActions?: Prisma.CorrectiveActionListRelationFilter
@@ -364,7 +363,6 @@ export type IncidentOrderByWithRelationInput = {
   reporter?: Prisma.UserOrderByWithRelationInput
   assignedInvestigator?: Prisma.UserOrderByWithRelationInput
   people?: Prisma.IncidentPersonOrderByRelationAggregateInput
-  evidence?: Prisma.EvidenceOrderByRelationAggregateInput
   comments?: Prisma.CommentOrderByRelationAggregateInput
   investigation?: Prisma.InvestigationOrderByWithRelationInput
   correctiveActions?: Prisma.CorrectiveActionOrderByRelationAggregateInput
@@ -401,7 +399,6 @@ export type IncidentWhereUniqueInput = Prisma.AtLeast<{
   reporter?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   assignedInvestigator?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   people?: Prisma.IncidentPersonListRelationFilter
-  evidence?: Prisma.EvidenceListRelationFilter
   comments?: Prisma.CommentListRelationFilter
   investigation?: Prisma.XOR<Prisma.InvestigationNullableScalarRelationFilter, Prisma.InvestigationWhereInput> | null
   correctiveActions?: Prisma.CorrectiveActionListRelationFilter
@@ -490,7 +487,6 @@ export type IncidentCreateInput = {
   reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
   assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
   people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
@@ -521,7 +517,6 @@ export type IncidentUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
@@ -551,7 +546,6 @@ export type IncidentUpdateInput = {
   reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
   assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
   people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
@@ -581,7 +575,6 @@ export type IncidentUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUncheckedUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
@@ -898,20 +891,6 @@ export type IncidentUpdateOneRequiredWithoutPeopleNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.IncidentUpdateToOneWithWhereWithoutPeopleInput, Prisma.IncidentUpdateWithoutPeopleInput>, Prisma.IncidentUncheckedUpdateWithoutPeopleInput>
 }
 
-export type IncidentCreateNestedOneWithoutEvidenceInput = {
-  create?: Prisma.XOR<Prisma.IncidentCreateWithoutEvidenceInput, Prisma.IncidentUncheckedCreateWithoutEvidenceInput>
-  connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutEvidenceInput
-  connect?: Prisma.IncidentWhereUniqueInput
-}
-
-export type IncidentUpdateOneRequiredWithoutEvidenceNestedInput = {
-  create?: Prisma.XOR<Prisma.IncidentCreateWithoutEvidenceInput, Prisma.IncidentUncheckedCreateWithoutEvidenceInput>
-  connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutEvidenceInput
-  upsert?: Prisma.IncidentUpsertWithoutEvidenceInput
-  connect?: Prisma.IncidentWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.IncidentUpdateToOneWithWhereWithoutEvidenceInput, Prisma.IncidentUpdateWithoutEvidenceInput>, Prisma.IncidentUncheckedUpdateWithoutEvidenceInput>
-}
-
 export type IncidentCreateNestedOneWithoutCommentsInput = {
   create?: Prisma.XOR<Prisma.IncidentCreateWithoutCommentsInput, Prisma.IncidentUncheckedCreateWithoutCommentsInput>
   connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutCommentsInput
@@ -978,7 +957,6 @@ export type IncidentCreateWithoutCompanyInput = {
   reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
   assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
   people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
@@ -1008,7 +986,6 @@ export type IncidentUncheckedCreateWithoutCompanyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
@@ -1092,7 +1069,6 @@ export type IncidentCreateWithoutReporterInput = {
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
   assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
   people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
@@ -1122,7 +1098,6 @@ export type IncidentUncheckedCreateWithoutReporterInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
@@ -1161,7 +1136,6 @@ export type IncidentCreateWithoutAssignedInvestigatorInput = {
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
   reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
   people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
@@ -1191,7 +1165,6 @@ export type IncidentUncheckedCreateWithoutAssignedInvestigatorInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
@@ -1262,7 +1235,6 @@ export type IncidentCreateWithoutPeopleInput = {
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
   reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
   assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
-  evidence?: Prisma.EvidenceCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
@@ -1292,7 +1264,6 @@ export type IncidentUncheckedCreateWithoutPeopleInput = {
   assignedTo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  evidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
@@ -1337,7 +1308,6 @@ export type IncidentUpdateWithoutPeopleInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
   reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
   assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
-  evidence?: Prisma.EvidenceUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
@@ -1366,141 +1336,6 @@ export type IncidentUncheckedUpdateWithoutPeopleInput = {
   assignedTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  evidence?: Prisma.EvidenceUncheckedUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
-}
-
-export type IncidentCreateWithoutEvidenceInput = {
-  id?: string
-  referenceNumber: string
-  title: string
-  description: string
-  type: string
-  status?: string
-  incidentDate: Date | string
-  location?: string | null
-  operatorName: string
-  dispatcher: string
-  dispatchTime?: Date | string | null
-  arrivalTime?: Date | string | null
-  callSign?: string | null
-  propertyAddress?: string | null
-  clientName?: string | null
-  clientCode?: string | null
-  businessOrComplex?: string | null
-  sapsReference?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
-  reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
-  assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
-  people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
-}
-
-export type IncidentUncheckedCreateWithoutEvidenceInput = {
-  id?: string
-  companyId: string
-  referenceNumber: string
-  title: string
-  description: string
-  type: string
-  status?: string
-  incidentDate: Date | string
-  location?: string | null
-  operatorName: string
-  dispatcher: string
-  dispatchTime?: Date | string | null
-  arrivalTime?: Date | string | null
-  callSign?: string | null
-  propertyAddress?: string | null
-  clientName?: string | null
-  clientCode?: string | null
-  businessOrComplex?: string | null
-  sapsReference?: string | null
-  reporterId: string
-  assignedTo?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
-}
-
-export type IncidentCreateOrConnectWithoutEvidenceInput = {
-  where: Prisma.IncidentWhereUniqueInput
-  create: Prisma.XOR<Prisma.IncidentCreateWithoutEvidenceInput, Prisma.IncidentUncheckedCreateWithoutEvidenceInput>
-}
-
-export type IncidentUpsertWithoutEvidenceInput = {
-  update: Prisma.XOR<Prisma.IncidentUpdateWithoutEvidenceInput, Prisma.IncidentUncheckedUpdateWithoutEvidenceInput>
-  create: Prisma.XOR<Prisma.IncidentCreateWithoutEvidenceInput, Prisma.IncidentUncheckedCreateWithoutEvidenceInput>
-  where?: Prisma.IncidentWhereInput
-}
-
-export type IncidentUpdateToOneWithWhereWithoutEvidenceInput = {
-  where?: Prisma.IncidentWhereInput
-  data: Prisma.XOR<Prisma.IncidentUpdateWithoutEvidenceInput, Prisma.IncidentUncheckedUpdateWithoutEvidenceInput>
-}
-
-export type IncidentUpdateWithoutEvidenceInput = {
-  referenceNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
-  reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
-  assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
-  people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
-}
-
-export type IncidentUncheckedUpdateWithoutEvidenceInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
-  referenceNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reporterId?: Prisma.StringFieldUpdateOperationsInput | string
-  assignedTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
@@ -1531,7 +1366,6 @@ export type IncidentCreateWithoutCommentsInput = {
   reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
   assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
   people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
 }
@@ -1561,7 +1395,6 @@ export type IncidentUncheckedCreateWithoutCommentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
 }
@@ -1606,7 +1439,6 @@ export type IncidentUpdateWithoutCommentsInput = {
   reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
   assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
   people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
 }
@@ -1635,7 +1467,6 @@ export type IncidentUncheckedUpdateWithoutCommentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUncheckedUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
 }
@@ -1665,7 +1496,6 @@ export type IncidentCreateWithoutInvestigationInput = {
   reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
   assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
   people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
 }
@@ -1695,7 +1525,6 @@ export type IncidentUncheckedCreateWithoutInvestigationInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
 }
@@ -1740,7 +1569,6 @@ export type IncidentUpdateWithoutInvestigationInput = {
   reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
   assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
   people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
 }
@@ -1769,7 +1597,6 @@ export type IncidentUncheckedUpdateWithoutInvestigationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUncheckedUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
 }
@@ -1799,7 +1626,6 @@ export type IncidentCreateWithoutCorrectiveActionsInput = {
   reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
   assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
   people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
 }
@@ -1829,7 +1655,6 @@ export type IncidentUncheckedCreateWithoutCorrectiveActionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  evidence?: Prisma.EvidenceUncheckedCreateNestedManyWithoutIncidentInput
   comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
   investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
 }
@@ -1874,7 +1699,6 @@ export type IncidentUpdateWithoutCorrectiveActionsInput = {
   reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
   assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
   people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
 }
@@ -1903,7 +1727,6 @@ export type IncidentUncheckedUpdateWithoutCorrectiveActionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUncheckedUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
 }
@@ -1956,7 +1779,6 @@ export type IncidentUpdateWithoutCompanyInput = {
   reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
   assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
   people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
@@ -1985,7 +1807,6 @@ export type IncidentUncheckedUpdateWithoutCompanyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUncheckedUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
@@ -2088,7 +1909,6 @@ export type IncidentUpdateWithoutReporterInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
   assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
   people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
@@ -2117,7 +1937,6 @@ export type IncidentUncheckedUpdateWithoutReporterInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUncheckedUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
@@ -2170,7 +1989,6 @@ export type IncidentUpdateWithoutAssignedInvestigatorInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
   reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
   people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
@@ -2199,7 +2017,6 @@ export type IncidentUncheckedUpdateWithoutAssignedInvestigatorInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  evidence?: Prisma.EvidenceUncheckedUpdateManyWithoutIncidentNestedInput
   comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
   investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
   correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
@@ -2236,14 +2053,12 @@ export type IncidentUncheckedUpdateManyWithoutAssignedInvestigatorInput = {
 
 export type IncidentCountOutputType = {
   people: number
-  evidence: number
   comments: number
   correctiveActions: number
 }
 
 export type IncidentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   people?: boolean | IncidentCountOutputTypeCountPeopleArgs
-  evidence?: boolean | IncidentCountOutputTypeCountEvidenceArgs
   comments?: boolean | IncidentCountOutputTypeCountCommentsArgs
   correctiveActions?: boolean | IncidentCountOutputTypeCountCorrectiveActionsArgs
 }
@@ -2263,13 +2078,6 @@ export type IncidentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
  */
 export type IncidentCountOutputTypeCountPeopleArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.IncidentPersonWhereInput
-}
-
-/**
- * IncidentCountOutputType without action
- */
-export type IncidentCountOutputTypeCountEvidenceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.EvidenceWhereInput
 }
 
 /**
@@ -2315,7 +2123,6 @@ export type IncidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   reporter?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   assignedInvestigator?: boolean | Prisma.Incident$assignedInvestigatorArgs<ExtArgs>
   people?: boolean | Prisma.Incident$peopleArgs<ExtArgs>
-  evidence?: boolean | Prisma.Incident$evidenceArgs<ExtArgs>
   comments?: boolean | Prisma.Incident$commentsArgs<ExtArgs>
   investigation?: boolean | Prisma.Incident$investigationArgs<ExtArgs>
   correctiveActions?: boolean | Prisma.Incident$correctiveActionsArgs<ExtArgs>
@@ -2356,7 +2163,6 @@ export type IncidentInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   reporter?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   assignedInvestigator?: boolean | Prisma.Incident$assignedInvestigatorArgs<ExtArgs>
   people?: boolean | Prisma.Incident$peopleArgs<ExtArgs>
-  evidence?: boolean | Prisma.Incident$evidenceArgs<ExtArgs>
   comments?: boolean | Prisma.Incident$commentsArgs<ExtArgs>
   investigation?: boolean | Prisma.Incident$investigationArgs<ExtArgs>
   correctiveActions?: boolean | Prisma.Incident$correctiveActionsArgs<ExtArgs>
@@ -2370,7 +2176,6 @@ export type $IncidentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     reporter: Prisma.$UserPayload<ExtArgs>
     assignedInvestigator: Prisma.$UserPayload<ExtArgs> | null
     people: Prisma.$IncidentPersonPayload<ExtArgs>[]
-    evidence: Prisma.$EvidencePayload<ExtArgs>[]
     comments: Prisma.$CommentPayload<ExtArgs>[]
     investigation: Prisma.$InvestigationPayload<ExtArgs> | null
     correctiveActions: Prisma.$CorrectiveActionPayload<ExtArgs>[]
@@ -2766,7 +2571,6 @@ export interface Prisma__IncidentClient<T, Null = never, ExtArgs extends runtime
   reporter<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   assignedInvestigator<T extends Prisma.Incident$assignedInvestigatorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Incident$assignedInvestigatorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   people<T extends Prisma.Incident$peopleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Incident$peopleArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IncidentPersonPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  evidence<T extends Prisma.Incident$evidenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Incident$evidenceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EvidencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   comments<T extends Prisma.Incident$commentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Incident$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   investigation<T extends Prisma.Incident$investigationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Incident$investigationArgs<ExtArgs>>): Prisma.Prisma__InvestigationClient<runtime.Types.Result.GetResult<Prisma.$InvestigationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   correctiveActions<T extends Prisma.Incident$correctiveActionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Incident$correctiveActionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CorrectiveActionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3232,30 +3036,6 @@ export type Incident$peopleArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.IncidentPersonScalarFieldEnum | Prisma.IncidentPersonScalarFieldEnum[]
-}
-
-/**
- * Incident.evidence
- */
-export type Incident$evidenceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Evidence
-   */
-  select?: Prisma.EvidenceSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Evidence
-   */
-  omit?: Prisma.EvidenceOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.EvidenceInclude<ExtArgs> | null
-  where?: Prisma.EvidenceWhereInput
-  orderBy?: Prisma.EvidenceOrderByWithRelationInput | Prisma.EvidenceOrderByWithRelationInput[]
-  cursor?: Prisma.EvidenceWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.EvidenceScalarFieldEnum | Prisma.EvidenceScalarFieldEnum[]
 }
 
 /**
