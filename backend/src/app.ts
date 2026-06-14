@@ -32,8 +32,12 @@ import invoiceRoutes from "./routes/invoice.routes";
 export async function buildApp() {
   const fastify = Fastify({ logger: true });
 
+  const corsOrigin = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+    : ["http://localhost:3000"];
+
   await fastify.register(cors, {
-    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    origin: corsOrigin,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   });
