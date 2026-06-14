@@ -179,7 +179,7 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 
 export type UserGroupByOutputType = {
   id: string
-  companyId: string
+  companyId: string | null
   name: string
   email: string
   passwordHash: string
@@ -213,7 +213,7 @@ export type UserWhereInput = {
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   id?: Prisma.StringFilter<"User"> | string
-  companyId?: Prisma.StringFilter<"User"> | string
+  companyId?: Prisma.StringNullableFilter<"User"> | string | null
   name?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringFilter<"User"> | string
@@ -222,7 +222,7 @@ export type UserWhereInput = {
   createdBy?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   creator?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   createdUsers?: Prisma.UserListRelationFilter
   reportedIncidents?: Prisma.IncidentListRelationFilter
@@ -261,7 +261,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
-  companyId?: Prisma.StringFilter<"User"> | string
+  companyId?: Prisma.StringNullableFilter<"User"> | string | null
   name?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringFilter<"User"> | string
   role?: Prisma.StringFilter<"User"> | string
@@ -269,7 +269,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdBy?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   creator?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   createdUsers?: Prisma.UserListRelationFilter
   reportedIncidents?: Prisma.IncidentListRelationFilter
@@ -301,7 +301,7 @@ export type UserScalarWhereWithAggregatesInput = {
   OR?: Prisma.UserScalarWhereWithAggregatesInput[]
   NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
-  companyId?: Prisma.StringWithAggregatesFilter<"User"> | string
+  companyId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   passwordHash?: Prisma.StringWithAggregatesFilter<"User"> | string
@@ -321,7 +321,7 @@ export type UserCreateInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
   creator?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
   createdUsers?: Prisma.UserCreateNestedManyWithoutCreatorInput
   reportedIncidents?: Prisma.IncidentCreateNestedManyWithoutReporterInput
@@ -334,7 +334,7 @@ export type UserCreateInput = {
 
 export type UserUncheckedCreateInput = {
   id?: string
-  companyId: string
+  companyId?: string | null
   name: string
   email: string
   passwordHash: string
@@ -360,7 +360,7 @@ export type UserUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
   creator?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
   createdUsers?: Prisma.UserUpdateManyWithoutCreatorNestedInput
   reportedIncidents?: Prisma.IncidentUpdateManyWithoutReporterNestedInput
@@ -372,7 +372,7 @@ export type UserUpdateInput = {
 }
 
 export type UserUncheckedUpdateInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -392,7 +392,7 @@ export type UserUncheckedUpdateInput = {
 
 export type UserCreateManyInput = {
   id?: string
-  companyId: string
+  companyId?: string | null
   name: string
   email: string
   passwordHash: string
@@ -414,7 +414,7 @@ export type UserUpdateManyMutationInput = {
 }
 
 export type UserUncheckedUpdateManyInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -743,7 +743,7 @@ export type UserScalarWhereInput = {
   OR?: Prisma.UserScalarWhereInput[]
   NOT?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
   id?: Prisma.StringFilter<"User"> | string
-  companyId?: Prisma.StringFilter<"User"> | string
+  companyId?: Prisma.StringNullableFilter<"User"> | string | null
   name?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringFilter<"User"> | string
@@ -763,7 +763,7 @@ export type UserCreateWithoutCreatedUsersInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
   creator?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
   reportedIncidents?: Prisma.IncidentCreateNestedManyWithoutReporterInput
   assignedIncidents?: Prisma.IncidentCreateNestedManyWithoutAssignedInvestigatorInput
@@ -775,7 +775,7 @@ export type UserCreateWithoutCreatedUsersInput = {
 
 export type UserUncheckedCreateWithoutCreatedUsersInput = {
   id?: string
-  companyId: string
+  companyId?: string | null
   name: string
   email: string
   passwordHash: string
@@ -806,7 +806,7 @@ export type UserCreateWithoutCreatorInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
   createdUsers?: Prisma.UserCreateNestedManyWithoutCreatorInput
   reportedIncidents?: Prisma.IncidentCreateNestedManyWithoutReporterInput
   assignedIncidents?: Prisma.IncidentCreateNestedManyWithoutAssignedInvestigatorInput
@@ -818,7 +818,7 @@ export type UserCreateWithoutCreatorInput = {
 
 export type UserUncheckedCreateWithoutCreatorInput = {
   id?: string
-  companyId: string
+  companyId?: string | null
   name: string
   email: string
   passwordHash: string
@@ -863,7 +863,7 @@ export type UserUpdateWithoutCreatedUsersInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
   creator?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
   reportedIncidents?: Prisma.IncidentUpdateManyWithoutReporterNestedInput
   assignedIncidents?: Prisma.IncidentUpdateManyWithoutAssignedInvestigatorNestedInput
@@ -874,7 +874,7 @@ export type UserUpdateWithoutCreatedUsersInput = {
 }
 
 export type UserUncheckedUpdateWithoutCreatedUsersInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -916,7 +916,7 @@ export type UserCreateWithoutReportedIncidentsInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
   creator?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
   createdUsers?: Prisma.UserCreateNestedManyWithoutCreatorInput
   assignedIncidents?: Prisma.IncidentCreateNestedManyWithoutAssignedInvestigatorInput
@@ -928,7 +928,7 @@ export type UserCreateWithoutReportedIncidentsInput = {
 
 export type UserUncheckedCreateWithoutReportedIncidentsInput = {
   id?: string
-  companyId: string
+  companyId?: string | null
   name: string
   email: string
   passwordHash: string
@@ -959,7 +959,7 @@ export type UserCreateWithoutAssignedIncidentsInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
   creator?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
   createdUsers?: Prisma.UserCreateNestedManyWithoutCreatorInput
   reportedIncidents?: Prisma.IncidentCreateNestedManyWithoutReporterInput
@@ -971,7 +971,7 @@ export type UserCreateWithoutAssignedIncidentsInput = {
 
 export type UserUncheckedCreateWithoutAssignedIncidentsInput = {
   id?: string
-  companyId: string
+  companyId?: string | null
   name: string
   email: string
   passwordHash: string
@@ -1012,7 +1012,7 @@ export type UserUpdateWithoutReportedIncidentsInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
   creator?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
   createdUsers?: Prisma.UserUpdateManyWithoutCreatorNestedInput
   assignedIncidents?: Prisma.IncidentUpdateManyWithoutAssignedInvestigatorNestedInput
@@ -1023,7 +1023,7 @@ export type UserUpdateWithoutReportedIncidentsInput = {
 }
 
 export type UserUncheckedUpdateWithoutReportedIncidentsInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1059,7 +1059,7 @@ export type UserUpdateWithoutAssignedIncidentsInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
   creator?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
   createdUsers?: Prisma.UserUpdateManyWithoutCreatorNestedInput
   reportedIncidents?: Prisma.IncidentUpdateManyWithoutReporterNestedInput
@@ -1070,7 +1070,7 @@ export type UserUpdateWithoutAssignedIncidentsInput = {
 }
 
 export type UserUncheckedUpdateWithoutAssignedIncidentsInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1096,7 +1096,7 @@ export type UserCreateWithoutCommentsInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
   creator?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
   createdUsers?: Prisma.UserCreateNestedManyWithoutCreatorInput
   reportedIncidents?: Prisma.IncidentCreateNestedManyWithoutReporterInput
@@ -1108,7 +1108,7 @@ export type UserCreateWithoutCommentsInput = {
 
 export type UserUncheckedCreateWithoutCommentsInput = {
   id?: string
-  companyId: string
+  companyId?: string | null
   name: string
   email: string
   passwordHash: string
@@ -1149,7 +1149,7 @@ export type UserUpdateWithoutCommentsInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
   creator?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
   createdUsers?: Prisma.UserUpdateManyWithoutCreatorNestedInput
   reportedIncidents?: Prisma.IncidentUpdateManyWithoutReporterNestedInput
@@ -1160,7 +1160,7 @@ export type UserUpdateWithoutCommentsInput = {
 }
 
 export type UserUncheckedUpdateWithoutCommentsInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1186,7 +1186,7 @@ export type UserCreateWithoutActionOwnerInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
   creator?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
   createdUsers?: Prisma.UserCreateNestedManyWithoutCreatorInput
   reportedIncidents?: Prisma.IncidentCreateNestedManyWithoutReporterInput
@@ -1198,7 +1198,7 @@ export type UserCreateWithoutActionOwnerInput = {
 
 export type UserUncheckedCreateWithoutActionOwnerInput = {
   id?: string
-  companyId: string
+  companyId?: string | null
   name: string
   email: string
   passwordHash: string
@@ -1239,7 +1239,7 @@ export type UserUpdateWithoutActionOwnerInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
   creator?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
   createdUsers?: Prisma.UserUpdateManyWithoutCreatorNestedInput
   reportedIncidents?: Prisma.IncidentUpdateManyWithoutReporterNestedInput
@@ -1250,7 +1250,7 @@ export type UserUpdateWithoutActionOwnerInput = {
 }
 
 export type UserUncheckedUpdateWithoutActionOwnerInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1276,7 +1276,7 @@ export type UserCreateWithoutAuditLogsInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
   creator?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
   createdUsers?: Prisma.UserCreateNestedManyWithoutCreatorInput
   reportedIncidents?: Prisma.IncidentCreateNestedManyWithoutReporterInput
@@ -1288,7 +1288,7 @@ export type UserCreateWithoutAuditLogsInput = {
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
   id?: string
-  companyId: string
+  companyId?: string | null
   name: string
   email: string
   passwordHash: string
@@ -1329,7 +1329,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
   creator?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
   createdUsers?: Prisma.UserUpdateManyWithoutCreatorNestedInput
   reportedIncidents?: Prisma.IncidentUpdateManyWithoutReporterNestedInput
@@ -1340,7 +1340,7 @@ export type UserUpdateWithoutAuditLogsInput = {
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1366,7 +1366,7 @@ export type UserCreateWithoutGuardInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
   creator?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
   createdUsers?: Prisma.UserCreateNestedManyWithoutCreatorInput
   reportedIncidents?: Prisma.IncidentCreateNestedManyWithoutReporterInput
@@ -1378,7 +1378,7 @@ export type UserCreateWithoutGuardInput = {
 
 export type UserUncheckedCreateWithoutGuardInput = {
   id?: string
-  companyId: string
+  companyId?: string | null
   name: string
   email: string
   passwordHash: string
@@ -1419,7 +1419,7 @@ export type UserUpdateWithoutGuardInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
   creator?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
   createdUsers?: Prisma.UserUpdateManyWithoutCreatorNestedInput
   reportedIncidents?: Prisma.IncidentUpdateManyWithoutReporterNestedInput
@@ -1430,7 +1430,7 @@ export type UserUpdateWithoutGuardInput = {
 }
 
 export type UserUncheckedUpdateWithoutGuardInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1508,7 +1508,7 @@ export type UserUncheckedUpdateManyWithoutCompanyInput = {
 
 export type UserCreateManyCreatorInput = {
   id?: string
-  companyId: string
+  companyId?: string | null
   name: string
   email: string
   passwordHash: string
@@ -1526,7 +1526,7 @@ export type UserUpdateWithoutCreatorInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
   createdUsers?: Prisma.UserUpdateManyWithoutCreatorNestedInput
   reportedIncidents?: Prisma.IncidentUpdateManyWithoutReporterNestedInput
   assignedIncidents?: Prisma.IncidentUpdateManyWithoutAssignedInvestigatorNestedInput
@@ -1537,7 +1537,7 @@ export type UserUpdateWithoutCreatorInput = {
 }
 
 export type UserUncheckedUpdateWithoutCreatorInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1555,7 +1555,7 @@ export type UserUncheckedUpdateWithoutCreatorInput = {
 }
 
 export type UserUncheckedUpdateManyWithoutCreatorInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1652,7 +1652,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.User$companyArgs<ExtArgs>
   creator?: boolean | Prisma.User$creatorArgs<ExtArgs>
   createdUsers?: boolean | Prisma.User$createdUsersArgs<ExtArgs>
   reportedIncidents?: boolean | Prisma.User$reportedIncidentsArgs<ExtArgs>
@@ -1681,7 +1681,7 @@ export type UserSelectScalar = {
 
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "name" | "email" | "passwordHash" | "role" | "status" | "createdBy" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  company?: boolean | Prisma.User$companyArgs<ExtArgs>
   creator?: boolean | Prisma.User$creatorArgs<ExtArgs>
   createdUsers?: boolean | Prisma.User$createdUsersArgs<ExtArgs>
   reportedIncidents?: boolean | Prisma.User$reportedIncidentsArgs<ExtArgs>
@@ -1696,7 +1696,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
-    company: Prisma.$CompanyPayload<ExtArgs>
+    company: Prisma.$CompanyPayload<ExtArgs> | null
     creator: Prisma.$UserPayload<ExtArgs> | null
     createdUsers: Prisma.$UserPayload<ExtArgs>[]
     reportedIncidents: Prisma.$IncidentPayload<ExtArgs>[]
@@ -1708,7 +1708,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    companyId: string
+    companyId: string | null
     name: string
     email: string
     passwordHash: string
@@ -2080,7 +2080,7 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.User$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   creator<T extends Prisma.User$creatorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$creatorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   createdUsers<T extends Prisma.User$createdUsersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdUsersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reportedIncidents<T extends Prisma.User$reportedIncidentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reportedIncidentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IncidentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2495,6 +2495,25 @@ export type UserAggregateRawArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
    */
   options?: runtime.InputJsonValue
+}
+
+/**
+ * User.company
+ */
+export type User$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

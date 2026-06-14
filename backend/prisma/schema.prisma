@@ -19,6 +19,7 @@ model Company {
   incidents       Incident[]
   subscription    CompanySubscription?
   payments        PaymentHistory[]
+  invoices        Invoice[]
   apiKeys         ApiKey[]
   guardingSites   GuardingSite[]
   guards          Guard[]
@@ -29,7 +30,7 @@ model Company {
 
 model User {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  companyId    String   @map("company_id") @db.ObjectId
+  companyId    String?  @map("company_id") @db.ObjectId
   name         String
   email        String   @unique
   passwordHash String   @map("password_hash")
@@ -39,7 +40,7 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  company           Company            @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  company           Company?           @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   creator           User?              @relation("created_users", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdUsers      User[]             @relation("created_users")
   reportedIncidents Incident[]         @relation("reporter")
@@ -211,13 +212,40 @@ model PaymentHistory {
   currency     String   @default("ZAR")
   reference    String   @unique
   status       String   @default("pending")
+  invoiceId    String?  @map("invoice_id") @db.ObjectId
 
   createdAt    DateTime @default(now()) @map("created_at")
 
   company Company @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  invoice Invoice? @relation(fields: [invoiceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([companyId])
+  @@index([invoiceId])
   @@map("payment_history")
+}
+
+model Invoice {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  companyId    String    @map("company_id") @db.ObjectId
+  invoiceNumber String   @unique @map("invoice_number")
+  amount       Int       @map("amount")
+  currency     String    @default("ZAR")
+  status       String    @default("draft")
+  dueDate      DateTime  @map("due_date")
+  paidAt       DateTime? @map("paid_at")
+  periodStart  DateTime? @map("period_start")
+  periodEnd    DateTime? @map("period_end")
+  description  String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  company  Company         @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  payments PaymentHistory[]
+
+  @@index([companyId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("invoices")
 }
 
 model ApiKey {

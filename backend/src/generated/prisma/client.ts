@@ -98,6 +98,11 @@ export type CompanySubscription = Prisma.CompanySubscriptionModel
  */
 export type PaymentHistory = Prisma.PaymentHistoryModel
 /**
+ * Model Invoice
+ * 
+ */
+export type Invoice = Prisma.InvoiceModel
+/**
  * Model ApiKey
  * 
  */

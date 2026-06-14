@@ -41,6 +41,7 @@ export type PaymentHistoryMinAggregateOutputType = {
   currency: string | null
   reference: string | null
   status: string | null
+  invoiceId: string | null
   createdAt: Date | null
 }
 
@@ -51,6 +52,7 @@ export type PaymentHistoryMaxAggregateOutputType = {
   currency: string | null
   reference: string | null
   status: string | null
+  invoiceId: string | null
   createdAt: Date | null
 }
 
@@ -61,6 +63,7 @@ export type PaymentHistoryCountAggregateOutputType = {
   currency: number
   reference: number
   status: number
+  invoiceId: number
   createdAt: number
   _all: number
 }
@@ -81,6 +84,7 @@ export type PaymentHistoryMinAggregateInputType = {
   currency?: true
   reference?: true
   status?: true
+  invoiceId?: true
   createdAt?: true
 }
 
@@ -91,6 +95,7 @@ export type PaymentHistoryMaxAggregateInputType = {
   currency?: true
   reference?: true
   status?: true
+  invoiceId?: true
   createdAt?: true
 }
 
@@ -101,6 +106,7 @@ export type PaymentHistoryCountAggregateInputType = {
   currency?: true
   reference?: true
   status?: true
+  invoiceId?: true
   createdAt?: true
   _all?: true
 }
@@ -198,6 +204,7 @@ export type PaymentHistoryGroupByOutputType = {
   currency: string
   reference: string
   status: string
+  invoiceId: string | null
   createdAt: Date
   _count: PaymentHistoryCountAggregateOutputType | null
   _avg: PaymentHistoryAvgAggregateOutputType | null
@@ -231,8 +238,10 @@ export type PaymentHistoryWhereInput = {
   currency?: Prisma.StringFilter<"PaymentHistory"> | string
   reference?: Prisma.StringFilter<"PaymentHistory"> | string
   status?: Prisma.StringFilter<"PaymentHistory"> | string
+  invoiceId?: Prisma.StringNullableFilter<"PaymentHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentHistory"> | Date | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
+  invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
 }
 
 export type PaymentHistoryOrderByWithRelationInput = {
@@ -242,8 +251,10 @@ export type PaymentHistoryOrderByWithRelationInput = {
   currency?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  invoiceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   company?: Prisma.CompanyOrderByWithRelationInput
+  invoice?: Prisma.InvoiceOrderByWithRelationInput
 }
 
 export type PaymentHistoryWhereUniqueInput = Prisma.AtLeast<{
@@ -256,8 +267,10 @@ export type PaymentHistoryWhereUniqueInput = Prisma.AtLeast<{
   amount?: Prisma.IntFilter<"PaymentHistory"> | number
   currency?: Prisma.StringFilter<"PaymentHistory"> | string
   status?: Prisma.StringFilter<"PaymentHistory"> | string
+  invoiceId?: Prisma.StringNullableFilter<"PaymentHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentHistory"> | Date | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
+  invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
 }, "id" | "reference">
 
 export type PaymentHistoryOrderByWithAggregationInput = {
@@ -267,6 +280,7 @@ export type PaymentHistoryOrderByWithAggregationInput = {
   currency?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  invoiceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.PaymentHistoryCountOrderByAggregateInput
   _avg?: Prisma.PaymentHistoryAvgOrderByAggregateInput
@@ -285,6 +299,7 @@ export type PaymentHistoryScalarWhereWithAggregatesInput = {
   currency?: Prisma.StringWithAggregatesFilter<"PaymentHistory"> | string
   reference?: Prisma.StringWithAggregatesFilter<"PaymentHistory"> | string
   status?: Prisma.StringWithAggregatesFilter<"PaymentHistory"> | string
+  invoiceId?: Prisma.StringNullableWithAggregatesFilter<"PaymentHistory"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentHistory"> | Date | string
 }
 
@@ -296,6 +311,7 @@ export type PaymentHistoryCreateInput = {
   status?: string
   createdAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutPaymentsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentsInput
 }
 
 export type PaymentHistoryUncheckedCreateInput = {
@@ -305,6 +321,7 @@ export type PaymentHistoryUncheckedCreateInput = {
   currency?: string
   reference: string
   status?: string
+  invoiceId?: string | null
   createdAt?: Date | string
 }
 
@@ -315,6 +332,7 @@ export type PaymentHistoryUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutPaymentsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentsNestedInput
 }
 
 export type PaymentHistoryUncheckedUpdateInput = {
@@ -323,6 +341,7 @@ export type PaymentHistoryUncheckedUpdateInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -333,6 +352,7 @@ export type PaymentHistoryCreateManyInput = {
   currency?: string
   reference: string
   status?: string
+  invoiceId?: string | null
   createdAt?: Date | string
 }
 
@@ -350,6 +370,7 @@ export type PaymentHistoryUncheckedUpdateManyInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -370,6 +391,7 @@ export type PaymentHistoryCountOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  invoiceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -384,6 +406,7 @@ export type PaymentHistoryMaxOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  invoiceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -394,6 +417,7 @@ export type PaymentHistoryMinOrderByAggregateInput = {
   currency?: Prisma.SortOrder
   reference?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  invoiceId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -443,6 +467,48 @@ export type PaymentHistoryUncheckedUpdateManyWithoutCompanyNestedInput = {
   deleteMany?: Prisma.PaymentHistoryScalarWhereInput | Prisma.PaymentHistoryScalarWhereInput[]
 }
 
+export type PaymentHistoryCreateNestedManyWithoutInvoiceInput = {
+  create?: Prisma.XOR<Prisma.PaymentHistoryCreateWithoutInvoiceInput, Prisma.PaymentHistoryUncheckedCreateWithoutInvoiceInput> | Prisma.PaymentHistoryCreateWithoutInvoiceInput[] | Prisma.PaymentHistoryUncheckedCreateWithoutInvoiceInput[]
+  connectOrCreate?: Prisma.PaymentHistoryCreateOrConnectWithoutInvoiceInput | Prisma.PaymentHistoryCreateOrConnectWithoutInvoiceInput[]
+  createMany?: Prisma.PaymentHistoryCreateManyInvoiceInputEnvelope
+  connect?: Prisma.PaymentHistoryWhereUniqueInput | Prisma.PaymentHistoryWhereUniqueInput[]
+}
+
+export type PaymentHistoryUncheckedCreateNestedManyWithoutInvoiceInput = {
+  create?: Prisma.XOR<Prisma.PaymentHistoryCreateWithoutInvoiceInput, Prisma.PaymentHistoryUncheckedCreateWithoutInvoiceInput> | Prisma.PaymentHistoryCreateWithoutInvoiceInput[] | Prisma.PaymentHistoryUncheckedCreateWithoutInvoiceInput[]
+  connectOrCreate?: Prisma.PaymentHistoryCreateOrConnectWithoutInvoiceInput | Prisma.PaymentHistoryCreateOrConnectWithoutInvoiceInput[]
+  createMany?: Prisma.PaymentHistoryCreateManyInvoiceInputEnvelope
+  connect?: Prisma.PaymentHistoryWhereUniqueInput | Prisma.PaymentHistoryWhereUniqueInput[]
+}
+
+export type PaymentHistoryUpdateManyWithoutInvoiceNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentHistoryCreateWithoutInvoiceInput, Prisma.PaymentHistoryUncheckedCreateWithoutInvoiceInput> | Prisma.PaymentHistoryCreateWithoutInvoiceInput[] | Prisma.PaymentHistoryUncheckedCreateWithoutInvoiceInput[]
+  connectOrCreate?: Prisma.PaymentHistoryCreateOrConnectWithoutInvoiceInput | Prisma.PaymentHistoryCreateOrConnectWithoutInvoiceInput[]
+  upsert?: Prisma.PaymentHistoryUpsertWithWhereUniqueWithoutInvoiceInput | Prisma.PaymentHistoryUpsertWithWhereUniqueWithoutInvoiceInput[]
+  createMany?: Prisma.PaymentHistoryCreateManyInvoiceInputEnvelope
+  set?: Prisma.PaymentHistoryWhereUniqueInput | Prisma.PaymentHistoryWhereUniqueInput[]
+  disconnect?: Prisma.PaymentHistoryWhereUniqueInput | Prisma.PaymentHistoryWhereUniqueInput[]
+  delete?: Prisma.PaymentHistoryWhereUniqueInput | Prisma.PaymentHistoryWhereUniqueInput[]
+  connect?: Prisma.PaymentHistoryWhereUniqueInput | Prisma.PaymentHistoryWhereUniqueInput[]
+  update?: Prisma.PaymentHistoryUpdateWithWhereUniqueWithoutInvoiceInput | Prisma.PaymentHistoryUpdateWithWhereUniqueWithoutInvoiceInput[]
+  updateMany?: Prisma.PaymentHistoryUpdateManyWithWhereWithoutInvoiceInput | Prisma.PaymentHistoryUpdateManyWithWhereWithoutInvoiceInput[]
+  deleteMany?: Prisma.PaymentHistoryScalarWhereInput | Prisma.PaymentHistoryScalarWhereInput[]
+}
+
+export type PaymentHistoryUncheckedUpdateManyWithoutInvoiceNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentHistoryCreateWithoutInvoiceInput, Prisma.PaymentHistoryUncheckedCreateWithoutInvoiceInput> | Prisma.PaymentHistoryCreateWithoutInvoiceInput[] | Prisma.PaymentHistoryUncheckedCreateWithoutInvoiceInput[]
+  connectOrCreate?: Prisma.PaymentHistoryCreateOrConnectWithoutInvoiceInput | Prisma.PaymentHistoryCreateOrConnectWithoutInvoiceInput[]
+  upsert?: Prisma.PaymentHistoryUpsertWithWhereUniqueWithoutInvoiceInput | Prisma.PaymentHistoryUpsertWithWhereUniqueWithoutInvoiceInput[]
+  createMany?: Prisma.PaymentHistoryCreateManyInvoiceInputEnvelope
+  set?: Prisma.PaymentHistoryWhereUniqueInput | Prisma.PaymentHistoryWhereUniqueInput[]
+  disconnect?: Prisma.PaymentHistoryWhereUniqueInput | Prisma.PaymentHistoryWhereUniqueInput[]
+  delete?: Prisma.PaymentHistoryWhereUniqueInput | Prisma.PaymentHistoryWhereUniqueInput[]
+  connect?: Prisma.PaymentHistoryWhereUniqueInput | Prisma.PaymentHistoryWhereUniqueInput[]
+  update?: Prisma.PaymentHistoryUpdateWithWhereUniqueWithoutInvoiceInput | Prisma.PaymentHistoryUpdateWithWhereUniqueWithoutInvoiceInput[]
+  updateMany?: Prisma.PaymentHistoryUpdateManyWithWhereWithoutInvoiceInput | Prisma.PaymentHistoryUpdateManyWithWhereWithoutInvoiceInput[]
+  deleteMany?: Prisma.PaymentHistoryScalarWhereInput | Prisma.PaymentHistoryScalarWhereInput[]
+}
+
 export type PaymentHistoryCreateWithoutCompanyInput = {
   id?: string
   amount: number
@@ -450,6 +516,7 @@ export type PaymentHistoryCreateWithoutCompanyInput = {
   reference: string
   status?: string
   createdAt?: Date | string
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentsInput
 }
 
 export type PaymentHistoryUncheckedCreateWithoutCompanyInput = {
@@ -458,6 +525,7 @@ export type PaymentHistoryUncheckedCreateWithoutCompanyInput = {
   currency?: string
   reference: string
   status?: string
+  invoiceId?: string | null
   createdAt?: Date | string
 }
 
@@ -496,7 +564,53 @@ export type PaymentHistoryScalarWhereInput = {
   currency?: Prisma.StringFilter<"PaymentHistory"> | string
   reference?: Prisma.StringFilter<"PaymentHistory"> | string
   status?: Prisma.StringFilter<"PaymentHistory"> | string
+  invoiceId?: Prisma.StringNullableFilter<"PaymentHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentHistory"> | Date | string
+}
+
+export type PaymentHistoryCreateWithoutInvoiceInput = {
+  id?: string
+  amount: number
+  currency?: string
+  reference: string
+  status?: string
+  createdAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutPaymentsInput
+}
+
+export type PaymentHistoryUncheckedCreateWithoutInvoiceInput = {
+  id?: string
+  companyId: string
+  amount: number
+  currency?: string
+  reference: string
+  status?: string
+  createdAt?: Date | string
+}
+
+export type PaymentHistoryCreateOrConnectWithoutInvoiceInput = {
+  where: Prisma.PaymentHistoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.PaymentHistoryCreateWithoutInvoiceInput, Prisma.PaymentHistoryUncheckedCreateWithoutInvoiceInput>
+}
+
+export type PaymentHistoryCreateManyInvoiceInputEnvelope = {
+  data: Prisma.PaymentHistoryCreateManyInvoiceInput | Prisma.PaymentHistoryCreateManyInvoiceInput[]
+}
+
+export type PaymentHistoryUpsertWithWhereUniqueWithoutInvoiceInput = {
+  where: Prisma.PaymentHistoryWhereUniqueInput
+  update: Prisma.XOR<Prisma.PaymentHistoryUpdateWithoutInvoiceInput, Prisma.PaymentHistoryUncheckedUpdateWithoutInvoiceInput>
+  create: Prisma.XOR<Prisma.PaymentHistoryCreateWithoutInvoiceInput, Prisma.PaymentHistoryUncheckedCreateWithoutInvoiceInput>
+}
+
+export type PaymentHistoryUpdateWithWhereUniqueWithoutInvoiceInput = {
+  where: Prisma.PaymentHistoryWhereUniqueInput
+  data: Prisma.XOR<Prisma.PaymentHistoryUpdateWithoutInvoiceInput, Prisma.PaymentHistoryUncheckedUpdateWithoutInvoiceInput>
+}
+
+export type PaymentHistoryUpdateManyWithWhereWithoutInvoiceInput = {
+  where: Prisma.PaymentHistoryScalarWhereInput
+  data: Prisma.XOR<Prisma.PaymentHistoryUpdateManyMutationInput, Prisma.PaymentHistoryUncheckedUpdateManyWithoutInvoiceInput>
 }
 
 export type PaymentHistoryCreateManyCompanyInput = {
@@ -505,6 +619,7 @@ export type PaymentHistoryCreateManyCompanyInput = {
   currency?: string
   reference: string
   status?: string
+  invoiceId?: string | null
   createdAt?: Date | string
 }
 
@@ -514,6 +629,7 @@ export type PaymentHistoryUpdateWithoutCompanyInput = {
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentsNestedInput
 }
 
 export type PaymentHistoryUncheckedUpdateWithoutCompanyInput = {
@@ -521,10 +637,49 @@ export type PaymentHistoryUncheckedUpdateWithoutCompanyInput = {
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentHistoryUncheckedUpdateManyWithoutCompanyInput = {
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PaymentHistoryCreateManyInvoiceInput = {
+  id?: string
+  companyId: string
+  amount: number
+  currency?: string
+  reference: string
+  status?: string
+  createdAt?: Date | string
+}
+
+export type PaymentHistoryUpdateWithoutInvoiceInput = {
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutPaymentsNestedInput
+}
+
+export type PaymentHistoryUncheckedUpdateWithoutInvoiceInput = {
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  reference?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PaymentHistoryUncheckedUpdateManyWithoutInvoiceInput = {
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   reference?: Prisma.StringFieldUpdateOperationsInput | string
@@ -541,8 +696,10 @@ export type PaymentHistorySelect<ExtArgs extends runtime.Types.Extensions.Intern
   currency?: boolean
   reference?: boolean
   status?: boolean
+  invoiceId?: boolean
   createdAt?: boolean
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  invoice?: boolean | Prisma.PaymentHistory$invoiceArgs<ExtArgs>
 }, ExtArgs["result"]["paymentHistory"]>
 
 
@@ -554,18 +711,21 @@ export type PaymentHistorySelectScalar = {
   currency?: boolean
   reference?: boolean
   status?: boolean
+  invoiceId?: boolean
   createdAt?: boolean
 }
 
-export type PaymentHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "amount" | "currency" | "reference" | "status" | "createdAt", ExtArgs["result"]["paymentHistory"]>
+export type PaymentHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "amount" | "currency" | "reference" | "status" | "invoiceId" | "createdAt", ExtArgs["result"]["paymentHistory"]>
 export type PaymentHistoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  invoice?: boolean | Prisma.PaymentHistory$invoiceArgs<ExtArgs>
 }
 
 export type $PaymentHistoryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PaymentHistory"
   objects: {
     company: Prisma.$CompanyPayload<ExtArgs>
+    invoice: Prisma.$InvoicePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -574,6 +734,7 @@ export type $PaymentHistoryPayload<ExtArgs extends runtime.Types.Extensions.Inte
     currency: string
     reference: string
     status: string
+    invoiceId: string | null
     createdAt: Date
   }, ExtArgs["result"]["paymentHistory"]>
   composites: {}
@@ -939,6 +1100,7 @@ readonly fields: PaymentHistoryFieldRefs;
 export interface Prisma__PaymentHistoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  invoice<T extends Prisma.PaymentHistory$invoiceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PaymentHistory$invoiceArgs<ExtArgs>>): Prisma.Prisma__InvoiceClient<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -974,6 +1136,7 @@ export interface PaymentHistoryFieldRefs {
   readonly currency: Prisma.FieldRef<"PaymentHistory", 'String'>
   readonly reference: Prisma.FieldRef<"PaymentHistory", 'String'>
   readonly status: Prisma.FieldRef<"PaymentHistory", 'String'>
+  readonly invoiceId: Prisma.FieldRef<"PaymentHistory", 'String'>
   readonly createdAt: Prisma.FieldRef<"PaymentHistory", 'DateTime'>
 }
     
@@ -1342,6 +1505,25 @@ export type PaymentHistoryAggregateRawArgs<ExtArgs extends runtime.Types.Extensi
    * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
    */
   options?: runtime.InputJsonValue
+}
+
+/**
+ * PaymentHistory.invoice
+ */
+export type PaymentHistory$invoiceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Invoice
+   */
+  select?: Prisma.InvoiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Invoice
+   */
+  omit?: Prisma.InvoiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InvoiceInclude<ExtArgs> | null
+  where?: Prisma.InvoiceWhereInput
 }
 
 /**

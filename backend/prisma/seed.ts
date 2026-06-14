@@ -12,6 +12,7 @@ async function main() {
   await prisma.guard.deleteMany();
   await prisma.guardingSite.deleteMany();
   await prisma.paymentHistory.deleteMany();
+  await prisma.invoice.deleteMany();
   await prisma.companySubscription.deleteMany();
   await prisma.subscriptionPlan.deleteMany();
   await prisma.apiKey.deleteMany();
@@ -294,6 +295,22 @@ async function main() {
     },
   });
 
+  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || "corriebotha64@gmail.com";
+  const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || "superadmintest1234";
+  const existingSuperAdmin = await prisma.user.findUnique({ where: { email: superAdminEmail } });
+  if (!existingSuperAdmin) {
+    const superAdminHash = await bcrypt.hash(superAdminPassword, 12);
+    await prisma.user.create({
+      data: {
+        name: "Super Admin",
+        email: superAdminEmail,
+        passwordHash: superAdminHash,
+        role: "superadmin",
+        status: "active",
+      },
+    });
+  }
+
   console.log("Seed completed successfully");
   console.log(`Company: Demo Security Inc.`);
   console.log(`Admin: admin@example.com / password123`);
@@ -301,6 +318,7 @@ async function main() {
   console.log(`Senior: senior@example.com / password123`);
   console.log(`Guard 1 (Thabo): thabo@example.com / guard123`);
   console.log(`Guard 2 (Lerato): lerato@example.com / guard123`);
+  console.log(`Super Admin: ${superAdminEmail} / ${superAdminPassword}`);
 }
 
 main()

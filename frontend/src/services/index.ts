@@ -20,6 +20,11 @@ import type {
   PatrolReport,
   EntryLog,
   FlaggedVehicle,
+  Invoice,
+  RevenueStats,
+  RevenueTrend,
+  AdminCompany,
+  MonthlyInvoiceResult,
 } from "@/types";
 
 /** Aggregated report summary data for the dashboard. */
@@ -190,4 +195,36 @@ export const flaggedVehicleService = {
     api.post<FlaggedVehicle>("/flagged-vehicles", data),
   resolve: (id: string) => api.post<FlaggedVehicle>(`/flagged-vehicles/${id}/resolve`, {}),
   delete: (id: string) => api.delete<void>(`/flagged-vehicles/${id}`),
+};
+
+/** Superadmin company-management endpoints. */
+export const adminCompanyService = {
+  list: () => api.get<AdminCompany[]>("/admin/companies"),
+  getById: (id: string) => api.get<AdminCompany>(`/admin/companies/${id}`),
+};
+
+/** Superadmin invoice-management endpoints. */
+export const adminInvoiceService = {
+  list: (params?: { status?: string; companyId?: string; dateFrom?: string; dateTo?: string }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.status) searchParams.set("status", params.status);
+    if (params?.companyId) searchParams.set("companyId", params.companyId);
+    if (params?.dateFrom) searchParams.set("dateFrom", params.dateFrom);
+    if (params?.dateTo) searchParams.set("dateTo", params.dateTo);
+    const qs = searchParams.toString();
+    return api.get<Invoice[]>(`/admin/invoices${qs ? `?${qs}` : ""}`);
+  },
+  getById: (id: string) => api.get<Invoice>(`/admin/invoices/${id}`),
+  create: (data: { companyId: string; amount: number; dueDate: string; description?: string }) =>
+    api.post<Invoice>("/admin/invoices", data),
+  send: (id: string) => api.post<Invoice>(`/admin/invoices/${id}/send`),
+  markAsPaid: (id: string) => api.patch<Invoice>(`/admin/invoices/${id}/paid`),
+  markAsOverdue: (id: string) => api.patch<Invoice>(`/admin/invoices/${id}/overdue`),
+  generateMonthly: () => api.post<MonthlyInvoiceResult[]>("/admin/invoices/generate-monthly"),
+};
+
+/** Superadmin revenue endpoints. */
+export const adminRevenueService = {
+  stats: () => api.get<RevenueStats>("/admin/revenue"),
+  trends: () => api.get<RevenueTrend[]>("/admin/revenue/trends"),
 };

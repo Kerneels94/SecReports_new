@@ -60,6 +60,7 @@ export const ModelName = {
   SubscriptionPlan: 'SubscriptionPlan',
   CompanySubscription: 'CompanySubscription',
   PaymentHistory: 'PaymentHistory',
+  Invoice: 'Invoice',
   ApiKey: 'ApiKey',
   AuditLog: 'AuditLog',
   GuardingSite: 'GuardingSite',
@@ -234,10 +235,30 @@ export const PaymentHistoryScalarFieldEnum = {
   currency: 'currency',
   reference: 'reference',
   status: 'status',
+  invoiceId: 'invoiceId',
   createdAt: 'createdAt'
 } as const
 
 export type PaymentHistoryScalarFieldEnum = (typeof PaymentHistoryScalarFieldEnum)[keyof typeof PaymentHistoryScalarFieldEnum]
+
+
+export const InvoiceScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  invoiceNumber: 'invoiceNumber',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  dueDate: 'dueDate',
+  paidAt: 'paidAt',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
 
 
 export const ApiKeyScalarFieldEnum = {

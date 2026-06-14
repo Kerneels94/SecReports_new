@@ -12,8 +12,8 @@ import { authService } from "@/services";
 interface AuthState {
   user: User | null;
   isLoading: boolean;
-  login: (data: LoginRequest) => Promise<void>;
-  employeeLogin: (data: EmployeeLoginRequest) => Promise<void>;
+  login: (data: LoginRequest) => Promise<User>;
+  employeeLogin: (data: EmployeeLoginRequest) => Promise<User>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -46,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("accessToken", res.data.accessToken);
     localStorage.setItem("refreshToken", res.data.refreshToken);
     setUser(res.data.user);
+    return res.data.user;
   }, []);
 
   const employeeLogin = useCallback(async (data: EmployeeLoginRequest) => {
@@ -53,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("accessToken", res.data.accessToken);
     localStorage.setItem("refreshToken", res.data.refreshToken);
     setUser(res.data.user);
+    return res.data.user;
   }, []);
 
   const logout = useCallback(() => {

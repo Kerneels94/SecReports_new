@@ -3,9 +3,9 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role: "owner" | "manager" | "senior" | "guard";
+  role: "owner" | "manager" | "senior" | "guard" | "superadmin";
   status: "active" | "inactive";
-  companyId: number;
+  companyId: number | null;
 }
 
 /** An organisation (company) that owns reports and users. */
@@ -14,6 +14,9 @@ export interface Company {
   name: string;
   email: string;
 }
+
+/** Status values for an incident. */
+export type IncidentStatus = "draft" | "investigating" | "resolved" | "closed";
 
 /** A security incident report created by a user. */
 export interface Incident {
@@ -238,6 +241,79 @@ export interface EntryLog {
   site?: { id: string; name: string };
   guard?: { id: string; name: string; surname: string };
   flaggedVehicle?: FlaggedVehicle | null;
+}
+
+/** An invoice sent to a company. */
+export interface Invoice {
+  id: string;
+  companyId: string;
+  invoiceNumber: string;
+  amount: number;
+  currency: string;
+  status: "draft" | "sent" | "paid" | "overdue" | "cancelled";
+  dueDate: string;
+  paidAt: string | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+  company?: { id: string; name: string; email: string };
+  payments?: PaymentHistory[];
+}
+
+/** Aggregated revenue statistics for the admin dashboard. */
+export interface RevenueStats {
+  totalRevenue: number;
+  monthlyRevenue: number;
+  paidInvoicesThisYear: number;
+  overdueInvoices: number;
+  outstandingAmount: number;
+  activeCompanies: number;
+}
+
+/** Monthly revenue trend data point. */
+export interface RevenueTrend {
+  month: string;
+  year: number;
+  revenue: number;
+  count: number;
+}
+
+/** Company info with subscription for admin view. */
+export interface AdminCompany {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+  subscription: {
+    id: string;
+    status: string;
+    currentPeriodStart: string | null;
+    currentPeriodEnd: string | null;
+    plan: { id: string; name: string; price: number };
+  } | null;
+  _count?: { users: number; invoices: number };
+}
+
+/** Result of generating monthly invoices. */
+export interface MonthlyInvoiceResult {
+  companyId: string;
+  companyName: string;
+  invoiceNumber: string;
+  status: string;
+}
+
+/** A payment record linked to an invoice. */
+export interface PaymentHistory {
+  id: string;
+  companyId: string;
+  amount: number;
+  currency: string;
+  reference: string;
+  status: string;
+  invoiceId: string | null;
+  createdAt: string;
 }
 
 /** A vehicle flagged for security reasons at a site. */

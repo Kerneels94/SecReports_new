@@ -47,12 +47,13 @@ export default function LoginPage() {
   const onSubmit = async (data: CompanyFormData | EmployeeFormData) => {
     try {
       setError(null);
+      let user;
       if (isCompany) {
-        await login(data as CompanyFormData);
+        user = await login(data as CompanyFormData);
       } else {
-        await employeeLogin(data as EmployeeFormData);
+        user = await employeeLogin(data as EmployeeFormData);
       }
-      router.push("/dashboard");
+      router.push(user.role === "superadmin" ? "/portal" : "/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     }

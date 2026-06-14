@@ -401,6 +401,7 @@ export const ModelName = {
   SubscriptionPlan: 'SubscriptionPlan',
   CompanySubscription: 'CompanySubscription',
   PaymentHistory: 'PaymentHistory',
+  Invoice: 'Invoice',
   ApiKey: 'ApiKey',
   AuditLog: 'AuditLog',
   GuardingSite: 'GuardingSite',
@@ -424,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company" | "user" | "incident" | "incidentPerson" | "comment" | "investigation" | "correctiveAction" | "passwordResetToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "apiKey" | "auditLog" | "guardingSite" | "guard" | "patrolReport" | "patrolCheckpoint" | "entryLog" | "flaggedVehicle"
+    modelProps: "company" | "user" | "incident" | "incidentPerson" | "comment" | "investigation" | "correctiveAction" | "passwordResetToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "invoice" | "apiKey" | "auditLog" | "guardingSite" | "guard" | "patrolReport" | "patrolCheckpoint" | "entryLog" | "flaggedVehicle"
     txIsolationLevel: never
   }
   model: {
@@ -1242,6 +1243,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Invoice: {
+      payload: Prisma.$InvoicePayload<ExtArgs>
+      fields: Prisma.InvoiceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InvoiceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InvoiceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>
+        }
+        findFirst: {
+          args: Prisma.InvoiceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InvoiceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>
+        }
+        findMany: {
+          args: Prisma.InvoiceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>[]
+        }
+        create: {
+          args: Prisma.InvoiceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>
+        }
+        createMany: {
+          args: Prisma.InvoiceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.InvoiceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>
+        }
+        update: {
+          args: Prisma.InvoiceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>
+        }
+        deleteMany: {
+          args: Prisma.InvoiceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InvoiceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.InvoiceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvoicePayload>
+        }
+        aggregate: {
+          args: Prisma.InvoiceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInvoice>
+        }
+        groupBy: {
+          args: Prisma.InvoiceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InvoiceGroupByOutputType>[]
+        }
+        findRaw: {
+          args: Prisma.InvoiceFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.InvoiceAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        count: {
+          args: Prisma.InvoiceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InvoiceCountAggregateOutputType> | number
+        }
+      }
+    }
     ApiKey: {
       payload: Prisma.$ApiKeyPayload<ExtArgs>
       fields: Prisma.ApiKeyFieldRefs
@@ -2009,10 +2084,30 @@ export const PaymentHistoryScalarFieldEnum = {
   currency: 'currency',
   reference: 'reference',
   status: 'status',
+  invoiceId: 'invoiceId',
   createdAt: 'createdAt'
 } as const
 
 export type PaymentHistoryScalarFieldEnum = (typeof PaymentHistoryScalarFieldEnum)[keyof typeof PaymentHistoryScalarFieldEnum]
+
+
+export const InvoiceScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  invoiceNumber: 'invoiceNumber',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  dueDate: 'dueDate',
+  paidAt: 'paidAt',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
 
 
 export const ApiKeyScalarFieldEnum = {
@@ -2313,6 +2408,7 @@ export type GlobalOmitConfig = {
   subscriptionPlan?: Prisma.SubscriptionPlanOmit
   companySubscription?: Prisma.CompanySubscriptionOmit
   paymentHistory?: Prisma.PaymentHistoryOmit
+  invoice?: Prisma.InvoiceOmit
   apiKey?: Prisma.ApiKeyOmit
   auditLog?: Prisma.AuditLogOmit
   guardingSite?: Prisma.GuardingSiteOmit

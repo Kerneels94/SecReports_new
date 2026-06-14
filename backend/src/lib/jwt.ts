@@ -11,7 +11,7 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "dev-refresh-secret
 interface TokenPayload {
   userId: string;
   role: string;
-  companyId: string;
+  companyId: string | null;
 }
 
 /**
