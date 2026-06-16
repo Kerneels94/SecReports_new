@@ -149,10 +149,7 @@ export interface RegisterRequest {
 
 /** Response returned after successful registration. */
 export interface RegisterResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: User;
-  company: Company;
+  message: string;
 }
 
 /** Response returned after successful login. */

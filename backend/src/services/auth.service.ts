@@ -9,7 +9,7 @@ import { hashPassword, comparePassword } from "../lib/hash";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../lib/jwt";
 import { UnauthorizedError, ConflictError, NotFoundError, ValidationError } from "../lib/errors";
 import { hasMxRecord } from "../lib/email";
-import { sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail } from "./email.service";
+import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail } from "./email.service";
 import { SubscriptionService } from "./subscription.service";
 
 const MAX_LOGIN_ATTEMPTS = 3;
@@ -108,6 +108,8 @@ export const AuthService = {
     if (!user) throw new UnauthorizedError("Invalid email or password");
     if (user.role !== "owner" && user.role !== "manager")
       throw new UnauthorizedError("Invalid email or password");
+    if (!user.emailVerified)
+      throw new UnauthorizedError("Please verify your email before logging in");
 
     if (user.lockedUntil && user.lockedUntil > new Date()) {
       const remaining = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
@@ -146,6 +148,8 @@ export const AuthService = {
   async employeeLogin(params: { email: string; password: string }) {
     const user = await prisma.user.findUnique({ where: { email: params.email } });
     if (!user || user.role !== "guard") throw new UnauthorizedError("Invalid email or password");
+    if (!user.emailVerified)
+      throw new UnauthorizedError("Please verify your email before logging in");
 
     if (user.lockedUntil && user.lockedUntil > new Date()) {
       const remaining = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
@@ -272,31 +276,43 @@ export const AuthService = {
 
     await SubscriptionService.activateFreePlan(result.company.id);
 
-    sendWelcomeEmail(result.user.email, result.user.name).catch((err) =>
-      console.error("[AuthService] Welcome email failed:", err),
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    await prisma.emailVerificationToken.create({
+      data: {
+        userId: result.user.id,
+        tokenHash: hashToken(rawToken),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      },
+    });
+
+    const verifyLink = `${process.env.APP_URL || "http://localhost:3000"}/verify-email?token=${rawToken}`;
+    sendVerificationEmail(result.user.email, result.user.name, verifyLink).catch((err) =>
+      console.error("[AuthService] Verification email failed:", err),
     );
 
-    const familyId = crypto.randomUUID();
-    const payload = { userId: result.user.id, role: result.user.role, companyId: result.company.id };
-    const refreshToken = await persistRefreshToken(result.user.id, familyId);
+    return { message: "Account created. Please check your email to verify your account." };
+  },
 
-    return {
-      accessToken: signAccessToken(payload),
-      refreshToken,
-      user: {
-        id: result.user.id,
-        name: result.user.name,
-        email: result.user.email,
-        role: result.user.role,
-        status: result.user.status,
-        companyId: result.user.companyId,
-      },
-      company: {
-        id: result.company.id,
-        name: result.company.name,
-        email: result.company.email,
-      },
-    };
+  /** Verifies a user's email address using a token sent at registration. */
+  async verifyEmail(token: string) {
+    const tokenHash = hashToken(token);
+    const record = await prisma.emailVerificationToken.findUnique({ where: { tokenHash } });
+    if (!record) throw new ValidationError("Invalid or expired verification link");
+    if (record.usedAt) throw new ValidationError("Verification link has already been used");
+    if (record.expiresAt < new Date()) throw new ValidationError("Verification link has expired");
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: record.userId },
+        data: { emailVerified: true },
+      }),
+      prisma.emailVerificationToken.update({
+        where: { id: record.id },
+        data: { usedAt: new Date() },
+      }),
+    ]);
+
+    return { message: "Email verified successfully. You can now log in." };
   },
 
   /** Creates a user within a company after checking subscription user-limit. Sends welcome email. */

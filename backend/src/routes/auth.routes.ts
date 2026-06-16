@@ -12,6 +12,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
   fastify.post("/auth/login", AuthController.login);
   fastify.post("/auth/employee-login", AuthController.employeeLogin);
   fastify.post("/auth/register", AuthController.register);
+  fastify.get("/auth/verify-email", AuthController.verifyEmail);
   fastify.post("/auth/refresh", AuthController.refresh);
 
   fastify.get("/auth/me", {

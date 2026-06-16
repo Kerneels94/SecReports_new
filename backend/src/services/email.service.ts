@@ -101,6 +101,26 @@ export async function sendWelcomeEmail(to: string, name: string) {
   return sendMail({ to, subject: "register", data: { name } });
 }
 
+/** Sends an email verification link to a newly registered user. */
+export async function sendVerificationEmail(to: string, name: string, verifyLink: string) {
+  const { default: template } = await import("../templates/verify-email");
+  const html = template(name, verifyLink);
+
+  const { data, error } = await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: [to],
+    subject: "Verify Your SecReports Account",
+    html,
+  });
+
+  if (error) {
+    console.error({ error });
+    return { error };
+  }
+
+  return { data };
+}
+
 /** Sends a password reset email containing the reset link using a dedicated template. */
 export async function sendPasswordResetEmail(
   to: string,
