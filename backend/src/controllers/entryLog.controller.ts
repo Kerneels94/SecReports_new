@@ -7,7 +7,6 @@ import { EntryLogService } from "../services/entryLog.service";
 import { createEntryLogSchema, updateEntryLogSchema, flagVehicleSchema } from "../validators/entryLog.schema";
 import { ValidationError } from "../lib/errors";
 import { FlaggedVehicleService } from "../services/flaggedVehicle.service";
-import { prisma } from "../lib/db";
 
 export const EntryLogController = {
   /** List entry logs for a specific guarding site. */
@@ -30,21 +29,12 @@ export const EntryLogController = {
     reply.code(200).send({ success: true, data: log });
   },
 
-  /** Create a new entry log. Auto-assigns the guard ID if the user has the "guard" role. */
+  /** Create a new entry log. */
   async create(request: FastifyRequest, reply: FastifyReply) {
     const parsed = createEntryLogSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    let guardId = parsed.data.guardId;
-    if (!guardId && request.user!.role === "guard") {
-      const guard = await prisma.guard.findUnique({ where: { userId: request.user!.userId } });
-      if (guard) guardId = guard.id;
-    }
-
-    const log = await EntryLogService.create({
-      ...parsed.data,
-      guardId,
-    });
+    const log = await EntryLogService.create(parsed.data);
 
     reply.code(201).send({ success: true, data: log });
   },
@@ -65,17 +55,11 @@ export const EntryLogController = {
     const parsed = flagVehicleSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    let flaggedById = request.user!.userId;
-    if (request.user!.role === "guard") {
-      const guard = await prisma.guard.findUnique({ where: { userId: request.user!.userId } });
-      if (guard) flaggedById = guard.id;
-    }
-
     const vehicle = await FlaggedVehicleService.create({
       companyId: request.user!.companyId,
       vehicleReg: parsed.data.vehicleReg,
       reason: parsed.data.reason,
-      flaggedById,
+      flaggedById: request.user!.userId,
       entryLogId: id,
     });
 

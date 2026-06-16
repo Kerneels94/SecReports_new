@@ -12,9 +12,7 @@ const guardInputSchema = z.object({
   name: z.string().min(1),
   surname: z.string().min(1),
   cellphone: z.string().min(1),
-  email: z.string().email().optional(),
   employeeId: z.string().min(1),
-  password: z.string().min(6),
 });
 
 /**

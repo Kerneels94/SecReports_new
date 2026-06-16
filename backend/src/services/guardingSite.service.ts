@@ -4,16 +4,13 @@
  */
 import { prisma } from "../lib/db";
 import { NotFoundError, ConflictError } from "../lib/errors";
-import { hashPassword } from "../lib/hash";
 
 /** Input for creating a guard inline during site creation. */
 interface GuardInput {
   name: string;
   surname: string;
   cellphone: string;
-  email?: string;
   employeeId: string;
-  password: string;
 }
 
 /** Parameters for creating a guarding site with optional bulk-guard creation. */
@@ -56,7 +53,7 @@ export const GuardingSiteService = {
     return site;
   },
 
-  /** Creates a site and optionally bulk-creates guards with linked user accounts in a transaction. */
+  /** Creates a site and optionally bulk-creates guards in a transaction. */
   async create(params: CreateGuardingSiteParams) {
     return prisma.$transaction(async (tx) => {
       const site = await tx.guardingSite.create({
@@ -65,38 +62,22 @@ export const GuardingSiteService = {
 
       if (params.guards && params.guards.length > 0) {
         for (const g of params.guards) {
-          const guardEmail = g.email || `${g.employeeId}@guarding.local`;
-
           const existing = await tx.guard.findFirst({
-            where: { OR: [{ email: guardEmail }, { employeeId: g.employeeId }], companyId: params.companyId },
+            where: { employeeId: g.employeeId, companyId: params.companyId },
           });
           if (existing) {
             throw new ConflictError(
-              existing.email === guardEmail
-                ? `A guard with email ${guardEmail} already exists`
-                : `A guard with employee ID ${g.employeeId} already exists`,
+              `A guard with employee ID ${g.employeeId} already exists`,
             );
           }
 
-          const passwordHash = await hashPassword(g.password);
-          const user = await tx.user.create({
-            data: {
-              companyId: params.companyId,
-              name: `${g.name} ${g.surname}`,
-              email: guardEmail,
-              passwordHash,
-              role: "guard",
-            },
-          });
           await tx.guard.create({
             data: {
               companyId: params.companyId,
               siteId: site.id,
-              userId: user.id,
               name: g.name,
               surname: g.surname,
               cellphone: g.cellphone,
-              email: guardEmail,
               employeeId: g.employeeId,
             },
           });

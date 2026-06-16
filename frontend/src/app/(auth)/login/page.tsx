@@ -88,14 +88,14 @@ export default function LoginPage() {
               className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${tab === "company" ? "bg-primary text-gray-900 shadow-sm" : "text-text-secondary hover:text-text"}`}
               onClick={() => setTab("company")}
             >
-              Company
+              Owner/Manager
             </button>
             <button
               type="button"
               className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${tab === "employee" ? "bg-primary text-gray-900 shadow-sm" : "text-text-secondary hover:text-text"}`}
               onClick={() => setTab("employee")}
             >
-              Employee
+              Senior
             </button>
           </div>
 
@@ -128,7 +128,7 @@ export default function LoginPage() {
               {...register("password")}
             />
             <Button type="submit" loading={isSubmitting} className="w-full">
-              {isCompany ? "Sign In as Company" : "Sign In as Employee"}
+              {isCompany ? "Sign In as Admin/Manager" : "Sign In as Senior"}
             </Button>
           </form>
           <div className="mt-4 flex items-center justify-center gap-3 text-sm text-text-secondary">

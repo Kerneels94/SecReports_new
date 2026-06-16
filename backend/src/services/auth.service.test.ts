@@ -42,6 +42,9 @@ jest.mock("../lib/db", () => ({
 
 jest.mock("../lib/hash");
 jest.mock("../lib/jwt");
+jest.mock("../lib/email", () => ({
+  hasMxRecord: jest.fn().mockResolvedValue(true),
+}));
 jest.mock("./email.service", () => ({
   sendWelcomeEmail: jest.fn().mockResolvedValue(undefined),
   sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
@@ -71,6 +74,8 @@ const mockCompany = {
 describe("AuthService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    const { hasMxRecord } = require("../lib/email");
+    (hasMxRecord as jest.Mock).mockResolvedValue(true);
   });
 
   describe("login", () => {
@@ -171,6 +176,20 @@ describe("AuthService", () => {
         }),
       ).rejects.toThrow(ConflictError);
     });
+
+    it("throws ValidationError when email domain has no MX records", async () => {
+      const { hasMxRecord } = require("../lib/email");
+      (hasMxRecord as jest.Mock).mockResolvedValue(false);
+
+      await expect(
+        AuthService.register({
+          companyName: "Test Company",
+          name: "Test User",
+          email: "bad@nonexistent-domain-xyz.com",
+          password: "password123",
+        }),
+      ).rejects.toThrow("Email domain does not accept mail");
+    });
   });
 
   describe("createUser", () => {
@@ -202,6 +221,21 @@ describe("AuthService", () => {
           createdBy: "1",
         }),
       ).rejects.toThrow(ConflictError);
+    });
+
+    it("throws ValidationError when email domain has no MX records", async () => {
+      const { hasMxRecord } = require("../lib/email");
+      (hasMxRecord as jest.Mock).mockResolvedValue(false);
+
+      await expect(
+        AuthService.createUser({
+          name: "Test User",
+          email: "bad@nonexistent-domain-xyz.com",
+          password: "password123",
+          companyId: "1",
+          createdBy: "1",
+        }),
+      ).rejects.toThrow("Email domain does not accept mail");
     });
   });
 
@@ -384,6 +418,14 @@ describe("updateUser", () => {
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({ ...mockUser, id: "2", email: "other@test.com" });
 
     await expect(AuthService.updateUser("1", "1", { email: "other@test.com" })).rejects.toThrow(ConflictError);
+  });
+
+  it("throws ValidationError when new email domain has no MX records", async () => {
+    const { hasMxRecord } = require("../lib/email");
+    (hasMxRecord as jest.Mock).mockResolvedValue(false);
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
+
+    await expect(AuthService.updateUser("1", "1", { email: "bad@nonexistent-domain-xyz.com" })).rejects.toThrow("Email domain does not accept mail");
   });
 });
 
