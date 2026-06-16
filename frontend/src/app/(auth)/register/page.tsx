@@ -20,7 +20,13 @@ const registerSchema = z
     companyName: z.string().min(1, "Company name is required"),
     name: z.string().min(1, "Name is required"),
     email: z.string().email("Invalid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[a-z]/, "Must include a lowercase letter")
+      .regex(/[A-Z]/, "Must include an uppercase letter")
+      .regex(/\d/, "Must include a number")
+      .regex(/[^a-zA-Z0-9]/, "Must include a special character"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
   })
   .refine((data) => data.password === data.confirmPassword, {
