@@ -28,11 +28,9 @@ export type GuardMinAggregateOutputType = {
   id: string | null
   companyId: string | null
   siteId: string | null
-  userId: string | null
   name: string | null
   surname: string | null
   cellphone: string | null
-  email: string | null
   employeeId: string | null
   status: string | null
   createdAt: Date | null
@@ -43,11 +41,9 @@ export type GuardMaxAggregateOutputType = {
   id: string | null
   companyId: string | null
   siteId: string | null
-  userId: string | null
   name: string | null
   surname: string | null
   cellphone: string | null
-  email: string | null
   employeeId: string | null
   status: string | null
   createdAt: Date | null
@@ -58,11 +54,9 @@ export type GuardCountAggregateOutputType = {
   id: number
   companyId: number
   siteId: number
-  userId: number
   name: number
   surname: number
   cellphone: number
-  email: number
   employeeId: number
   status: number
   createdAt: number
@@ -75,11 +69,9 @@ export type GuardMinAggregateInputType = {
   id?: true
   companyId?: true
   siteId?: true
-  userId?: true
   name?: true
   surname?: true
   cellphone?: true
-  email?: true
   employeeId?: true
   status?: true
   createdAt?: true
@@ -90,11 +82,9 @@ export type GuardMaxAggregateInputType = {
   id?: true
   companyId?: true
   siteId?: true
-  userId?: true
   name?: true
   surname?: true
   cellphone?: true
-  email?: true
   employeeId?: true
   status?: true
   createdAt?: true
@@ -105,11 +95,9 @@ export type GuardCountAggregateInputType = {
   id?: true
   companyId?: true
   siteId?: true
-  userId?: true
   name?: true
   surname?: true
   cellphone?: true
-  email?: true
   employeeId?: true
   status?: true
   createdAt?: true
@@ -193,11 +181,9 @@ export type GuardGroupByOutputType = {
   id: string
   companyId: string
   siteId: string | null
-  userId: string
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status: string
   createdAt: Date
@@ -229,18 +215,15 @@ export type GuardWhereInput = {
   id?: Prisma.StringFilter<"Guard"> | string
   companyId?: Prisma.StringFilter<"Guard"> | string
   siteId?: Prisma.StringNullableFilter<"Guard"> | string | null
-  userId?: Prisma.StringFilter<"Guard"> | string
   name?: Prisma.StringFilter<"Guard"> | string
   surname?: Prisma.StringFilter<"Guard"> | string
   cellphone?: Prisma.StringFilter<"Guard"> | string
-  email?: Prisma.StringFilter<"Guard"> | string
   employeeId?: Prisma.StringFilter<"Guard"> | string
   status?: Prisma.StringFilter<"Guard"> | string
   createdAt?: Prisma.DateTimeFilter<"Guard"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Guard"> | Date | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   site?: Prisma.XOR<Prisma.GuardingSiteNullableScalarRelationFilter, Prisma.GuardingSiteWhereInput> | null
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   patrolReports?: Prisma.PatrolReportListRelationFilter
   entryLogs?: Prisma.EntryLogListRelationFilter
   flaggedVehicles?: Prisma.FlaggedVehicleListRelationFilter
@@ -250,18 +233,15 @@ export type GuardOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   surname?: Prisma.SortOrder
   cellphone?: Prisma.SortOrder
-  email?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   company?: Prisma.CompanyOrderByWithRelationInput
   site?: Prisma.GuardingSiteOrderByWithRelationInput
-  user?: Prisma.UserOrderByWithRelationInput
   patrolReports?: Prisma.PatrolReportOrderByRelationAggregateInput
   entryLogs?: Prisma.EntryLogOrderByRelationAggregateInput
   flaggedVehicles?: Prisma.FlaggedVehicleOrderByRelationAggregateInput
@@ -269,8 +249,6 @@ export type GuardOrderByWithRelationInput = {
 
 export type GuardWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  userId?: string
-  email?: string
   employeeId?: string
   AND?: Prisma.GuardWhereInput | Prisma.GuardWhereInput[]
   OR?: Prisma.GuardWhereInput[]
@@ -285,21 +263,18 @@ export type GuardWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Guard"> | Date | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   site?: Prisma.XOR<Prisma.GuardingSiteNullableScalarRelationFilter, Prisma.GuardingSiteWhereInput> | null
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   patrolReports?: Prisma.PatrolReportListRelationFilter
   entryLogs?: Prisma.EntryLogListRelationFilter
   flaggedVehicles?: Prisma.FlaggedVehicleListRelationFilter
-}, "id" | "userId" | "email" | "employeeId">
+}, "id" | "employeeId">
 
 export type GuardOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   surname?: Prisma.SortOrder
   cellphone?: Prisma.SortOrder
-  email?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -316,11 +291,9 @@ export type GuardScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Guard"> | string
   companyId?: Prisma.StringWithAggregatesFilter<"Guard"> | string
   siteId?: Prisma.StringNullableWithAggregatesFilter<"Guard"> | string | null
-  userId?: Prisma.StringWithAggregatesFilter<"Guard"> | string
   name?: Prisma.StringWithAggregatesFilter<"Guard"> | string
   surname?: Prisma.StringWithAggregatesFilter<"Guard"> | string
   cellphone?: Prisma.StringWithAggregatesFilter<"Guard"> | string
-  email?: Prisma.StringWithAggregatesFilter<"Guard"> | string
   employeeId?: Prisma.StringWithAggregatesFilter<"Guard"> | string
   status?: Prisma.StringWithAggregatesFilter<"Guard"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Guard"> | Date | string
@@ -332,14 +305,12 @@ export type GuardCreateInput = {
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutGuardsInput
   site?: Prisma.GuardingSiteCreateNestedOneWithoutGuardsInput
-  user: Prisma.UserCreateNestedOneWithoutGuardInput
   patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutGuardInput
   entryLogs?: Prisma.EntryLogCreateNestedManyWithoutGuardInput
   flaggedVehicles?: Prisma.FlaggedVehicleCreateNestedManyWithoutFlaggedByInput
@@ -349,11 +320,9 @@ export type GuardUncheckedCreateInput = {
   id?: string
   companyId: string
   siteId?: string | null
-  userId: string
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
@@ -367,14 +336,12 @@ export type GuardUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutGuardsNestedInput
   site?: Prisma.GuardingSiteUpdateOneWithoutGuardsNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutGuardNestedInput
   patrolReports?: Prisma.PatrolReportUpdateManyWithoutGuardNestedInput
   entryLogs?: Prisma.EntryLogUpdateManyWithoutGuardNestedInput
   flaggedVehicles?: Prisma.FlaggedVehicleUpdateManyWithoutFlaggedByNestedInput
@@ -383,11 +350,9 @@ export type GuardUpdateInput = {
 export type GuardUncheckedUpdateInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -401,11 +366,9 @@ export type GuardCreateManyInput = {
   id?: string
   companyId: string
   siteId?: string | null
-  userId: string
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
@@ -416,7 +379,6 @@ export type GuardUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -426,11 +388,9 @@ export type GuardUpdateManyMutationInput = {
 export type GuardUncheckedUpdateManyInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -447,20 +407,13 @@ export type GuardOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type GuardNullableScalarRelationFilter = {
-  is?: Prisma.GuardWhereInput | null
-  isNot?: Prisma.GuardWhereInput | null
-}
-
 export type GuardCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   surname?: Prisma.SortOrder
   cellphone?: Prisma.SortOrder
-  email?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -471,11 +424,9 @@ export type GuardMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   surname?: Prisma.SortOrder
   cellphone?: Prisma.SortOrder
-  email?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -486,11 +437,9 @@ export type GuardMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   surname?: Prisma.SortOrder
   cellphone?: Prisma.SortOrder
-  email?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -500,6 +449,11 @@ export type GuardMinOrderByAggregateInput = {
 export type GuardScalarRelationFilter = {
   is?: Prisma.GuardWhereInput
   isNot?: Prisma.GuardWhereInput
+}
+
+export type GuardNullableScalarRelationFilter = {
+  is?: Prisma.GuardWhereInput | null
+  isNot?: Prisma.GuardWhereInput | null
 }
 
 export type GuardCreateNestedManyWithoutCompanyInput = {
@@ -542,38 +496,6 @@ export type GuardUncheckedUpdateManyWithoutCompanyNestedInput = {
   update?: Prisma.GuardUpdateWithWhereUniqueWithoutCompanyInput | Prisma.GuardUpdateWithWhereUniqueWithoutCompanyInput[]
   updateMany?: Prisma.GuardUpdateManyWithWhereWithoutCompanyInput | Prisma.GuardUpdateManyWithWhereWithoutCompanyInput[]
   deleteMany?: Prisma.GuardScalarWhereInput | Prisma.GuardScalarWhereInput[]
-}
-
-export type GuardCreateNestedOneWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.GuardCreateWithoutUserInput, Prisma.GuardUncheckedCreateWithoutUserInput>
-  connectOrCreate?: Prisma.GuardCreateOrConnectWithoutUserInput
-  connect?: Prisma.GuardWhereUniqueInput
-}
-
-export type GuardUncheckedCreateNestedOneWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.GuardCreateWithoutUserInput, Prisma.GuardUncheckedCreateWithoutUserInput>
-  connectOrCreate?: Prisma.GuardCreateOrConnectWithoutUserInput
-  connect?: Prisma.GuardWhereUniqueInput
-}
-
-export type GuardUpdateOneWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.GuardCreateWithoutUserInput, Prisma.GuardUncheckedCreateWithoutUserInput>
-  connectOrCreate?: Prisma.GuardCreateOrConnectWithoutUserInput
-  upsert?: Prisma.GuardUpsertWithoutUserInput
-  disconnect?: Prisma.GuardWhereInput | boolean
-  delete?: Prisma.GuardWhereInput | boolean
-  connect?: Prisma.GuardWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.GuardUpdateToOneWithWhereWithoutUserInput, Prisma.GuardUpdateWithoutUserInput>, Prisma.GuardUncheckedUpdateWithoutUserInput>
-}
-
-export type GuardUncheckedUpdateOneWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.GuardCreateWithoutUserInput, Prisma.GuardUncheckedCreateWithoutUserInput>
-  connectOrCreate?: Prisma.GuardCreateOrConnectWithoutUserInput
-  upsert?: Prisma.GuardUpsertWithoutUserInput
-  disconnect?: Prisma.GuardWhereInput | boolean
-  delete?: Prisma.GuardWhereInput | boolean
-  connect?: Prisma.GuardWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.GuardUpdateToOneWithWhereWithoutUserInput, Prisma.GuardUpdateWithoutUserInput>, Prisma.GuardUncheckedUpdateWithoutUserInput>
 }
 
 export type GuardCreateNestedManyWithoutSiteInput = {
@@ -667,13 +589,11 @@ export type GuardCreateWithoutCompanyInput = {
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   site?: Prisma.GuardingSiteCreateNestedOneWithoutGuardsInput
-  user: Prisma.UserCreateNestedOneWithoutGuardInput
   patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutGuardInput
   entryLogs?: Prisma.EntryLogCreateNestedManyWithoutGuardInput
   flaggedVehicles?: Prisma.FlaggedVehicleCreateNestedManyWithoutFlaggedByInput
@@ -682,11 +602,9 @@ export type GuardCreateWithoutCompanyInput = {
 export type GuardUncheckedCreateWithoutCompanyInput = {
   id?: string
   siteId?: string | null
-  userId: string
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
@@ -728,97 +646,13 @@ export type GuardScalarWhereInput = {
   id?: Prisma.StringFilter<"Guard"> | string
   companyId?: Prisma.StringFilter<"Guard"> | string
   siteId?: Prisma.StringNullableFilter<"Guard"> | string | null
-  userId?: Prisma.StringFilter<"Guard"> | string
   name?: Prisma.StringFilter<"Guard"> | string
   surname?: Prisma.StringFilter<"Guard"> | string
   cellphone?: Prisma.StringFilter<"Guard"> | string
-  email?: Prisma.StringFilter<"Guard"> | string
   employeeId?: Prisma.StringFilter<"Guard"> | string
   status?: Prisma.StringFilter<"Guard"> | string
   createdAt?: Prisma.DateTimeFilter<"Guard"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Guard"> | Date | string
-}
-
-export type GuardCreateWithoutUserInput = {
-  id?: string
-  name: string
-  surname: string
-  cellphone: string
-  email: string
-  employeeId: string
-  status?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutGuardsInput
-  site?: Prisma.GuardingSiteCreateNestedOneWithoutGuardsInput
-  patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutGuardInput
-  entryLogs?: Prisma.EntryLogCreateNestedManyWithoutGuardInput
-  flaggedVehicles?: Prisma.FlaggedVehicleCreateNestedManyWithoutFlaggedByInput
-}
-
-export type GuardUncheckedCreateWithoutUserInput = {
-  id?: string
-  companyId: string
-  siteId?: string | null
-  name: string
-  surname: string
-  cellphone: string
-  email: string
-  employeeId: string
-  status?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  patrolReports?: Prisma.PatrolReportUncheckedCreateNestedManyWithoutGuardInput
-  entryLogs?: Prisma.EntryLogUncheckedCreateNestedManyWithoutGuardInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUncheckedCreateNestedManyWithoutFlaggedByInput
-}
-
-export type GuardCreateOrConnectWithoutUserInput = {
-  where: Prisma.GuardWhereUniqueInput
-  create: Prisma.XOR<Prisma.GuardCreateWithoutUserInput, Prisma.GuardUncheckedCreateWithoutUserInput>
-}
-
-export type GuardUpsertWithoutUserInput = {
-  update: Prisma.XOR<Prisma.GuardUpdateWithoutUserInput, Prisma.GuardUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.GuardCreateWithoutUserInput, Prisma.GuardUncheckedCreateWithoutUserInput>
-  where?: Prisma.GuardWhereInput
-}
-
-export type GuardUpdateToOneWithWhereWithoutUserInput = {
-  where?: Prisma.GuardWhereInput
-  data: Prisma.XOR<Prisma.GuardUpdateWithoutUserInput, Prisma.GuardUncheckedUpdateWithoutUserInput>
-}
-
-export type GuardUpdateWithoutUserInput = {
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  surname?: Prisma.StringFieldUpdateOperationsInput | string
-  cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutGuardsNestedInput
-  site?: Prisma.GuardingSiteUpdateOneWithoutGuardsNestedInput
-  patrolReports?: Prisma.PatrolReportUpdateManyWithoutGuardNestedInput
-  entryLogs?: Prisma.EntryLogUpdateManyWithoutGuardNestedInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUpdateManyWithoutFlaggedByNestedInput
-}
-
-export type GuardUncheckedUpdateWithoutUserInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
-  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  surname?: Prisma.StringFieldUpdateOperationsInput | string
-  cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  patrolReports?: Prisma.PatrolReportUncheckedUpdateManyWithoutGuardNestedInput
-  entryLogs?: Prisma.EntryLogUncheckedUpdateManyWithoutGuardNestedInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUncheckedUpdateManyWithoutFlaggedByNestedInput
 }
 
 export type GuardCreateWithoutSiteInput = {
@@ -826,13 +660,11 @@ export type GuardCreateWithoutSiteInput = {
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutGuardsInput
-  user: Prisma.UserCreateNestedOneWithoutGuardInput
   patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutGuardInput
   entryLogs?: Prisma.EntryLogCreateNestedManyWithoutGuardInput
   flaggedVehicles?: Prisma.FlaggedVehicleCreateNestedManyWithoutFlaggedByInput
@@ -841,11 +673,9 @@ export type GuardCreateWithoutSiteInput = {
 export type GuardUncheckedCreateWithoutSiteInput = {
   id?: string
   companyId: string
-  userId: string
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
@@ -885,14 +715,12 @@ export type GuardCreateWithoutPatrolReportsInput = {
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutGuardsInput
   site?: Prisma.GuardingSiteCreateNestedOneWithoutGuardsInput
-  user: Prisma.UserCreateNestedOneWithoutGuardInput
   entryLogs?: Prisma.EntryLogCreateNestedManyWithoutGuardInput
   flaggedVehicles?: Prisma.FlaggedVehicleCreateNestedManyWithoutFlaggedByInput
 }
@@ -901,11 +729,9 @@ export type GuardUncheckedCreateWithoutPatrolReportsInput = {
   id?: string
   companyId: string
   siteId?: string | null
-  userId: string
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
@@ -934,14 +760,12 @@ export type GuardUpdateWithoutPatrolReportsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutGuardsNestedInput
   site?: Prisma.GuardingSiteUpdateOneWithoutGuardsNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutGuardNestedInput
   entryLogs?: Prisma.EntryLogUpdateManyWithoutGuardNestedInput
   flaggedVehicles?: Prisma.FlaggedVehicleUpdateManyWithoutFlaggedByNestedInput
 }
@@ -949,11 +773,9 @@ export type GuardUpdateWithoutPatrolReportsInput = {
 export type GuardUncheckedUpdateWithoutPatrolReportsInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -967,14 +789,12 @@ export type GuardCreateWithoutEntryLogsInput = {
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutGuardsInput
   site?: Prisma.GuardingSiteCreateNestedOneWithoutGuardsInput
-  user: Prisma.UserCreateNestedOneWithoutGuardInput
   patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutGuardInput
   flaggedVehicles?: Prisma.FlaggedVehicleCreateNestedManyWithoutFlaggedByInput
 }
@@ -983,11 +803,9 @@ export type GuardUncheckedCreateWithoutEntryLogsInput = {
   id?: string
   companyId: string
   siteId?: string | null
-  userId: string
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
@@ -1016,14 +834,12 @@ export type GuardUpdateWithoutEntryLogsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutGuardsNestedInput
   site?: Prisma.GuardingSiteUpdateOneWithoutGuardsNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutGuardNestedInput
   patrolReports?: Prisma.PatrolReportUpdateManyWithoutGuardNestedInput
   flaggedVehicles?: Prisma.FlaggedVehicleUpdateManyWithoutFlaggedByNestedInput
 }
@@ -1031,11 +847,9 @@ export type GuardUpdateWithoutEntryLogsInput = {
 export type GuardUncheckedUpdateWithoutEntryLogsInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1049,14 +863,12 @@ export type GuardCreateWithoutFlaggedVehiclesInput = {
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutGuardsInput
   site?: Prisma.GuardingSiteCreateNestedOneWithoutGuardsInput
-  user: Prisma.UserCreateNestedOneWithoutGuardInput
   patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutGuardInput
   entryLogs?: Prisma.EntryLogCreateNestedManyWithoutGuardInput
 }
@@ -1065,11 +877,9 @@ export type GuardUncheckedCreateWithoutFlaggedVehiclesInput = {
   id?: string
   companyId: string
   siteId?: string | null
-  userId: string
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
@@ -1098,14 +908,12 @@ export type GuardUpdateWithoutFlaggedVehiclesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutGuardsNestedInput
   site?: Prisma.GuardingSiteUpdateOneWithoutGuardsNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutGuardNestedInput
   patrolReports?: Prisma.PatrolReportUpdateManyWithoutGuardNestedInput
   entryLogs?: Prisma.EntryLogUpdateManyWithoutGuardNestedInput
 }
@@ -1113,11 +921,9 @@ export type GuardUpdateWithoutFlaggedVehiclesInput = {
 export type GuardUncheckedUpdateWithoutFlaggedVehiclesInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1129,11 +935,9 @@ export type GuardUncheckedUpdateWithoutFlaggedVehiclesInput = {
 export type GuardCreateManyCompanyInput = {
   id?: string
   siteId?: string | null
-  userId: string
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
@@ -1144,13 +948,11 @@ export type GuardUpdateWithoutCompanyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   site?: Prisma.GuardingSiteUpdateOneWithoutGuardsNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutGuardNestedInput
   patrolReports?: Prisma.PatrolReportUpdateManyWithoutGuardNestedInput
   entryLogs?: Prisma.EntryLogUpdateManyWithoutGuardNestedInput
   flaggedVehicles?: Prisma.FlaggedVehicleUpdateManyWithoutFlaggedByNestedInput
@@ -1158,11 +960,9 @@ export type GuardUpdateWithoutCompanyInput = {
 
 export type GuardUncheckedUpdateWithoutCompanyInput = {
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1174,11 +974,9 @@ export type GuardUncheckedUpdateWithoutCompanyInput = {
 
 export type GuardUncheckedUpdateManyWithoutCompanyInput = {
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1188,11 +986,9 @@ export type GuardUncheckedUpdateManyWithoutCompanyInput = {
 export type GuardCreateManySiteInput = {
   id?: string
   companyId: string
-  userId: string
   name: string
   surname: string
   cellphone: string
-  email: string
   employeeId: string
   status?: string
   createdAt?: Date | string
@@ -1203,13 +999,11 @@ export type GuardUpdateWithoutSiteInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutGuardsNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutGuardNestedInput
   patrolReports?: Prisma.PatrolReportUpdateManyWithoutGuardNestedInput
   entryLogs?: Prisma.EntryLogUpdateManyWithoutGuardNestedInput
   flaggedVehicles?: Prisma.FlaggedVehicleUpdateManyWithoutFlaggedByNestedInput
@@ -1217,11 +1011,9 @@ export type GuardUpdateWithoutSiteInput = {
 
 export type GuardUncheckedUpdateWithoutSiteInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1233,11 +1025,9 @@ export type GuardUncheckedUpdateWithoutSiteInput = {
 
 export type GuardUncheckedUpdateManyWithoutSiteInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   surname?: Prisma.StringFieldUpdateOperationsInput | string
   cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
   employeeId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1297,18 +1087,15 @@ export type GuardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   id?: boolean
   companyId?: boolean
   siteId?: boolean
-  userId?: boolean
   name?: boolean
   surname?: boolean
   cellphone?: boolean
-  email?: boolean
   employeeId?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   site?: boolean | Prisma.Guard$siteArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   patrolReports?: boolean | Prisma.Guard$patrolReportsArgs<ExtArgs>
   entryLogs?: boolean | Prisma.Guard$entryLogsArgs<ExtArgs>
   flaggedVehicles?: boolean | Prisma.Guard$flaggedVehiclesArgs<ExtArgs>
@@ -1321,22 +1108,19 @@ export type GuardSelectScalar = {
   id?: boolean
   companyId?: boolean
   siteId?: boolean
-  userId?: boolean
   name?: boolean
   surname?: boolean
   cellphone?: boolean
-  email?: boolean
   employeeId?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type GuardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "siteId" | "userId" | "name" | "surname" | "cellphone" | "email" | "employeeId" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["guard"]>
+export type GuardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "siteId" | "name" | "surname" | "cellphone" | "employeeId" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["guard"]>
 export type GuardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   site?: boolean | Prisma.Guard$siteArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   patrolReports?: boolean | Prisma.Guard$patrolReportsArgs<ExtArgs>
   entryLogs?: boolean | Prisma.Guard$entryLogsArgs<ExtArgs>
   flaggedVehicles?: boolean | Prisma.Guard$flaggedVehiclesArgs<ExtArgs>
@@ -1348,7 +1132,6 @@ export type $GuardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   objects: {
     company: Prisma.$CompanyPayload<ExtArgs>
     site: Prisma.$GuardingSitePayload<ExtArgs> | null
-    user: Prisma.$UserPayload<ExtArgs>
     patrolReports: Prisma.$PatrolReportPayload<ExtArgs>[]
     entryLogs: Prisma.$EntryLogPayload<ExtArgs>[]
     flaggedVehicles: Prisma.$FlaggedVehiclePayload<ExtArgs>[]
@@ -1357,11 +1140,9 @@ export type $GuardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     id: string
     companyId: string
     siteId: string | null
-    userId: string
     name: string
     surname: string
     cellphone: string
-    email: string
     employeeId: string
     status: string
     createdAt: Date
@@ -1731,7 +1512,6 @@ export interface Prisma__GuardClient<T, Null = never, ExtArgs extends runtime.Ty
   readonly [Symbol.toStringTag]: "PrismaPromise"
   company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   site<T extends Prisma.Guard$siteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guard$siteArgs<ExtArgs>>): Prisma.Prisma__GuardingSiteClient<runtime.Types.Result.GetResult<Prisma.$GuardingSitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   patrolReports<T extends Prisma.Guard$patrolReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guard$patrolReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PatrolReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   entryLogs<T extends Prisma.Guard$entryLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guard$entryLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EntryLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   flaggedVehicles<T extends Prisma.Guard$flaggedVehiclesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guard$flaggedVehiclesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FlaggedVehiclePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1767,11 +1547,9 @@ export interface GuardFieldRefs {
   readonly id: Prisma.FieldRef<"Guard", 'String'>
   readonly companyId: Prisma.FieldRef<"Guard", 'String'>
   readonly siteId: Prisma.FieldRef<"Guard", 'String'>
-  readonly userId: Prisma.FieldRef<"Guard", 'String'>
   readonly name: Prisma.FieldRef<"Guard", 'String'>
   readonly surname: Prisma.FieldRef<"Guard", 'String'>
   readonly cellphone: Prisma.FieldRef<"Guard", 'String'>
-  readonly email: Prisma.FieldRef<"Guard", 'String'>
   readonly employeeId: Prisma.FieldRef<"Guard", 'String'>
   readonly status: Prisma.FieldRef<"Guard", 'String'>
   readonly createdAt: Prisma.FieldRef<"Guard", 'DateTime'>
