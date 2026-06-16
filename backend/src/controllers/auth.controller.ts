@@ -138,7 +138,7 @@ export const AuthController = {
     reply.code(200).send({ success: true, data: user });
   },
 
-  /** Update a user's details — only owner/manager can change roles, and never their own. */
+  /** Update a user's details — only owner can change roles, and never their own. */
   async updateUser(request: FastifyRequest, reply: FastifyReply) {
     const parsed = updateUserSchema.safeParse(request.body);
     if (!parsed.success)
@@ -146,8 +146,13 @@ export const AuthController = {
 
     const { id } = request.params as { id: string };
 
-    if (parsed.data.role && request.user!.userId === id) {
-      throw new ValidationError("You cannot change your own role");
+    if (parsed.data.role) {
+      if (request.user!.role !== "owner") {
+        throw new ValidationError("Only the owner can change a user's role");
+      }
+      if (request.user!.userId === id) {
+        throw new ValidationError("You cannot change your own role");
+      }
     }
 
     const user = await AuthService.updateUser(
