@@ -55,7 +55,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
   });
 
   fastify.patch("/auth/users/:id", {
-    preHandler: [fastify.authenticate, requireRole("owner")],
+    preHandler: [fastify.authenticate, requireRole("owner", "manager")],
     handler: AuthController.updateUser,
   });
 
