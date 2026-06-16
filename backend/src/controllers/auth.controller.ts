@@ -66,6 +66,15 @@ export const AuthController = {
     reply.code(201).send({ success: true, data: result });
   },
 
+  /** Verify a user's email address using a token from the verification email. */
+  async verifyEmail(request: FastifyRequest, reply: FastifyReply) {
+    const { token } = request.query as { token: string };
+    if (!token) throw new ValidationError("Verification token is required");
+
+    const result = await AuthService.verifyEmail(token);
+    reply.code(200).send({ success: true, data: result });
+  },
+
   /** Create a new user within the authenticated owner's company (owner-only via route). */
   async createUser(request: FastifyRequest, reply: FastifyReply) {
     const parsed = createUserSchema.safeParse(request.body);

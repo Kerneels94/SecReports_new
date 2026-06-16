@@ -5,7 +5,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -38,7 +37,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 /** Registration page component with Zod-validated form and password match check. */
 export default function RegisterPage() {
-  const router = useRouter();
+  const [registered, setRegistered] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -58,11 +57,57 @@ export default function RegisterPage() {
         email: data.email,
         password: data.password,
       });
-      router.push("/login");
+      setRegistered(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     }
   };
+
+  if (registered) {
+    return (
+      <div className="relative flex min-h-screen items-center justify-center bg-surface-secondary px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(134,239,172,0.06),transparent_50%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(134,239,172,0.03),transparent_50%)] pointer-events-none" />
+        <Card variant="elevated" className="w-full max-w-sm animate-slide-up">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
+              <svg className="h-7 w-7 text-gray-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+            </div>
+            <CardTitle>Check Your Email</CardTitle>
+            <p className="mt-1 text-sm text-text-secondary">
+              Account created successfully
+            </p>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-sm text-text-secondary">
+              We sent a verification link to your email. Please check your inbox and click the link to verify your account before logging in.
+            </p>
+            <div className="mt-6 space-y-3">
+              <Link
+                href="/login"
+                className="block w-full rounded-lg bg-primary py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
+              >
+                Go to Login
+              </Link>
+              <a
+                href="/"
+                className="inline-flex items-center justify-center gap-1.5 text-primary hover:underline transition-colors text-sm"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 12H5" />
+                  <path d="M12 19l-7-7 7-7" />
+                </svg>
+                Back to Homepage
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-surface-secondary px-4 overflow-hidden">
