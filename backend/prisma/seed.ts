@@ -192,38 +192,14 @@ async function main() {
     data: { companyId: company.id, name: "Sunset Mall", address: "100 Sunset Blvd, Central" },
   });
 
-  const guardHash = await bcrypt.hash("guard123", 12);
-
-  const guardUser1 = await prisma.user.create({
-    data: {
-      companyId: company.id,
-      name: "Thabo Molefe",
-      email: "thabo@example.com",
-      passwordHash: guardHash,
-      role: "guard",
-    },
-  });
-
   const guard1 = await prisma.guard.create({
     data: {
       companyId: company.id,
       siteId: site1.id,
-      userId: guardUser1.id,
       name: "Thabo",
       surname: "Molefe",
       cellphone: "0821234567",
-      email: "thabo@example.com",
       employeeId: "GRD-001",
-    },
-  });
-
-  const guardUser2 = await prisma.user.create({
-    data: {
-      companyId: company.id,
-      name: "Lerato Ndlovu",
-      email: "lerato@example.com",
-      passwordHash: guardHash,
-      role: "guard",
     },
   });
 
@@ -231,11 +207,9 @@ async function main() {
     data: {
       companyId: company.id,
       siteId: site2.id,
-      userId: guardUser2.id,
       name: "Lerato",
       surname: "Ndlovu",
       cellphone: "0839876543",
-      email: "lerato@example.com",
       employeeId: "GRD-002",
     },
   });
@@ -316,8 +290,7 @@ async function main() {
   console.log(`Admin: admin@example.com / password123`);
   console.log(`Manager: manager@example.com / password123`);
   console.log(`Senior: senior@example.com / password123`);
-  console.log(`Guard 1 (Thabo): thabo@example.com / guard123`);
-  console.log(`Guard 2 (Lerato): lerato@example.com / guard123`);
+
   console.log(`Super Admin: ${superAdminEmail} / ${superAdminPassword}`);
 }
 

@@ -13,8 +13,9 @@ jest.mock("@/hooks/useAuth", () => ({
 }));
 
 const mockRouter = { push: jest.fn() };
-const mockLogin = jest.fn();
-const mockEmployeeLogin = jest.fn();
+const mockUser = { role: "owner" };
+const mockLogin = jest.fn().mockResolvedValue(mockUser);
+const mockEmployeeLogin = jest.fn().mockResolvedValue(mockUser);
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -28,33 +29,33 @@ describe("LoginPage", () => {
     expect(screen.getByRole("heading", { name: /welcome back/i })).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /sign in as company/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /sign in as admin\/manager/i })).toBeInTheDocument();
   });
 
-  it("renders Company/Employee tab toggle", () => {
+  it("renders Owner/Manager and Senior tabs", () => {
     render(<LoginPage />);
-    expect(screen.getByText("Company")).toBeInTheDocument();
-    expect(screen.getByText("Employee")).toBeInTheDocument();
+    expect(screen.getByText("Owner/Manager")).toBeInTheDocument();
+    expect(screen.getByText("Senior")).toBeInTheDocument();
   });
 
-  it("toggles between company and employee tabs", async () => {
+  it("toggles between admin/manager and senior tabs", async () => {
     render(<LoginPage />);
     const user = userEvent.setup();
 
-    expect(screen.getByRole("button", { name: /sign in as company/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /sign in as admin\/manager/i })).toBeInTheDocument();
 
-    await user.click(screen.getByText("Employee"));
-    expect(screen.getByRole("button", { name: /sign in as employee/i })).toBeInTheDocument();
+    await user.click(screen.getByText("Senior"));
+    expect(screen.getByRole("button", { name: /sign in as senior/i })).toBeInTheDocument();
 
-    await user.click(screen.getByText("Company"));
-    expect(screen.getByRole("button", { name: /sign in as company/i })).toBeInTheDocument();
+    await user.click(screen.getByText("Owner/Manager"));
+    expect(screen.getByRole("button", { name: /sign in as admin\/manager/i })).toBeInTheDocument();
   });
 
   it("shows validation errors for empty fields", async () => {
     render(<LoginPage />);
     const user = userEvent.setup();
 
-    await user.click(screen.getByRole("button", { name: /sign in as company/i }));
+    await user.click(screen.getByRole("button", { name: /sign in as admin\/manager/i }));
 
     await waitFor(() => {
       expect(screen.getByText("Invalid email address")).toBeInTheDocument();
@@ -63,13 +64,12 @@ describe("LoginPage", () => {
   });
 
   it("calls login and redirects on success", async () => {
-    mockLogin.mockResolvedValue(undefined);
     render(<LoginPage />);
     const user = userEvent.setup();
 
     await user.type(screen.getByLabelText("Email"), "a@b.com");
     await user.type(screen.getByLabelText("Password"), "password123");
-    await user.click(screen.getByRole("button", { name: /sign in as company/i }));
+    await user.click(screen.getByRole("button", { name: /sign in as admin\/manager/i }));
 
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith({ email: "a@b.com", password: "password123" });
@@ -84,7 +84,7 @@ describe("LoginPage", () => {
 
     await user.type(screen.getByLabelText("Email"), "a@b.com");
     await user.type(screen.getByLabelText("Password"), "wrong");
-    await user.click(screen.getByRole("button", { name: /sign in as company/i }));
+    await user.click(screen.getByRole("button", { name: /sign in as admin\/manager/i }));
 
     await waitFor(() => {
       expect(screen.getByText("Invalid credentials")).toBeInTheDocument();
@@ -92,15 +92,14 @@ describe("LoginPage", () => {
   });
 
   it("calls employeeLogin with email and password", async () => {
-    mockEmployeeLogin.mockResolvedValue(undefined);
     render(<LoginPage />);
     const user = userEvent.setup();
 
-    await user.click(screen.getByText("Employee"));
+    await user.click(screen.getByText("Senior"));
 
     await user.type(screen.getByLabelText("Email"), "guard@example.com");
     await user.type(screen.getByLabelText("Password"), "emp123");
-    await user.click(screen.getByRole("button", { name: /sign in as employee/i }));
+    await user.click(screen.getByRole("button", { name: /sign in as senior/i }));
 
     await waitFor(() => {
       expect(mockEmployeeLogin).toHaveBeenCalledWith({ email: "guard@example.com", password: "emp123" });
@@ -114,15 +113,15 @@ describe("LoginPage", () => {
     expect(link.closest("a")).toHaveAttribute("href", "/forgot-password");
   });
 
-  it("shows default placeholder for company tab", () => {
+  it("shows default placeholder for admin/manager tab", () => {
     render(<LoginPage />);
     expect(screen.getByPlaceholderText("company@example.com")).toBeInTheDocument();
   });
 
-  it("shows employee placeholder when employee tab selected", async () => {
+  it("shows employee placeholder when senior tab selected", async () => {
     render(<LoginPage />);
     const user = userEvent.setup();
-    await user.click(screen.getByText("Employee"));
+    await user.click(screen.getByText("Senior"));
     expect(screen.getByPlaceholderText("you@example.com")).toBeInTheDocument();
   });
 });

@@ -86,16 +86,8 @@ export const SubscriptionService = {
       where: { companyId },
       include: { plan: true },
     });
-    if (!sub || sub.status === "cancelled") {
-      const freePlan = await prisma.subscriptionPlan.findFirst({ where: { price: 0 } });
-      if (freePlan) {
-        const count = await prisma.guardingSite.count({ where: { companyId } });
-        if (freePlan.siteLimit > 0 && count >= freePlan.siteLimit) {
-          throw new ForbiddenError("Site limit reached. Upgrade to continue.");
-        }
-      }
-      return;
-    }
+    if (!sub || sub.status === "cancelled") return;
+    if (sub.plan.price === 0) return;
     if (sub.plan.siteLimit > 0) {
       const count = await prisma.guardingSite.count({ where: { companyId } });
       if (count >= sub.plan.siteLimit) {
@@ -110,16 +102,8 @@ export const SubscriptionService = {
       where: { companyId },
       include: { plan: true },
     });
-    if (!sub || sub.status === "cancelled") {
-      const freePlan = await prisma.subscriptionPlan.findFirst({ where: { price: 0 } });
-      if (freePlan) {
-        const count = await prisma.user.count({ where: { companyId } });
-        if (freePlan.userLimit > 0 && count >= freePlan.userLimit) {
-          throw new ForbiddenError("User limit reached. Upgrade to continue.");
-        }
-      }
-      return;
-    }
+    if (!sub || sub.status === "cancelled") return;
+    if (sub.plan.price === 0) return;
     if (sub.plan.userLimit > 0) {
       const count = await prisma.user.count({ where: { companyId } });
       if (count >= sub.plan.userLimit) {

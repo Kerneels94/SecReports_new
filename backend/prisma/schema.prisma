@@ -51,7 +51,7 @@ model User {
   comments          Comment[]
   actionOwner       CorrectiveAction[]
   auditLogs         AuditLog[]
-  guard             Guard?
+
   refreshTokens     RefreshToken[]
 
   @@index([companyId])
@@ -324,11 +324,9 @@ model Guard {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   companyId  String   @map("company_id") @db.ObjectId
   siteId     String?  @map("site_id") @db.ObjectId
-  userId     String   @unique @map("user_id") @db.ObjectId
   name       String
   surname    String
   cellphone  String
-  email      String   @unique
   employeeId String   @unique @map("employee_id")
   status     String   @default("active")
   createdAt  DateTime @default(now()) @map("created_at")
@@ -336,7 +334,6 @@ model Guard {
 
   company Company      @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   site    GuardingSite? @relation(fields: [siteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user    User         @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   patrolReports   PatrolReport[]
   entryLogs       EntryLog[]

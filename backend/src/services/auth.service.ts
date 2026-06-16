@@ -7,7 +7,8 @@ import crypto from "crypto";
 import { prisma } from "../lib/db";
 import { hashPassword, comparePassword } from "../lib/hash";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../lib/jwt";
-import { UnauthorizedError, ConflictError, NotFoundError } from "../lib/errors";
+import { UnauthorizedError, ConflictError, NotFoundError, ValidationError } from "../lib/errors";
+import { hasMxRecord } from "../lib/email";
 import { sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail } from "./email.service";
 import { SubscriptionService } from "./subscription.service";
 
@@ -105,6 +106,8 @@ export const AuthService = {
   async login(params: LoginParams) {
     const user = await prisma.user.findUnique({ where: { email: params.email } });
     if (!user) throw new UnauthorizedError("Invalid email or password");
+    if (user.role !== "owner" && user.role !== "manager")
+      throw new UnauthorizedError("Invalid email or password");
 
     if (user.lockedUntil && user.lockedUntil > new Date()) {
       const remaining = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
@@ -238,6 +241,9 @@ export const AuthService = {
    * subscription, persists a refresh token, and sends a welcome email.
    */
   async register(params: RegisterParams) {
+    const validDomain = await hasMxRecord(params.email);
+    if (!validDomain) throw new ValidationError("Email domain does not accept mail");
+
     const existingUser = await prisma.user.findUnique({ where: { email: params.email } });
     if (existingUser) throw new ConflictError("Email already in use");
 
@@ -296,6 +302,9 @@ export const AuthService = {
   /** Creates a user within a company after checking subscription user-limit. Sends welcome email. */
   async createUser(params: CreateUserParams) {
     await SubscriptionService.canAddUser(params.companyId);
+
+    const validDomain = await hasMxRecord(params.email);
+    if (!validDomain) throw new ValidationError("Email domain does not accept mail");
 
     const existing = await prisma.user.findUnique({ where: { email: params.email } });
     if (existing) throw new ConflictError("Email already in use");
@@ -447,6 +456,9 @@ export const AuthService = {
     if (!user) throw new NotFoundError("User not found");
 
     if (data.email && data.email !== user.email) {
+      const validDomain = await hasMxRecord(data.email);
+      if (!validDomain) throw new ValidationError("Email domain does not accept mail");
+
       const existing = await prisma.user.findUnique({ where: { email: data.email } });
       if (existing) throw new ConflictError("Email already in use");
     }
