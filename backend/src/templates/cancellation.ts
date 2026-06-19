@@ -3,12 +3,14 @@
  *
  * @module cancellation
  */
+import { escapeHtml } from "./escape";
+
 interface CancellationData {
   companyName: string;
 }
 
 export default function cancellationTemplate(data: CancellationData): string {
-  const { companyName } = data;
+  const companyName = escapeHtml(data.companyName);
   return `
 <!DOCTYPE html>
 <html>

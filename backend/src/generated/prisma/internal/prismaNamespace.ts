@@ -2096,6 +2096,7 @@ export const UserScalarFieldEnum = {
   role: 'role',
   status: 'status',
   loginAttempts: 'loginAttempts',
+  lockoutCount: 'lockoutCount',
   lockedUntil: 'lockedUntil',
   emailVerified: 'emailVerified',
   createdBy: 'createdBy',

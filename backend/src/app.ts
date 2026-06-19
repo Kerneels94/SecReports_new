@@ -7,6 +7,7 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
+import cookie from "@fastify/cookie";
 import { verifyAccessToken } from "./lib/jwt";
 import { UnauthorizedError } from "./lib/errors";
 import { AppError } from "./lib/errors";
@@ -42,12 +43,28 @@ export async function buildApp() {
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   });
 
-  await fastify.register(helmet);
+  await fastify.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:"],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'self'"],
+      },
+    },
+  });
 
   await fastify.register(rateLimit, {
     max: 100,
     timeWindow: "1 minute",
   });
+
+  await fastify.register(cookie);
 
   fastify.decorateRequest("user", undefined);
 

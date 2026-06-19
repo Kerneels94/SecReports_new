@@ -5,17 +5,23 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { authService } from "@/services";
 
+function getTokenFromHash(): string | null {
+  if (typeof window === "undefined") return null;
+  const hash = window.location.hash;
+  const params = new URLSearchParams(hash.replace("#", ""));
+  return params.get("token");
+}
+
 /** Inner form component that reads the token and handles password reset submission. */
 function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+  const token = getTokenFromHash();
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -125,21 +131,13 @@ function ResetPasswordForm() {
   );
 }
 
-/** Reset password page — wraps ResetPasswordForm in Suspense for useSearchParams. */
+/** Reset password page. */
 export default function ResetPasswordPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-surface-secondary px-4 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(134,239,172,0.06),transparent_50%)] pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(134,239,172,0.03),transparent_50%)] pointer-events-none" />
-      <Suspense fallback={
-        <Card variant="elevated" className="w-full max-w-sm">
-          <CardContent className="pt-6">
-            <p className="text-center text-text-secondary">Loading...</p>
-          </CardContent>
-        </Card>
-      }>
-        <ResetPasswordForm />
-      </Suspense>
+      <ResetPasswordForm />
     </div>
   );
 }

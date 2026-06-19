@@ -23,26 +23,22 @@ jest.mock("../services/auth.service", () => ({
 
 jest.mock("../validators/auth.schema", () => ({
   loginSchema: { safeParse: jest.fn() },
-  refreshSchema: { safeParse: jest.fn() },
   registerSchema: { safeParse: jest.fn() },
   createUserSchema: { safeParse: jest.fn() },
   forgotPasswordSchema: { safeParse: jest.fn() },
   resetPasswordSchema: { safeParse: jest.fn() },
   changePasswordSchema: { safeParse: jest.fn() },
   updateUserSchema: { safeParse: jest.fn() },
-  logoutSchema: { safeParse: jest.fn() },
 }));
 
 import {
   loginSchema,
-  refreshSchema,
   registerSchema,
   createUserSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
   changePasswordSchema,
   updateUserSchema,
-  logoutSchema,
 } from "../validators/auth.schema";
 
 describe("AuthController", () => {
@@ -53,11 +49,15 @@ describe("AuthController", () => {
     jest.clearAllMocks();
     mockRequest = {
       user: { userId: "1", companyId: "1", role: "owner" },
+      headers: { "user-agent": "test-agent" },
+      cookies: {},
       body: {},
     };
     mockReply = {
       code: jest.fn().mockReturnThis(),
       send: jest.fn(),
+      setCookie: jest.fn(),
+      clearCookie: jest.fn(),
     };
   });
 
@@ -70,7 +70,7 @@ describe("AuthController", () => {
 
       await AuthController.login(mockRequest, mockReply);
 
-      expect(AuthService.login).toHaveBeenCalledWith(body);
+      expect(AuthService.login).toHaveBeenCalledWith({ ...body, deviceInfo: "test-agent" });
       expect(mockReply.code).toHaveBeenCalledWith(200);
       expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: expect.any(Object) });
     });
@@ -86,23 +86,27 @@ describe("AuthController", () => {
   });
 
   describe("refresh", () => {
-    it("valid input: calls AuthService.refresh and responds 200", async () => {
+    it("valid input from body: calls AuthService.refresh and responds 200", async () => {
       mockRequest.body = { refreshToken: "some-token" };
-      (refreshSchema.safeParse as jest.Mock).mockReturnValue({ success: true, data: { refreshToken: "some-token" } });
       (AuthService.refresh as jest.Mock).mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
 
       await AuthController.refresh(mockRequest, mockReply);
 
-      expect(AuthService.refresh).toHaveBeenCalledWith("some-token");
+      expect(AuthService.refresh).toHaveBeenCalledWith("some-token", "test-agent");
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 
-    it("invalid input: throws ValidationError", async () => {
-      (refreshSchema.safeParse as jest.Mock).mockReturnValue({
-        success: false,
-        error: { flatten: () => ({}) },
-      });
+    it("valid input from cookie: calls AuthService.refresh and responds 200", async () => {
+      mockRequest.cookies = { refreshToken: "cookie-token" };
+      (AuthService.refresh as jest.Mock).mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
 
+      await AuthController.refresh(mockRequest, mockReply);
+
+      expect(AuthService.refresh).toHaveBeenCalledWith("cookie-token", "test-agent");
+      expect(mockReply.code).toHaveBeenCalledWith(200);
+    });
+
+    it("throws ValidationError when no refresh token provided", async () => {
       await expect(AuthController.refresh(mockRequest, mockReply)).rejects.toThrow(ValidationError);
     });
   });
@@ -283,7 +287,7 @@ describe("AuthController", () => {
 
       await AuthController.updateUser(mockRequest, mockReply);
 
-      expect(AuthService.updateUser).toHaveBeenCalledWith("1", "2", { name: "Updated" });
+      expect(AuthService.updateUser).toHaveBeenCalledWith("1", "2", { name: "Updated" }, "1", "owner");
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 
@@ -299,12 +303,8 @@ describe("AuthController", () => {
   });
 
   describe("logout", () => {
-    it("valid input: calls AuthService.logout and responds 200", async () => {
+    it("valid input from body: calls AuthService.logout and responds 200", async () => {
       mockRequest.body = { refreshToken: "abc" };
-      (logoutSchema.safeParse as jest.Mock).mockReturnValue({
-        success: true,
-        data: { refreshToken: "abc" },
-      });
 
       await AuthController.logout(mockRequest, mockReply);
 
@@ -313,12 +313,16 @@ describe("AuthController", () => {
       expect(mockReply.send).toHaveBeenCalledWith({ success: true, message: "Logged out successfully." });
     });
 
-    it("invalid input: throws ValidationError", async () => {
-      (logoutSchema.safeParse as jest.Mock).mockReturnValue({
-        success: false,
-        error: { flatten: () => ({}) },
-      });
+    it("valid input from cookie: calls AuthService.logout and responds 200", async () => {
+      mockRequest.cookies = { refreshToken: "cookie-token" };
 
+      await AuthController.logout(mockRequest, mockReply);
+
+      expect(AuthService.logout).toHaveBeenCalledWith("cookie-token");
+      expect(mockReply.code).toHaveBeenCalledWith(200);
+    });
+
+    it("throws ValidationError when no refresh token provided", async () => {
       await expect(AuthController.logout(mockRequest, mockReply)).rejects.toThrow(ValidationError);
     });
   });

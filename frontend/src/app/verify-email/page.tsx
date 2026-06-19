@@ -1,16 +1,21 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { api } from "@/services/api";
 
 type VerifyState = "loading" | "success" | "error";
 
+function getTokenFromHash(): string | null {
+  if (typeof window === "undefined") return null;
+  const hash = window.location.hash;
+  const params = new URLSearchParams(hash.replace("#", ""));
+  return params.get("token");
+}
+
 function VerifyEmailContent() {
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+  const token = getTokenFromHash();
   const [state, setState] = useState<VerifyState>("loading");
   const [message, setMessage] = useState("");
 
@@ -22,7 +27,7 @@ function VerifyEmailContent() {
     }
 
     api
-      .get<{ data: { message: string } }>(`/auth/verify-email?token=${token}`)
+      .post<{ data: { message: string } }>("/auth/verify-email", { token })
       .then((res) => {
         setState("success");
         setMessage(res.data.data.message);
@@ -91,18 +96,7 @@ function VerifyEmailContent() {
 export default function VerifyEmailPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-secondary px-4">
-      <Suspense fallback={
-        <Card variant="elevated" className="w-full max-w-sm animate-slide-up">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
-              <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            </div>
-            <CardTitle>Verifying...</CardTitle>
-          </CardHeader>
-        </Card>
-      }>
-        <VerifyEmailContent />
-      </Suspense>
+      <VerifyEmailContent />
     </div>
   );
 }

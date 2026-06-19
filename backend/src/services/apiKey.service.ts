@@ -6,17 +6,24 @@ import crypto from "crypto";
 import { prisma } from "../lib/db";
 import { NotFoundError, ConflictError } from "../lib/errors";
 
+function hashApiKey(raw: string): string {
+  return crypto.createHash("sha256").update(raw).digest("hex");
+}
+
 export const ApiKeyService = {
-  /** Creates a new API key with a random `sk_`-prefixed secret. */
+  /** Creates a new API key with a random `sk_`-prefixed secret. Stores only the SHA-256 hash. */
   async generate(companyId: string, name: string) {
     const key = `sk_${crypto.randomBytes(32).toString("hex")}`;
+    const keyHash = hashApiKey(key);
 
-    return prisma.apiKey.create({
-      data: { companyId, name, key },
+    await prisma.apiKey.create({
+      data: { companyId, name, key: keyHash },
     });
+
+    return { key };
   },
 
-  /** Lists all API keys for a company, ordered by creation date. */
+  /** Lists all API keys for a company, ordered by creation date. The raw key is never returned. */
   async list(companyId: string) {
     return prisma.apiKey.findMany({
       where: { companyId },
@@ -24,7 +31,6 @@ export const ApiKeyService = {
       select: {
         id: true,
         name: true,
-        key: true,
         lastUsedAt: true,
         active: true,
         createdAt: true,
@@ -45,7 +51,8 @@ export const ApiKeyService = {
 
   /** Validates an API key and updates its last-used timestamp. Returns null if inactive. */
   async validate(key: string) {
-    const apiKey = await prisma.apiKey.findUnique({ where: { key } });
+    const keyHash = hashApiKey(key);
+    const apiKey = await prisma.apiKey.findUnique({ where: { key: keyHash } });
     if (!apiKey || !apiKey.active) return null;
 
     await prisma.apiKey.update({

@@ -1,13 +1,13 @@
 /**
- * Password hashing utilities wrapping bcrypt with a consistent salt-round
- * configuration (12 rounds).
+ * Password hashing utilities wrapping bcrypt with a configurable salt-round
+ * setting (default 12) read from the `BCRYPT_SALT_ROUNDS` environment variable.
  */
 import bcrypt from "bcrypt";
 
-const SALT_ROUNDS = 12;
+const SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || "12", 10);
 
 /**
- * Hash a plain-text password using bcrypt with 12 salt rounds.
+ * Hash a plain-text password using bcrypt.
  * @param password - The plain-text password to hash.
  * @returns A bcrypt hash string.
  */

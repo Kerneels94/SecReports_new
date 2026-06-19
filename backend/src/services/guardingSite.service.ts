@@ -39,9 +39,9 @@ export const GuardingSiteService = {
   },
 
   /** Gets a site with active guards, recent patrol reports, and entry logs. */
-  async getById(id: string) {
-    const site = await prisma.guardingSite.findUnique({
-      where: { id },
+  async getById(companyId: string, id: string) {
+    const site = await prisma.guardingSite.findFirst({
+      where: { id, companyId },
       include: {
         guards: { where: { status: "active" } },
         patrolReports: { orderBy: { startedAt: "desc" }, take: 10 },
@@ -92,16 +92,16 @@ export const GuardingSiteService = {
   },
 
   /** Updates a site's name, address, or status. */
-  async update(id: string, params: UpdateGuardingSiteParams) {
-    const site = await prisma.guardingSite.findUnique({ where: { id } });
+  async update(companyId: string, id: string, params: UpdateGuardingSiteParams) {
+    const site = await prisma.guardingSite.findFirst({ where: { id, companyId } });
     if (!site) throw new NotFoundError("Guarding site");
 
     return prisma.guardingSite.update({ where: { id }, data: params });
   },
 
   /** Deletes a site and cascades to remove related patrol data, entry logs, and unassign guards. */
-  async delete(id: string) {
-    const site = await prisma.guardingSite.findUnique({ where: { id } });
+  async delete(companyId: string, id: string) {
+    const site = await prisma.guardingSite.findFirst({ where: { id, companyId } });
     if (!site) throw new NotFoundError("Guarding site");
 
     await prisma.$transaction(async (tx) => {

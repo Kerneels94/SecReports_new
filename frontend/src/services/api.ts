@@ -1,38 +1,47 @@
-/**
- * HTTP API client wrapping fetch with token-based authentication.
- * Provides typed methods for common verbs and form-data uploads.
- */
-import type { ApiResponse, ApiError, LoginRequest, LoginResponse } from "@/types";
+import type { ApiResponse, ApiError, LoginResponse } from "@/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-/**
- * Lightweight HTTP client that prepends a base URL to every request
- * and automatically attaches the stored JWT access token.
- */
 class ApiClient {
   private baseUrl: string;
+  private refreshing: Promise<boolean> | null = null;
 
-  /** @param baseUrl - The base URL for all API requests (protocol + host + port). */
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
 
-  /** Read the access token from localStorage (client-side only). */
   private getToken(): string | null {
     if (typeof window === "undefined") return null;
     return localStorage.getItem("accessToken");
   }
 
-  /**
-   * Core request dispatcher. Attaches auth and JSON headers, parses the response,
-   * and throws on non-OK status codes.
-   * @param path - API endpoint path (e.g. `/auth/login`)
-   * @param options - Standard fetch options (method, body, headers, etc.)
-   */
+  private async attemptRefresh(): Promise<boolean> {
+    try {
+      const res = await fetch(`${this.baseUrl}/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      if (!res.ok) return false;
+
+      const json = await res.json();
+      const data = json.data as LoginResponse;
+      localStorage.setItem("accessToken", data.accessToken);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private clearTokens(): void {
+    localStorage.removeItem("accessToken");
+  }
+
   private async request<T>(
     path: string,
     options: RequestInit = {},
+    isRetry = false,
   ): Promise<ApiResponse<T>> {
     const token = this.getToken();
     const hasBody = options.body !== undefined && options.body !== null;
@@ -48,10 +57,26 @@ class ApiClient {
     const res = await fetch(`${this.baseUrl}${path}`, {
       ...options,
       headers,
+      credentials: "include",
     });
 
     if (res.status === 204) {
       return { success: true, data: undefined as unknown as T };
+    }
+
+    if (res.status === 401 && !isRetry && !path.startsWith("/auth/refresh")) {
+      if (!this.refreshing) {
+        this.refreshing = this.attemptRefresh().finally(() => {
+          this.refreshing = null;
+        });
+      }
+
+      const refreshed = await this.refreshing;
+      if (refreshed) {
+        return this.request<T>(path, options, true);
+      }
+
+      this.clearTokens();
     }
 
     const json = await res.json();
@@ -64,12 +89,10 @@ class ApiClient {
     return json as ApiResponse<T>;
   }
 
-  /** Perform a GET request. */
   async get<T>(path: string): Promise<ApiResponse<T>> {
     return this.request<T>(path, { method: "GET" });
   }
 
-  /** Perform a POST request with an optional JSON body. */
   async post<T>(path: string, body?: unknown): Promise<ApiResponse<T>> {
     return this.request<T>(path, {
       method: "POST",
@@ -77,7 +100,6 @@ class ApiClient {
     });
   }
 
-  /** Perform a PUT request with an optional JSON body. */
   async put<T>(path: string, body?: unknown): Promise<ApiResponse<T>> {
     return this.request<T>(path, {
       method: "PUT",
@@ -85,7 +107,6 @@ class ApiClient {
     });
   }
 
-  /** Perform a PATCH request with an optional JSON body. */
   async patch<T>(path: string, body?: unknown): Promise<ApiResponse<T>> {
     return this.request<T>(path, {
       method: "PATCH",
@@ -93,15 +114,10 @@ class ApiClient {
     });
   }
 
-  /** Perform a DELETE request. */
   async delete<T>(path: string): Promise<ApiResponse<T>> {
     return this.request<T>(path, { method: "DELETE" });
   }
 
-  /**
-   * Upload a file via multipart/form-data POST.
-   * Does NOT set Content-Type so the browser can set the correct boundary.
-   */
   async upload<T>(path: string, formData: FormData): Promise<ApiResponse<T>> {
     const token = this.getToken();
     const headers: HeadersInit = {};
@@ -113,6 +129,7 @@ class ApiClient {
       method: "POST",
       headers,
       body: formData,
+      credentials: "include",
     });
 
     const json = await res.json();

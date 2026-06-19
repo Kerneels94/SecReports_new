@@ -24,17 +24,22 @@ export const ExportController = {
       "Date", "Location", "Operator", "Dispatcher", "Reporter", "Created",
     ];
 
+    function sanitizeCsv(val: string): string {
+      if (/^[=+\-@]/.test(val)) return `" ${val.replace(/"/g, '""')}"`;
+      return `"${val.replace(/"/g, '""')}"`;
+    }
+
     const rows = incidents.map((i) => [
-      i.referenceNumber,
-      `"${i.title.replace(/"/g, '""')}"`,
-      i.type,
-      i.status,
-      i.incidentDate.toISOString().split("T")[0],
-      i.location || "",
-      i.operatorName,
-      i.dispatcher,
-      i.reporter?.name || "",
-      i.createdAt.toISOString().split("T")[0],
+      sanitizeCsv(i.referenceNumber),
+      sanitizeCsv(i.title),
+      sanitizeCsv(i.type),
+      sanitizeCsv(i.status),
+      sanitizeCsv(i.incidentDate.toISOString().split("T")[0]),
+      sanitizeCsv(i.location || ""),
+      sanitizeCsv(i.operatorName || ""),
+      sanitizeCsv(i.dispatcher || ""),
+      sanitizeCsv(i.reporter?.name || ""),
+      sanitizeCsv(i.createdAt.toISOString().split("T")[0]),
     ]);
 
     const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");

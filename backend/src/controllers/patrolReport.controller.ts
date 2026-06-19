@@ -11,7 +11,7 @@ export const PatrolReportController = {
   /** List patrol reports for a specific guarding site. */
   async listBySite(request: FastifyRequest, reply: FastifyReply) {
     const { siteId } = request.params as { siteId: string };
-    const reports = await PatrolReportService.listBySite(siteId);
+    const reports = await PatrolReportService.listBySite(request.user!.companyId, siteId);
     reply.code(200).send({ success: true, data: reports });
   },
 
@@ -25,14 +25,14 @@ export const PatrolReportController = {
   /** List patrol reports for a specific guard. */
   async listByGuard(request: FastifyRequest, reply: FastifyReply) {
     const { guardId } = request.params as { guardId: string };
-    const reports = await PatrolReportService.listByGuard(guardId);
+    const reports = await PatrolReportService.listByGuard(request.user!.companyId, guardId);
     reply.code(200).send({ success: true, data: reports });
   },
 
   /** Get a single patrol report by ID. */
   async getById(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    const report = await PatrolReportService.getById(id);
+    const report = await PatrolReportService.getById(request.user!.companyId, id);
     reply.code(200).send({ success: true, data: report });
   },
 
@@ -41,7 +41,7 @@ export const PatrolReportController = {
     const parsed = createPatrolReportSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const report = await PatrolReportService.create(parsed.data);
+    const report = await PatrolReportService.create(request.user!.companyId, parsed.data);
     reply.code(201).send({ success: true, data: report });
   },
 
@@ -51,14 +51,14 @@ export const PatrolReportController = {
     const parsed = updatePatrolReportSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const report = await PatrolReportService.update(id, parsed.data);
+    const report = await PatrolReportService.update(request.user!.companyId, id, parsed.data);
     reply.code(200).send({ success: true, data: report });
   },
 
   /** Delete a patrol report. */
   async delete(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    await PatrolReportService.delete(id);
+    await PatrolReportService.delete(request.user!.companyId, id);
     reply.code(204).send();
   },
 };

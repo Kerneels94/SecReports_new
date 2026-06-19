@@ -30,12 +30,18 @@ const updateActionSchema = z.object({
   completedAt: z.string().optional(),
 });
 
+async function assertIncidentBelongsToCompany(incidentId: string, companyId: string): Promise<void> {
+  const incident = await prisma.incident.findFirst({ where: { id: incidentId, companyId } });
+  if (!incident) throw new NotFoundError("Incident");
+}
+
 export const InvestigationController = {
   /** Get the investigation record for an incident (returns null if none exists). */
   async get(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "full_lifecycle");
 
     const { id } = request.params as { id: string };
+    await assertIncidentBelongsToCompany(id, request.user!.companyId);
     const investigation = await prisma.investigation.findUnique({
       where: { incidentId: id },
     });
@@ -54,6 +60,7 @@ export const InvestigationController = {
     const parsed = upsertSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
+    await assertIncidentBelongsToCompany(id, request.user!.companyId);
     const incident = await prisma.incident.findUnique({ where: { id } });
     if (!incident) throw new NotFoundError("Incident");
 
@@ -78,6 +85,7 @@ export const InvestigationController = {
     await SubscriptionService.requireFeature(request.user!.companyId, "full_lifecycle");
 
     const { id } = request.params as { id: string };
+    await assertIncidentBelongsToCompany(id, request.user!.companyId);
     const actions = await prisma.correctiveAction.findMany({
       where: { incidentId: id },
       include: { owner: { select: { id: true, name: true } } },
@@ -95,6 +103,7 @@ export const InvestigationController = {
     const parsed = createActionSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
+    await assertIncidentBelongsToCompany(id, request.user!.companyId);
     const incident = await prisma.incident.findUnique({ where: { id } });
     if (!incident) throw new NotFoundError("Incident");
 
@@ -118,6 +127,14 @@ export const InvestigationController = {
     const { actionId } = request.params as { actionId: string };
     const parsed = updateActionSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
+
+    const existing = await prisma.correctiveAction.findUnique({
+      where: { id: actionId },
+      include: { incident: { select: { companyId: true } } },
+    });
+    if (!existing || existing.incident.companyId !== request.user!.companyId) {
+      throw new NotFoundError("Corrective action");
+    }
 
     const data: any = {};
     if (parsed.data.status !== undefined) data.status = parsed.data.status;

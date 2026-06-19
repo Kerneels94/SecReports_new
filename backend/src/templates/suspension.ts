@@ -3,13 +3,17 @@
  *
  * @module suspension
  */
+import { escapeHtml } from "./escape";
+
 interface SuspensionData {
   companyName: string;
   reason?: string;
 }
 
 export default function suspensionTemplate(data: SuspensionData): string {
-  const { companyName, reason } = data;
+  const { reason } = data;
+  const companyName = escapeHtml(data.companyName);
+  const safeReason = reason ? escapeHtml(reason) : undefined;
   return `
 <!DOCTYPE html>
 <html>
@@ -24,7 +28,7 @@ export default function suspensionTemplate(data: SuspensionData): string {
       <td style="padding: 32px 24px;">
         <p style="font-size: 16px; color: #333;">Hi ${companyName},</p>
         <p style="font-size: 16px; color: #b91c1c; font-weight: bold;">Your SecReports account has been suspended.</p>
-        ${reason ? `<p style="font-size: 16px; color: #333;">Reason: ${reason}</p>` : ""}
+        ${safeReason ? `<p style="font-size: 16px; color: #333;">Reason: ${safeReason}</p>` : ""}
         <p style="font-size: 16px; color: #333;">During the suspension period, you will not be able to access your account or create new incident reports.</p>
         <p style="font-size: 14px; color: #777;">If you have any questions or believe this was done in error, please contact our support team immediately.</p>
         <div style="text-align: center; margin: 32px 0;">

@@ -5,6 +5,7 @@
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const FROM_EMAIL = process.env.FROM_EMAIL || "onboarding@resend.dev";
 
 /** Parameters for sending a transactional email. */
 interface SendMailParams {
@@ -78,7 +79,7 @@ export async function sendMail({
     }
 
     const { data: res, error } = await resend.emails.send({
-      from: from || "onboarding@resend.dev",
+      from: from || FROM_EMAIL,
       to: [to],
       subject: subjectLabels[subject] || subject,
       html,
@@ -107,7 +108,7 @@ export async function sendVerificationEmail(to: string, name: string, verifyLink
   const html = template(name, verifyLink);
 
   const { data, error } = await resend.emails.send({
-    from: "onboarding@resend.dev",
+    from: FROM_EMAIL,
     to: [to],
     subject: "Verify Your SecReports Account",
     html,
@@ -131,7 +132,7 @@ export async function sendPasswordResetEmail(
   const html = template(name, resetLink);
 
   const { data, error } = await resend.emails.send({
-    from: "onboarding@resend.dev",
+    from: FROM_EMAIL,
     to: [to],
     subject: "Reset Your SecReports Password",
     html,
@@ -151,7 +152,7 @@ export async function sendPasswordChangedEmail(to: string, name: string) {
   const html = template(name);
 
   const { data, error } = await resend.emails.send({
-    from: "onboarding@resend.dev",
+    from: FROM_EMAIL,
     to: [to],
     subject: "Your SecReports Password Has Been Changed",
     html,

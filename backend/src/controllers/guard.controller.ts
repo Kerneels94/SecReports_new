@@ -24,7 +24,7 @@ export const GuardController = {
   /** Get a single guard by ID. */
   async getById(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    const guard = await GuardService.getById(id);
+    const guard = await GuardService.getById(request.user!.companyId, id);
     reply.code(200).send({ success: true, data: guard });
   },
 
@@ -49,14 +49,14 @@ export const GuardController = {
     if (!parsed.success)
       throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const guard = await GuardService.update(id, parsed.data);
+    const guard = await GuardService.update(request.user!.companyId, id, parsed.data);
     reply.code(200).send({ success: true, data: guard });
   },
 
   /** Delete a guard profile. */
   async delete(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    await GuardService.delete(id);
+    await GuardService.delete(request.user!.companyId, id);
     reply.code(204).send();
   },
 };

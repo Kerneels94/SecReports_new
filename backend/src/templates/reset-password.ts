@@ -3,7 +3,10 @@
  *
  * @module reset-password
  */
+import { escapeHtml } from "./escape";
+
 export default function resetPasswordTemplate(name: string, resetLink: string): string {
+  const safeName = escapeHtml(name);
   return `
 <!DOCTYPE html>
 <html>
@@ -16,7 +19,7 @@ export default function resetPasswordTemplate(name: string, resetLink: string): 
     </tr>
     <tr>
       <td style="padding: 32px 24px;">
-        <p style="font-size: 16px; color: #333;">Hi ${name},</p>
+        <p style="font-size: 16px; color: #333;">Hi ${safeName},</p>
         <p style="font-size: 16px; color: #333;">We received a request to reset the password for your SecReports account.</p>
         <div style="text-align: center; margin: 32px 0;">
           <a href="${resetLink}"

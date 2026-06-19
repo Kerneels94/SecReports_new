@@ -40,9 +40,9 @@ export const GuardService = {
   },
 
   /** Gets a guard with site and recent patrol reports. */
-  async getById(id: string) {
-    const guard = await prisma.guard.findUnique({
-      where: { id },
+  async getById(companyId: string, id: string) {
+    const guard = await prisma.guard.findFirst({
+      where: { id, companyId },
       include: {
         site: { select: { id: true, name: true } },
         patrolReports: { orderBy: { startedAt: "desc" }, take: 10 },
@@ -79,8 +79,8 @@ export const GuardService = {
   },
 
   /** Updates guard fields. */
-  async update(id: string, params: UpdateGuardParams) {
-    const guard = await prisma.guard.findUnique({ where: { id } });
+  async update(companyId: string, id: string, params: UpdateGuardParams) {
+    const guard = await prisma.guard.findFirst({ where: { id, companyId } });
     if (!guard) throw new NotFoundError("Guard");
 
     if (params.employeeId) {
@@ -114,8 +114,8 @@ export const GuardService = {
   },
 
   /** Deletes a guard record. */
-  async delete(id: string) {
-    const guard = await prisma.guard.findUnique({ where: { id } });
+  async delete(companyId: string, id: string) {
+    const guard = await prisma.guard.findFirst({ where: { id, companyId } });
     if (!guard) throw new NotFoundError("Guard");
 
     await prisma.guard.delete({ where: { id } });

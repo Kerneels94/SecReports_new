@@ -8,16 +8,30 @@ import { AuthService } from "../services/auth.service";
 import {
   loginSchema,
   employeeLoginSchema,
-  refreshSchema,
   registerSchema,
   createUserSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
   changePasswordSchema,
   updateUserSchema,
-  logoutSchema,
 } from "../validators/auth.schema";
 import { ValidationError } from "../lib/errors";
+
+const COOKIE_OPTIONS = {
+  path: "/",
+  httpOnly: true,
+  sameSite: "strict" as const,
+  secure: process.env.NODE_ENV === "production",
+  maxAge: 7 * 24 * 60 * 60,
+};
+
+function setRefreshCookie(reply: FastifyReply, token: string) {
+  reply.setCookie("refreshToken", token, COOKIE_OPTIONS);
+}
+
+function clearRefreshCookie(reply: FastifyReply) {
+  reply.clearCookie("refreshToken", { path: "/" });
+}
 
 export const AuthController = {
   /** Authenticate a user with email and password, returning tokens. */
@@ -26,8 +40,10 @@ export const AuthController = {
     if (!parsed.success)
       throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const result = await AuthService.login(parsed.data);
-    reply.code(200).send({ success: true, data: result });
+    const deviceInfo = (request.headers["user-agent"] as string) || undefined;
+    const { refreshToken: _rt1, ...safeResult } = await AuthService.login({ ...parsed.data, deviceInfo });
+    setRefreshCookie(reply, _rt1);
+    reply.code(200).send({ success: true, data: safeResult });
   },
 
   /** Authenticate a guard employee using their email and password. */
@@ -36,18 +52,21 @@ export const AuthController = {
     if (!parsed.success)
       throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const result = await AuthService.employeeLogin(parsed.data);
-    reply.code(200).send({ success: true, data: result });
+    const deviceInfo = (request.headers["user-agent"] as string) || undefined;
+    const { refreshToken: _rt2, ...safeResult } = await AuthService.employeeLogin({ ...parsed.data, deviceInfo });
+    setRefreshCookie(reply, _rt2);
+    reply.code(200).send({ success: true, data: safeResult });
   },
 
   /** Refresh an expired access token using a valid refresh token. */
   async refresh(request: FastifyRequest, reply: FastifyReply) {
-    const parsed = refreshSchema.safeParse(request.body);
-    if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+    const refreshToken = request.cookies?.refreshToken;
+    if (!refreshToken) throw new ValidationError("Refresh token is required");
 
-    const result = await AuthService.refresh(parsed.data.refreshToken);
-    reply.code(200).send({ success: true, data: result });
+    const deviceInfo = (request.headers["user-agent"] as string) || undefined;
+    const { refreshToken: _rt3, ...safeResult } = await AuthService.refresh(refreshToken, deviceInfo);
+    setRefreshCookie(reply, _rt3);
+    reply.code(200).send({ success: true, data: safeResult });
   },
 
   /** Return the currently authenticated user's profile. */
@@ -68,7 +87,7 @@ export const AuthController = {
 
   /** Verify a user's email address using a token from the verification email. */
   async verifyEmail(request: FastifyRequest, reply: FastifyReply) {
-    const { token } = request.query as { token: string };
+    const { token } = request.body as { token: string };
     if (!token) throw new ValidationError("Verification token is required");
 
     const result = await AuthService.verifyEmail(token);
@@ -110,6 +129,7 @@ export const AuthController = {
       throw new ValidationError("Invalid input", parsed.error.flatten());
 
     await AuthService.resetPassword(parsed.data.token, parsed.data.password);
+    clearRefreshCookie(reply);
     reply
       .code(200)
       .send({
@@ -129,6 +149,7 @@ export const AuthController = {
       parsed.data.currentPassword,
       parsed.data.newPassword,
     );
+    clearRefreshCookie(reply);
     reply
       .code(200)
       .send({ success: true, message: "Password changed successfully." });
@@ -155,30 +176,23 @@ export const AuthController = {
 
     const { id } = request.params as { id: string };
 
-    if (parsed.data.role) {
-      if (request.user!.role !== "owner") {
-        throw new ValidationError("Only the owner can change a user's role");
-      }
-      if (request.user!.userId === id) {
-        throw new ValidationError("You cannot change your own role");
-      }
-    }
-
     const user = await AuthService.updateUser(
       request.user!.companyId,
       id,
       parsed.data,
+      request.user!.userId,
+      request.user!.role,
     );
     reply.code(200).send({ success: true, data: user });
   },
 
   /** Log out by deleting the provided refresh token. */
   async logout(request: FastifyRequest, reply: FastifyReply) {
-    const parsed = logoutSchema.safeParse(request.body);
-    if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+    const refreshToken = request.cookies?.refreshToken;
+    if (!refreshToken) throw new ValidationError("Refresh token is required");
 
-    await AuthService.logout(parsed.data.refreshToken);
+    await AuthService.logout(refreshToken);
+    clearRefreshCookie(reply);
     reply
       .code(200)
       .send({ success: true, message: "Logged out successfully." });
@@ -187,6 +201,7 @@ export const AuthController = {
   /** Log out all sessions for the current user. */
   async logoutAll(request: FastifyRequest, reply: FastifyReply) {
     await AuthService.logoutAll(request.user!.userId);
+    clearRefreshCookie(reply);
     reply
       .code(200)
       .send({ success: true, message: "All sessions logged out." });

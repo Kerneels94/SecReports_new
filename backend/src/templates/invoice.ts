@@ -3,6 +3,8 @@
  *
  * @module invoice
  */
+import { escapeHtml } from "./escape";
+
 interface InvoiceData {
   companyName: string;
   amount: number;
@@ -12,7 +14,9 @@ interface InvoiceData {
 }
 
 export default function invoiceTemplate(data: InvoiceData): string {
-  const { companyName, amount, currency = "ZAR", invoiceNumber, invoiceLink } = data;
+  const { amount, currency = "ZAR", invoiceLink } = data;
+  const companyName = escapeHtml(data.companyName);
+  const invoiceNumber = escapeHtml(data.invoiceNumber);
   return `
 <!DOCTYPE html>
 <html>

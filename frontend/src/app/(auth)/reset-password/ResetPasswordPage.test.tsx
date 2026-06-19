@@ -1,12 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import ResetPasswordPage from "./page";
 import { authService } from "@/services";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
-  useSearchParams: jest.fn(),
 }));
 
 jest.mock("@/services", () => ({
@@ -14,18 +13,16 @@ jest.mock("@/services", () => ({
 }));
 
 const mockRouter = { push: jest.fn() };
-const mockSearchParams = useSearchParams as jest.Mock;
 const mockResetPassword = authService.resetPassword as jest.Mock;
 
 function mockToken(token: string | null) {
-  mockSearchParams.mockReturnValue({
-    get: jest.fn().mockReturnValue(token),
-  });
+  window.location.hash = token ? `#token=${token}` : "";
 }
 
 beforeEach(() => {
   jest.clearAllMocks();
   (useRouter as jest.Mock).mockReturnValue(mockRouter);
+  mockToken(null);
 });
 
 describe("ResetPasswordPage", () => {

@@ -21,7 +21,7 @@ export const FlaggedVehicleController = {
   /** Get a single flagged vehicle by ID. */
   async getById(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    const vehicle = await FlaggedVehicleService.getById(id);
+    const vehicle = await FlaggedVehicleService.getById(request.user!.companyId, id);
     reply.code(200).send({ success: true, data: vehicle });
   },
 
@@ -47,14 +47,14 @@ export const FlaggedVehicleController = {
     const parsed = resolveFlaggedVehicleSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const vehicle = await FlaggedVehicleService.resolve(id);
+    const vehicle = await FlaggedVehicleService.resolve(request.user!.companyId, id);
     reply.code(200).send({ success: true, data: vehicle });
   },
 
   /** Delete a flagged vehicle record. */
   async delete(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    await FlaggedVehicleService.delete(id);
+    await FlaggedVehicleService.delete(request.user!.companyId, id);
     reply.code(204).send();
   },
 };

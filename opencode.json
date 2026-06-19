@@ -4,7 +4,7 @@
     "frontend": {
       "description": "Generates Next.js frontend code (pages, components, hooks, lib, services) with Tailwind CSS, TypeScript strict mode, and Jest + React Testing Library tests.",
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-6",
+      "model": "claude-sonnet-4-6",
       "permission": {
         "edit": "allow",
         "bash": {
@@ -17,7 +17,7 @@
     "nodejs": {
       "description": "Generates Node.js backend code (Fastify routes, controllers, services, middleware, validators) with TypeScript, JWT auth, and Jest tests.",
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-6",
+      "model": "claude-sonnet-4-6",
       "permission": {
         "edit": "allow",
         "bash": {
@@ -30,13 +30,28 @@
     "mongodb": {
       "description": "Generates and manages the database layer (Prisma schema, seeds, data-access helpers) for MongoDB, with Jest tests.",
       "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-6",
+      "model": "claude-sonnet-4-6",
       "permission": {
         "edit": "allow",
         "bash": {
           "npm *": "allow",
           "npx *": "allow",
           "prisma *": "allow",
+          "*": "ask"
+        }
+      }
+    },
+    "security-audit-agent": {
+      "description": "Scans the Incident Report System codebase against OWASP Top 10 2026 for security vulnerabilities — auth bypass, XSS, broken access control, credential leakage, injection, supply chain, error handling, and regression against the golden rules in memory.md. Use before any release or after any auth-related changes.",
+      "mode": "subagent",
+      "model": "claude-sonnet-4-6",
+      "permission": {
+        "read": "allow",
+        "edit": "allow",
+        "bash": {
+          "npx jest *": "allow",
+          "npm test": "allow",
+          "npm run *": "allow",
           "*": "ask"
         }
       }
