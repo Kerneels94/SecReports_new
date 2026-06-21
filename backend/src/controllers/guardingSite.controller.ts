@@ -18,7 +18,7 @@ export const GuardingSiteController = {
   /** Get a single guarding site by ID. */
   async getById(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    const site = await GuardingSiteService.getById(id);
+    const site = await GuardingSiteService.getById(request.user!.companyId, id);
     reply.code(200).send({ success: true, data: site });
   },
 
@@ -43,14 +43,14 @@ export const GuardingSiteController = {
     const parsed = updateGuardingSiteSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const site = await GuardingSiteService.update(id, parsed.data);
+    const site = await GuardingSiteService.update(request.user!.companyId, id, parsed.data);
     reply.code(200).send({ success: true, data: site });
   },
 
   /** Delete a guarding site. */
   async delete(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    await GuardingSiteService.delete(id);
+    await GuardingSiteService.delete(request.user!.companyId, id);
     reply.code(204).send();
   },
 };

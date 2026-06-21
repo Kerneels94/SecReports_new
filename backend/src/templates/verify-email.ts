@@ -1,4 +1,7 @@
+import { escapeHtml } from "./escape";
+
 export default function verifyEmailTemplate(name: string, verifyLink: string): string {
+  const safeName = escapeHtml(name);
   return `
 <!DOCTYPE html>
 <html>
@@ -11,7 +14,7 @@ export default function verifyEmailTemplate(name: string, verifyLink: string): s
     </tr>
     <tr>
       <td style="padding: 32px 24px;">
-        <p style="font-size: 16px; color: #333;">Hi ${name},</p>
+        <p style="font-size: 16px; color: #333;">Hi ${safeName},</p>
         <p style="font-size: 16px; color: #333;">Thank you for creating a SecReports account. Please verify your email address by clicking the button below.</p>
         <div style="text-align: center; margin: 32px 0;">
           <a href="${verifyLink}"

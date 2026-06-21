@@ -269,8 +269,12 @@ async function main() {
     },
   });
 
-  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || "corriebotha64@gmail.com";
-  const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || "superadmintest1234";
+  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+  const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
+  if (!superAdminEmail || !superAdminPassword) {
+    console.error("SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD must be set");
+    process.exit(1);
+  }
   const existingSuperAdmin = await prisma.user.findUnique({ where: { email: superAdminEmail } });
   if (!existingSuperAdmin) {
     const superAdminHash = await bcrypt.hash(superAdminPassword, 12);

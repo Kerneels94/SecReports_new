@@ -192,9 +192,9 @@ export const IncidentService = {
   },
 
   /** Gets a full incident with all relations (reporter, investigator, comments, investigation, corrective actions). */
-  async getById(id: string) {
-    const incident = await prisma.incident.findUnique({
-      where: { id },
+  async getById(companyId: string, id: string) {
+    const incident = await prisma.incident.findFirst({
+      where: { id, companyId },
       include: {
         reporter: { select: { id: true, name: true, email: true } },
         assignedInvestigator: { select: { id: true, name: true, email: true } },
@@ -259,11 +259,11 @@ export const IncidentService = {
   },
 
   /** Updates an incident with reporter ownership check and audit log of old/new values. */
-  async update(id: string, params: UpdateIncidentParams, userId: string, userRole: string) {
-    const incident = await prisma.incident.findUnique({ where: { id } });
+  async update(companyId: string, id: string, params: UpdateIncidentParams, userId: string, userRole: string) {
+    const incident = await prisma.incident.findFirst({ where: { id, companyId } });
     if (!incident) throw new NotFoundError("Incident");
 
-    if (userRole === "reporter" && incident.reporterId !== userId) {
+    if (userRole !== "owner" && userRole !== "manager" && incident.reporterId !== userId) {
       throw new ForbiddenError("You can only edit your own incidents");
     }
 
@@ -311,8 +311,8 @@ export const IncidentService = {
   },
 
   /** Changes incident status and logs the transition in the audit log. */
-  async updateStatus(id: string, status: string, userId: string) {
-    const incident = await prisma.incident.findUnique({ where: { id } });
+  async updateStatus(companyId: string, id: string, status: string, userId: string) {
+    const incident = await prisma.incident.findFirst({ where: { id, companyId } });
     if (!incident) throw new NotFoundError("Incident");
 
     const oldStatus = incident.status;
@@ -337,11 +337,11 @@ export const IncidentService = {
   },
 
   /** Deletes an incident with reporter ownership check and audit log. */
-  async delete(id: string, userId: string, userRole: string) {
-    const incident = await prisma.incident.findUnique({ where: { id } });
+  async delete(companyId: string, id: string, userId: string, userRole: string) {
+    const incident = await prisma.incident.findFirst({ where: { id, companyId } });
     if (!incident) throw new NotFoundError("Incident");
 
-    if (userRole === "reporter" && incident.reporterId !== userId) {
+    if (userRole !== "owner" && userRole !== "manager" && incident.reporterId !== userId) {
       throw new ForbiddenError("You can only delete your own incidents");
     }
 

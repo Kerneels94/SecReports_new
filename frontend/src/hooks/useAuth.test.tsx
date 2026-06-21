@@ -7,11 +7,13 @@ jest.mock("@/services", () => ({
   authService: {
     me: jest.fn(),
     login: jest.fn(),
+    logout: jest.fn().mockResolvedValue(undefined),
   },
 }));
 
 const mockMe = authService.me as jest.Mock;
 const mockLogin = authService.login as jest.Mock;
+const mockLogout = authService.logout as jest.Mock;
 
 function TestComponent() {
   const { user, isLoading, login, logout } = useAuth();
@@ -59,7 +61,7 @@ describe("useAuth", () => {
 
   it("fetches user on mount if token exists", async () => {
     localStorage.setItem("accessToken", "tok");
-    mockMe.mockResolvedValue({ data: { id: 1, name: "Alice", email: "a@b.com", role: "admin", department: null, status: "active", companyId: 1 } });
+    mockMe.mockResolvedValue({ data: { id: 1, name: "Alice", email: "a@b.com", role: "owner", status: "active", companyId: 1 } });
 
     render(
       <AuthProvider>
@@ -88,8 +90,8 @@ describe("useAuth", () => {
     });
   });
 
-  it("login stores tokens and sets user", async () => {
-    const userData = { id: 1, name: "Bob", email: "b@b.com", role: "reporter", department: null, status: "active", companyId: 1 };
+  it("login stores access token and sets user", async () => {
+    const userData = { id: 1, name: "Bob", email: "b@b.com", role: "senior", status: "active", companyId: 1 };
     mockLogin.mockResolvedValue({
       data: {
         accessToken: "at",
@@ -110,15 +112,14 @@ describe("useAuth", () => {
 
     await waitFor(() => {
       expect(localStorage.getItem("accessToken")).toBe("at");
-      expect(localStorage.getItem("refreshToken")).toBe("rt");
+      expect(localStorage.getItem("refreshToken")).toBeNull();
       expect(screen.getByTestId("user")).toHaveTextContent("Bob");
     });
   });
 
-  it("logout clears tokens and sets user to null", async () => {
+  it("logout calls backend and clears access token", async () => {
     localStorage.setItem("accessToken", "at");
-    localStorage.setItem("refreshToken", "rt");
-    mockMe.mockResolvedValue({ data: { id: 1, name: "Charlie", email: "c@c.com", role: "manager", department: null, status: "active", companyId: 1 } });
+    mockMe.mockResolvedValue({ data: { id: 1, name: "Charlie", email: "c@c.com", role: "manager", status: "active", companyId: 1 } });
 
     render(
       <AuthProvider>
@@ -130,8 +131,11 @@ describe("useAuth", () => {
 
     await userEvent.click(screen.getByRole("button", { name: /logout/i }));
 
-    expect(localStorage.getItem("accessToken")).toBeNull();
-    expect(localStorage.getItem("refreshToken")).toBeNull();
-    expect(screen.getByTestId("user")).toHaveTextContent("null");
+    await waitFor(() => {
+      expect(mockLogout).toHaveBeenCalledWith();
+      expect(localStorage.getItem("accessToken")).toBeNull();
+      expect(localStorage.getItem("refreshToken")).toBeNull();
+      expect(screen.getByTestId("user")).toHaveTextContent("null");
+    });
   });
 });

@@ -23,6 +23,10 @@ jest.mock("../lib/db", () => ({
       create: jest.fn(),
       update: jest.fn(),
     },
+    emailVerificationToken: {
+      create: jest.fn().mockResolvedValue({ id: "evt1" }),
+      findUnique: jest.fn(),
+    },
     subscriptionPlan: {
       findFirst: jest.fn().mockResolvedValue({ id: "1", name: "Free", price: 0, siteLimit: 5, userLimit: 1, trialPeriodDays: 14, features: "[]" }),
     },
@@ -36,6 +40,9 @@ jest.mock("../lib/db", () => ({
       delete: jest.fn(),
       deleteMany: jest.fn(),
     },
+    auditLog: {
+      create: jest.fn().mockResolvedValue({ id: "al1" }),
+    },
     $transaction: jest.fn((fn: any) => fn(prisma)),
   },
 }));
@@ -47,6 +54,7 @@ jest.mock("../lib/email", () => ({
 }));
 jest.mock("./email.service", () => ({
   sendWelcomeEmail: jest.fn().mockResolvedValue(undefined),
+  sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
   sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
   sendPasswordChangedEmail: jest.fn().mockResolvedValue(undefined),
 }));
@@ -59,6 +67,10 @@ const mockUser = {
   passwordHash: "$2b$12$hashedpassword",
   role: "owner",
   status: "active",
+  emailVerified: true,
+  loginAttempts: 0,
+  lockoutCount: 0,
+  lockedUntil: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -140,14 +152,12 @@ describe("AuthService", () => {
   });
 
   describe("register", () => {
-    it("creates a company and admin user and returns tokens", async () => {
+    it("creates a company and admin user and returns confirmation message", async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
       (prisma.company.findUnique as jest.Mock).mockResolvedValue(null);
       (hash.hashPassword as jest.Mock).mockResolvedValue("$2b$12$hashed");
       (prisma.company.create as jest.Mock).mockResolvedValue(mockCompany);
       (prisma.user.create as jest.Mock).mockResolvedValue(mockUser);
-      (jwt.signAccessToken as jest.Mock).mockReturnValue("access-token");
-      (jwt.signRefreshToken as jest.Mock).mockReturnValue("refresh-token");
 
       const result = await AuthService.register({
         companyName: "Test Company",
@@ -157,10 +167,7 @@ describe("AuthService", () => {
       });
 
       expect(result).toEqual({
-        accessToken: "access-token",
-        refreshToken: expect.any(String),
-        user: expect.objectContaining({ email: "test@example.com" }),
-        company: expect.objectContaining({ name: "Test Company" }),
+        message: expect.stringContaining("Account created"),
       });
     });
 
@@ -402,7 +409,7 @@ describe("updateUser", () => {
     const updatedUser = { ...mockUser, name: "Updated Name", email: "updated@test.com", role: "manager" };
     (prisma.user.update as jest.Mock).mockResolvedValue(updatedUser);
 
-    const result = await AuthService.updateUser("1", "1", { name: "Updated Name", email: "updated@test.com", role: "manager" });
+    const result = await AuthService.updateUser("1", "1", { name: "Updated Name", email: "updated@test.com", role: "manager" }, "2", "owner");
 
     expect(result.name).toBe("Updated Name");
   });

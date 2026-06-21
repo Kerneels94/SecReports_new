@@ -32,7 +32,7 @@ export const IncidentController = {
   /** Get a single incident by ID. */
   async getById(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    const incident = await IncidentService.getById(id);
+    const incident = await IncidentService.getById(request.user!.companyId, id);
     reply.code(200).send({ success: true, data: incident });
   },
 
@@ -57,6 +57,7 @@ export const IncidentController = {
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
     const incident = await IncidentService.update(
+      request.user!.companyId,
       id,
       parsed.data,
       request.user!.userId,
@@ -73,6 +74,7 @@ export const IncidentController = {
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
     const incident = await IncidentService.updateStatus(
+      request.user!.companyId,
       id,
       parsed.data.status,
       request.user!.userId,
@@ -84,7 +86,7 @@ export const IncidentController = {
   /** Delete an incident. Role-based access is enforced. */
   async delete(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    await IncidentService.delete(id, request.user!.userId, request.user!.role);
+    await IncidentService.delete(request.user!.companyId, id, request.user!.userId, request.user!.role);
     reply.code(204).send();
   },
 };

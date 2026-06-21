@@ -12,7 +12,7 @@ export const EntryLogController = {
   /** List entry logs for a specific guarding site. */
   async listBySite(request: FastifyRequest, reply: FastifyReply) {
     const { siteId } = request.params as { siteId: string };
-    const logs = await EntryLogService.listBySite(siteId);
+    const logs = await EntryLogService.listBySite(request.user!.companyId, siteId);
     reply.code(200).send({ success: true, data: logs });
   },
 
@@ -25,7 +25,7 @@ export const EntryLogController = {
   /** Get a single entry log by ID. */
   async getById(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    const log = await EntryLogService.getById(id);
+    const log = await EntryLogService.getById(request.user!.companyId, id);
     reply.code(200).send({ success: true, data: log });
   },
 
@@ -45,7 +45,7 @@ export const EntryLogController = {
     const parsed = updateEntryLogSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const log = await EntryLogService.update(id, parsed.data);
+    const log = await EntryLogService.update(request.user!.companyId, id, parsed.data);
     reply.code(200).send({ success: true, data: log });
   },
 
@@ -69,7 +69,7 @@ export const EntryLogController = {
   /** Delete an entry log. */
   async delete(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    await EntryLogService.delete(id);
+    await EntryLogService.delete(request.user!.companyId, id);
     reply.code(204).send();
   },
 };

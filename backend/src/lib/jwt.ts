@@ -5,6 +5,7 @@
  * The server will refuse to start if either is missing.
  */
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
@@ -22,7 +23,12 @@ interface TokenPayload {
  * @returns A signed JWT string.
  */
 export function signAccessToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_SECRET!, { expiresIn: "15m" });
+  return jwt.sign(payload, JWT_SECRET!, {
+    expiresIn: "15m",
+    jwtid: crypto.randomUUID(),
+    issuer: "secreports-api",
+    audience: "secreports-client",
+  });
 }
 
 /**
@@ -31,7 +37,12 @@ export function signAccessToken(payload: TokenPayload): string {
  * @returns A signed JWT string.
  */
 export function signRefreshToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_REFRESH_SECRET!, { expiresIn: "7d" });
+  return jwt.sign(payload, JWT_REFRESH_SECRET!, {
+    expiresIn: "7d",
+    jwtid: crypto.randomUUID(),
+    issuer: "secreports-api",
+    audience: "secreports-client",
+  });
 }
 
 /**

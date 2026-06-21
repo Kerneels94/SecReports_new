@@ -13,7 +13,13 @@ import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendPa
 import { SubscriptionService } from "./subscription.service";
 
 const MAX_LOGIN_ATTEMPTS = 3;
-const LOCKOUT_DURATION_MS = 15 * 60 * 1000;
+const BASE_LOCKOUT_MS = 15 * 60 * 1000;
+const MAX_LOCKOUT_MS = 4 * 60 * 60 * 1000;
+
+/** Calculate lockout duration with exponential backoff (15min → 30min → 1hr → 2hr → 4hr cap). */
+function lockoutDuration(lockoutCount: number): number {
+  return Math.min(BASE_LOCKOUT_MS * Math.pow(2, lockoutCount), MAX_LOCKOUT_MS);
+}
 
 /** Credentials for user login. */
 interface LoginParams {
@@ -39,6 +45,23 @@ interface CreateUserParams {
   createdBy: string;
 }
 
+/** Creates an audit log entry for auth-sensitive operations. */
+async function createAuditLog(params: {
+  entityType: string;
+  entityId: string;
+  action: string;
+  performedBy: string;
+  oldValues?: string;
+  newValues?: string;
+}): Promise<void> {
+  await prisma.auditLog.create({ data: params });
+}
+
+/** Sleep for a given number of milliseconds. */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /** Hashes a raw refresh token for storage and lookup. */
 function hashToken(raw: string): string {
   return crypto.createHash("sha256").update(raw).digest("hex");
@@ -50,13 +73,14 @@ function generateRawToken(): string {
 }
 
 /** Stores a new refresh token record for a user and returns the raw token. */
-async function persistRefreshToken(userId: string, familyId: string): Promise<string> {
+async function persistRefreshToken(userId: string, familyId: string, deviceInfo?: string): Promise<string> {
   const raw = generateRawToken();
   await prisma.refreshToken.create({
     data: {
       userId,
       tokenHash: hashToken(raw),
       familyId,
+      deviceInfo: deviceInfo || null,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
   });
@@ -71,11 +95,13 @@ async function handleLoginFailure(userId: string): Promise<never> {
   const attempts = user.loginAttempts + 1;
 
   if (attempts >= MAX_LOGIN_ATTEMPTS) {
+    const duration = lockoutDuration(user.lockoutCount);
     await prisma.user.update({
       where: { id: userId },
       data: {
         loginAttempts: attempts,
-        lockedUntil: new Date(Date.now() + LOCKOUT_DURATION_MS),
+        lockoutCount: user.lockoutCount + 1,
+        lockedUntil: new Date(Date.now() + duration),
       },
     });
   } else {
@@ -85,15 +111,33 @@ async function handleLoginFailure(userId: string): Promise<never> {
     });
   }
 
+  await createAuditLog({
+    entityType: "user",
+    entityId: userId,
+    action: "login_failed",
+    performedBy: userId,
+    newValues: JSON.stringify({ loginAttempts: attempts }),
+  });
+
   throw new UnauthorizedError("Invalid email or password");
 }
 
-/** Resets the login counter on successful authentication. */
+/** Throws a generic auth error — never reveals whether the email exists. */
+function throwGenericAuthError(): never {
+  throw new UnauthorizedError("Invalid email or password");
+}
+
+/** Resets the login counter on successful authentication and decays lockout count. */
 async function resetLoginAttempts(userId: string): Promise<void> {
-  if (process.env.NODE_ENV === "test") return;
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return;
   await prisma.user.update({
     where: { id: userId },
-    data: { loginAttempts: 0, lockedUntil: null },
+    data: {
+      loginAttempts: 0,
+      lockedUntil: null,
+      lockoutCount: Math.max(0, user.lockoutCount - 1),
+    },
   });
 }
 
@@ -103,18 +147,12 @@ export const AuthService = {
    * On success: resets login counter and returns tokens + a refresh token record.
    * On failure: increments login counter; locks account after 3 attempts for 15 min.
    */
-  async login(params: LoginParams) {
+  async login(params: LoginParams & { deviceInfo?: string }) {
     const user = await prisma.user.findUnique({ where: { email: params.email } });
-    if (!user) throw new UnauthorizedError("Invalid email or password");
-    if (user.role !== "owner" && user.role !== "manager")
-      throw new UnauthorizedError("Invalid email or password");
-    if (!user.emailVerified)
-      throw new UnauthorizedError("Please verify your email before logging in");
-
-    if (user.lockedUntil && user.lockedUntil > new Date()) {
-      const remaining = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
-      throw new UnauthorizedError(`Account locked. Try again in ${remaining} minute(s).`);
-    }
+    if (!user) throwGenericAuthError();
+    if (user.role !== "owner" && user.role !== "manager" && user.role !== "senior") throwGenericAuthError();
+    if (!user.emailVerified) throwGenericAuthError();
+    if (user.lockedUntil && user.lockedUntil > new Date()) throwGenericAuthError();
 
     const valid = await comparePassword(params.password, user.passwordHash);
     if (!valid) {
@@ -125,7 +163,14 @@ export const AuthService = {
 
     const familyId = crypto.randomUUID();
     const payload = { userId: user.id, role: user.role, companyId: user.companyId };
-    const refreshToken = await persistRefreshToken(user.id, familyId);
+    const refreshToken = await persistRefreshToken(user.id, familyId, params.deviceInfo);
+
+    await createAuditLog({
+      entityType: "user",
+      entityId: user.id,
+      action: "login",
+      performedBy: user.id,
+    });
 
     return {
       accessToken: signAccessToken(payload),
@@ -145,16 +190,11 @@ export const AuthService = {
    * Authenticates a guard employee by email/password.
    * Respects account lockout state. Restricted to the "guard" role.
    */
-  async employeeLogin(params: { email: string; password: string }) {
+  async employeeLogin(params: { email: string; password: string; deviceInfo?: string }) {
     const user = await prisma.user.findUnique({ where: { email: params.email } });
-    if (!user || user.role !== "guard") throw new UnauthorizedError("Invalid email or password");
-    if (!user.emailVerified)
-      throw new UnauthorizedError("Please verify your email before logging in");
-
-    if (user.lockedUntil && user.lockedUntil > new Date()) {
-      const remaining = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
-      throw new UnauthorizedError(`Account locked. Try again in ${remaining} minute(s).`);
-    }
+    if (!user || user.role !== "guard") throwGenericAuthError();
+    if (!user.emailVerified) throwGenericAuthError();
+    if (user.lockedUntil && user.lockedUntil > new Date()) throwGenericAuthError();
 
     const valid = await comparePassword(params.password, user.passwordHash);
     if (!valid) {
@@ -165,7 +205,14 @@ export const AuthService = {
 
     const familyId = crypto.randomUUID();
     const payload = { userId: user.id, role: user.role, companyId: user.companyId };
-    const refreshToken = await persistRefreshToken(user.id, familyId);
+    const refreshToken = await persistRefreshToken(user.id, familyId, params.deviceInfo);
+
+    await createAuditLog({
+      entityType: "user",
+      entityId: user.id,
+      action: "login",
+      performedBy: user.id,
+    });
 
     return {
       accessToken: signAccessToken(payload),
@@ -187,7 +234,7 @@ export const AuthService = {
    * Detects token reuse: if the presented token's hash doesn't exist,
    * invalidates the entire family to force re-login on all devices.
    */
-  async refresh(refreshToken: string) {
+  async refresh(refreshToken: string, deviceInfo?: string) {
     let payload;
     try {
       payload = verifyRefreshToken(refreshToken);
@@ -199,7 +246,13 @@ export const AuthService = {
     const stored = await prisma.refreshToken.findUnique({ where: { tokenHash } });
 
     if (!stored) {
-      await prisma.refreshToken.deleteMany({ where: { familyId: payload.userId } });
+      await prisma.refreshToken.deleteMany({ where: { userId: payload.userId } });
+      await createAuditLog({
+        entityType: "user",
+        entityId: payload.userId,
+        action: "refresh_token_reuse_detected",
+        performedBy: payload.userId,
+      });
       throw new UnauthorizedError("Refresh token has been revoked — all sessions invalidated");
     }
 
@@ -208,7 +261,7 @@ export const AuthService = {
 
     await prisma.refreshToken.delete({ where: { id: stored.id } });
 
-    const newRaw = await persistRefreshToken(user.id, stored.familyId);
+    const newRaw = await persistRefreshToken(user.id, stored.familyId, deviceInfo);
     const newPayload = { userId: user.id, role: user.role, companyId: user.companyId };
 
     return {
@@ -285,7 +338,7 @@ export const AuthService = {
       },
     });
 
-    const verifyLink = `${process.env.APP_URL || "http://localhost:3000"}/verify-email?token=${rawToken}`;
+    const verifyLink = `${process.env.APP_URL || "http://localhost:3000"}/verify-email#token=${rawToken}`;
     sendVerificationEmail(result.user.email, result.user.name, verifyLink).catch((err) =>
       console.error("[AuthService] Verification email failed:", err),
     );
@@ -333,7 +386,8 @@ export const AuthService = {
         name: params.name,
         email: params.email,
         passwordHash,
-        role: (params.role as any) || "senior",
+        role: params.role || "senior",
+        emailVerified: true,
         createdBy: params.createdBy,
       },
     });
@@ -341,6 +395,13 @@ export const AuthService = {
     sendWelcomeEmail(user.email, user.name).catch((err) =>
       console.error("[AuthService] Welcome email failed:", err),
     );
+
+    await createAuditLog({
+      entityType: "user",
+      entityId: user.id,
+      action: "user_created",
+      performedBy: params.createdBy,
+    });
 
     return {
       id: user.id,
@@ -355,23 +416,26 @@ export const AuthService = {
   /**
    * Generates a password reset token, stores its sha256 hash in the DB, and
    * emails a reset link. Silent if email not found to prevent user enumeration.
+   * A constant artificial delay masks timing side-channels.
    */
   async forgotPassword(email: string) {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return;
+    if (!user || !user.emailVerified) {
+      await sleep(200);
+      return;
+    }
 
     const rawToken = crypto.randomBytes(32).toString("hex");
-    const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
 
     await prisma.passwordResetToken.create({
       data: {
         email,
-        tokenHash,
+        tokenHash: hashToken(rawToken),
         expiresAt: new Date(Date.now() + 3600000),
       },
     });
 
-    const resetLink = `${process.env.APP_URL || "http://localhost:3000"}/reset-password?token=${rawToken}`;
+    const resetLink = `${process.env.APP_URL || "http://localhost:3000"}/reset-password#token=${rawToken}`;
     sendPasswordResetEmail(email, user.name, resetLink).catch((err) =>
       console.error("[AuthService] Password reset email failed:", err),
     );
@@ -383,7 +447,7 @@ export const AuthService = {
    * confirmation email.
    */
   async resetPassword(token: string, newPassword: string) {
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const tokenHash = hashToken(token);
 
     const record = await prisma.passwordResetToken.findUnique({
       where: { tokenHash },
@@ -408,6 +472,13 @@ export const AuthService = {
 
     await prisma.refreshToken.deleteMany({ where: { userId: user.id } });
 
+    await createAuditLog({
+      entityType: "user",
+      entityId: user.id,
+      action: "password_reset",
+      performedBy: user.id,
+    });
+
     sendPasswordChangedEmail(user.email, user.name).catch((err) =>
       console.error("[AuthService] Password changed email failed:", err),
     );
@@ -428,6 +499,13 @@ export const AuthService = {
     });
 
     await prisma.refreshToken.deleteMany({ where: { userId } });
+
+    await createAuditLog({
+      entityType: "user",
+      entityId: userId,
+      action: "password_changed",
+      performedBy: userId,
+    });
   },
 
   /** Lists all users in a company, ordered by creation date. */
@@ -465,11 +543,20 @@ export const AuthService = {
   },
 
   /** Updates user fields with a duplicate email check before applying changes. */
-  async updateUser(companyId: string, userId: string, data: { name?: string; email?: string; role?: string }) {
+  async updateUser(companyId: string, userId: string, data: { name?: string; email?: string; role?: string }, performedBy?: string, actorRole?: string) {
     const user = await prisma.user.findFirst({
       where: { id: userId, companyId },
     });
     if (!user) throw new NotFoundError("User not found");
+
+    if (data.role) {
+      if (actorRole !== "owner") {
+        throw new ValidationError("Only the owner can change a user's role");
+      }
+      if (performedBy === userId) {
+        throw new ValidationError("You cannot change your own role");
+      }
+    }
 
     if (data.email && data.email !== user.email) {
       const validDomain = await hasMxRecord(data.email);
@@ -479,12 +566,12 @@ export const AuthService = {
       if (existing) throw new ConflictError("Email already in use");
     }
 
-    return prisma.user.update({
+    const updated = await prisma.user.update({
       where: { id: userId },
       data: {
         ...(data.name !== undefined && { name: data.name }),
-        ...(data.email !== undefined && { email: data.email }),
-        ...(data.role !== undefined && { role: data.role as any }),
+        ...(data.email !== undefined && { email: data.email, emailVerified: false }),
+        ...(data.role !== undefined && { role: data.role }),
       },
       select: {
         id: true,
@@ -494,6 +581,19 @@ export const AuthService = {
         status: true,
       },
     });
+
+    if (data.role !== undefined && data.role !== user.role) {
+      await createAuditLog({
+        entityType: "user",
+        entityId: userId,
+        action: "role_changed",
+        performedBy: performedBy || userId,
+        oldValues: JSON.stringify({ role: user.role }),
+        newValues: JSON.stringify({ role: data.role }),
+      });
+    }
+
+    return updated;
   },
 
   /**
@@ -502,7 +602,17 @@ export const AuthService = {
    */
   async logout(refreshToken: string) {
     const tokenHash = hashToken(refreshToken);
+    const record = await prisma.refreshToken.findUnique({ where: { tokenHash } });
     await prisma.refreshToken.deleteMany({ where: { tokenHash } });
+
+    if (record) {
+      await createAuditLog({
+        entityType: "user",
+        entityId: record.userId,
+        action: "logout",
+        performedBy: record.userId,
+      });
+    }
   },
 
   /**
@@ -510,6 +620,13 @@ export const AuthService = {
    */
   async logoutAll(userId: string) {
     await prisma.refreshToken.deleteMany({ where: { userId } });
+
+    await createAuditLog({
+      entityType: "user",
+      entityId: userId,
+      action: "logout_all",
+      performedBy: userId,
+    });
   },
 
   /**

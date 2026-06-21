@@ -59,8 +59,8 @@ describe("RegisterPage", () => {
     await user.type(screen.getByLabelText("Company Name"), "Security Corp");
     await user.type(screen.getByLabelText("Your Name"), "John Doe");
     await user.type(screen.getByLabelText("Email"), "john@example.com");
-    await user.type(screen.getByLabelText("Password"), "password123");
-    await user.type(screen.getByLabelText("Confirm Password"), "different");
+    await user.type(screen.getByLabelText("Password"), "Password1!");
+    await user.type(screen.getByLabelText("Confirm Password"), "Different1!");
     await user.click(screen.getByRole("button", { name: /create account/i }));
 
     await waitFor(() => {
@@ -68,7 +68,7 @@ describe("RegisterPage", () => {
     });
   });
 
-  it("calls register and redirects on success", async () => {
+  it("calls register and shows success message", async () => {
     mockRegister.mockResolvedValue({ success: true, data: {} });
     render(<RegisterPage />);
     const user = userEvent.setup();
@@ -76,8 +76,8 @@ describe("RegisterPage", () => {
     await user.type(screen.getByLabelText("Company Name"), "Security Corp");
     await user.type(screen.getByLabelText("Your Name"), "John Doe");
     await user.type(screen.getByLabelText("Email"), "john@example.com");
-    await user.type(screen.getByLabelText("Password"), "password123");
-    await user.type(screen.getByLabelText("Confirm Password"), "password123");
+    await user.type(screen.getByLabelText("Password"), "Password1!");
+    await user.type(screen.getByLabelText("Confirm Password"), "Password1!");
     await user.click(screen.getByRole("button", { name: /create account/i }));
 
     await waitFor(() => {
@@ -85,9 +85,9 @@ describe("RegisterPage", () => {
         companyName: "Security Corp",
         name: "John Doe",
         email: "john@example.com",
-        password: "password123",
+        password: "Password1!",
       });
-      expect(mockRouter.push).toHaveBeenCalledWith("/login");
+      expect(screen.getByText(/check your email/i)).toBeInTheDocument();
     });
   });
 
@@ -99,8 +99,8 @@ describe("RegisterPage", () => {
     await user.type(screen.getByLabelText("Company Name"), "Security Corp");
     await user.type(screen.getByLabelText("Your Name"), "John Doe");
     await user.type(screen.getByLabelText("Email"), "taken@example.com");
-    await user.type(screen.getByLabelText("Password"), "password123");
-    await user.type(screen.getByLabelText("Confirm Password"), "password123");
+    await user.type(screen.getByLabelText("Password"), "Password1!");
+    await user.type(screen.getByLabelText("Confirm Password"), "Password1!");
     await user.click(screen.getByRole("button", { name: /create account/i }));
 
     await waitFor(() => {
@@ -122,8 +122,8 @@ describe("RegisterPage", () => {
     await user.type(screen.getByLabelText("Company Name"), "Security Corp");
     await user.type(screen.getByLabelText("Your Name"), "John Doe");
     await user.type(screen.getByLabelText("Email"), "err@example.com");
-    await user.type(screen.getByLabelText("Password"), "password123");
-    await user.type(screen.getByLabelText("Confirm Password"), "password123");
+    await user.type(screen.getByLabelText("Password"), "Password1!");
+    await user.type(screen.getByLabelText("Confirm Password"), "Password1!");
     await user.click(screen.getByRole("button", { name: /create account/i }));
 
     await waitFor(() => {

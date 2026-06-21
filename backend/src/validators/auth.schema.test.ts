@@ -43,7 +43,7 @@ describe("auth schemas", () => {
   });
 
   describe("registerSchema", () => {
-    const valid = { companyName: "Co", name: "T", email: "t@t.com", password: "password123" };
+    const valid = { companyName: "Co", name: "T", email: "t@t.com", password: "Password1!" };
 
     it("passes for valid data", () => {
       const result = registerSchema.safeParse(valid);
@@ -51,7 +51,7 @@ describe("auth schemas", () => {
     });
 
     it("fails for password shorter than 8 characters", () => {
-      const result = registerSchema.safeParse({ ...valid, password: "1234567" });
+      const result = registerSchema.safeParse({ ...valid, password: "Pass1!" });
       expect(result.success).toBe(false);
     });
 
@@ -62,7 +62,7 @@ describe("auth schemas", () => {
   });
 
   describe("createUserSchema", () => {
-    const valid = { name: "Test", email: "t@t.com", password: "password123" };
+    const valid = { name: "Test", email: "t@t.com", password: "Password1!" };
 
     it("passes for valid required fields", () => {
       const result = createUserSchema.safeParse(valid);
@@ -97,12 +97,12 @@ describe("auth schemas", () => {
 
   describe("resetPasswordSchema", () => {
     it("passes for valid token and password", () => {
-      const result = resetPasswordSchema.safeParse({ token: "abc123", password: "password123" });
+      const result = resetPasswordSchema.safeParse({ token: "abc123", password: "Password1!" });
       expect(result.success).toBe(true);
     });
 
     it("fails for short password", () => {
-      const result = resetPasswordSchema.safeParse({ token: "abc123", password: "1234567" });
+      const result = resetPasswordSchema.safeParse({ token: "abc123", password: "Pass1!" });
       expect(result.success).toBe(false);
     });
   });

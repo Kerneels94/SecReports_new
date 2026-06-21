@@ -4,10 +4,11 @@
  */
 import { FastifyInstance } from "fastify";
 import { ExportController } from "../controllers/export.controller";
+import { requireRole } from "../middleware/requireRole";
 
 export default async function exportRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
-  fastify.get("/export/csv", ExportController.csv);
-  fastify.get("/export/pdf", ExportController.pdf);
+  fastify.get("/export/csv", { preHandler: [requireRole("owner", "manager")] }, ExportController.csv);
+  fastify.get("/export/pdf", { preHandler: [requireRole("owner", "manager")] }, ExportController.pdf);
 }

@@ -155,7 +155,6 @@ export interface RegisterResponse {
 /** Response returned after successful login. */
 export interface LoginResponse {
   accessToken: string;
-  refreshToken: string;
   user: User;
 }
 

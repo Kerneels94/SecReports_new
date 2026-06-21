@@ -23,9 +23,9 @@ interface UpdatePatrolReportParams {
 
 export const PatrolReportService = {
   /** Lists patrol reports for a site. */
-  async listBySite(siteId: string) {
+  async listBySite(companyId: string, siteId: string) {
     return prisma.patrolReport.findMany({
-      where: { siteId },
+      where: { siteId, site: { companyId } },
       include: {
         guard: { select: { id: true, name: true, surname: true } },
         _count: { select: { checkpoints: true } },
@@ -58,9 +58,9 @@ export const PatrolReportService = {
   },
 
   /** Lists patrol reports for a specific guard. */
-  async listByGuard(guardId: string) {
+  async listByGuard(companyId: string, guardId: string) {
     return prisma.patrolReport.findMany({
-      where: { guardId },
+      where: { guardId, site: { companyId } },
       include: {
         site: { select: { id: true, name: true } },
         _count: { select: { checkpoints: true } },
@@ -70,9 +70,9 @@ export const PatrolReportService = {
   },
 
   /** Gets a patrol report with full checkpoint details. */
-  async getById(id: string) {
-    const report = await prisma.patrolReport.findUnique({
-      where: { id },
+  async getById(companyId: string, id: string) {
+    const report = await prisma.patrolReport.findFirst({
+      where: { id, site: { companyId } },
       include: {
         site: { select: { id: true, name: true, address: true } },
         guard: { select: { id: true, name: true, surname: true } },
@@ -84,7 +84,9 @@ export const PatrolReportService = {
   },
 
   /** Creates a patrol report with optional checkpoint entries. */
-  async create(params: CreatePatrolReportParams) {
+  async create(companyId: string, params: CreatePatrolReportParams) {
+    const site = await prisma.guardingSite.findFirst({ where: { id: params.siteId, companyId } });
+    if (!site) throw new NotFoundError("Guarding site");
     return prisma.patrolReport.create({
       data: {
         siteId: params.siteId,
@@ -110,8 +112,8 @@ export const PatrolReportService = {
   },
 
   /** Updates a patrol report's completion time, status, or notes. */
-  async update(id: string, params: UpdatePatrolReportParams) {
-    const report = await prisma.patrolReport.findUnique({ where: { id } });
+  async update(companyId: string, id: string, params: UpdatePatrolReportParams) {
+    const report = await prisma.patrolReport.findFirst({ where: { id, site: { companyId } } });
     if (!report) throw new NotFoundError("Patrol report");
 
     const data: any = {};
@@ -131,8 +133,8 @@ export const PatrolReportService = {
   },
 
   /** Deletes a patrol report. */
-  async delete(id: string) {
-    const report = await prisma.patrolReport.findUnique({ where: { id } });
+  async delete(companyId: string, id: string) {
+    const report = await prisma.patrolReport.findFirst({ where: { id, site: { companyId } } });
     if (!report) throw new NotFoundError("Patrol report");
 
     await prisma.patrolReport.delete({ where: { id } });

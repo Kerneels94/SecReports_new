@@ -9,17 +9,6 @@ beforeEach(() => {
 });
 
 describe("ApiClient", () => {
-  describe("getToken", () => {
-    it("returns null when localStorage is empty", () => {
-      expect(localStorage.getItem("accessToken")).toBeNull();
-    });
-
-    it("returns token when set in localStorage", () => {
-      localStorage.setItem("accessToken", "my-token");
-      expect(localStorage.getItem("accessToken")).toBe("my-token");
-    });
-  });
-
   describe("request", () => {
     it("sets Content-Type: application/json only when body is present", async () => {
       mockFetch.mockResolvedValueOnce({
@@ -96,6 +85,69 @@ describe("ApiClient", () => {
 
       const result = await api.get("/success");
       expect(result).toEqual(responseData);
+    });
+
+    it("auto-refreshes token on 401 and retries", async () => {
+      localStorage.setItem("accessToken", "expired-token");
+
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 401,
+          json: () => Promise.resolve({ success: false, error: { message: "Unauthorized" } }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({
+            success: true,
+            data: { accessToken: "new-access", refreshToken: "new-refresh", user: { id: 1, name: "A", email: "a@b.com", role: "owner", status: "active", companyId: 1 } },
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ success: true, data: { id: 42 } }),
+        });
+
+      const result = await api.get("/protected");
+
+      expect(localStorage.getItem("accessToken")).toBe("new-access");
+      expect(result).toEqual({ success: true, data: { id: 42 } });
+      expect(mockFetch).toHaveBeenCalledTimes(3);
+      expect(mockFetch.mock.calls[1][0]).toContain("/auth/refresh");
+      expect(mockFetch.mock.calls[1][1].body).toBeUndefined();
+    });
+
+    it("clears tokens when refresh fails on 401", async () => {
+      localStorage.setItem("accessToken", "expired-token");
+
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 401,
+          json: () => Promise.resolve({ success: false, error: { message: "Unauthorized" } }),
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 401,
+          json: () => Promise.resolve({ success: false, error: { message: "Invalid refresh" } }),
+        });
+
+      await expect(api.get("/protected")).rejects.toThrow("Unauthorized");
+
+      expect(localStorage.getItem("accessToken")).toBeNull();
+    });
+
+    it("does not auto-refresh on /auth/refresh endpoint", async () => {
+      localStorage.setItem("accessToken", "tok");
+
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        json: () => Promise.resolve({ success: false, error: { message: "Unauthorized" } }),
+      });
+
+      await expect(api.post("/auth/refresh", {})).rejects.toThrow("Unauthorized");
+      expect(mockFetch).toHaveBeenCalledTimes(1);
     });
   });
 

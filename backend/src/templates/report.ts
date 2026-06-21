@@ -3,6 +3,8 @@
  *
  * @module report
  */
+import { escapeHtml } from "./escape";
+
 interface ReportData {
   name: string;
   incidentTitle: string;
@@ -11,7 +13,10 @@ interface ReportData {
 }
 
 export default function reportTemplate(data: ReportData): string {
-  const { name, incidentTitle, referenceNumber, reportLink } = data;
+  const { reportLink } = data;
+  const name = escapeHtml(data.name);
+  const incidentTitle = escapeHtml(data.incidentTitle);
+  const referenceNumber = escapeHtml(data.referenceNumber);
   return `
 <!DOCTYPE html>
 <html>

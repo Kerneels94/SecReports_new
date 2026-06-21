@@ -9,11 +9,11 @@ import { AuthController } from "../controllers/auth.controller";
 import { requireRole } from "../middleware/requireRole";
 
 export default async function authRoutes(fastify: FastifyInstance) {
-  fastify.post("/auth/login", AuthController.login);
-  fastify.post("/auth/employee-login", AuthController.employeeLogin);
-  fastify.post("/auth/register", AuthController.register);
-  fastify.get("/auth/verify-email", AuthController.verifyEmail);
-  fastify.post("/auth/refresh", AuthController.refresh);
+  fastify.post("/auth/login", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, AuthController.login);
+  fastify.post("/auth/employee-login", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, AuthController.employeeLogin);
+  fastify.post("/auth/register", { config: { rateLimit: { max: 5, timeWindow: "1 minute" } } }, AuthController.register);
+  fastify.post("/auth/verify-email", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, AuthController.verifyEmail);
+  fastify.post("/auth/refresh", { config: { rateLimit: { max: 20, timeWindow: "1 minute" } } }, AuthController.refresh);
 
   fastify.get("/auth/me", {
     preHandler: [fastify.authenticate],
@@ -26,7 +26,6 @@ export default async function authRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post("/auth/logout", {
-    preHandler: [fastify.authenticate],
     handler: AuthController.logout,
   });
 
@@ -60,6 +59,6 @@ export default async function authRoutes(fastify: FastifyInstance) {
     handler: AuthController.updateUser,
   });
 
-  fastify.post("/auth/forgot-password", AuthController.forgotPassword);
-  fastify.post("/auth/reset-password", AuthController.resetPassword);
+  fastify.post("/auth/forgot-password", { config: { rateLimit: { max: 5, timeWindow: "1 minute" } } }, AuthController.forgotPassword);
+  fastify.post("/auth/reset-password", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, AuthController.resetPassword);
 }

@@ -38,6 +38,7 @@ model User {
   role           String    @default("senior")
   status         String    @default("active")
   loginAttempts  Int       @default(0) @map("login_attempts")
+  lockoutCount   Int       @default(0) @map("lockout_count")
   lockedUntil    DateTime? @map("locked_until")
   emailVerified Boolean   @default(false) @map("email_verified")
   createdBy      String?   @map("created_by") @db.ObjectId

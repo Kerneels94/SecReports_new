@@ -14,7 +14,7 @@ interface AuthState {
   isLoading: boolean;
   login: (data: LoginRequest) => Promise<User>;
   employeeLogin: (data: EmployeeLoginRequest) => Promise<User>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -44,7 +44,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (data: LoginRequest) => {
     const res = await authService.login(data);
     localStorage.setItem("accessToken", res.data.accessToken);
-    localStorage.setItem("refreshToken", res.data.refreshToken);
     setUser(res.data.user);
     return res.data.user;
   }, []);
@@ -52,14 +51,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const employeeLogin = useCallback(async (data: EmployeeLoginRequest) => {
     const res = await authService.employeeLogin(data);
     localStorage.setItem("accessToken", res.data.accessToken);
-    localStorage.setItem("refreshToken", res.data.refreshToken);
     setUser(res.data.user);
     return res.data.user;
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try {
+      await authService.logout();
+    } catch {
+      // Server-side invalidation is best-effort; always clear local state
+    }
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
     setUser(null);
   }, []);
 
