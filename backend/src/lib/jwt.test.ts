@@ -11,7 +11,7 @@ describe("signAccessToken", () => {
   it("calls jwt.sign with payload, JWT_SECRET, and expiresIn 15m", () => {
     (jwt.sign as jest.Mock).mockReturnValue("access-token");
     const token = signAccessToken(payload);
-    expect(jwt.sign).toHaveBeenCalledWith(payload, expect.any(String), { expiresIn: "15m" });
+    expect(jwt.sign).toHaveBeenCalledWith(payload, expect.any(String), expect.objectContaining({ expiresIn: "15m" }));
     expect(token).toBe("access-token");
   });
 });
@@ -22,7 +22,7 @@ describe("signRefreshToken", () => {
   it("calls jwt.sign with payload, JWT_REFRESH_SECRET, and expiresIn 7d", () => {
     (jwt.sign as jest.Mock).mockReturnValue("refresh-token");
     const token = signRefreshToken(payload);
-    expect(jwt.sign).toHaveBeenCalledWith(payload, expect.any(String), { expiresIn: "7d" });
+    expect(jwt.sign).toHaveBeenCalledWith(payload, expect.any(String), expect.objectContaining({ expiresIn: "7d" }));
     expect(token).toBe("refresh-token");
   });
 });

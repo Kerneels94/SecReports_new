@@ -4,9 +4,10 @@
  */
 import { FastifyInstance } from "fastify";
 import { ReportController } from "../controllers/report.controller";
+import { requireRole } from "../middleware/requireRole";
 
 export default async function reportRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
-  fastify.get("/reports/summary", ReportController.summary);
+  fastify.get("/reports/summary", { preHandler: [requireRole("owner", "manager")] }, ReportController.summary);
 }

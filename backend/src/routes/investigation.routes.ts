@@ -4,13 +4,14 @@
  */
 import { FastifyInstance } from "fastify";
 import { InvestigationController } from "../controllers/investigation.controller";
+import { requireRole } from "../middleware/requireRole";
 
 export default async function investigationRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
   fastify.get("/incidents/:id/investigation", InvestigationController.get);
-  fastify.post("/incidents/:id/investigation", InvestigationController.upsert);
   fastify.get("/incidents/:id/actions", InvestigationController.listActions);
-  fastify.post("/incidents/:id/actions", InvestigationController.createAction);
-  fastify.patch("/actions/:actionId", InvestigationController.updateAction);
+  fastify.post("/incidents/:id/investigation", { preHandler: [requireRole("owner", "manager")] }, InvestigationController.upsert);
+  fastify.post("/incidents/:id/actions", { preHandler: [requireRole("owner", "manager")] }, InvestigationController.createAction);
+  fastify.patch("/actions/:actionId", { preHandler: [requireRole("owner", "manager")] }, InvestigationController.updateAction);
 }

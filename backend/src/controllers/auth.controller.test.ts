@@ -86,16 +86,6 @@ describe("AuthController", () => {
   });
 
   describe("refresh", () => {
-    it("valid input from body: calls AuthService.refresh and responds 200", async () => {
-      mockRequest.body = { refreshToken: "some-token" };
-      (AuthService.refresh as jest.Mock).mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
-
-      await AuthController.refresh(mockRequest, mockReply);
-
-      expect(AuthService.refresh).toHaveBeenCalledWith("some-token", "test-agent");
-      expect(mockReply.code).toHaveBeenCalledWith(200);
-    });
-
     it("valid input from cookie: calls AuthService.refresh and responds 200", async () => {
       mockRequest.cookies = { refreshToken: "cookie-token" };
       (AuthService.refresh as jest.Mock).mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
@@ -303,16 +293,6 @@ describe("AuthController", () => {
   });
 
   describe("logout", () => {
-    it("valid input from body: calls AuthService.logout and responds 200", async () => {
-      mockRequest.body = { refreshToken: "abc" };
-
-      await AuthController.logout(mockRequest, mockReply);
-
-      expect(AuthService.logout).toHaveBeenCalledWith("abc");
-      expect(mockReply.code).toHaveBeenCalledWith(200);
-      expect(mockReply.send).toHaveBeenCalledWith({ success: true, message: "Logged out successfully." });
-    });
-
     it("valid input from cookie: calls AuthService.logout and responds 200", async () => {
       mockRequest.cookies = { refreshToken: "cookie-token" };
 
@@ -320,6 +300,7 @@ describe("AuthController", () => {
 
       expect(AuthService.logout).toHaveBeenCalledWith("cookie-token");
       expect(mockReply.code).toHaveBeenCalledWith(200);
+      expect(mockReply.send).toHaveBeenCalledWith({ success: true, message: "Logged out successfully." });
     });
 
     it("throws ValidationError when no refresh token provided", async () => {

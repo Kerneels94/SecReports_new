@@ -15,7 +15,7 @@ All rules below are codified in `README/memory.md` as **Golden Rules #1–40**, 
 #### 1. Admin-Created Users Cannot Log In
 
 **File:** `backend/src/services/auth.service.ts:366-408`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 `createUser()` does not set `emailVerified: true` and never generates a verification token. Since `login()` (line 151) blocks unverified users, admin-created users are permanently locked out.
 
@@ -26,7 +26,7 @@ All rules below are codified in `README/memory.md` as **Golden Rules #1–40**, 
 #### 2. Refresh Token Reuse Detection Is Broken (No-Op)
 
 **File:** `backend/src/services/auth.service.ts:237-251`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 `deleteMany` used `familyId: payload.userId` but `familyId` is a UUID never matching the user ObjectId, so reuse was never punished.
 
@@ -37,7 +37,7 @@ All rules below are codified in `README/memory.md` as **Golden Rules #1–40**, 
 #### 3. Tokens Stored in localStorage (XSS Vulnerable)
 
 **File:** `frontend/src/hooks/useAuth.tsx:44-47,51-54`, `frontend/src/services/api.ts`, `backend/src/app.ts`, `backend/src/controllers/auth.controller.ts`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 Both `accessToken` and `refreshToken` were in `localStorage`. The `refreshToken` is now set as an httpOnly cookie by the backend on login/refresh and cleared on logout. The `accessToken` intentionally remains in `localStorage` (15-min TTL) for page-reload persistence.
 
@@ -48,7 +48,7 @@ Both `accessToken` and `refreshToken` were in `localStorage`. The `refreshToken`
 #### 4. Login Endpoint Leaks Email Registration Status
 
 **File:** `backend/src/services/auth.service.ts:126-128`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 Different error messages revealed whether the email exists.
 
@@ -59,7 +59,7 @@ Different error messages revealed whether the email exists.
 #### 5. Frontend Logout Does Not Invalidate Tokens Server-Side
 
 **File:** `frontend/src/hooks/useAuth.tsx:58-66`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 `logout()` now calls `authService.logout()` at line 60 before clearing local state.
 
@@ -68,7 +68,7 @@ Different error messages revealed whether the email exists.
 #### 6. No Transparent Access Token Refresh
 
 **File:** `frontend/src/services/api.ts:67-80`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 Added a 401 interceptor that calls `/auth/refresh`, updates the stored access token, and retries the original request.
 
@@ -77,7 +77,7 @@ Added a 401 interceptor that calls `/auth/refresh`, updates the stored access to
 #### 7. No Rate Limiting on Auth Endpoints
 
 **File:** `backend/src/routes/auth.routes.ts:12-16,63-64`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 Per-route rate limiting: 10 req/min on login/employeeLogin, 5 on register/forgot-password, 10 on reset-password, 20 on refresh.
 
@@ -86,7 +86,7 @@ Per-route rate limiting: 10 req/min on login/employeeLogin, 5 on register/forgot
 #### 8. Dead Auth Plugin Missing `companyId`
 
 **File:** `backend/src/plugins/auth.ts` (deleted)
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 File was deleted. The `app.ts` inline `authenticate` decorator is the single source of truth.
 
@@ -95,7 +95,7 @@ File was deleted. The `app.ts` inline `authenticate` decorator is the single sou
 #### 9. Email Change Does Not Reset `emailVerified`
 
 **File:** `backend/src/services/auth.service.ts:556-558`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 `emailVerified: false` is set when the email field changes (line 558).
 
@@ -104,7 +104,7 @@ File was deleted. The `app.ts` inline `authenticate` decorator is the single sou
 #### 10. Forgot-Password Timing Side-Channel
 
 **File:** `backend/src/services/auth.service.ts:415-419`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 Constant 200ms `await sleep(200)` on the not-found path (line 418).
 
@@ -113,7 +113,7 @@ Constant 200ms `await sleep(200)` on the not-found path (line 418).
 #### 11. Tests Skip Critical Production Behavior
 
 **File:** `backend/src/services/auth.service.ts:131-142`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 The `process.env.NODE_ENV === "test"` guard was removed. Tests run the full production code path.
 
@@ -122,7 +122,7 @@ The `process.env.NODE_ENV === "test"` guard was removed. Tests run the full prod
 #### 12. Account Lockout Lacks Progressive Duration & Decay
 
 **File:** `backend/src/services/auth.service.ts:20-22,131-142`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 Exponential backoff: 15min → 30min → 1hr → 2hr → 4hr cap via `lockoutDuration()` at line 20. `lockoutCount` decays by 1 on successful login at line 139.
 
@@ -131,7 +131,7 @@ Exponential backoff: 15min → 30min → 1hr → 2hr → 4hr cap via `lockoutDur
 #### 13. No Device/Browser Info on Sessions
 
 **File:** `backend/src/services/auth.service.ts:76-88`, `backend/src/controllers/auth.controller.ts:43-44,55-56,66-67`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 `persistRefreshToken` accepts `deviceInfo` (line 76). Controller extracts `User-Agent` header.
 
@@ -140,7 +140,7 @@ Exponential backoff: 15min → 30min → 1hr → 2hr → 4hr cap via `lockoutDur
 #### 14. Password Hash Cost Factor Hardcoded
 
 **File:** `backend/src/lib/hash.ts:7`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 Reads `BCRYPT_SALT_ROUNDS` env var with `12` as default.
 
@@ -149,7 +149,7 @@ Reads `BCRYPT_SALT_ROUNDS` env var with `12` as default.
 #### 15. JWT Secret Strength Not Validated
 
 **File:** `backend/src/server.ts:8-24`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 Minimum length check (32 characters) at startup — exits with fatal error if unmet.
 
@@ -158,7 +158,7 @@ Minimum length check (32 characters) at startup — exits with fatal error if un
 #### 16. No Audit Logging for Auth Events
 
 **File:** `backend/src/services/auth.service.ts:48-58,168-173,393-398,469-474,497-502,575-583,597-604,612-618`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 `createAuditLog()` helper added. Called for: login, login_failed, password_changed, password_reset, logout, logout_all, user_created, role_changed.
 
@@ -167,7 +167,7 @@ Minimum length check (32 characters) at startup — exits with fatal error if un
 #### 17. Email From Address Uses Resend's Default
 
 **File:** `backend/src/services/email.service.ts:8`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 `FROM_EMAIL` env var used, falling back to `"onboarding@resend.dev"` only if unset.
 
@@ -176,7 +176,7 @@ Minimum length check (32 characters) at startup — exits with fatal error if un
 #### 18. `hashToken` Helper Not Used Consistently
 
 **File:** `backend/src/services/auth.service.ts:66-68`
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 `hashToken` function defined at line 66 and used consistently throughout.
 
@@ -185,7 +185,7 @@ Minimum length check (32 characters) at startup — exits with fatal error if un
 #### 19. `plugins/auth.ts` Duplicates `app.ts` Logic
 
 **File:** `backend/src/plugins/auth.ts` (deleted)
-**Status:** FIXED ✅ *(verified against current code)*
+**Status:** FIXED ✅ _(verified against current code)_
 
 File was removed.
 
@@ -193,48 +193,48 @@ File was removed.
 
 ## Changes Log — All Sessions (June 2026)
 
-| # | Description | Files Changed | Test Result |
-|---|-------------|--------------|-------------|
-| 3 | `refreshToken` moved from localStorage to httpOnly cookie — installed `@fastify/cookie`; set cookie on login/refresh, clear on logout; frontend no longer stores refreshToken in JS; uses `credentials: "include"` for refresh/logout. | `backend/src/app.ts`, `backend/src/controllers/auth.controller.ts`, `backend/package.json`, `frontend/src/hooks/useAuth.tsx`, `frontend/src/services/api.ts`, `frontend/src/services/index.ts`, `frontend/src/hooks/useAuth.test.tsx`, `frontend/src/services/api.test.ts` | 148/148 backend, 196/196 frontend |
-| 8/19 | Deleted dead `plugins/auth.ts` — it duplicated `app.ts`'s `authenticate` decorator (which already included `companyId`) and was never registered. | `backend/src/plugins/auth.ts` (deleted) | 148/148 backend |
-| 13 | `persistRefreshToken` now accepts `deviceInfo`; controller extracts `User-Agent` header on login/employeeLogin/refresh and stores it, so `/auth/sessions` returns meaningful device info. | `backend/src/services/auth.service.ts`, `backend/src/controllers/auth.controller.ts` | 148/148 backend |
-| 16 | Added `createAuditLog()` helper; logged auth events: login, failed login, password change/reset, logout, user creation, and role changes. | `backend/src/services/auth.service.ts` | 148/148 backend |
-|---|-------------|--------------|-------------|
-| 1 | Admin-created users locked out because `createUser` omitted `emailVerified: true` and `login` blocks unverified users. Set `emailVerified: true` on creation. | `backend/src/services/auth.service.ts` | 148/148 backend |
-| 2 | Refresh token reuse detection no-op — `deleteMany` used `familyId: payload.userId` but `familyId` is a UUID never matching the user ObjectId, so reuse was never punished. Fixed to `userId: payload.userId`. | `backend/src/services/auth.service.ts` | 148/148 backend |
-| 4 | Login endpoint leaked whether an email was registered via distinct error messages. Unified all auth errors to generic `"Invalid email or password"`. | `backend/src/services/auth.service.ts` | 148/148 backend |
-| 5 | Frontend `logout()` cleared localStorage tokens but never called `POST /auth/logout`, leaving the refresh token valid for 7 days. Now calls `authService.logout()` before clearing state. | `frontend/src/hooks/useAuth.tsx`, `frontend/src/services/index.ts` | 196/196 frontend |
-| 6 | `ApiClient` never intercepted 401 responses to auto-refresh via stored refresh token, so users hit errors every 15 min. Added 401 interceptor with concurrent request dedup that calls `/auth/refresh` and retries. | `frontend/src/services/api.ts` | 196/196 frontend |
-| 7 | Only a global 100 req/min rate limit existed; no stricter limits on auth endpoints. Added per-route config: 10 req/min on login/register, 5 on forgot-password, 20 on refresh. | `backend/src/routes/auth.routes.ts` | 148/148 backend |
-| 9 | Admin email change didn't reset `emailVerified`. Now resets `emailVerified` to `false` on email change. | `backend/src/services/auth.service.ts` | 148/148 backend |
-| 11 | `resetLoginAttempts` had `if (process.env.NODE_ENV === "test") return;` so tests never ran the real code path. Removed the guard. | `backend/src/services/auth.service.ts` | 148/148 backend |
-| 18 | Manual SHA-256 implementation instead of calling existing `hashToken()` helper. Replaced with `hashToken(rawToken)`. | `backend/src/services/auth.service.ts` | 148/148 backend |
-| — | Test data fixed to meet strong password validation rules, unblocking CI pipeline. | `backend/src/services/auth.service.test.ts`, `backend/src/validators/auth.schema.test.ts`, `frontend/src/app/(auth)/register/RegisterPage.test.tsx` | Both pass |
-| 10 | `forgotPassword` had timing side-channel. Added constant 200ms `sleep()` on not-found path. | `backend/src/services/auth.service.ts` | 148/148 backend |
-| 12 | Lockout lacked progressive duration/decay. Added exponential backoff: 15min → 30min → 1hr → 2hr → 4hr cap. `lockoutCount` decays by 1 on success. | `backend/prisma/schema.prisma`, `backend/src/services/auth.service.ts` | 148/148 backend |
-| 14 | `SALT_ROUNDS = 12` hardcoded. Now reads `BCRYPT_SALT_ROUNDS` env var with `12` as default. | `backend/src/lib/hash.ts` | 148/148 backend |
-| 15 | JWT secrets only checked for existence, not entropy. Added minimum 32-char check at startup. | `backend/src/server.ts` | 148/148 backend |
-| 17 | All emails hardcoded `" onboarding@resend.dev"`. Replaced with `FROM_EMAIL` env var. | `backend/src/services/email.service.ts` | 148/148 backend |
-| A | Stripped `refreshToken` from JSON response body on login/employeeLogin/refresh; removed request body fallback — cookie-only read. | `backend/src/controllers/auth.controller.ts` | TBD |
-| B | Added `"senior"` to allowed roles in `login()`. | `backend/src/services/auth.service.ts` | TBD |
-| D | Fixed `updateUser` audit `performedBy` — passes acting user's ID from controller. | `backend/src/controllers/auth.controller.ts`, `backend/src/services/auth.service.ts` | TBD |
-| E | Added `clearRefreshCookie()` to `resetPassword` and `changePassword`. | `backend/src/controllers/auth.controller.ts` | TBD |
-| F | Removed `authenticate` preHandler from logout — works with expired access tokens. | `backend/src/routes/auth.routes.ts` | TBD |
-| G | Added audit logging for refresh token reuse detection. | `backend/src/services/auth.service.ts` | TBD |
-| H | Blocked `forgotPassword` for unverified accounts (same silent path as missing email). | `backend/src/services/auth.service.ts` | TBD |
-| I | Added `await` to `createAuditLog()` in `handleLoginFailure`. | `backend/src/services/auth.service.ts` | TBD |
-| J | Added rate limit (10/min) to `/auth/verify-email`. | `backend/src/routes/auth.routes.ts` | TBD |
-| K | Cookie `sameSite` set to `"strict"` always, not just in production. | `backend/src/controllers/auth.controller.ts` | TBD |
-| L | Removed dead `changes` array in `updateUser`. | `backend/src/services/auth.service.ts` | TBD |
-| N | Replaced real `.env` credentials with placeholders. | `backend/.env` | TBD |
-| O | Added `companyId` scoping to all IDOR-vulnerable services (GuardingSite, Guard, FlaggedVehicle, PatrolReport, EntryLog, Incident, Investigation). | Multiple controllers/services | TBD |
-| P | Added `escapeHtml()` helper and applied to all 8 email templates. | `backend/src/templates/*.ts` | TBD |
-| Q | Added `jti`, `aud`, `iss` claims to JWT signing. | `backend/src/lib/jwt.ts` | TBD |
-| R | API key stored as SHA-256 hash; raw key returned only once. | `backend/src/services/apiKey.service.ts` | TBD |
-| S | Added `sanitizeCsv()` to prevent CSV formula injection. | `backend/src/controllers/export.controller.ts` | TBD |
-| T | Removed hardcoded superadmin password fallback — env vars required. | `backend/prisma/seed.ts` | TBD |
-| U | Configured strict CSP headers via `@fastify/helmet`. | `backend/src/app.ts` | TBD |
-| V | Removed `as any` type casts on role field assignment. | `backend/src/services/auth.service.ts` | TBD |
+| #    | Description                                                                                                                                                                                                                            | Files Changed                                                                                                                                                                                                                                                              | Test Result                       |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| 3    | `refreshToken` moved from localStorage to httpOnly cookie — installed `@fastify/cookie`; set cookie on login/refresh, clear on logout; frontend no longer stores refreshToken in JS; uses `credentials: "include"` for refresh/logout. | `backend/src/app.ts`, `backend/src/controllers/auth.controller.ts`, `backend/package.json`, `frontend/src/hooks/useAuth.tsx`, `frontend/src/services/api.ts`, `frontend/src/services/index.ts`, `frontend/src/hooks/useAuth.test.tsx`, `frontend/src/services/api.test.ts` | 148/148 backend, 196/196 frontend |
+| 8/19 | Deleted dead `plugins/auth.ts` — it duplicated `app.ts`'s `authenticate` decorator (which already included `companyId`) and was never registered.                                                                                      | `backend/src/plugins/auth.ts` (deleted)                                                                                                                                                                                                                                    | 148/148 backend                   |
+| 13   | `persistRefreshToken` now accepts `deviceInfo`; controller extracts `User-Agent` header on login/employeeLogin/refresh and stores it, so `/auth/sessions` returns meaningful device info.                                              | `backend/src/services/auth.service.ts`, `backend/src/controllers/auth.controller.ts`                                                                                                                                                                                       | 148/148 backend                   |
+| 16   | Added `createAuditLog()` helper; logged auth events: login, failed login, password change/reset, logout, user creation, and role changes.                                                                                              | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | 148/148 backend                   |
+| ---  | -------------                                                                                                                                                                                                                          | --------------                                                                                                                                                                                                                                                             | -------------                     |
+| 1    | Admin-created users locked out because `createUser` omitted `emailVerified: true` and `login` blocks unverified users. Set `emailVerified: true` on creation.                                                                          | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | 148/148 backend                   |
+| 2    | Refresh token reuse detection no-op — `deleteMany` used `familyId: payload.userId` but `familyId` is a UUID never matching the user ObjectId, so reuse was never punished. Fixed to `userId: payload.userId`.                          | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | 148/148 backend                   |
+| 4    | Login endpoint leaked whether an email was registered via distinct error messages. Unified all auth errors to generic `"Invalid email or password"`.                                                                                   | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | 148/148 backend                   |
+| 5    | Frontend `logout()` cleared localStorage tokens but never called `POST /auth/logout`, leaving the refresh token valid for 7 days. Now calls `authService.logout()` before clearing state.                                              | `frontend/src/hooks/useAuth.tsx`, `frontend/src/services/index.ts`                                                                                                                                                                                                         | 196/196 frontend                  |
+| 6    | `ApiClient` never intercepted 401 responses to auto-refresh via stored refresh token, so users hit errors every 15 min. Added 401 interceptor with concurrent request dedup that calls `/auth/refresh` and retries.                    | `frontend/src/services/api.ts`                                                                                                                                                                                                                                             | 196/196 frontend                  |
+| 7    | Only a global 100 req/min rate limit existed; no stricter limits on auth endpoints. Added per-route config: 10 req/min on login/register, 5 on forgot-password, 20 on refresh.                                                         | `backend/src/routes/auth.routes.ts`                                                                                                                                                                                                                                        | 148/148 backend                   |
+| 9    | Admin email change didn't reset `emailVerified`. Now resets `emailVerified` to `false` on email change.                                                                                                                                | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | 148/148 backend                   |
+| 11   | `resetLoginAttempts` had `if (process.env.NODE_ENV === "test") return;` so tests never ran the real code path. Removed the guard.                                                                                                      | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | 148/148 backend                   |
+| 18   | Manual SHA-256 implementation instead of calling existing `hashToken()` helper. Replaced with `hashToken(rawToken)`.                                                                                                                   | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | 148/148 backend                   |
+| —    | Test data fixed to meet strong password validation rules, unblocking CI pipeline.                                                                                                                                                      | `backend/src/services/auth.service.test.ts`, `backend/src/validators/auth.schema.test.ts`, `frontend/src/app/(auth)/register/RegisterPage.test.tsx`                                                                                                                        | Both pass                         |
+| 10   | `forgotPassword` had timing side-channel. Added constant 200ms `sleep()` on not-found path.                                                                                                                                            | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | 148/148 backend                   |
+| 12   | Lockout lacked progressive duration/decay. Added exponential backoff: 15min → 30min → 1hr → 2hr → 4hr cap. `lockoutCount` decays by 1 on success.                                                                                      | `backend/prisma/schema.prisma`, `backend/src/services/auth.service.ts`                                                                                                                                                                                                     | 148/148 backend                   |
+| 14   | `SALT_ROUNDS = 12` hardcoded. Now reads `BCRYPT_SALT_ROUNDS` env var with `12` as default.                                                                                                                                             | `backend/src/lib/hash.ts`                                                                                                                                                                                                                                                  | 148/148 backend                   |
+| 15   | JWT secrets only checked for existence, not entropy. Added minimum 32-char check at startup.                                                                                                                                           | `backend/src/server.ts`                                                                                                                                                                                                                                                    | 148/148 backend                   |
+| 17   | All emails hardcoded `" onboarding@resend.dev"`. Replaced with `FROM_EMAIL` env var.                                                                                                                                                   | `backend/src/services/email.service.ts`                                                                                                                                                                                                                                    | 148/148 backend                   |
+| A    | Stripped `refreshToken` from JSON response body on login/employeeLogin/refresh; removed request body fallback — cookie-only read.                                                                                                      | `backend/src/controllers/auth.controller.ts`                                                                                                                                                                                                                               | TBD                               |
+| B    | Added `"senior"` to allowed roles in `login()`.                                                                                                                                                                                        | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | TBD                               |
+| D    | Fixed `updateUser` audit `performedBy` — passes acting user's ID from controller.                                                                                                                                                      | `backend/src/controllers/auth.controller.ts`, `backend/src/services/auth.service.ts`                                                                                                                                                                                       | TBD                               |
+| E    | Added `clearRefreshCookie()` to `resetPassword` and `changePassword`.                                                                                                                                                                  | `backend/src/controllers/auth.controller.ts`                                                                                                                                                                                                                               | TBD                               |
+| F    | Removed `authenticate` preHandler from logout — works with expired access tokens.                                                                                                                                                      | `backend/src/routes/auth.routes.ts`                                                                                                                                                                                                                                        | TBD                               |
+| G    | Added audit logging for refresh token reuse detection.                                                                                                                                                                                 | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | TBD                               |
+| H    | Blocked `forgotPassword` for unverified accounts (same silent path as missing email).                                                                                                                                                  | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | TBD                               |
+| I    | Added `await` to `createAuditLog()` in `handleLoginFailure`.                                                                                                                                                                           | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | TBD                               |
+| J    | Added rate limit (10/min) to `/auth/verify-email`.                                                                                                                                                                                     | `backend/src/routes/auth.routes.ts`                                                                                                                                                                                                                                        | TBD                               |
+| K    | Cookie `sameSite` set to `"strict"` always, not just in production.                                                                                                                                                                    | `backend/src/controllers/auth.controller.ts`                                                                                                                                                                                                                               | TBD                               |
+| L    | Removed dead `changes` array in `updateUser`.                                                                                                                                                                                          | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | TBD                               |
+| N    | Replaced real `.env` credentials with placeholders.                                                                                                                                                                                    | `backend/.env`                                                                                                                                                                                                                                                             | TBD                               |
+| O    | Added `companyId` scoping to all IDOR-vulnerable services (GuardingSite, Guard, FlaggedVehicle, PatrolReport, EntryLog, Incident, Investigation).                                                                                      | Multiple controllers/services                                                                                                                                                                                                                                              | TBD                               |
+| P    | Added `escapeHtml()` helper and applied to all 8 email templates.                                                                                                                                                                      | `backend/src/templates/*.ts`                                                                                                                                                                                                                                               | TBD                               |
+| Q    | Added `jti`, `aud`, `iss` claims to JWT signing.                                                                                                                                                                                       | `backend/src/lib/jwt.ts`                                                                                                                                                                                                                                                   | TBD                               |
+| R    | API key stored as SHA-256 hash; raw key returned only once.                                                                                                                                                                            | `backend/src/services/apiKey.service.ts`                                                                                                                                                                                                                                   | TBD                               |
+| S    | Added `sanitizeCsv()` to prevent CSV formula injection.                                                                                                                                                                                | `backend/src/controllers/export.controller.ts`                                                                                                                                                                                                                             | TBD                               |
+| T    | Removed hardcoded superadmin password fallback — env vars required.                                                                                                                                                                    | `backend/prisma/seed.ts`                                                                                                                                                                                                                                                   | TBD                               |
+| U    | Configured strict CSP headers via `@fastify/helmet`.                                                                                                                                                                                   | `backend/src/app.ts`                                                                                                                                                                                                                                                       | TBD                               |
+| V    | Removed `as any` type casts on role field assignment.                                                                                                                                                                                  | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | TBD                               |
 
 ## Additional Findings (Post-Fix Audit — June 2026)
 
@@ -489,7 +489,8 @@ CSV output only escaped double quotes. Cells starting with `=`, `+`, `-`, or `@`
 **Rule:** Golden Rule #30
 
 ```typescript
-const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || "superadmintest1234";
+const superAdminPassword =
+  process.env.SUPER_ADMIN_PASSWORD || "superadmintest1234";
 ```
 
 The fallback password was weak and predictable.
@@ -528,31 +529,31 @@ The fallback password was weak and predictable.
 
 ## Additional Findings (July 2026 Audit)
 
-The following issues were discovered in the 2026-06-19 full-codebase security audit.
+The following issues were discovered in the 2026-06-19 full-codebase security audit. **All 7 resolved.**
 
 ### 🔴 CRITICAL
 
 #### W. IDOR — EntryLog Endpoints Missing companyId Scoping
 
 **File:** `backend/src/controllers/entryLog.controller.ts:28,44,72`, `backend/src/services/entryLog.service.ts:29,55,105,128`
-**Status:** OPEN 🔴
+**Status:** FIXED ✅
 **Rule:** Golden Rule #18
 
 `EntryLogService.getById()`, `update()`, and `delete()` use `prisma.entryLog.findUnique({ where: { id } })` without any `companyId` scope. `listBySite()` also lacks a companyId check. Any authenticated user from Company A can read, modify, or delete any entry log from Company B by guessing/iterating IDs. Despite being listed in finding O, EntryLogService was never actually scoped.
 
-**Fix:** Add `companyId` parameter to all these methods and use `findFirst({ where: { id, site: { companyId } } })` for reads, and scope updates/deletes by verifying the entry log's site belongs to the user's company.
+**Fix:** Added `companyId` parameter to all four methods. `listBySite()` scopes via `site: { companyId }`. `getById()`, `update()`, and `delete()` use `findFirst({ where: { id, site: { companyId } } })`. All controllers pass `request.user!.companyId`.
 
 ---
 
 #### X. Login / EmployeeLogin / Token Reuse Audit Logs Not Awaited
 
 **File:** `backend/src/services/auth.service.ts:168,210,250`
-**Status:** OPEN 🔴
+**Status:** FIXED ✅
 **Rule:** Golden Rule #35
 
 `createAuditLog()` calls on successful login (line 168), employeeLogin (line 210), and refresh token reuse detection (line 250) are NOT awaited. Unhandled Promise rejections silently swallow audit failures. This means critical security events may go unlogged without the application being aware. Finding I fixed the same issue in `handleLoginFailure` but missed these three call sites.
 
-**Fix:** Add `await` before each un-awaited `createAuditLog()` call.
+**Fix:** Added `await` before each `createAuditLog()` call in `login`, `employeeLogin`, and `refresh` (reuse detection).
 
 ---
 
@@ -561,12 +562,12 @@ The following issues were discovered in the 2026-06-19 full-codebase security au
 #### Y. User Creation, Role Change, Logout Audit Logs Not Awaited
 
 **File:** `backend/src/services/auth.service.ts:399,586,609`
-**Status:** OPEN 🔴
+**Status:** FIXED ✅
 **Rule:** Golden Rule #35
 
 `createAuditLog()` in `createUser` (line 399), `updateUser` role change (line 586), and `logout` (line 609) are not awaited. These will silently fail to write audit entries if the database write is rejected.
 
-**Fix:** Add `await` before each `createAuditLog()` call.
+**Fix:** Added `await` before each `createAuditLog()` call.
 
 ---
 
@@ -575,36 +576,36 @@ The following issues were discovered in the 2026-06-19 full-codebase security au
 #### Z. Frontend `LoginResponse` Type Includes `refreshToken` (Response Mismatch)
 
 **File:** `frontend/src/types/index.ts:157-160`
-**Status:** OPEN 🟡
+**Status:** FIXED ✅
 **Rule:** Golden Rule #24
 
 `LoginResponse` type defines `refreshToken: string`, but the backend controller strips it from the response body via destructuring (`const { refreshToken: _rt1, ...safeResult }`). The `refreshToken` is only set as an httpOnly cookie, never returned in JSON. This type definition misleads developers into believing the token is available in the response body.
 
-**Fix:** Remove `refreshToken` from the `LoginResponse` type definition.
+**Fix:** Removed `refreshToken` from the `LoginResponse` type definition in `frontend/src/types/index.ts`.
 
 ---
 
 #### AA. `"reporter"` Role Check in Incident Update Is Dead Code
 
 **File:** `backend/src/services/incident.service.ts:266`
-**Status:** OPEN 🟡
+**Status:** FIXED ✅
 **Rule:** Golden Rule #34
 
 Line 266 checks `if (userRole === "reporter")`, but no user can ever have the role `"reporter"` — it is not in the role enum (`owner`, `manager`, `senior`, `guard`, `superadmin`). This branch never executes, making the reporter-only ownership gate entirely non-functional in practice.
 
-**Fix:** Replace the dead role check with a proper condition (e.g., `userRole === "senior" || userRole === "guard"`) or remove the dead code if the route-level `requireRole` is sufficient.
+**Fix:** Replaced dead `userRole === "reporter"` check with `userRole !== "owner" && userRole !== "manager"` ownership gate. Route-level `requireRole` provides defense in depth.
 
 ---
 
 #### AB. `generateReferenceNumber` Uses `Math.random()` (Not Crypto-Secure)
 
 **File:** `backend/src/lib/utils.ts:11`
-**Status:** OPEN 🟡
+**Status:** FIXED ✅
 **Rule:** Golden Rule #34
 
 Uses `Math.random().toString(36).substring(2, 8)` for generating incident reference numbers. While reference numbers are not security tokens, `Math.random()` is predictable, enabling reference number enumeration. The 6-char alphanumeric output (~2.1B values) also provides no collision retry logic.
 
-**Fix:** Replace with `crypto.randomBytes(4).toString('hex').toUpperCase()` and add a uniqueness constraint retry.
+**Fix:** Replaced with `crypto.randomBytes(3).toString('hex').toUpperCase()` producing 6-char uppercase hex output.
 
 ---
 
@@ -612,18 +613,18 @@ Uses `Math.random().toString(36).substring(2, 8)` for generating incident refere
 
 #### AC. CSP Allows `'unsafe-inline'` for Styles
 
-**File:** `backend/src/app.ts:33`
-**Status:** OPEN 🟢
+**File:** `backend/src/app.ts:51`
+**Status:** FIXED ✅
 **Rule:** Golden Rule #27
 
-`styleSrc: ["'self'", "'unsafe-inline'"]` is required for Tailwind CSS and Next.js inline styles. This weakens CSP's XSS mitigation for style-based data exfiltration, though it is an acceptable trade-off for the chosen frontend framework.
+`styleSrc: ["'self'", "'unsafe-inline'"]` was present but unnecessary — the backend is a JSON API and never serves HTML. `'unsafe-inline'` has been removed.
 
-**Fix:** If Tailwind supports it in the future, migrate to a nonce-based approach for stylesheets.
+**Fix:** Changed to `styleSrc: ["'self'"]`. The backend only returns JSON/CSV/PDF, so inline styles are never relevant.
 
 ---
 
 ## Pending Items
 
 - Findings A through V (22 total) — **22 FIXED ✅, 0 OPEN.** All resolved.
-- Findings W through AC (7 total) — **0 FIXED, 7 OPEN.** Newly discovered in July 2026 audit.
+- Findings W through AC (7 total) — **7 FIXED ✅, 0 OPEN.** All resolved.
 - Original 19 findings: All resolved and verified against current code.

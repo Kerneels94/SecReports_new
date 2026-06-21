@@ -26,9 +26,9 @@ interface UpdateEntryLogParams {
 
 export const EntryLogService = {
   /** Lists entry logs for a site with guard and flagged vehicle info. */
-  async listBySite(siteId: string) {
+  async listBySite(companyId: string, siteId: string) {
     return prisma.entryLog.findMany({
-      where: { siteId },
+      where: { siteId, site: { companyId } },
       include: {
         guard: { select: { id: true, name: true, surname: true } },
         flaggedVehicle: { select: { id: true, vehicleReg: true, reason: true, resolvedAt: true } },
@@ -52,9 +52,9 @@ export const EntryLogService = {
   },
 
   /** Gets a single entry log with full site, guard, and flagged vehicle details. */
-  async getById(id: string) {
-    const log = await prisma.entryLog.findUnique({
-      where: { id },
+  async getById(companyId: string, id: string) {
+    const log = await prisma.entryLog.findFirst({
+      where: { id, site: { companyId } },
       include: {
         site: { select: { id: true, name: true, address: true } },
         guard: { select: { id: true, name: true, surname: true } },
@@ -102,8 +102,8 @@ export const EntryLogService = {
   },
 
   /** Partially updates an entry log's exit time, driver info, or purpose. */
-  async update(id: string, params: UpdateEntryLogParams) {
-    const log = await prisma.entryLog.findUnique({ where: { id } });
+  async update(companyId: string, id: string, params: UpdateEntryLogParams) {
+    const log = await prisma.entryLog.findFirst({ where: { id, site: { companyId } } });
     if (!log) throw new NotFoundError("Entry log");
 
     const data: any = {};
@@ -125,8 +125,8 @@ export const EntryLogService = {
   },
 
   /** Deletes an entry log. */
-  async delete(id: string) {
-    const log = await prisma.entryLog.findUnique({ where: { id } });
+  async delete(companyId: string, id: string) {
+    const log = await prisma.entryLog.findFirst({ where: { id, site: { companyId } } });
     if (!log) throw new NotFoundError("Entry log");
 
     await prisma.entryLog.delete({ where: { id } });

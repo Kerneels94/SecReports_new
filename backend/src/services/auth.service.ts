@@ -165,7 +165,7 @@ export const AuthService = {
     const payload = { userId: user.id, role: user.role, companyId: user.companyId };
     const refreshToken = await persistRefreshToken(user.id, familyId, params.deviceInfo);
 
-    createAuditLog({
+    await createAuditLog({
       entityType: "user",
       entityId: user.id,
       action: "login",
@@ -207,7 +207,7 @@ export const AuthService = {
     const payload = { userId: user.id, role: user.role, companyId: user.companyId };
     const refreshToken = await persistRefreshToken(user.id, familyId, params.deviceInfo);
 
-    createAuditLog({
+    await createAuditLog({
       entityType: "user",
       entityId: user.id,
       action: "login",
@@ -247,7 +247,7 @@ export const AuthService = {
 
     if (!stored) {
       await prisma.refreshToken.deleteMany({ where: { userId: payload.userId } });
-      createAuditLog({
+      await createAuditLog({
         entityType: "user",
         entityId: payload.userId,
         action: "refresh_token_reuse_detected",
@@ -396,7 +396,7 @@ export const AuthService = {
       console.error("[AuthService] Welcome email failed:", err),
     );
 
-    createAuditLog({
+    await createAuditLog({
       entityType: "user",
       entityId: user.id,
       action: "user_created",
@@ -472,7 +472,7 @@ export const AuthService = {
 
     await prisma.refreshToken.deleteMany({ where: { userId: user.id } });
 
-    createAuditLog({
+    await createAuditLog({
       entityType: "user",
       entityId: user.id,
       action: "password_reset",
@@ -500,7 +500,7 @@ export const AuthService = {
 
     await prisma.refreshToken.deleteMany({ where: { userId } });
 
-    createAuditLog({
+    await createAuditLog({
       entityType: "user",
       entityId: userId,
       action: "password_changed",
@@ -583,7 +583,7 @@ export const AuthService = {
     });
 
     if (data.role !== undefined && data.role !== user.role) {
-      createAuditLog({
+      await createAuditLog({
         entityType: "user",
         entityId: userId,
         action: "role_changed",
@@ -606,7 +606,7 @@ export const AuthService = {
     await prisma.refreshToken.deleteMany({ where: { tokenHash } });
 
     if (record) {
-      createAuditLog({
+      await createAuditLog({
         entityType: "user",
         entityId: record.userId,
         action: "logout",
@@ -621,7 +621,7 @@ export const AuthService = {
   async logoutAll(userId: string) {
     await prisma.refreshToken.deleteMany({ where: { userId } });
 
-    createAuditLog({
+    await createAuditLog({
       entityType: "user",
       entityId: userId,
       action: "logout_all",

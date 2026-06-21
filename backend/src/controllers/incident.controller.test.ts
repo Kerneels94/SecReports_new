@@ -77,7 +77,7 @@ describe("IncidentController", () => {
 
       await IncidentController.getById(mockRequest, mockReply);
 
-      expect(IncidentService.getById).toHaveBeenCalledWith("5");
+      expect(IncidentService.getById).toHaveBeenCalledWith("1", "5");
       expect(mockReply.code).toHaveBeenCalledWith(200);
       expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: { id: "5", title: "Test" } });
     });
@@ -123,7 +123,7 @@ describe("IncidentController", () => {
 
       await IncidentController.update(mockRequest, mockReply);
 
-      expect(IncidentService.update).toHaveBeenCalledWith("3", { title: "Updated" }, "1", "admin");
+      expect(IncidentService.update).toHaveBeenCalledWith("1", "3", { title: "Updated" }, "1", "admin");
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 
@@ -147,7 +147,7 @@ describe("IncidentController", () => {
 
       await IncidentController.updateStatus(mockRequest, mockReply);
 
-      expect(IncidentService.updateStatus).toHaveBeenCalledWith("3", "resolved", "1");
+      expect(IncidentService.updateStatus).toHaveBeenCalledWith("1", "3", "resolved", "1");
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 
@@ -169,7 +169,7 @@ describe("IncidentController", () => {
 
       await IncidentController.delete(mockRequest, mockReply);
 
-      expect(IncidentService.delete).toHaveBeenCalledWith("3", "1", "admin");
+      expect(IncidentService.delete).toHaveBeenCalledWith("1", "3", "1", "admin");
       expect(mockReply.code).toHaveBeenCalledWith(204);
       expect(mockReply.send).toHaveBeenCalled();
     });
