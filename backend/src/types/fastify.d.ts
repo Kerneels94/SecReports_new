@@ -1,7 +1,3 @@
-/**
- * Augments the Fastify type definitions so that `request.user` is typed
- * across all route handlers with the authenticated user payload.
- */
 import "fastify";
 
 declare module "fastify" {
@@ -11,5 +7,13 @@ declare module "fastify" {
       role: string;
       companyId: string;
     };
+  }
+
+  interface FastifyInstance {
+    authenticate: (
+      request: FastifyRequest,
+      reply: FastifyReply,
+      done?: (err?: Error) => void,
+    ) => Promise<void>;
   }
 }
