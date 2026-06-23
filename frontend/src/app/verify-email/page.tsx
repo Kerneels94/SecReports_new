@@ -7,17 +7,26 @@ import { api } from "@/services/api";
 
 type VerifyState = "loading" | "success" | "error";
 
-function getTokenFromHash(): string | null {
+function getTokenFromUrl(): string | null {
   if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
+  if (token) return token;
   const hash = window.location.hash;
-  const params = new URLSearchParams(hash.replace("#", ""));
-  return params.get("token");
+  const hashParams = new URLSearchParams(hash.replace("#", ""));
+  return hashParams.get("token");
 }
 
 function VerifyEmailContent() {
-  const token = getTokenFromHash();
+  const [token] = useState(getTokenFromUrl);
   const [state, setState] = useState<VerifyState>("loading");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (token && typeof window !== "undefined") {
+      window.history.replaceState({}, "", "/verify-email");
+    }
+  }, [token]);
 
   useEffect(() => {
     if (!token) {

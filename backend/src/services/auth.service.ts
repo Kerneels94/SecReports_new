@@ -338,7 +338,7 @@ export const AuthService = {
       },
     });
 
-    const verifyLink = `${process.env.APP_URL || "http://localhost:3000"}/verify-email#token=${rawToken}`;
+    const verifyLink = `${process.env.APP_URL || "http://localhost:3000"}/verify-email?token=${rawToken}`;
     sendVerificationEmail(result.user.email, result.user.name, verifyLink).catch((err) =>
       console.error("[AuthService] Verification email failed:", err),
     );
