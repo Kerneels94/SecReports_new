@@ -106,7 +106,7 @@ export const reportService = {
 /** Manual user-creation and update endpoints (admin). */
 export const userService = {
   create: (data: { name: string; email: string; password: string; role?: string }) =>
-    api.post<User>("/auth/users", data),
+    api.post<User & { message: string }>("/auth/users", data),
   update: (id: number, data: { name?: string; email?: string; role?: string }) =>
     api.patch<UserListItem>(`/auth/users/${id}`, data),
 };
