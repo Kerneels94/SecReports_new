@@ -150,7 +150,7 @@ export const AuthService = {
   async login(params: LoginParams & { deviceInfo?: string }) {
     const user = await prisma.user.findUnique({ where: { email: params.email } });
     if (!user) throwGenericAuthError();
-    if (user.role !== "owner" && user.role !== "manager" && user.role !== "senior") throwGenericAuthError();
+    if (user.role !== "owner" && user.role !== "manager" && user.role !== "senior" && user.role !== "superadmin") throwGenericAuthError();
     if (!user.emailVerified) throwGenericAuthError();
     if (user.lockedUntil && user.lockedUntil > new Date()) throwGenericAuthError();
 
@@ -435,7 +435,7 @@ export const AuthService = {
       },
     });
 
-    const resetLink = `${process.env.APP_URL || "http://localhost:3000"}/reset-password#token=${rawToken}`;
+    const resetLink = `${process.env.APP_URL || "http://localhost:3000"}/reset-password?token=${rawToken}`;
     sendPasswordResetEmail(email, user.name, resetLink).catch((err) =>
       console.error("[AuthService] Password reset email failed:", err),
     );

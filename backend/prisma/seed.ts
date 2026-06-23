@@ -285,6 +285,7 @@ async function main() {
         passwordHash: superAdminHash,
         role: "superadmin",
         status: "active",
+        emailVerified: true,
       },
     });
   }

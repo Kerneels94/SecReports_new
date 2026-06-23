@@ -16,7 +16,10 @@ const mockRouter = { push: jest.fn() };
 const mockResetPassword = authService.resetPassword as jest.Mock;
 
 function mockToken(token: string | null) {
-  window.location.hash = token ? `#token=${token}` : "";
+  const url = token
+    ? `http://localhost/reset-password?token=${token}`
+    : `http://localhost/reset-password`;
+  window.history.pushState({}, "", url);
 }
 
 beforeEach(() => {

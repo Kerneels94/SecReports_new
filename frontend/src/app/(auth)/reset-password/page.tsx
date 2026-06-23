@@ -4,30 +4,39 @@
  */
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { authService } from "@/services";
 
-function getTokenFromHash(): string | null {
+function getTokenFromUrl(): string | null {
   if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
+  if (token) return token;
   const hash = window.location.hash;
-  const params = new URLSearchParams(hash.replace("#", ""));
-  return params.get("token");
+  const hashParams = new URLSearchParams(hash.replace("#", ""));
+  return hashParams.get("token");
 }
 
 /** Inner form component that reads the token and handles password reset submission. */
 function ResetPasswordForm() {
   const router = useRouter();
-  const token = getTokenFromHash();
+  const [token] = useState(getTokenFromUrl);
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (token && typeof window !== "undefined") {
+      window.history.replaceState({}, "", "/reset-password");
+    }
+  }, [token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

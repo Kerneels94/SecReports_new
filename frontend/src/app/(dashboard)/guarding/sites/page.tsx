@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
-import { guardingSiteService } from "@/services";
+import { guardingSiteService, guardService } from "@/services";
 import type { GuardingSite, Guard } from "@/types";
 
 interface GuardFormData {
@@ -44,6 +44,12 @@ export default function SitesPage() {
   const [viewSite, setViewSite] = useState<GuardingSite | null>(null);
   const [viewLoading, setViewLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Edit modal
+  const [editTarget, setEditTarget] = useState<GuardingSite | null>(null);
+  const [editFormData, setEditFormData] = useState({ name: "", address: "" });
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   // Delete confirmation
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -125,6 +131,54 @@ export default function SitesPage() {
   const closeViewModal = () => {
     setModalOpen(false);
     setViewSite(null);
+  };
+
+  const openEditModal = (site: GuardingSite) => {
+    setEditTarget(site);
+    setEditFormData({ name: site.name, address: site.address ?? "" });
+    setEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setEditModalOpen(false);
+    setEditTarget(null);
+    setEditFormData({ name: "", address: "" });
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTarget) return;
+    setEditSubmitting(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      await guardingSiteService.update(editTarget.id, {
+        name: editFormData.name,
+        address: editFormData.address || undefined,
+      });
+      setSuccess("Site updated successfully");
+      closeEditModal();
+      await fetchSites();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update site");
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
+  const removeGuardFromSite = async (guard: Guard) => {
+    setError(null);
+    setSuccess(null);
+    try {
+      await guardService.update(guard.id, { siteId: null });
+      setSuccess(`Guard ${guard.name} ${guard.surname} removed from site`);
+      if (viewSite) {
+        const res = await guardingSiteService.getById(viewSite.id);
+        setViewSite(res.data);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to remove guard");
+    }
   };
 
   const addGuardRow = () => setGuardRows([...guardRows, { ...emptyGuard }]);
@@ -318,6 +372,12 @@ export default function SitesPage() {
                     View
                   </button>
                   <button
+                    onClick={() => openEditModal(site)}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Edit
+                  </button>
+                  <button
                     onClick={() => promptDelete(site.id)}
                     className="text-xs text-danger hover:underline ml-auto"
                   >
@@ -367,10 +427,19 @@ export default function SitesPage() {
                     <div key={guard.id} className="flex items-center justify-between rounded-lg border border-border-light p-2.5">
                       <div>
                         <p className="text-sm text-text">{guard.name} {guard.surname}</p>
+                        <p className="text-xs text-text-secondary">{guard.employeeId}</p>
                       </div>
-                      <Badge variant={guard.status === "active" ? "success" : guard.status === "on_leave" ? "warning" : "default"}>
-                        {guard.status}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={guard.status === "active" ? "success" : guard.status === "on_leave" ? "warning" : "default"}>
+                          {guard.status}
+                        </Badge>
+                        <button
+                          onClick={() => removeGuardFromSite(guard)}
+                          className="text-xs text-danger hover:underline"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -389,6 +458,48 @@ export default function SitesPage() {
         ) : (
           <p className="text-sm text-text-secondary py-4">Failed to load site details.</p>
         )}
+      </Modal>
+
+      <Modal open={editModalOpen} onClose={closeEditModal} title="Edit Site">
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-text mb-1">Site Name</label>
+            <input
+              type="text"
+              required
+              value={editFormData.name}
+              onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+              className="w-full rounded-lg border border-border-light bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="e.g. Riverside Industrial Park"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-text mb-1">Address</label>
+            <input
+              type="text"
+              value={editFormData.address}
+              onChange={(e) => setEditFormData({ ...editFormData, address: e.target.value })}
+              className="w-full rounded-lg border border-border-light bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="Optional address"
+            />
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={closeEditModal}
+              className="rounded-lg border border-border-light px-4 py-2 text-sm text-text hover:bg-surface-elevated transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={editSubmitting}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors disabled:opacity-50"
+            >
+              {editSubmitting ? "Saving..." : "Save"}
+            </button>
+          </div>
+        </form>
       </Modal>
 
       <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} title="Delete Site">
