@@ -98,7 +98,7 @@ describe("AdminUsersPage", () => {
 
   it("calls userService.create and shows success", async () => {
     mockUseAuth.mockReturnValue({ user: ownerUser });
-    mockCreate.mockResolvedValue({ success: true, data: { id: 1 } });
+    mockCreate.mockResolvedValue({ success: true, data: { message: "Verification email sent" } });
     render(<AdminUsersPage />);
     const user = userEvent.setup();
 
@@ -114,7 +114,7 @@ describe("AdminUsersPage", () => {
         password: "password123",
         role: "senior",
       });
-      expect(screen.getByText("User jane@example.com created successfully")).toBeInTheDocument();
+      expect(screen.getByText(/verification email sent/i)).toBeInTheDocument();
     });
   });
 
@@ -136,7 +136,7 @@ describe("AdminUsersPage", () => {
 
   it("resets form after successful creation", async () => {
     mockUseAuth.mockReturnValue({ user: ownerUser });
-    mockCreate.mockResolvedValue({ success: true, data: { id: 1 } });
+    mockCreate.mockResolvedValue({ success: true, data: { id: 1, message: "Verification email sent" } });
     render(<AdminUsersPage />);
     const user = userEvent.setup();
 

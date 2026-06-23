@@ -87,8 +87,8 @@ export default function AdminUsersPage() {
     try {
       setError(null);
       setSuccess(null);
-      await userService.create(data);
-      setSuccess(`User ${data.email} created successfully`);
+      const res = await userService.create(data);
+      setSuccess(res.data.message || `Verification email sent to ${data.email}`);
       reset();
       fetchUsers();
     } catch (err) {

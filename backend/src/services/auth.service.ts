@@ -368,7 +368,7 @@ export const AuthService = {
     return { message: "Email verified successfully. You can now log in." };
   },
 
-  /** Creates a user within a company after checking subscription user-limit. Sends welcome email. */
+  /** Creates a user within a company after checking subscription user-limit. Sends verification email. */
   async createUser(params: CreateUserParams) {
     await SubscriptionService.canAddUser(params.companyId);
 
@@ -387,13 +387,22 @@ export const AuthService = {
         email: params.email,
         passwordHash,
         role: params.role || "senior",
-        emailVerified: true,
         createdBy: params.createdBy,
       },
     });
 
-    sendWelcomeEmail(user.email, user.name).catch((err) =>
-      console.error("[AuthService] Welcome email failed:", err),
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    await prisma.emailVerificationToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: hashToken(rawToken),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      },
+    });
+
+    const verifyLink = `${process.env.APP_URL || "http://localhost:3000"}/verify-email?token=${rawToken}`;
+    sendVerificationEmail(user.email, user.name, verifyLink).catch((err) =>
+      console.error("[AuthService] Verification email failed:", err),
     );
 
     await createAuditLog({
@@ -410,6 +419,7 @@ export const AuthService = {
       role: user.role,
       status: user.status,
       companyId: user.companyId,
+      message: "Verification email sent",
     };
   },
 
