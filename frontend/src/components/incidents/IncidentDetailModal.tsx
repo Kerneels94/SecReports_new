@@ -5,10 +5,10 @@
  * Shows loading, error, and detail states. Includes a print/download action.
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { incidentService } from "@/services";
+import { incidentService, exportService } from "@/services";
 import type { Incident } from "@/types";
 
 /** A single label-value row used in the detail sections. */
@@ -45,7 +45,6 @@ export function IncidentDetailModal({
   const [incident, setIncident] = useState<Incident | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
 
   const fetchIncident = useCallback(async () => {
     setLoading(true);
@@ -67,8 +66,25 @@ export function IncidentDetailModal({
     }
   }, [open, fetchIncident]);
 
-  const handlePrint = () => {
-    window.print();
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPdf = async () => {
+    setDownloading(true);
+    try {
+      const blob = await exportService.downloadPdf(incidentId);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `incident-${incidentId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      setError("Failed to download PDF");
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -119,7 +135,7 @@ export function IncidentDetailModal({
           </button>
         </div>
       ) : incident ? (
-        <div ref={contentRef} className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex flex-col gap-1.5 min-w-0">
               <span className="font-mono text-[11px] text-text-secondary/40 tracking-wider uppercase">
@@ -251,13 +267,13 @@ export function IncidentDetailModal({
           </div>
 
           <div className="flex justify-end pt-2 border-t border-border-light/50">
-            <Button onClick={handlePrint} variant="secondary" size="sm">
+            <Button onClick={handleDownloadPdf} variant="secondary" size="sm" disabled={downloading}>
               <svg className="h-4 w-4 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 9V2h12v7" />
-                <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
-                <path d="M6 14h12v8H6z" />
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
               </svg>
-              Download PDF
+              {downloading ? "Downloading..." : "Download PDF"}
             </Button>
           </div>
         </div>
