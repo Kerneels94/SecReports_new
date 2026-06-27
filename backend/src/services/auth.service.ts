@@ -9,6 +9,7 @@ import { hashPassword, comparePassword } from "../lib/hash";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../lib/jwt";
 import { UnauthorizedError, ConflictError, NotFoundError, ValidationError } from "../lib/errors";
 import { hasMxRecord } from "../lib/email";
+import { getAppUrl } from "../lib/app-url";
 import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail } from "./email.service";
 import { SubscriptionService } from "./subscription.service";
 
@@ -338,7 +339,7 @@ export const AuthService = {
       },
     });
 
-    const verifyLink = `${process.env.APP_URL || "http://localhost:3000"}/verify-email?token=${rawToken}`;
+    const verifyLink = `${getAppUrl()}/verify-email?token=${rawToken}`;
     sendVerificationEmail(result.user.email, result.user.name, verifyLink).catch((err) =>
       console.error("[AuthService] Verification email failed:", err),
     );
@@ -400,7 +401,7 @@ export const AuthService = {
       },
     });
 
-    const verifyLink = `${process.env.APP_URL || "http://localhost:3000"}/verify-email?token=${rawToken}`;
+    const verifyLink = `${getAppUrl()}/verify-email?token=${rawToken}`;
     sendVerificationEmail(user.email, user.name, verifyLink).catch((err) =>
       console.error("[AuthService] Verification email failed:", err),
     );
@@ -445,7 +446,7 @@ export const AuthService = {
       },
     });
 
-    const resetLink = `${process.env.APP_URL || "http://localhost:3000"}/reset-password?token=${rawToken}`;
+    const resetLink = `${getAppUrl()}/reset-password?token=${rawToken}`;
     sendPasswordResetEmail(email, user.name, resetLink).catch((err) =>
       console.error("[AuthService] Password reset email failed:", err),
     );

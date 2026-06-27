@@ -4,9 +4,11 @@
  * @module password-changed
  */
 import { escapeHtml } from "./escape";
+import { getAppUrl } from "../lib/app-url";
 
 export default function passwordChangedTemplate(name: string): string {
   const safeName = escapeHtml(name);
+  const appUrl = getAppUrl();
   return `
 <!DOCTYPE html>
 <html>
@@ -24,7 +26,7 @@ export default function passwordChangedTemplate(name: string): string {
         <p style="font-size: 16px; color: #b91c1c; font-weight: bold;">If you did not make this change, please contact your administrator immediately or reply to this email.</p>
         <p style="font-size: 14px; color: #777;">You can sign in with your new password at any time.</p>
         <div style="text-align: center; margin: 32px 0;">
-          <a href="${process.env.APP_URL || "http://localhost:3000"}/login"
+          <a href="${appUrl}/dashboard"
              style="background: #1e3a5f; color: #ffffff; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-size: 16px; display: inline-block;">
             Sign In to SecReports
           </a>

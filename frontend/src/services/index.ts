@@ -103,6 +103,14 @@ export const reportService = {
   summary: () => api.get<ReportSummary>("/reports/summary"),
 };
 
+/** Export/download endpoints. */
+export const exportService = {
+  downloadPdf: (incidentId?: number) => {
+    const params = incidentId ? `?incidentId=${incidentId}` : "";
+    return api.downloadBlob(`/export/pdf${params}`);
+  },
+};
+
 /** Manual user-creation and update endpoints (admin). */
 export const userService = {
   create: (data: { name: string; email: string; password: string; role?: string }) =>
