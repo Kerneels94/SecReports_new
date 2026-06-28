@@ -178,17 +178,14 @@ export interface Guard {
   id: string;
   companyId: string;
   siteId: string | null;
-  userId: string;
   name: string;
   surname: string;
   cellphone: string;
-  email: string;
   employeeId: string;
   status: "active" | "inactive" | "on_leave";
   createdAt: string;
   updatedAt: string;
   site?: { id: string; name: string };
-  user?: { id: string; email: string; role: string };
   patrolReports?: PatrolReport[];
 }
 

@@ -16,7 +16,6 @@ interface GuardFormData {
   surname: string;
   cellphone: string;
   employeeId: string;
-  password: string;
 }
 
 const emptyGuard: GuardFormData = {
@@ -24,7 +23,6 @@ const emptyGuard: GuardFormData = {
   surname: "",
   cellphone: "",
   employeeId: "",
-  password: "",
 };
 
 /** Sites page component with inline creation form, guard rows, view modal, and delete confirmation. */
@@ -50,6 +48,10 @@ export default function SitesPage() {
   const [editFormData, setEditFormData] = useState({ name: "", address: "" });
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editCurrentGuards, setEditCurrentGuards] = useState<Guard[]>([]);
+  const [editGuardRows, setEditGuardRows] = useState<GuardFormData[]>([]);
+  const [editGuardsToRemove, setEditGuardsToRemove] = useState<Set<string>>(new Set());
+  const [editGuardsLoading, setEditGuardsLoading] = useState(false);
 
   // Delete confirmation
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -80,7 +82,7 @@ export default function SitesPage() {
         name: formData.name,
         address: formData.address || undefined,
       };
-      const validGuards = guardRows.filter((g) => g.name && g.surname && g.employeeId && g.password);
+      const validGuards = guardRows.filter((g) => g.name && g.surname && g.employeeId);
       if (validGuards.length > 0) payload.guards = validGuards;
 
       await guardingSiteService.create(payload);
@@ -133,16 +135,30 @@ export default function SitesPage() {
     setViewSite(null);
   };
 
-  const openEditModal = (site: GuardingSite) => {
+  const openEditModal = async (site: GuardingSite) => {
     setEditTarget(site);
     setEditFormData({ name: site.name, address: site.address ?? "" });
+    setEditGuardRows([]);
+    setEditGuardsToRemove(new Set());
+    setEditGuardsLoading(true);
     setEditModalOpen(true);
+    try {
+      const res = await guardingSiteService.getById(site.id);
+      setEditCurrentGuards(res.data.guards ?? []);
+    } catch {
+      setEditCurrentGuards([]);
+    } finally {
+      setEditGuardsLoading(false);
+    }
   };
 
   const closeEditModal = () => {
     setEditModalOpen(false);
     setEditTarget(null);
     setEditFormData({ name: "", address: "" });
+    setEditCurrentGuards([]);
+    setEditGuardRows([]);
+    setEditGuardsToRemove(new Set());
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -152,10 +168,23 @@ export default function SitesPage() {
     setError(null);
     setSuccess(null);
     try {
-      await guardingSiteService.update(editTarget.id, {
+      const payload: {
+        name?: string;
+        address?: string;
+        newGuards?: GuardFormData[];
+        removeGuardIds?: string[];
+      } = {
         name: editFormData.name,
         address: editFormData.address || undefined,
-      });
+      };
+
+      const validNewGuards = editGuardRows.filter((g) => g.name && g.surname && g.employeeId);
+      if (validNewGuards.length > 0) payload.newGuards = validNewGuards;
+
+      const removeIds = Array.from(editGuardsToRemove);
+      if (removeIds.length > 0) payload.removeGuardIds = removeIds;
+
+      await guardingSiteService.update(editTarget.id, payload);
       setSuccess("Site updated successfully");
       closeEditModal();
       await fetchSites();
@@ -189,6 +218,28 @@ export default function SitesPage() {
     const updated = [...guardRows];
     updated[idx] = { ...updated[idx], [field]: value };
     setGuardRows(updated);
+  };
+
+  const addEditGuardRow = () => setEditGuardRows([...editGuardRows, { ...emptyGuard }]);
+
+  const removeEditGuardRow = (idx: number) => setEditGuardRows(editGuardRows.filter((_, i) => i !== idx));
+
+  const updateEditGuardRow = (idx: number, field: keyof GuardFormData, value: string) => {
+    const updated = [...editGuardRows];
+    updated[idx] = { ...updated[idx], [field]: value };
+    setEditGuardRows(updated);
+  };
+
+  const markGuardForRemoval = (guard: Guard) => {
+    const next = new Set(editGuardsToRemove);
+    next.add(guard.id);
+    setEditGuardsToRemove(next);
+  };
+
+  const unmarkGuardForRemoval = (guardId: string) => {
+    const next = new Set(editGuardsToRemove);
+    next.delete(guardId);
+    setEditGuardsToRemove(next);
   };
 
   if (loading) {
@@ -312,14 +363,6 @@ export default function SitesPage() {
                         required
                         value={g.employeeId}
                         onChange={(e) => updateGuardRow(idx, "employeeId", e.target.value)}
-                        className="w-full rounded-lg border border-border-light bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                      <input
-                        placeholder="Password"
-                        type="password"
-                        required
-                        value={g.password}
-                        onChange={(e) => updateGuardRow(idx, "password", e.target.value)}
                         className="w-full rounded-lg border border-border-light bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -460,7 +503,7 @@ export default function SitesPage() {
         )}
       </Modal>
 
-      <Modal open={editModalOpen} onClose={closeEditModal} title="Edit Site">
+      <Modal open={editModalOpen} onClose={closeEditModal} title={`Edit Site${editTarget ? ` — ${editTarget.name}` : ""}`}>
         <form onSubmit={handleEditSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-text mb-1">Site Name</label>
@@ -483,7 +526,125 @@ export default function SitesPage() {
               placeholder="Optional address"
             />
           </div>
-          <div className="flex justify-end gap-3 pt-2">
+
+          {editGuardsLoading ? (
+            <div className="flex items-center justify-center py-4">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            </div>
+          ) : (
+            <>
+              {editCurrentGuards.length > 0 && (
+                <div className="border-t border-border-light pt-4">
+                  <h4 className="text-sm font-semibold text-text mb-2">Current Guards</h4>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {editCurrentGuards
+                      .filter((g) => !editGuardsToRemove.has(g.id))
+                      .map((guard) => (
+                        <div key={guard.id} className="flex items-center justify-between rounded-lg border border-border-light p-2.5">
+                          <div>
+                            <p className="text-sm text-text">{guard.name} {guard.surname}</p>
+                            <p className="text-xs text-text-secondary">{guard.employeeId}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => markGuardForRemoval(guard)}
+                            className="text-xs text-danger hover:underline"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {editGuardsToRemove.size > 0 && (
+                <div className="border-t border-border-light pt-3">
+                  <h4 className="text-sm font-semibold text-danger mb-2">Guards to Remove</h4>
+                  <div className="space-y-1">
+                    {editCurrentGuards
+                      .filter((g) => editGuardsToRemove.has(g.id))
+                      .map((guard) => (
+                        <div key={guard.id} className="flex items-center justify-between rounded-lg bg-danger/5 border border-danger/20 p-2">
+                          <p className="text-sm text-text">{guard.name} {guard.surname}</p>
+                          <button
+                            type="button"
+                            onClick={() => unmarkGuardForRemoval(guard.id)}
+                            className="text-xs text-primary hover:underline"
+                          >
+                            Undo
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="border-t border-border-light pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-semibold text-text">Add New Guards</h4>
+                  <button
+                    type="button"
+                    onClick={addEditGuardRow}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    + Add Guard
+                  </button>
+                </div>
+
+                {editGuardRows.length === 0 && (
+                  <p className="text-xs text-text-secondary">No new guards added.</p>
+                )}
+
+                {editGuardRows.map((g, idx) => (
+                  <div key={idx} className="rounded-lg border border-border-light p-3 mb-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-text-secondary">New Guard {idx + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeEditGuardRow(idx)}
+                        className="text-xs text-danger hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="grid gap-3 md:grid-cols-3">
+                      <input
+                        placeholder="First name"
+                        required
+                        value={g.name}
+                        onChange={(e) => updateEditGuardRow(idx, "name", e.target.value)}
+                        className="w-full rounded-lg border border-border-light bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                      <input
+                        placeholder="Surname"
+                        required
+                        value={g.surname}
+                        onChange={(e) => updateEditGuardRow(idx, "surname", e.target.value)}
+                        className="w-full rounded-lg border border-border-light bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                      <input
+                        placeholder="Cellphone"
+                        required
+                        value={g.cellphone}
+                        onChange={(e) => updateEditGuardRow(idx, "cellphone", e.target.value)}
+                        className="w-full rounded-lg border border-border-light bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                      <input
+                        placeholder="Employee ID"
+                        required
+                        value={g.employeeId}
+                        onChange={(e) => updateEditGuardRow(idx, "employeeId", e.target.value)}
+                        className="w-full rounded-lg border border-border-light bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          <div className="flex justify-end gap-3 pt-2 border-t border-border-light">
             <button
               type="button"
               onClick={closeEditModal}
@@ -493,10 +654,10 @@ export default function SitesPage() {
             </button>
             <button
               type="submit"
-              disabled={editSubmitting}
+              disabled={editSubmitting || editGuardsLoading}
               className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors disabled:opacity-50"
             >
-              {editSubmitting ? "Saving..." : "Save"}
+              {editSubmitting ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>

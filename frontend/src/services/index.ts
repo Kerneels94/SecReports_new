@@ -125,9 +125,14 @@ export const userService = {
 export const guardingSiteService = {
   list: () => api.get<GuardingSite[]>("/guarding-sites"),
   getById: (id: string) => api.get<GuardingSite>(`/guarding-sites/${id}`),
-  create: (data: { name: string; address?: string; guards?: { name: string; surname: string; cellphone: string; email?: string; employeeId: string; password: string }[] }) => api.post<GuardingSite>("/guarding-sites", data),
-  update: (id: string, data: { name?: string; address?: string; status?: string }) =>
-    api.put<GuardingSite>(`/guarding-sites/${id}`, data),
+  create: (data: { name: string; address?: string; guards?: { name: string; surname: string; cellphone: string; employeeId: string }[] }) => api.post<GuardingSite>("/guarding-sites", data),
+  update: (id: string, data: {
+    name?: string;
+    address?: string;
+    status?: string;
+    newGuards?: { name: string; surname: string; cellphone: string; employeeId: string }[];
+    removeGuardIds?: string[];
+  }) => api.put<GuardingSite>(`/guarding-sites/${id}`, data),
   delete: (id: string) => api.delete<void>(`/guarding-sites/${id}`),
 };
 
@@ -139,12 +144,17 @@ export const guardService = {
     name: string;
     surname: string;
     cellphone: string;
-    email: string;
     employeeId: string;
     siteId?: string;
-    password: string;
   }) => api.post<Guard>("/guards", data),
-  update: (id: string, data: Partial<Guard>) => api.put<Guard>(`/guards/${id}`, data),
+  update: (id: string, data: {
+    name?: string;
+    surname?: string;
+    cellphone?: string;
+    employeeId?: string;
+    siteId?: string | null;
+    status?: string;
+  }) => api.put<Guard>(`/guards/${id}`, data),
   delete: (id: string) => api.delete<void>(`/guards/${id}`),
 };
 

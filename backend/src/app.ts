@@ -126,12 +126,23 @@ export async function buildApp() {
       return;
     }
 
+    if ((error as any).code === "P2002") {
+      reply.code(409).send({
+        success: false,
+        error: {
+          code: "CONFLICT",
+          message: "A record with that unique value already exists",
+        },
+      });
+      return;
+    }
+
     request.log.error(error);
     reply.code(500).send({
       success: false,
       error: {
         code: "INTERNAL_ERROR",
-        message: "An unexpected error occurred",
+        message: error instanceof Error ? error.message : "An unexpected error occurred",
       },
     });
   });
