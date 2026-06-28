@@ -50,36 +50,32 @@ const mockSites: GuardingSite[] = [
   },
 ];
 
-const mockGuards: Guard[] = [
-  {
-    id: "guard-1",
-    companyId: "company-1",
-    siteId: "site-1",
-    userId: "user-1",
-    name: "John",
-    surname: "Doe",
-    cellphone: "0712345678",
-    email: "john@example.com",
-    employeeId: "EMP001",
-    status: "active",
-    createdAt: "2026-01-01T00:00:00Z",
-    updatedAt: "2026-01-01T00:00:00Z",
-  },
-  {
-    id: "guard-2",
-    companyId: "company-1",
-    siteId: "site-1",
-    userId: "user-2",
-    name: "Jane",
-    surname: "Smith",
-    cellphone: "0798765432",
-    email: "jane@example.com",
-    employeeId: "EMP002",
-    status: "on_leave",
-    createdAt: "2026-01-01T00:00:00Z",
-    updatedAt: "2026-01-01T00:00:00Z",
-  },
-];
+  const mockGuards: Guard[] = [
+    {
+      id: "guard-1",
+      companyId: "company-1",
+      siteId: "site-1",
+      name: "John",
+      surname: "Doe",
+      cellphone: "0712345678",
+      employeeId: "EMP001",
+      status: "active",
+      createdAt: "2026-01-01T00:00:00Z",
+      updatedAt: "2026-01-01T00:00:00Z",
+    },
+    {
+      id: "guard-2",
+      companyId: "company-1",
+      siteId: "site-1",
+      name: "Jane",
+      surname: "Smith",
+      cellphone: "0798765432",
+      employeeId: "EMP002",
+      status: "on_leave",
+      createdAt: "2026-01-01T00:00:00Z",
+      updatedAt: "2026-01-01T00:00:00Z",
+    },
+  ];
 
 const mockSiteWithGuards: GuardingSite = {
   ...mockSites[0],
@@ -194,7 +190,7 @@ describe("SitesPage", () => {
     await userEvent.clear(nameInput);
     await userEvent.type(nameInput, "Updated Park");
 
-    await userEvent.click(screen.getByText("Save"));
+    await userEvent.click(screen.getByText("Save Changes"));
 
     await waitFor(() => {
       expect(mockUpdate).toHaveBeenCalledWith("site-1", {
@@ -218,7 +214,7 @@ describe("SitesPage", () => {
       expect(screen.getByDisplayValue("Riverside Park")).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByText("Save"));
+    await userEvent.click(screen.getByText("Save Changes"));
 
     await waitFor(() => {
       expect(screen.getByText("Site updated successfully")).toBeInTheDocument();
@@ -239,7 +235,7 @@ describe("SitesPage", () => {
       expect(screen.getByDisplayValue("Riverside Park")).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByText("Save"));
+    await userEvent.click(screen.getByText("Save Changes"));
 
     await waitFor(() => {
       expect(screen.getByText("Update failed")).toBeInTheDocument();
