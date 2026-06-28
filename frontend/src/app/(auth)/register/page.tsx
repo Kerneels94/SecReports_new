@@ -38,6 +38,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 /** Registration page component with Zod-validated form and password match check. */
 export default function RegisterPage() {
   const [registered, setRegistered] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -51,12 +52,13 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setError(null);
-      await authService.register({
+      const res = await authService.register({
         companyName: data.companyName,
         name: data.name,
         email: data.email,
         password: data.password,
       });
+      setSuccessMessage(res.data.message);
       setRegistered(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
@@ -78,7 +80,7 @@ export default function RegisterPage() {
             </div>
             <CardTitle>Check Your Email</CardTitle>
             <p className="mt-1 text-sm text-text-secondary">
-              Account created successfully
+              {successMessage || "Account created successfully"}
             </p>
           </CardHeader>
           <CardContent className="text-center">
