@@ -31,4 +31,6 @@ export const updateGuardingSiteSchema = z.object({
   name: z.string().min(1).max(255).optional(),
   address: z.string().max(500).optional(),
   status: z.enum(["active", "inactive"]).optional(),
+  newGuards: z.array(guardInputSchema).optional(),
+  removeGuardIds: z.array(z.string()).optional(),
 });

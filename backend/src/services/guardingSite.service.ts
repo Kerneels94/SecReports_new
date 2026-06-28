@@ -26,6 +26,8 @@ interface UpdateGuardingSiteParams {
   name?: string;
   address?: string;
   status?: string;
+  newGuards?: GuardInput[];
+  removeGuardIds?: string[];
 }
 
 export const GuardingSiteService = {
@@ -53,50 +55,91 @@ export const GuardingSiteService = {
     return site;
   },
 
-  /** Creates a site and optionally bulk-creates guards in a transaction. */
+  /** Creates a site and optionally bulk-creates guards. */
   async create(params: CreateGuardingSiteParams) {
-    return prisma.$transaction(async (tx) => {
-      const site = await tx.guardingSite.create({
-        data: { companyId: params.companyId, name: params.name, address: params.address },
-      });
+    const site = await prisma.guardingSite.create({
+      data: { companyId: params.companyId, name: params.name, address: params.address },
+    });
 
-      if (params.guards && params.guards.length > 0) {
-        for (const g of params.guards) {
-          const existing = await tx.guard.findFirst({
-            where: { employeeId: g.employeeId, companyId: params.companyId },
-          });
-          if (existing) {
-            throw new ConflictError(
-              `A guard with employee ID ${g.employeeId} already exists`,
-            );
-          }
-
-          await tx.guard.create({
-            data: {
-              companyId: params.companyId,
-              siteId: site.id,
-              name: g.name,
-              surname: g.surname,
-              cellphone: g.cellphone,
-              employeeId: g.employeeId,
-            },
-          });
+    if (params.guards && params.guards.length > 0) {
+      for (const g of params.guards) {
+        const existing = await prisma.guard.findFirst({
+          where: { employeeId: g.employeeId },
+        });
+        if (existing) {
+          throw new ConflictError(
+            `A guard with employee ID ${g.employeeId} already exists`,
+          );
         }
-      }
 
-      return tx.guardingSite.findUnique({
-        where: { id: site.id },
-        include: { _count: { select: { guards: true, patrolReports: true, entryLogs: true } } },
-      });
+        await prisma.guard.create({
+          data: {
+            companyId: params.companyId,
+            siteId: site.id,
+            name: g.name,
+            surname: g.surname,
+            cellphone: g.cellphone,
+            employeeId: g.employeeId,
+          },
+        });
+      }
+    }
+
+    return prisma.guardingSite.findUnique({
+      where: { id: site.id },
+      include: { _count: { select: { guards: true, patrolReports: true, entryLogs: true } } },
     });
   },
 
-  /** Updates a site's name, address, or status. */
+  /** Updates a site's name, address, or status, and optionally adds/removes guards. */
   async update(companyId: string, id: string, params: UpdateGuardingSiteParams) {
     const site = await prisma.guardingSite.findFirst({ where: { id, companyId } });
     if (!site) throw new NotFoundError("Guarding site");
 
-    return prisma.guardingSite.update({ where: { id }, data: params });
+    if (params.removeGuardIds && params.removeGuardIds.length > 0) {
+      await prisma.guard.updateMany({
+        where: { id: { in: params.removeGuardIds }, siteId: id, companyId },
+        data: { siteId: null },
+      });
+    }
+
+    if (params.newGuards && params.newGuards.length > 0) {
+      for (const g of params.newGuards) {
+        const existing = await prisma.guard.findFirst({
+          where: { employeeId: g.employeeId },
+        });
+        if (existing) {
+          throw new ConflictError(
+            `A guard with employee ID ${g.employeeId} already exists`,
+          );
+        }
+
+        await prisma.guard.create({
+          data: {
+            companyId,
+            siteId: id,
+            name: g.name,
+            surname: g.surname,
+            cellphone: g.cellphone,
+            employeeId: g.employeeId,
+          },
+        });
+      }
+    }
+
+    const updateData: Record<string, unknown> = {};
+    if (params.name !== undefined) updateData.name = params.name;
+    if (params.address !== undefined) updateData.address = params.address;
+    if (params.status !== undefined) updateData.status = params.status;
+
+    return prisma.guardingSite.update({
+      where: { id },
+      data: updateData,
+      include: {
+        guards: true,
+        _count: { select: { guards: true, patrolReports: true, entryLogs: true } },
+      },
+    });
   },
 
   /** Deletes a site and cascades to remove related patrol data, entry logs, and unassign guards. */
@@ -104,12 +147,10 @@ export const GuardingSiteService = {
     const site = await prisma.guardingSite.findFirst({ where: { id, companyId } });
     if (!site) throw new NotFoundError("Guarding site");
 
-    await prisma.$transaction(async (tx) => {
-      await tx.guard.updateMany({ where: { siteId: id }, data: { siteId: null } });
-      await tx.patrolCheckpoint.deleteMany({ where: { patrolReport: { siteId: id } } });
-      await tx.patrolReport.deleteMany({ where: { siteId: id } });
-      await tx.entryLog.deleteMany({ where: { siteId: id } });
-      await tx.guardingSite.delete({ where: { id } });
-    });
+    await prisma.guard.updateMany({ where: { siteId: id }, data: { siteId: null } });
+    await prisma.patrolCheckpoint.deleteMany({ where: { patrolReport: { siteId: id } } });
+    await prisma.patrolReport.deleteMany({ where: { siteId: id } });
+    await prisma.entryLog.deleteMany({ where: { siteId: id } });
+    await prisma.guardingSite.delete({ where: { id } });
   },
 };
