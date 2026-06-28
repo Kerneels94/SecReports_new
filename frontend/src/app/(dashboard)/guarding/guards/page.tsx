@@ -105,8 +105,15 @@ export default function GuardsPage() {
     }
   };
 
+  const isFormValid =
+    addForm.name.trim() !== "" &&
+    addForm.surname.trim() !== "" &&
+    addForm.cellphone.trim() !== "" &&
+    addForm.employeeId.trim() !== "";
+
   const handleAddGuard = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isFormValid) return;
     setAddingGuard(true);
     setError(null);
     setSuccess(null);
@@ -155,7 +162,10 @@ export default function GuardsPage() {
           </p>
         </div>
         <button
-          onClick={() => setShowAddForm(!showAddForm)}
+          onClick={() => {
+            setShowAddForm(!showAddForm);
+            if (!showAddForm) setAddForm({ ...emptyForm });
+          }}
           className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
         >
           {showAddForm ? "Cancel" : "Add Guard"}
@@ -239,7 +249,7 @@ export default function GuardsPage() {
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  disabled={addingGuard}
+                  disabled={addingGuard || !isFormValid}
                   className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors disabled:opacity-50"
                 >
                   {addingGuard ? "Adding..." : "Add Guard"}
