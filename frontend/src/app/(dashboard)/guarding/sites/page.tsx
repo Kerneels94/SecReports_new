@@ -210,7 +210,15 @@ export default function SitesPage() {
     }
   };
 
-  const addGuardRow = () => setGuardRows([...guardRows, { ...emptyGuard }]);
+  const addGuardRow = () => {
+    if (
+      guardRows.length > 0 &&
+      (!guardRows[guardRows.length - 1].name.trim() ||
+       !guardRows[guardRows.length - 1].surname.trim() ||
+       !guardRows[guardRows.length - 1].employeeId.trim())
+    ) return;
+    setGuardRows([...guardRows, { ...emptyGuard }]);
+  };
 
   const removeGuardRow = (idx: number) => setGuardRows(guardRows.filter((_, i) => i !== idx));
 
@@ -220,7 +228,15 @@ export default function SitesPage() {
     setGuardRows(updated);
   };
 
-  const addEditGuardRow = () => setEditGuardRows([...editGuardRows, { ...emptyGuard }]);
+  const addEditGuardRow = () => {
+    if (
+      editGuardRows.length > 0 &&
+      (!editGuardRows[editGuardRows.length - 1].name.trim() ||
+       !editGuardRows[editGuardRows.length - 1].surname.trim() ||
+       !editGuardRows[editGuardRows.length - 1].employeeId.trim())
+    ) return;
+    setEditGuardRows([...editGuardRows, { ...emptyGuard }]);
+  };
 
   const removeEditGuardRow = (idx: number) => setEditGuardRows(editGuardRows.filter((_, i) => i !== idx));
 
@@ -314,7 +330,13 @@ export default function SitesPage() {
                   <button
                     type="button"
                     onClick={addGuardRow}
-                    className="text-xs text-primary hover:underline"
+                    disabled={
+                      guardRows.length > 0 &&
+                      (!guardRows[guardRows.length - 1].name.trim() ||
+                       !guardRows[guardRows.length - 1].surname.trim() ||
+                       !guardRows[guardRows.length - 1].employeeId.trim())
+                    }
+                    className="text-xs text-primary hover:underline disabled:text-text-secondary/40 disabled:no-underline disabled:cursor-not-allowed"
                   >
                     + Add Guard
                   </button>
@@ -586,7 +608,13 @@ export default function SitesPage() {
                   <button
                     type="button"
                     onClick={addEditGuardRow}
-                    className="text-xs text-primary hover:underline"
+                    disabled={
+                      editGuardRows.length > 0 &&
+                      (!editGuardRows[editGuardRows.length - 1].name.trim() ||
+                       !editGuardRows[editGuardRows.length - 1].surname.trim() ||
+                       !editGuardRows[editGuardRows.length - 1].employeeId.trim())
+                    }
+                    className="text-xs text-primary hover:underline disabled:text-text-secondary/40 disabled:no-underline disabled:cursor-not-allowed"
                   >
                     + Add Guard
                   </button>
