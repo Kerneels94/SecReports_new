@@ -68,8 +68,11 @@ describe("RegisterPage", () => {
     });
   });
 
-  it("calls register and shows success message", async () => {
-    mockRegister.mockResolvedValue({ success: true, data: {} });
+  it("calls register and shows success message from API", async () => {
+    mockRegister.mockResolvedValue({
+      success: true,
+      data: { message: "Account created. Please check your email to verify your account." },
+    });
     render(<RegisterPage />);
     const user = userEvent.setup();
 
@@ -87,7 +90,25 @@ describe("RegisterPage", () => {
         email: "john@example.com",
         password: "Password1!",
       });
-      expect(screen.getByText(/check your email/i)).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: /check your email/i })).toBeInTheDocument();
+      expect(screen.getByText(/Account created\. Please check your email/i)).toBeInTheDocument();
+    });
+  });
+
+  it("falls back to default success text when no message returned", async () => {
+    mockRegister.mockResolvedValue({ success: true, data: {} });
+    render(<RegisterPage />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText("Company Name"), "Security Corp");
+    await user.type(screen.getByLabelText("Your Name"), "John Doe");
+    await user.type(screen.getByLabelText("Email"), "john@test.com");
+    await user.type(screen.getByLabelText("Password"), "Password1!");
+    await user.type(screen.getByLabelText("Confirm Password"), "Password1!");
+    await user.click(screen.getByRole("button", { name: /create account/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Account created successfully")).toBeInTheDocument();
     });
   });
 
