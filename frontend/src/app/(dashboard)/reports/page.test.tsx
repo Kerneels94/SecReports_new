@@ -91,6 +91,7 @@ describe("ReportsPage", () => {
     });
   });
 
+
   it("renders all incidents table with actions", async () => {
     mockSummary.mockResolvedValue({ data: mockSummaryData });
     mockList.mockResolvedValue({ data: mockListData });
@@ -134,7 +135,8 @@ describe("ReportsPage", () => {
     render(<ReportsPage />);
 
     await waitFor(() => {
-      expect(screen.getAllByText("0").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("0").length).toBeGreaterThanOrEqual(3);
+      expect(screen.getByText("No data available.")).toBeInTheDocument();
       expect(screen.getByText("No incidents found.")).toBeInTheDocument();
     });
   });

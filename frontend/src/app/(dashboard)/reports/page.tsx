@@ -9,6 +9,16 @@ import { EmailReportModal } from "@/components/incidents/EmailReportModal";
 import { reportService, incidentService, exportService } from "@/services";
 import type { Incident } from "@/types";
 
+const statusLabels: Record<string, string> = {
+  draft: "Draft",
+  submitted: "Submitted",
+  under_review: "Under Review",
+  assigned: "Assigned",
+  investigating: "Investigating",
+  resolved: "Resolved",
+  closed: "Closed",
+  rejected: "Rejected",
+};
 export default function ReportsPage() {
   const [summary, setSummary] = useState<{
     total: number;
@@ -25,7 +35,6 @@ export default function ReportsPage() {
   const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(null);
   const [emailIncident, setEmailIncident] = useState<{ id: number; title: string } | null>(null);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
-
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -181,6 +190,60 @@ export default function ReportsPage() {
             )}
           </CardContent>
         </Card>
+        <Card className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent" />
+          <CardContent className="relative">
+            <p className="text-sm text-text-secondary">Statuses</p>
+            <p className="mt-2 text-3xl font-bold text-text">{summary.byStatus.length}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Incidents by Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {summary.byStatus.length === 0 ? (
+              <p className="text-sm text-text-secondary">No data available.</p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {summary.byStatus.map((s) => (
+                  <div key={s.status} className="flex items-center justify-between">
+                    <span className="text-sm text-text-secondary capitalize">{statusLabels[s.status] || s.status.replace("_", " ")}</span>
+                    <span className="text-sm font-semibold text-text">{s._count.id}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>By Type</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-text-secondary">Attempted</span>
+                <span className="text-sm font-semibold text-warning">{summary.attemptedCount}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-text-secondary">Positive</span>
+                <span className="text-sm font-semibold text-success">{summary.positiveCount}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-text-secondary">Other</span>
+                <span className="text-sm font-semibold text-text">{summary.total - summary.attemptedCount - summary.positiveCount}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="flex flex-wrap items-end gap-4">
@@ -227,7 +290,6 @@ export default function ReportsPage() {
           </Button>
         )}
       </div>
-
       <Card className="overflow-hidden">
         <CardHeader>
           <CardTitle>All Incidents</CardTitle>
@@ -245,6 +307,7 @@ export default function ReportsPage() {
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Ref #</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Title</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Type</th>
+
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Reporter</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Date</th>
                     <th className="px-6 py-3.5 text-right font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Actions</th>
@@ -272,6 +335,7 @@ export default function ReportsPage() {
                         </button>
                       </td>
                       <td className="px-6 py-4 text-text-secondary">{incident.type}</td>
+
                       <td className="px-6 py-4 text-text-secondary">{incident.reporter?.name || "-"}</td>
                       <td className="px-6 py-4 text-text-secondary">
                         {new Date(incident.createdAt).toLocaleDateString()}
@@ -366,7 +430,6 @@ export default function ReportsPage() {
           onClose={() => setEmailIncident(null)}
         />
       )}
-
       <Modal
         open={!!batchType}
         onClose={() => setBatchType(null)}
