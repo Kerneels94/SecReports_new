@@ -109,6 +109,9 @@ export const exportService = {
     const params = incidentId ? `?incidentId=${incidentId}` : "";
     return api.downloadBlob(`/export/pdf${params}`);
   },
+  downloadCsv: () => api.downloadBlob("/export/csv"),
+  emailReport: (incidentId: number, email: string, format: "csv" | "pdf") =>
+    api.post<{ message: string }>("/reports/email", { incidentId, email, format }),
 };
 
 /** Manual user-creation and update endpoints (admin). */

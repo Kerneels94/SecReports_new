@@ -6,6 +6,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import PDFDocument from "pdfkit";
 import { prisma } from "../lib/db";
 import { SubscriptionService } from "../services/subscription.service";
+import { sendMail } from "../services/email.service";
 
 interface IncidentForExport {
   referenceNumber: string;
@@ -190,5 +191,98 @@ export const ExportController = {
     reply.header("Content-Type", "application/pdf");
     reply.header("Content-Disposition", `attachment; filename=incident${incidents.length === 1 ? "" : "s"}.pdf`);
     reply.code(200).send(pdfBuffer);
+  },
+
+  /** Email an incident report as a CSV or PDF attachment to a given email address. */
+  async email(request: FastifyRequest, reply: FastifyReply) {
+    await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
+
+    const { incidentId, email, format } = request.body as { incidentId: string; email: string; format: "csv" | "pdf" };
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Invalid email address" } });
+      return;
+    }
+
+    if (format !== "csv" && format !== "pdf") {
+      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Format must be 'csv' or 'pdf'" } });
+      return;
+    }
+
+    const incident = await prisma.incident.findFirst({
+      where: { id: incidentId, companyId: request.user!.companyId },
+      include: { reporter: { select: { name: true } } },
+    });
+
+    if (!incident) {
+      reply.code(404).send({ success: false, error: { code: "NOT_FOUND", message: "Incident not found" } });
+      return;
+    }
+
+    const incidentForExport = incident as IncidentForExport;
+
+    if (format === "pdf") {
+      const pdfBuffer = await generatePdf([incidentForExport]);
+      const result = await sendMail({
+        to: email,
+        subject: "report",
+        data: {
+          name: email,
+          incidentTitle: incident.title,
+          referenceNumber: incident.referenceNumber,
+        },
+        attachments: [{ filename: `incident-${incidentId}.pdf`, content: pdfBuffer }],
+      });
+
+      if (result.error) {
+        reply.code(500).send({ success: false, error: { code: "EMAIL_FAILED", message: "Failed to send email" } });
+        return;
+      }
+
+      reply.code(200).send({ success: true, data: { message: "Report sent successfully" } });
+    } else {
+      const headers = [
+        "Reference", "Title", "Type", "Status",
+        "Date", "Location", "Operator", "Dispatcher", "Reporter", "Created",
+      ];
+
+      function sanitizeCsv(val: string): string {
+        if (/^[=+\-@]/.test(val)) return `" ${val.replace(/"/g, '""')}"`;
+        return `"${val.replace(/"/g, '""')}"`;
+      }
+
+      const row = [
+        sanitizeCsv(incident.referenceNumber),
+        sanitizeCsv(incident.title),
+        sanitizeCsv(incident.type),
+        sanitizeCsv(incident.status),
+        sanitizeCsv(incident.incidentDate.toISOString().split("T")[0]),
+        sanitizeCsv(incident.location || ""),
+        sanitizeCsv(incident.operatorName || ""),
+        sanitizeCsv(incident.dispatcher || ""),
+        sanitizeCsv(incident.reporter?.name || ""),
+        sanitizeCsv(incident.createdAt.toISOString().split("T")[0]),
+      ];
+
+      const csv = [headers.join(","), row.join(",")].join("\n");
+
+      const result = await sendMail({
+        to: email,
+        subject: "report",
+        data: {
+          name: email,
+          incidentTitle: incident.title,
+          referenceNumber: incident.referenceNumber,
+        },
+        attachments: [{ filename: `incident-${incidentId}.csv`, content: csv }],
+      });
+
+      if (result.error) {
+        reply.code(500).send({ success: false, error: { code: "EMAIL_FAILED", message: "Failed to send email" } });
+        return;
+      }
+
+      reply.code(200).send({ success: true, data: { message: "Report sent successfully" } });
+    }
   },
 };

@@ -1,11 +1,68 @@
 /**
- * Email sending service using Resend. Handles transactional emails for registration,
- * invoices, cancellations, suspensions, and reports using dynamic template imports.
+ * Email sending service using Resend or SMTP (nodemailer) as a fallback.
+ * Handles transactional emails for registration, invoices, cancellations,
+ * suspensions, and reports using dynamic template imports.
  */
 import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const useResend = RESEND_API_KEY && RESEND_API_KEY !== "<your-resend-api-key>";
 const FROM_EMAIL = process.env.FROM_EMAIL || "onboarding@resend.dev";
+
+let resend: Resend | null = null;
+let transporter: nodemailer.Transporter | null = null;
+
+if (useResend) {
+  resend = new Resend(RESEND_API_KEY);
+} else {
+  transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || "smtp.ethereal.email",
+    port: parseInt(process.env.SMTP_PORT || "587", 10),
+    secure: process.env.SMTP_SECURE === "true",
+    auth: {
+      user: process.env.SMTP_USER || "",
+      pass: process.env.SMTP_PASS || "",
+    },
+  });
+}
+
+async function sendEmail({
+  from,
+  to,
+  subject,
+  html,
+  attachments,
+}: {
+  from: string;
+  to: string[];
+  subject: string;
+  html: string;
+  attachments?: { filename: string; content: string | Buffer }[];
+}) {
+  if (resend) {
+    return resend.emails.send({ from, to, subject, html, attachments });
+  }
+
+  try {
+    const info = await transporter!.sendMail({
+      from,
+      to,
+      subject,
+      html,
+      attachments,
+    });
+    return { data: info };
+  } catch (error) {
+    console.error(error);
+    return { error };
+  }
+}
+
+interface Attachment {
+  filename: string;
+  content: string | Buffer;
+}
 
 /** Parameters for sending a transactional email. */
 interface SendMailParams {
@@ -13,6 +70,7 @@ interface SendMailParams {
   subject: "register" | "invoice" | "cancellation" | "suspention" | "report";
   data?: Record<string, unknown>;
   from?: string;
+  attachments?: Attachment[];
 }
 
 const subjectLabels: Record<string, string> = {
@@ -29,6 +87,7 @@ export async function sendMail({
   subject,
   data = {},
   from,
+  attachments,
 }: SendMailParams) {
   try {
     let html = "";
@@ -78,11 +137,12 @@ export async function sendMail({
         html = "<p>No content available.</p>";
     }
 
-    const { data: res, error } = await resend.emails.send({
+    const { data: res, error } = await sendEmail({
       from: from || FROM_EMAIL,
       to: [to],
       subject: subjectLabels[subject] || subject,
       html,
+      attachments,
     });
 
     if (error) {
@@ -107,7 +167,7 @@ export async function sendVerificationEmail(to: string, name: string, verifyLink
   const { default: template } = await import("../templates/verify-email");
   const html = template(name, verifyLink);
 
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await sendEmail({
     from: FROM_EMAIL,
     to: [to],
     subject: "Verify Your SecReports Account",
@@ -131,7 +191,7 @@ export async function sendPasswordResetEmail(
   const { default: template } = await import("../templates/reset-password");
   const html = template(name, resetLink);
 
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await sendEmail({
     from: FROM_EMAIL,
     to: [to],
     subject: "Reset Your SecReports Password",
@@ -151,7 +211,7 @@ export async function sendPasswordChangedEmail(to: string, name: string) {
   const { default: template } = await import("../templates/password-changed");
   const html = template(name);
 
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await sendEmail({
     from: FROM_EMAIL,
     to: [to],
     subject: "Your SecReports Password Has Been Changed",
