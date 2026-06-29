@@ -101,6 +101,8 @@ export const actionService = {
 /** Dashboard report-summary endpoints. */
 export const reportService = {
   summary: () => api.get<ReportSummary>("/reports/summary"),
+  batchEmail: (email: string, type: string, format: "csv" | "pdf") =>
+    api.post<{ message: string }>("/reports/batch-email", { email, type, format }),
 };
 
 /** Export/download endpoints. */

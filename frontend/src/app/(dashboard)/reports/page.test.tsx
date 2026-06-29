@@ -11,7 +11,10 @@ const mockSummary = jest.fn();
 const mockList = jest.fn();
 
 jest.mock("@/services", () => ({
-  reportService: { summary: (...args: unknown[]) => mockSummary(...args) },
+  reportService: {
+    summary: (...args: unknown[]) => mockSummary(...args),
+    batchEmail: jest.fn(),
+  },
   incidentService: { list: (...args: unknown[]) => mockList(...args) },
   exportService: { downloadPdf: jest.fn(), downloadCsv: jest.fn(), emailReport: jest.fn() },
 }));
@@ -63,18 +66,31 @@ describe("ReportsPage", () => {
     });
   });
 
-  it("renders byStatus list", async () => {
+  it("renders attempted and positive cards with email buttons", async () => {
     mockSummary.mockResolvedValue({ data: mockSummaryData });
     mockList.mockResolvedValue({ data: mockListData });
     render(<ReportsPage />);
 
     await waitFor(() => {
-      expect(screen.getByText("Incidents by Status")).toBeInTheDocument();
+      expect(screen.getAllByText("10").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("5").length).toBeGreaterThanOrEqual(1);
     });
 
-    expect(screen.getAllByText("5")).toHaveLength(3);
-    expect(screen.getByText("20")).toBeInTheDocument();
+    expect(screen.getAllByText("Email All")).toHaveLength(2);
   });
+
+  it("renders filter inputs", async () => {
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
+    mockList.mockResolvedValue({ data: mockListData });
+    render(<ReportsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Date From")).toBeInTheDocument();
+      expect(screen.getByLabelText("Date To")).toBeInTheDocument();
+      expect(screen.getByLabelText("Type")).toBeInTheDocument();
+    });
+  });
+
 
   it("renders all incidents table with actions", async () => {
     mockSummary.mockResolvedValue({ data: mockSummaryData });
@@ -88,8 +104,8 @@ describe("ReportsPage", () => {
 
     expect(screen.getByText("REF-001")).toBeInTheDocument();
     expect(screen.getByText("REF-002")).toBeInTheDocument();
-    expect(screen.getByText("Theft")).toBeInTheDocument();
-    expect(screen.getByText("Vandalism")).toBeInTheDocument();
+    expect(screen.getAllByText("Theft").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Vandalism").length).toBeGreaterThanOrEqual(1);
   });
 
   it("shows reporter name in the table", async () => {

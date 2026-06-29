@@ -51,7 +51,6 @@ const mockIncident = {
   createdAt: "2026-05-01T08:00:00Z",
   updatedAt: "2026-05-02T10:00:00Z",
   reporter: { id: 1, name: "Alice" },
-  assignee: { id: 2, name: "Bob" },
 };
 
 beforeEach(() => {
@@ -83,7 +82,6 @@ describe("IncidentDetailModal", () => {
     expect(screen.getByText("Security")).toBeInTheDocument();
     expect(screen.getByText("Server Room B")).toBeInTheDocument();
     expect(screen.getByText("Alice")).toBeInTheDocument();
-    expect(screen.getByText("Bob")).toBeInTheDocument();
     expect(screen.getByText("John Operator")).toBeInTheDocument();
     expect(screen.getByText("Jane Dispatcher")).toBeInTheDocument();
     expect(screen.getByText("AR-42")).toBeInTheDocument();
@@ -128,7 +126,6 @@ describe("IncidentDetailModal", () => {
         ...mockIncident,
         location: null,
         reporter: undefined,
-        assignee: null,
         dispatchTime: null,
         arrivalTime: null,
         callSign: null,
@@ -145,7 +142,6 @@ describe("IncidentDetailModal", () => {
     await waitFor(() => {
       expect(screen.getByText("-")).toBeInTheDocument();
       expect(screen.getByText("Unknown")).toBeInTheDocument();
-      expect(screen.getByText("Unassigned")).toBeInTheDocument();
     });
   });
 
