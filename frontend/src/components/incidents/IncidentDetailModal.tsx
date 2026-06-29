@@ -243,9 +243,6 @@ export function IncidentDetailModal({
             <DetailRow label="Reporter">
               {incident.reporter?.name || "Unknown"}
             </DetailRow>
-            <DetailRow label="Assignee">
-              {incident.assignee?.name || "Unassigned"}
-            </DetailRow>
             <DetailRow label="Created">
               {new Date(incident.createdAt).toLocaleString("en-US", {
                 year: "numeric",

@@ -134,7 +134,7 @@ export const ExportController = {
     });
 
     const headers = [
-      "Reference", "Title", "Type", "Status",
+      "Reference", "Title", "Type", "Report",
       "Date", "Location", "Operator", "Dispatcher", "Reporter", "Created",
     ];
 
@@ -147,7 +147,7 @@ export const ExportController = {
       sanitizeCsv(i.referenceNumber),
       sanitizeCsv(i.title),
       sanitizeCsv(i.type),
-      sanitizeCsv(i.status),
+      sanitizeCsv(""),
       sanitizeCsv(i.incidentDate.toISOString().split("T")[0]),
       sanitizeCsv(i.location || ""),
       sanitizeCsv(i.operatorName || ""),
@@ -191,6 +191,112 @@ export const ExportController = {
     reply.header("Content-Type", "application/pdf");
     reply.header("Content-Disposition", `attachment; filename=incident${incidents.length === 1 ? "" : "s"}.pdf`);
     reply.code(200).send(pdfBuffer);
+  },
+
+  /** Email all incidents matching a type pattern (attempted/positive) as a batch CSV or PDF attachment. */
+  async batchEmail(request: FastifyRequest, reply: FastifyReply) {
+    await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
+
+    const { email, type, format } = request.body as { email: string; type: string; format: "csv" | "pdf" };
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Invalid email address" } });
+      return;
+    }
+
+    if (type !== "attempted" && type !== "positive") {
+      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Type must be 'attempted' or 'positive'" } });
+      return;
+    }
+
+    if (format !== "csv" && format !== "pdf") {
+      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Format must be 'csv' or 'pdf'" } });
+      return;
+    }
+
+    const incidents = await prisma.incident.findMany({
+      where: {
+        companyId: request.user!.companyId,
+        type: { contains: type, mode: "insensitive" },
+      },
+      include: { reporter: { select: { name: true } } },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (incidents.length === 0) {
+      reply.code(404).send({ success: false, error: { code: "NOT_FOUND", message: `No ${type} incidents found` } });
+      return;
+    }
+
+    if (format === "pdf") {
+      let pdfBuffer: Buffer;
+      try {
+        pdfBuffer = await generatePdf(incidents as IncidentForExport[]);
+      } catch {
+        reply.code(500).send({ success: false, error: { code: "PDF_FAILED", message: "Failed to generate PDF" } });
+        return;
+      }
+      const result = await sendMail({
+        to: email,
+        subject: "report",
+        data: {
+          name: email,
+          incidentTitle: `${incidents.length} ${type} incidents`,
+          referenceNumber: "BATCH",
+        },
+        attachments: [{ filename: `${type}-incidents.pdf`, content: pdfBuffer }],
+      });
+
+      if (result.error) {
+        reply.code(500).send({ success: false, error: { code: "EMAIL_FAILED", message: "Failed to send email" } });
+        return;
+      }
+
+      reply.code(200).send({ success: true, data: { message: `Report for ${incidents.length} ${type} incidents sent successfully` } });
+    } else {
+      const headers = [
+        "Reference", "Title", "Type", "Report",
+        "Date", "Location", "Operator", "Dispatcher", "Reporter", "Created",
+      ];
+
+      function sanitizeCsv(val: string): string {
+        if (/^[=+\-@]/.test(val)) return `" ${val.replace(/"/g, '""')}"`;
+        return `"${val.replace(/"/g, '""')}"`;
+      }
+
+      const rows = incidents.map((i) => [
+        sanitizeCsv(i.referenceNumber),
+        sanitizeCsv(i.title),
+        sanitizeCsv(i.type),
+        sanitizeCsv(""),
+        sanitizeCsv(i.incidentDate.toISOString().split("T")[0]),
+        sanitizeCsv(i.location || ""),
+        sanitizeCsv(i.operatorName || ""),
+        sanitizeCsv(i.dispatcher || ""),
+        sanitizeCsv(i.reporter?.name || ""),
+        sanitizeCsv(i.createdAt.toISOString().split("T")[0]),
+      ]);
+
+      const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+
+      const result = await sendMail({
+        to: email,
+        subject: "report",
+        data: {
+          name: email,
+          incidentTitle: `${incidents.length} ${type} incidents`,
+          referenceNumber: "BATCH",
+        },
+        attachments: [{ filename: `${type}-incidents.csv`, content: csv }],
+      });
+
+      if (result.error) {
+        reply.code(500).send({ success: false, error: { code: "EMAIL_FAILED", message: "Failed to send email" } });
+        return;
+      }
+
+      reply.code(200).send({ success: true, data: { message: `Report for ${incidents.length} ${type} incidents sent successfully` } });
+    }
   },
 
   /** Email an incident report as a CSV or PDF attachment to a given email address. */
@@ -242,7 +348,7 @@ export const ExportController = {
       reply.code(200).send({ success: true, data: { message: "Report sent successfully" } });
     } else {
       const headers = [
-        "Reference", "Title", "Type", "Status",
+        "Reference", "Title", "Type", "Report",
         "Date", "Location", "Operator", "Dispatcher", "Reporter", "Created",
       ];
 
@@ -255,7 +361,7 @@ export const ExportController = {
         sanitizeCsv(incident.referenceNumber),
         sanitizeCsv(incident.title),
         sanitizeCsv(incident.type),
-        sanitizeCsv(incident.status),
+        sanitizeCsv(""),
         sanitizeCsv(incident.incidentDate.toISOString().split("T")[0]),
         sanitizeCsv(incident.location || ""),
         sanitizeCsv(incident.operatorName || ""),
