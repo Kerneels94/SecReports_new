@@ -92,7 +92,7 @@ export function IncidentDetailModal({
       open={open}
       onClose={onClose}
       title=""
-      className="w-[70%] max-h-[85vh] overflow-y-auto"
+      className="max-w-4xl w-full max-h-[85vh] overflow-y-auto"
     >
       <button
         onClick={onClose}
