@@ -242,9 +242,6 @@ export default function ReportsPage() {
           </CardContent>
         </Card>
       </div>
-          </CardContent>
-        </Card>
-      </div>
 
       <div className="flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1.5">

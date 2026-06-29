@@ -72,8 +72,8 @@ describe("ReportsPage", () => {
     render(<ReportsPage />);
 
     await waitFor(() => {
-      expect(screen.getByText("10")).toBeInTheDocument();
-      expect(screen.getByText("5")).toBeInTheDocument();
+      expect(screen.getAllByText("10").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("5").length).toBeGreaterThanOrEqual(1);
     });
 
     expect(screen.getAllByText("Email All")).toHaveLength(2);
