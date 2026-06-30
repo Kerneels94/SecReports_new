@@ -10,6 +10,10 @@ jest.mock("@/hooks/useDashboardMode", () => ({
   useDashboardMode: () => ({ mode: "incidents", setMode: jest.fn() }),
 }));
 
+jest.mock("@/hooks/useAuth", () => ({
+  useAuth: () => ({ user: { id: 1, role: "owner", name: "Admin", email: "admin@test.com", status: "active", companyId: 1 } }),
+}));
+
 jest.mock("next/link", () => {
   const MockLink = ({ children, href, ...props }: { children: React.ReactNode; href: string }) => (
     <a href={href} {...props}>{children}</a>
