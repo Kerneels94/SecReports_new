@@ -67,7 +67,7 @@ interface Attachment {
 /** Parameters for sending a transactional email. */
 interface SendMailParams {
   to: string;
-  subject: "register" | "invoice" | "cancellation" | "suspention" | "report";
+  subject: "register" | "invoice" | "cancellation" | "suspention" | "report" | "trial_ending";
   data?: Record<string, unknown>;
   from?: string;
   attachments?: Attachment[];
@@ -79,6 +79,7 @@ const subjectLabels: Record<string, string> = {
   cancellation: "Subscription Cancelled",
   suspention: "Account Suspended",
   report: "New Incident Report",
+  trial_ending: "Your SecReports Free Trial Is Ending Soon",
 };
 
 /** Builds HTML from lazy-loaded templates by subject type and sends via Resend. */
@@ -130,6 +131,14 @@ export async function sendMail({
           incidentTitle: (data.incidentTitle as string) || "Incident Report",
           referenceNumber: (data.referenceNumber as string) || "N/A",
           reportLink: data.reportLink as string | undefined,
+        });
+        break;
+      }
+      case "trial_ending": {
+        const { default: template } = await import("../templates/trial-ending");
+        html = template({
+          name: (data.name as string) || "there",
+          daysRemaining: (data.daysRemaining as number) || 2,
         });
         break;
       }

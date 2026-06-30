@@ -329,10 +329,6 @@ export type IncidentWhereInput = {
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   reporter?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   assignedInvestigator?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  people?: Prisma.IncidentPersonListRelationFilter
-  comments?: Prisma.CommentListRelationFilter
-  investigation?: Prisma.XOR<Prisma.InvestigationNullableScalarRelationFilter, Prisma.InvestigationWhereInput> | null
-  correctiveActions?: Prisma.CorrectiveActionListRelationFilter
 }
 
 export type IncidentOrderByWithRelationInput = {
@@ -362,10 +358,6 @@ export type IncidentOrderByWithRelationInput = {
   company?: Prisma.CompanyOrderByWithRelationInput
   reporter?: Prisma.UserOrderByWithRelationInput
   assignedInvestigator?: Prisma.UserOrderByWithRelationInput
-  people?: Prisma.IncidentPersonOrderByRelationAggregateInput
-  comments?: Prisma.CommentOrderByRelationAggregateInput
-  investigation?: Prisma.InvestigationOrderByWithRelationInput
-  correctiveActions?: Prisma.CorrectiveActionOrderByRelationAggregateInput
 }
 
 export type IncidentWhereUniqueInput = Prisma.AtLeast<{
@@ -398,10 +390,6 @@ export type IncidentWhereUniqueInput = Prisma.AtLeast<{
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   reporter?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   assignedInvestigator?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  people?: Prisma.IncidentPersonListRelationFilter
-  comments?: Prisma.CommentListRelationFilter
-  investigation?: Prisma.XOR<Prisma.InvestigationNullableScalarRelationFilter, Prisma.InvestigationWhereInput> | null
-  correctiveActions?: Prisma.CorrectiveActionListRelationFilter
 }, "id" | "referenceNumber">
 
 export type IncidentOrderByWithAggregationInput = {
@@ -486,10 +474,6 @@ export type IncidentCreateInput = {
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
   reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
   assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
-  people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentUncheckedCreateInput = {
@@ -516,10 +500,6 @@ export type IncidentUncheckedCreateInput = {
   assignedTo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentUpdateInput = {
@@ -545,10 +525,6 @@ export type IncidentUpdateInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
   reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
   assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
-  people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentUncheckedUpdateInput = {
@@ -574,10 +550,6 @@ export type IncidentUncheckedUpdateInput = {
   assignedTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentCreateManyInput = {
@@ -741,11 +713,6 @@ export type IncidentMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type IncidentScalarRelationFilter = {
-  is?: Prisma.IncidentWhereInput
-  isNot?: Prisma.IncidentWhereInput
-}
-
 export type IncidentCreateNestedManyWithoutCompanyInput = {
   create?: Prisma.XOR<Prisma.IncidentCreateWithoutCompanyInput, Prisma.IncidentUncheckedCreateWithoutCompanyInput> | Prisma.IncidentCreateWithoutCompanyInput[] | Prisma.IncidentUncheckedCreateWithoutCompanyInput[]
   connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutCompanyInput | Prisma.IncidentCreateOrConnectWithoutCompanyInput[]
@@ -872,62 +839,6 @@ export type IncidentUncheckedUpdateManyWithoutAssignedInvestigatorNestedInput = 
   deleteMany?: Prisma.IncidentScalarWhereInput | Prisma.IncidentScalarWhereInput[]
 }
 
-export type IncidentCreateNestedOneWithoutPeopleInput = {
-  create?: Prisma.XOR<Prisma.IncidentCreateWithoutPeopleInput, Prisma.IncidentUncheckedCreateWithoutPeopleInput>
-  connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutPeopleInput
-  connect?: Prisma.IncidentWhereUniqueInput
-}
-
-export type IncidentUpdateOneRequiredWithoutPeopleNestedInput = {
-  create?: Prisma.XOR<Prisma.IncidentCreateWithoutPeopleInput, Prisma.IncidentUncheckedCreateWithoutPeopleInput>
-  connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutPeopleInput
-  upsert?: Prisma.IncidentUpsertWithoutPeopleInput
-  connect?: Prisma.IncidentWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.IncidentUpdateToOneWithWhereWithoutPeopleInput, Prisma.IncidentUpdateWithoutPeopleInput>, Prisma.IncidentUncheckedUpdateWithoutPeopleInput>
-}
-
-export type IncidentCreateNestedOneWithoutCommentsInput = {
-  create?: Prisma.XOR<Prisma.IncidentCreateWithoutCommentsInput, Prisma.IncidentUncheckedCreateWithoutCommentsInput>
-  connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutCommentsInput
-  connect?: Prisma.IncidentWhereUniqueInput
-}
-
-export type IncidentUpdateOneRequiredWithoutCommentsNestedInput = {
-  create?: Prisma.XOR<Prisma.IncidentCreateWithoutCommentsInput, Prisma.IncidentUncheckedCreateWithoutCommentsInput>
-  connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutCommentsInput
-  upsert?: Prisma.IncidentUpsertWithoutCommentsInput
-  connect?: Prisma.IncidentWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.IncidentUpdateToOneWithWhereWithoutCommentsInput, Prisma.IncidentUpdateWithoutCommentsInput>, Prisma.IncidentUncheckedUpdateWithoutCommentsInput>
-}
-
-export type IncidentCreateNestedOneWithoutInvestigationInput = {
-  create?: Prisma.XOR<Prisma.IncidentCreateWithoutInvestigationInput, Prisma.IncidentUncheckedCreateWithoutInvestigationInput>
-  connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutInvestigationInput
-  connect?: Prisma.IncidentWhereUniqueInput
-}
-
-export type IncidentUpdateOneRequiredWithoutInvestigationNestedInput = {
-  create?: Prisma.XOR<Prisma.IncidentCreateWithoutInvestigationInput, Prisma.IncidentUncheckedCreateWithoutInvestigationInput>
-  connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutInvestigationInput
-  upsert?: Prisma.IncidentUpsertWithoutInvestigationInput
-  connect?: Prisma.IncidentWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.IncidentUpdateToOneWithWhereWithoutInvestigationInput, Prisma.IncidentUpdateWithoutInvestigationInput>, Prisma.IncidentUncheckedUpdateWithoutInvestigationInput>
-}
-
-export type IncidentCreateNestedOneWithoutCorrectiveActionsInput = {
-  create?: Prisma.XOR<Prisma.IncidentCreateWithoutCorrectiveActionsInput, Prisma.IncidentUncheckedCreateWithoutCorrectiveActionsInput>
-  connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutCorrectiveActionsInput
-  connect?: Prisma.IncidentWhereUniqueInput
-}
-
-export type IncidentUpdateOneRequiredWithoutCorrectiveActionsNestedInput = {
-  create?: Prisma.XOR<Prisma.IncidentCreateWithoutCorrectiveActionsInput, Prisma.IncidentUncheckedCreateWithoutCorrectiveActionsInput>
-  connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutCorrectiveActionsInput
-  upsert?: Prisma.IncidentUpsertWithoutCorrectiveActionsInput
-  connect?: Prisma.IncidentWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.IncidentUpdateToOneWithWhereWithoutCorrectiveActionsInput, Prisma.IncidentUpdateWithoutCorrectiveActionsInput>, Prisma.IncidentUncheckedUpdateWithoutCorrectiveActionsInput>
-}
-
 export type IncidentCreateWithoutCompanyInput = {
   id?: string
   referenceNumber: string
@@ -951,10 +862,6 @@ export type IncidentCreateWithoutCompanyInput = {
   updatedAt?: Date | string
   reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
   assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
-  people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentUncheckedCreateWithoutCompanyInput = {
@@ -980,10 +887,6 @@ export type IncidentUncheckedCreateWithoutCompanyInput = {
   assignedTo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentCreateOrConnectWithoutCompanyInput = {
@@ -1063,10 +966,6 @@ export type IncidentCreateWithoutReporterInput = {
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
   assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
-  people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentUncheckedCreateWithoutReporterInput = {
@@ -1092,10 +991,6 @@ export type IncidentUncheckedCreateWithoutReporterInput = {
   assignedTo?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentCreateOrConnectWithoutReporterInput = {
@@ -1130,10 +1025,6 @@ export type IncidentCreateWithoutAssignedInvestigatorInput = {
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
   reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
-  people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentUncheckedCreateWithoutAssignedInvestigatorInput = {
@@ -1159,10 +1050,6 @@ export type IncidentUncheckedCreateWithoutAssignedInvestigatorInput = {
   reporterId: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentCreateOrConnectWithoutAssignedInvestigatorInput = {
@@ -1204,526 +1091,6 @@ export type IncidentUpdateWithWhereUniqueWithoutAssignedInvestigatorInput = {
 export type IncidentUpdateManyWithWhereWithoutAssignedInvestigatorInput = {
   where: Prisma.IncidentScalarWhereInput
   data: Prisma.XOR<Prisma.IncidentUpdateManyMutationInput, Prisma.IncidentUncheckedUpdateManyWithoutAssignedInvestigatorInput>
-}
-
-export type IncidentCreateWithoutPeopleInput = {
-  id?: string
-  referenceNumber: string
-  title: string
-  description: string
-  type: string
-  status?: string
-  incidentDate: Date | string
-  location?: string | null
-  operatorName: string
-  dispatcher: string
-  dispatchTime?: Date | string | null
-  arrivalTime?: Date | string | null
-  callSign?: string | null
-  propertyAddress?: string | null
-  clientName?: string | null
-  clientCode?: string | null
-  businessOrComplex?: string | null
-  sapsReference?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
-  reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
-  assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
-  comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
-}
-
-export type IncidentUncheckedCreateWithoutPeopleInput = {
-  id?: string
-  companyId: string
-  referenceNumber: string
-  title: string
-  description: string
-  type: string
-  status?: string
-  incidentDate: Date | string
-  location?: string | null
-  operatorName: string
-  dispatcher: string
-  dispatchTime?: Date | string | null
-  arrivalTime?: Date | string | null
-  callSign?: string | null
-  propertyAddress?: string | null
-  clientName?: string | null
-  clientCode?: string | null
-  businessOrComplex?: string | null
-  sapsReference?: string | null
-  reporterId: string
-  assignedTo?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
-}
-
-export type IncidentCreateOrConnectWithoutPeopleInput = {
-  where: Prisma.IncidentWhereUniqueInput
-  create: Prisma.XOR<Prisma.IncidentCreateWithoutPeopleInput, Prisma.IncidentUncheckedCreateWithoutPeopleInput>
-}
-
-export type IncidentUpsertWithoutPeopleInput = {
-  update: Prisma.XOR<Prisma.IncidentUpdateWithoutPeopleInput, Prisma.IncidentUncheckedUpdateWithoutPeopleInput>
-  create: Prisma.XOR<Prisma.IncidentCreateWithoutPeopleInput, Prisma.IncidentUncheckedCreateWithoutPeopleInput>
-  where?: Prisma.IncidentWhereInput
-}
-
-export type IncidentUpdateToOneWithWhereWithoutPeopleInput = {
-  where?: Prisma.IncidentWhereInput
-  data: Prisma.XOR<Prisma.IncidentUpdateWithoutPeopleInput, Prisma.IncidentUncheckedUpdateWithoutPeopleInput>
-}
-
-export type IncidentUpdateWithoutPeopleInput = {
-  referenceNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
-  reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
-  assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
-  comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
-}
-
-export type IncidentUncheckedUpdateWithoutPeopleInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
-  referenceNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reporterId?: Prisma.StringFieldUpdateOperationsInput | string
-  assignedTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
-}
-
-export type IncidentCreateWithoutCommentsInput = {
-  id?: string
-  referenceNumber: string
-  title: string
-  description: string
-  type: string
-  status?: string
-  incidentDate: Date | string
-  location?: string | null
-  operatorName: string
-  dispatcher: string
-  dispatchTime?: Date | string | null
-  arrivalTime?: Date | string | null
-  callSign?: string | null
-  propertyAddress?: string | null
-  clientName?: string | null
-  clientCode?: string | null
-  businessOrComplex?: string | null
-  sapsReference?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
-  reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
-  assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
-  people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
-}
-
-export type IncidentUncheckedCreateWithoutCommentsInput = {
-  id?: string
-  companyId: string
-  referenceNumber: string
-  title: string
-  description: string
-  type: string
-  status?: string
-  incidentDate: Date | string
-  location?: string | null
-  operatorName: string
-  dispatcher: string
-  dispatchTime?: Date | string | null
-  arrivalTime?: Date | string | null
-  callSign?: string | null
-  propertyAddress?: string | null
-  clientName?: string | null
-  clientCode?: string | null
-  businessOrComplex?: string | null
-  sapsReference?: string | null
-  reporterId: string
-  assignedTo?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
-}
-
-export type IncidentCreateOrConnectWithoutCommentsInput = {
-  where: Prisma.IncidentWhereUniqueInput
-  create: Prisma.XOR<Prisma.IncidentCreateWithoutCommentsInput, Prisma.IncidentUncheckedCreateWithoutCommentsInput>
-}
-
-export type IncidentUpsertWithoutCommentsInput = {
-  update: Prisma.XOR<Prisma.IncidentUpdateWithoutCommentsInput, Prisma.IncidentUncheckedUpdateWithoutCommentsInput>
-  create: Prisma.XOR<Prisma.IncidentCreateWithoutCommentsInput, Prisma.IncidentUncheckedCreateWithoutCommentsInput>
-  where?: Prisma.IncidentWhereInput
-}
-
-export type IncidentUpdateToOneWithWhereWithoutCommentsInput = {
-  where?: Prisma.IncidentWhereInput
-  data: Prisma.XOR<Prisma.IncidentUpdateWithoutCommentsInput, Prisma.IncidentUncheckedUpdateWithoutCommentsInput>
-}
-
-export type IncidentUpdateWithoutCommentsInput = {
-  referenceNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
-  reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
-  assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
-  people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
-}
-
-export type IncidentUncheckedUpdateWithoutCommentsInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
-  referenceNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reporterId?: Prisma.StringFieldUpdateOperationsInput | string
-  assignedTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
-}
-
-export type IncidentCreateWithoutInvestigationInput = {
-  id?: string
-  referenceNumber: string
-  title: string
-  description: string
-  type: string
-  status?: string
-  incidentDate: Date | string
-  location?: string | null
-  operatorName: string
-  dispatcher: string
-  dispatchTime?: Date | string | null
-  arrivalTime?: Date | string | null
-  callSign?: string | null
-  propertyAddress?: string | null
-  clientName?: string | null
-  clientCode?: string | null
-  businessOrComplex?: string | null
-  sapsReference?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
-  reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
-  assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
-  people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionCreateNestedManyWithoutIncidentInput
-}
-
-export type IncidentUncheckedCreateWithoutInvestigationInput = {
-  id?: string
-  companyId: string
-  referenceNumber: string
-  title: string
-  description: string
-  type: string
-  status?: string
-  incidentDate: Date | string
-  location?: string | null
-  operatorName: string
-  dispatcher: string
-  dispatchTime?: Date | string | null
-  arrivalTime?: Date | string | null
-  callSign?: string | null
-  propertyAddress?: string | null
-  clientName?: string | null
-  clientCode?: string | null
-  businessOrComplex?: string | null
-  sapsReference?: string | null
-  reporterId: string
-  assignedTo?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedCreateNestedManyWithoutIncidentInput
-}
-
-export type IncidentCreateOrConnectWithoutInvestigationInput = {
-  where: Prisma.IncidentWhereUniqueInput
-  create: Prisma.XOR<Prisma.IncidentCreateWithoutInvestigationInput, Prisma.IncidentUncheckedCreateWithoutInvestigationInput>
-}
-
-export type IncidentUpsertWithoutInvestigationInput = {
-  update: Prisma.XOR<Prisma.IncidentUpdateWithoutInvestigationInput, Prisma.IncidentUncheckedUpdateWithoutInvestigationInput>
-  create: Prisma.XOR<Prisma.IncidentCreateWithoutInvestigationInput, Prisma.IncidentUncheckedCreateWithoutInvestigationInput>
-  where?: Prisma.IncidentWhereInput
-}
-
-export type IncidentUpdateToOneWithWhereWithoutInvestigationInput = {
-  where?: Prisma.IncidentWhereInput
-  data: Prisma.XOR<Prisma.IncidentUpdateWithoutInvestigationInput, Prisma.IncidentUncheckedUpdateWithoutInvestigationInput>
-}
-
-export type IncidentUpdateWithoutInvestigationInput = {
-  referenceNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
-  reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
-  assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
-  people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
-}
-
-export type IncidentUncheckedUpdateWithoutInvestigationInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
-  referenceNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reporterId?: Prisma.StringFieldUpdateOperationsInput | string
-  assignedTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
-}
-
-export type IncidentCreateWithoutCorrectiveActionsInput = {
-  id?: string
-  referenceNumber: string
-  title: string
-  description: string
-  type: string
-  status?: string
-  incidentDate: Date | string
-  location?: string | null
-  operatorName: string
-  dispatcher: string
-  dispatchTime?: Date | string | null
-  arrivalTime?: Date | string | null
-  callSign?: string | null
-  propertyAddress?: string | null
-  clientName?: string | null
-  clientCode?: string | null
-  businessOrComplex?: string | null
-  sapsReference?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
-  reporter: Prisma.UserCreateNestedOneWithoutReportedIncidentsInput
-  assignedInvestigator?: Prisma.UserCreateNestedOneWithoutAssignedIncidentsInput
-  people?: Prisma.IncidentPersonCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationCreateNestedOneWithoutIncidentInput
-}
-
-export type IncidentUncheckedCreateWithoutCorrectiveActionsInput = {
-  id?: string
-  companyId: string
-  referenceNumber: string
-  title: string
-  description: string
-  type: string
-  status?: string
-  incidentDate: Date | string
-  location?: string | null
-  operatorName: string
-  dispatcher: string
-  dispatchTime?: Date | string | null
-  arrivalTime?: Date | string | null
-  callSign?: string | null
-  propertyAddress?: string | null
-  clientName?: string | null
-  clientCode?: string | null
-  businessOrComplex?: string | null
-  sapsReference?: string | null
-  reporterId: string
-  assignedTo?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  people?: Prisma.IncidentPersonUncheckedCreateNestedManyWithoutIncidentInput
-  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutIncidentInput
-  investigation?: Prisma.InvestigationUncheckedCreateNestedOneWithoutIncidentInput
-}
-
-export type IncidentCreateOrConnectWithoutCorrectiveActionsInput = {
-  where: Prisma.IncidentWhereUniqueInput
-  create: Prisma.XOR<Prisma.IncidentCreateWithoutCorrectiveActionsInput, Prisma.IncidentUncheckedCreateWithoutCorrectiveActionsInput>
-}
-
-export type IncidentUpsertWithoutCorrectiveActionsInput = {
-  update: Prisma.XOR<Prisma.IncidentUpdateWithoutCorrectiveActionsInput, Prisma.IncidentUncheckedUpdateWithoutCorrectiveActionsInput>
-  create: Prisma.XOR<Prisma.IncidentCreateWithoutCorrectiveActionsInput, Prisma.IncidentUncheckedCreateWithoutCorrectiveActionsInput>
-  where?: Prisma.IncidentWhereInput
-}
-
-export type IncidentUpdateToOneWithWhereWithoutCorrectiveActionsInput = {
-  where?: Prisma.IncidentWhereInput
-  data: Prisma.XOR<Prisma.IncidentUpdateWithoutCorrectiveActionsInput, Prisma.IncidentUncheckedUpdateWithoutCorrectiveActionsInput>
-}
-
-export type IncidentUpdateWithoutCorrectiveActionsInput = {
-  referenceNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
-  reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
-  assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
-  people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
-}
-
-export type IncidentUncheckedUpdateWithoutCorrectiveActionsInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
-  referenceNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  incidentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  operatorName?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatcher?: Prisma.StringFieldUpdateOperationsInput | string
-  dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  businessOrComplex?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sapsReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reporterId?: Prisma.StringFieldUpdateOperationsInput | string
-  assignedTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
 }
 
 export type IncidentCreateManyCompanyInput = {
@@ -1773,10 +1140,6 @@ export type IncidentUpdateWithoutCompanyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
   assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
-  people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentUncheckedUpdateWithoutCompanyInput = {
@@ -1801,10 +1164,6 @@ export type IncidentUncheckedUpdateWithoutCompanyInput = {
   assignedTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentUncheckedUpdateManyWithoutCompanyInput = {
@@ -1903,10 +1262,6 @@ export type IncidentUpdateWithoutReporterInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
   assignedInvestigator?: Prisma.UserUpdateOneWithoutAssignedIncidentsNestedInput
-  people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentUncheckedUpdateWithoutReporterInput = {
@@ -1931,10 +1286,6 @@ export type IncidentUncheckedUpdateWithoutReporterInput = {
   assignedTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentUncheckedUpdateManyWithoutReporterInput = {
@@ -1983,10 +1334,6 @@ export type IncidentUpdateWithoutAssignedInvestigatorInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
   reporter?: Prisma.UserUpdateOneRequiredWithoutReportedIncidentsNestedInput
-  people?: Prisma.IncidentPersonUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentUncheckedUpdateWithoutAssignedInvestigatorInput = {
@@ -2011,10 +1358,6 @@ export type IncidentUncheckedUpdateWithoutAssignedInvestigatorInput = {
   reporterId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  people?: Prisma.IncidentPersonUncheckedUpdateManyWithoutIncidentNestedInput
-  comments?: Prisma.CommentUncheckedUpdateManyWithoutIncidentNestedInput
-  investigation?: Prisma.InvestigationUncheckedUpdateOneWithoutIncidentNestedInput
-  correctiveActions?: Prisma.CorrectiveActionUncheckedUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentUncheckedUpdateManyWithoutAssignedInvestigatorInput = {
@@ -2041,53 +1384,6 @@ export type IncidentUncheckedUpdateManyWithoutAssignedInvestigatorInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-
-/**
- * Count Type IncidentCountOutputType
- */
-
-export type IncidentCountOutputType = {
-  people: number
-  comments: number
-  correctiveActions: number
-}
-
-export type IncidentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  people?: boolean | IncidentCountOutputTypeCountPeopleArgs
-  comments?: boolean | IncidentCountOutputTypeCountCommentsArgs
-  correctiveActions?: boolean | IncidentCountOutputTypeCountCorrectiveActionsArgs
-}
-
-/**
- * IncidentCountOutputType without action
- */
-export type IncidentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the IncidentCountOutputType
-   */
-  select?: Prisma.IncidentCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * IncidentCountOutputType without action
- */
-export type IncidentCountOutputTypeCountPeopleArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.IncidentPersonWhereInput
-}
-
-/**
- * IncidentCountOutputType without action
- */
-export type IncidentCountOutputTypeCountCommentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CommentWhereInput
-}
-
-/**
- * IncidentCountOutputType without action
- */
-export type IncidentCountOutputTypeCountCorrectiveActionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CorrectiveActionWhereInput
-}
 
 
 export type IncidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2117,11 +1413,6 @@ export type IncidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   reporter?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   assignedInvestigator?: boolean | Prisma.Incident$assignedInvestigatorArgs<ExtArgs>
-  people?: boolean | Prisma.Incident$peopleArgs<ExtArgs>
-  comments?: boolean | Prisma.Incident$commentsArgs<ExtArgs>
-  investigation?: boolean | Prisma.Incident$investigationArgs<ExtArgs>
-  correctiveActions?: boolean | Prisma.Incident$correctiveActionsArgs<ExtArgs>
-  _count?: boolean | Prisma.IncidentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["incident"]>
 
 
@@ -2157,11 +1448,6 @@ export type IncidentInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   reporter?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   assignedInvestigator?: boolean | Prisma.Incident$assignedInvestigatorArgs<ExtArgs>
-  people?: boolean | Prisma.Incident$peopleArgs<ExtArgs>
-  comments?: boolean | Prisma.Incident$commentsArgs<ExtArgs>
-  investigation?: boolean | Prisma.Incident$investigationArgs<ExtArgs>
-  correctiveActions?: boolean | Prisma.Incident$correctiveActionsArgs<ExtArgs>
-  _count?: boolean | Prisma.IncidentCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $IncidentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2170,10 +1456,6 @@ export type $IncidentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     company: Prisma.$CompanyPayload<ExtArgs>
     reporter: Prisma.$UserPayload<ExtArgs>
     assignedInvestigator: Prisma.$UserPayload<ExtArgs> | null
-    people: Prisma.$IncidentPersonPayload<ExtArgs>[]
-    comments: Prisma.$CommentPayload<ExtArgs>[]
-    investigation: Prisma.$InvestigationPayload<ExtArgs> | null
-    correctiveActions: Prisma.$CorrectiveActionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2565,10 +1847,6 @@ export interface Prisma__IncidentClient<T, Null = never, ExtArgs extends runtime
   company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   reporter<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   assignedInvestigator<T extends Prisma.Incident$assignedInvestigatorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Incident$assignedInvestigatorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  people<T extends Prisma.Incident$peopleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Incident$peopleArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IncidentPersonPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  comments<T extends Prisma.Incident$commentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Incident$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  investigation<T extends Prisma.Incident$investigationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Incident$investigationArgs<ExtArgs>>): Prisma.Prisma__InvestigationClient<runtime.Types.Result.GetResult<Prisma.$InvestigationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  correctiveActions<T extends Prisma.Incident$correctiveActionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Incident$correctiveActionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CorrectiveActionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3007,97 +2285,6 @@ export type Incident$assignedInvestigatorArgs<ExtArgs extends runtime.Types.Exte
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
-}
-
-/**
- * Incident.people
- */
-export type Incident$peopleArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the IncidentPerson
-   */
-  select?: Prisma.IncidentPersonSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the IncidentPerson
-   */
-  omit?: Prisma.IncidentPersonOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.IncidentPersonInclude<ExtArgs> | null
-  where?: Prisma.IncidentPersonWhereInput
-  orderBy?: Prisma.IncidentPersonOrderByWithRelationInput | Prisma.IncidentPersonOrderByWithRelationInput[]
-  cursor?: Prisma.IncidentPersonWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.IncidentPersonScalarFieldEnum | Prisma.IncidentPersonScalarFieldEnum[]
-}
-
-/**
- * Incident.comments
- */
-export type Incident$commentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Comment
-   */
-  select?: Prisma.CommentSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Comment
-   */
-  omit?: Prisma.CommentOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CommentInclude<ExtArgs> | null
-  where?: Prisma.CommentWhereInput
-  orderBy?: Prisma.CommentOrderByWithRelationInput | Prisma.CommentOrderByWithRelationInput[]
-  cursor?: Prisma.CommentWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.CommentScalarFieldEnum | Prisma.CommentScalarFieldEnum[]
-}
-
-/**
- * Incident.investigation
- */
-export type Incident$investigationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Investigation
-   */
-  select?: Prisma.InvestigationSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Investigation
-   */
-  omit?: Prisma.InvestigationOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InvestigationInclude<ExtArgs> | null
-  where?: Prisma.InvestigationWhereInput
-}
-
-/**
- * Incident.correctiveActions
- */
-export type Incident$correctiveActionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the CorrectiveAction
-   */
-  select?: Prisma.CorrectiveActionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the CorrectiveAction
-   */
-  omit?: Prisma.CorrectiveActionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CorrectiveActionInclude<ExtArgs> | null
-  where?: Prisma.CorrectiveActionWhereInput
-  orderBy?: Prisma.CorrectiveActionOrderByWithRelationInput | Prisma.CorrectiveActionOrderByWithRelationInput[]
-  cursor?: Prisma.CorrectiveActionWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.CorrectiveActionScalarFieldEnum | Prisma.CorrectiveActionScalarFieldEnum[]
 }
 
 /**

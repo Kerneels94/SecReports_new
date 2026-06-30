@@ -50,8 +50,6 @@ model User {
   createdUsers      User[]          @relation("created_users")
   reportedIncidents Incident[]      @relation("reporter")
   assignedIncidents Incident[]      @relation("assigned_investigator")
-  comments          Comment[]
-  actionOwner       CorrectiveAction[]
   auditLogs         AuditLog[]
 
   refreshTokens     RefreshToken[]
@@ -105,10 +103,7 @@ model Incident {
   company           Company            @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   reporter          User               @relation("reporter", fields: [reporterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   assignedInvestigator User?           @relation("assigned_investigator", fields: [assignedTo], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  people            IncidentPerson[]
-  comments          Comment[]
-  investigation     Investigation?
-  correctiveActions CorrectiveAction[]
+
 
   @@index([companyId])
   @@index([status])
@@ -116,70 +111,6 @@ model Incident {
   @@index([assignedTo])
   @@index([incidentDate])
   @@map("incidents")
-}
-
-model IncidentPerson {
-  id         String @id @default(auto()) @map("_id") @db.ObjectId
-  incidentId String @map("incident_id") @db.ObjectId
-  name       String
-  role       String
-  contact    String?
-  notes      String?
-
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([incidentId])
-  @@map("incident_people")
-}
-
-model Comment {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  incidentId String   @map("incident_id") @db.ObjectId
-  userId     String   @map("user_id") @db.ObjectId
-  message    String
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  user     User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([incidentId])
-  @@map("comments")
-}
-
-model Investigation {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  incidentId      String    @unique @map("incident_id") @db.ObjectId
-  findings        String?
-  rootCause       String?   @map("root_cause")
-  recommendations String?
-  closureNotes    String?   @map("closure_notes")
-  completedAt     DateTime? @map("completed_at")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@map("investigations")
-}
-
-model CorrectiveAction {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
-  incidentId   String    @map("incident_id") @db.ObjectId
-  description  String
-  ownerId      String    @map("owner_id") @db.ObjectId
-  dueDate      DateTime  @map("due_date")
-  status       String    @default("open")
-  completedAt  DateTime? @map("completed_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  owner    User     @relation(fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([incidentId])
-  @@index([ownerId])
-  @@index([status])
-  @@map("corrective_actions")
 }
 
 model PasswordResetToken {
@@ -224,14 +155,16 @@ model SubscriptionPlan {
 }
 
 model CompanySubscription {
-  id                       String   @id @default(auto()) @map("_id") @db.ObjectId
-  companyId                String   @unique @map("company_id") @db.ObjectId
-  planId                   String   @map("plan_id") @db.ObjectId
-  status                   String   @default("active")
-  currentPeriodStart DateTime? @map("current_period_start")
-  currentPeriodEnd   DateTime? @map("current_period_end")
-  createdAt                DateTime @default(now()) @map("created_at")
-  updatedAt                DateTime @updatedAt @map("updated_at")
+  id                       String    @id @default(auto()) @map("_id") @db.ObjectId
+  companyId                String    @unique @map("company_id") @db.ObjectId
+  planId                   String    @map("plan_id") @db.ObjectId
+  status                   String    @default("active")
+  currentPeriodStart       DateTime? @map("current_period_start")
+  currentPeriodEnd         DateTime? @map("current_period_end")
+  trialEndsAt              DateTime? @map("trial_ends_at")
+  trialWarningSent         Boolean   @default(false) @map("trial_warning_sent")
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
 
   company Company          @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   plan    SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction)

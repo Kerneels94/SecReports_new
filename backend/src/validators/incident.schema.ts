@@ -24,16 +24,6 @@ export const createIncidentSchema = z.object({
   clientCode: z.string().max(100).optional(),
   businessOrComplex: z.string().max(255).optional(),
   sapsReference: z.string().max(100).optional(),
-  people: z
-    .array(
-      z.object({
-        name: z.string().min(1),
-        role: z.string().min(1),
-        contact: z.string().optional(),
-        notes: z.string().optional(),
-      }),
-    )
-    .optional(),
 });
 
 /**

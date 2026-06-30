@@ -27,6 +27,13 @@ import type {
   MonthlyInvoiceResult,
 } from "@/types";
 
+interface TrialStatus {
+  isTrial: boolean;
+  daysRemaining: number;
+  isExpired: boolean;
+  trialEndsAt?: string;
+}
+
 /** Aggregated report summary data for the dashboard. */
 interface ReportSummary {
   total: number;
@@ -34,6 +41,7 @@ interface ReportSummary {
   recent: Incident[];
   attemptedCount: number;
   positiveCount: number;
+  trial: TrialStatus | null;
 }
 
 /** A user as returned by the user-list endpoint. */

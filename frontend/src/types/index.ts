@@ -1,3 +1,10 @@
+export interface TrialStatus {
+  isTrial: boolean;
+  daysRemaining: number;
+  isExpired: boolean;
+  trialEndsAt?: string;
+}
+
 /** A user account within a company. */
 export interface User {
   id: number;
@@ -6,6 +13,7 @@ export interface User {
   role: "owner" | "manager" | "senior" | "guard" | "superadmin";
   status: "active" | "inactive";
   companyId: number | null;
+  trial?: TrialStatus | null;
 }
 
 /** An organisation (company) that owns reports and users. */

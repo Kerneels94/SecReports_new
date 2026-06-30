@@ -1,7 +1,3 @@
-/**
- * Dashboard page — summary overview with stat cards, date/type filters, and recent incidents table.
- * @route /dashboard
- */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -9,14 +5,16 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { IncidentDetailModal } from "@/components/incidents/IncidentDetailModal";
 import { reportService, incidentService } from "@/services";
 import { DashboardSearch } from "./components/DashboardSearch";
-import type { Incident } from "@/types";
+import { useAuth } from "@/hooks/useAuth";
+import type { Incident, TrialStatus } from "@/types";
 
-/** Dashboard page component with summary stats, search/filter bar, and recent incidents list. */
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [total, setTotal] = useState(0);
   const [attemptedCount, setAttemptedCount] = useState(0);
   const [positiveCount, setPositiveCount] = useState(0);
   const [recent, setRecent] = useState<Incident[]>([]);
+  const [trial, setTrial] = useState<TrialStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(null);
@@ -34,6 +32,7 @@ export default function DashboardPage() {
       setAttemptedCount(res.data.attemptedCount);
       setPositiveCount(res.data.positiveCount);
       setRecent(res.data.recent);
+      setTrial(res.data.trial);
     } catch {
       setError("Failed to load dashboard data");
     } finally {
@@ -55,7 +54,6 @@ export default function DashboardPage() {
       const res = await incidentService.list(params);
       setRecent(res.data.data);
     } catch {
-      // silently fall back to summary data
     } finally {
       setTableLoading(false);
     }
@@ -115,12 +113,36 @@ export default function DashboardPage() {
 
   const statCards = [
     { label: "Incidents", value: total, color: "text-primary", gradient: "from-primary/10 to-primary/5", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
-    { label: "Attempted incidents", value: attemptedCount, color: "text-warning", gradient: "from-amber-500/10 to-amber-500/5", icon: "M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
+    { label: "Attempted incidents", value: attemptedCount, color: "text-warning", gradient: "from-amber-500/10 to-amber-500/5", icon: "M12 9v2m0 4h.01m21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
     { label: "Positive incidents", value: positiveCount, color: "text-success", gradient: "from-emerald-500/10 to-emerald-500/5", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
   ];
 
   return (
     <div className="flex flex-col gap-8">
+      {trial?.isTrial && trial.daysRemaining <= 2 && !trial.isExpired && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 flex items-center gap-3">
+          <svg className="h-5 w-5 shrink-0 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div className="text-sm text-amber-200">
+            Your free trial ends in <strong>{trial.daysRemaining} day{trial.daysRemaining === 1 ? "" : "s"}</strong>.{" "}
+            <a href="/settings/billing" className="underline font-medium hover:text-amber-100">Upgrade now</a> to keep full access.
+          </div>
+        </div>
+      )}
+
+      {trial?.isExpired && (
+        <div className="rounded-xl border border-danger/30 bg-danger/10 p-4 flex items-center gap-3">
+          <svg className="h-5 w-5 shrink-0 text-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div className="text-sm text-red-200">
+            Your free trial has ended. Some features may be limited.{" "}
+            <a href="/settings/billing" className="underline font-medium hover:text-red-100">Upgrade now</a> to restore full access.
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">Dashboard</h1>

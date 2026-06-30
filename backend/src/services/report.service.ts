@@ -3,6 +3,7 @@
  * Handles summary statistics for incidents.
  */
 import { prisma } from "../lib/db";
+import { SubscriptionService } from "./subscription.service";
 
 export const ReportService = {
   /** Aggregates incident counts by status, recent incidents, and type-based counts (attempted/positive) for the dashboard. */
@@ -42,6 +43,8 @@ export const ReportService = {
       _count: { id: count },
     }));
 
-    return { total, byStatus, recent, attemptedCount, positiveCount };
+    const trial = await SubscriptionService.getTrialStatus(companyId);
+
+    return { total, byStatus, recent, attemptedCount, positiveCount, trial };
   },
 };

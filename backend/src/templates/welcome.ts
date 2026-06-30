@@ -23,7 +23,7 @@ export default function welcomeTemplate(name: string): string {
       <td style="padding: 32px 24px;">
         <p style="font-size: 16px; color: #333;">Hi ${safeName},</p>
         <p style="font-size: 16px; color: #333;">Welcome to <strong>SecReports</strong>! Your account has been created successfully.</p>
-        <p style="font-size: 16px; color: #333;">You can now log in and start reporting incidents, tracking investigations, and managing corrective actions.</p>
+        <p style="font-size: 16px; color: #333;">You can now log in and start reporting incidents.</p>
         <div style="text-align: center; margin: 32px 0;">
           <a href="${appUrl}/dashboard"
              style="background: #1e3a5f; color: #ffffff; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-size: 16px; display: inline-block;">

@@ -38,26 +38,6 @@ export type RefreshToken = Prisma.RefreshTokenModel
  */
 export type Incident = Prisma.IncidentModel
 /**
- * Model IncidentPerson
- * 
- */
-export type IncidentPerson = Prisma.IncidentPersonModel
-/**
- * Model Comment
- * 
- */
-export type Comment = Prisma.CommentModel
-/**
- * Model Investigation
- * 
- */
-export type Investigation = Prisma.InvestigationModel
-/**
- * Model CorrectiveAction
- * 
- */
-export type CorrectiveAction = Prisma.CorrectiveActionModel
-/**
  * Model PasswordResetToken
  * 
  */

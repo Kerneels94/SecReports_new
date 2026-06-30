@@ -162,6 +162,10 @@ export const AuthService = {
 
     await resetLoginAttempts(user.id);
 
+    SubscriptionService.checkAndNotifyTrialEnding(user.companyId!).catch((err) =>
+      console.error("[AuthService] Trial notification failed:", err),
+    );
+
     const familyId = crypto.randomUUID();
     const payload = { userId: user.id, role: user.role, companyId: user.companyId };
     const refreshToken = await persistRefreshToken(user.id, familyId, params.deviceInfo);
@@ -279,10 +283,15 @@ export const AuthService = {
     };
   },
 
-  /** Returns the authenticated user's profile. */
+  /** Returns the authenticated user's profile with trial status. */
   async getMe(userId: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new UnauthorizedError("User not found");
+
+    let trial = null;
+    if (user.companyId) {
+      trial = await SubscriptionService.getTrialStatus(user.companyId);
+    }
 
     return {
       id: user.id,
@@ -291,6 +300,7 @@ export const AuthService = {
       role: user.role,
       status: user.status,
       companyId: user.companyId,
+      trial,
     };
   },
 

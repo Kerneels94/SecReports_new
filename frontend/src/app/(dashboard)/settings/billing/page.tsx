@@ -14,20 +14,20 @@ const plans = [
     name: "Free",
     price: "Free",
     period: "",
-    limit: "5 sites",
-    sites: 5,
-    users: 1,
-    features: ["Full incident lifecycle", "Email notifications", "Evidence uploads", "CSV & PDF export", "14-day trial"],
+    limit: "14-day trial",
+    sites: 0,
+    users: 0,
+    features: ["Unlimited guarding sites", "Unlimited users", "All features included", "14-day free trial"],
   },
   {
     id: 2,
     name: "Professional",
-    price: "R 1,500",
+    price: "R 2,000",
     period: "/month",
     limit: "15 sites",
     sites: 15,
     users: 5,
-    features: ["Everything in Free", "Up to 15 sites", "Priority support"],
+    features: ["Up to 15 guarding sites", "Up to 5 users", "CSV & PDF export", "Priority support"],
   },
   {
     id: 3,
@@ -37,7 +37,7 @@ const plans = [
     limit: "Unlimited",
     sites: 0,
     users: 0,
-    features: ["Everything in Professional", "Unlimited sites", "Unlimited users", "24/7 priority support"],
+    features: ["Unlimited guarding sites", "Unlimited users", "CSV & PDF export", "24/7 priority support"],
   },
 ];
 
@@ -46,7 +46,7 @@ export default function BillingPage() {
     <div className="flex flex-col gap-6 max-w-4xl mx-auto animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold text-text">Billing & Plan</h1>
-        <p className="text-sm text-text-secondary mt-1">View your current plan and usage. Monthly invoicing coming soon.</p>
+        <p className="text-sm text-text-secondary mt-1">View your current plan and usage. Monthly invoices are generated and sent automatically.</p>
       </div>
 
       <Card>
@@ -90,7 +90,7 @@ export default function BillingPage() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-text-secondary">
-            Monthly invoicing dashboard is under development. You will be able to send, track, and manage invoices for companies here.
+            Monthly invoices are auto-generated for active paid subscriptions. Super admins can manage, send, and track invoices from the admin panel.
           </p>
         </CardContent>
       </Card>
