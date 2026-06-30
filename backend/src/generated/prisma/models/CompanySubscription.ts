@@ -31,6 +31,8 @@ export type CompanySubscriptionMinAggregateOutputType = {
   status: string | null
   currentPeriodStart: Date | null
   currentPeriodEnd: Date | null
+  trialEndsAt: Date | null
+  trialWarningSent: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -42,6 +44,8 @@ export type CompanySubscriptionMaxAggregateOutputType = {
   status: string | null
   currentPeriodStart: Date | null
   currentPeriodEnd: Date | null
+  trialEndsAt: Date | null
+  trialWarningSent: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,6 +57,8 @@ export type CompanySubscriptionCountAggregateOutputType = {
   status: number
   currentPeriodStart: number
   currentPeriodEnd: number
+  trialEndsAt: number
+  trialWarningSent: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -66,6 +72,8 @@ export type CompanySubscriptionMinAggregateInputType = {
   status?: true
   currentPeriodStart?: true
   currentPeriodEnd?: true
+  trialEndsAt?: true
+  trialWarningSent?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -77,6 +85,8 @@ export type CompanySubscriptionMaxAggregateInputType = {
   status?: true
   currentPeriodStart?: true
   currentPeriodEnd?: true
+  trialEndsAt?: true
+  trialWarningSent?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,6 +98,8 @@ export type CompanySubscriptionCountAggregateInputType = {
   status?: true
   currentPeriodStart?: true
   currentPeriodEnd?: true
+  trialEndsAt?: true
+  trialWarningSent?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -172,6 +184,8 @@ export type CompanySubscriptionGroupByOutputType = {
   status: string
   currentPeriodStart: Date | null
   currentPeriodEnd: Date | null
+  trialEndsAt: Date | null
+  trialWarningSent: boolean
   createdAt: Date
   updatedAt: Date
   _count: CompanySubscriptionCountAggregateOutputType | null
@@ -204,6 +218,8 @@ export type CompanySubscriptionWhereInput = {
   status?: Prisma.StringFilter<"CompanySubscription"> | string
   currentPeriodStart?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
+  trialEndsAt?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
+  trialWarningSent?: Prisma.BoolFilter<"CompanySubscription"> | boolean
   createdAt?: Prisma.DateTimeFilter<"CompanySubscription"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CompanySubscription"> | Date | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
@@ -217,6 +233,8 @@ export type CompanySubscriptionOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
+  trialWarningSent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   company?: Prisma.CompanyOrderByWithRelationInput
@@ -233,6 +251,8 @@ export type CompanySubscriptionWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.StringFilter<"CompanySubscription"> | string
   currentPeriodStart?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
+  trialEndsAt?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
+  trialWarningSent?: Prisma.BoolFilter<"CompanySubscription"> | boolean
   createdAt?: Prisma.DateTimeFilter<"CompanySubscription"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CompanySubscription"> | Date | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
@@ -246,6 +266,8 @@ export type CompanySubscriptionOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
+  trialWarningSent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CompanySubscriptionCountOrderByAggregateInput
@@ -263,6 +285,8 @@ export type CompanySubscriptionScalarWhereWithAggregatesInput = {
   status?: Prisma.StringWithAggregatesFilter<"CompanySubscription"> | string
   currentPeriodStart?: Prisma.DateTimeNullableWithAggregatesFilter<"CompanySubscription"> | Date | string | null
   currentPeriodEnd?: Prisma.DateTimeNullableWithAggregatesFilter<"CompanySubscription"> | Date | string | null
+  trialEndsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CompanySubscription"> | Date | string | null
+  trialWarningSent?: Prisma.BoolWithAggregatesFilter<"CompanySubscription"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CompanySubscription"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CompanySubscription"> | Date | string
 }
@@ -272,6 +296,8 @@ export type CompanySubscriptionCreateInput = {
   status?: string
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
+  trialEndsAt?: Date | string | null
+  trialWarningSent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutSubscriptionInput
@@ -285,6 +311,8 @@ export type CompanySubscriptionUncheckedCreateInput = {
   status?: string
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
+  trialEndsAt?: Date | string | null
+  trialWarningSent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -293,6 +321,8 @@ export type CompanySubscriptionUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialWarningSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutSubscriptionNestedInput
@@ -305,6 +335,8 @@ export type CompanySubscriptionUncheckedUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialWarningSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -316,6 +348,8 @@ export type CompanySubscriptionCreateManyInput = {
   status?: string
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
+  trialEndsAt?: Date | string | null
+  trialWarningSent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -324,6 +358,8 @@ export type CompanySubscriptionUpdateManyMutationInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialWarningSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -334,6 +370,8 @@ export type CompanySubscriptionUncheckedUpdateManyInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialWarningSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -360,6 +398,8 @@ export type CompanySubscriptionCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
+  trialWarningSent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -371,6 +411,8 @@ export type CompanySubscriptionMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
+  trialWarningSent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -382,6 +424,8 @@ export type CompanySubscriptionMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
+  trialWarningSent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -465,6 +509,8 @@ export type CompanySubscriptionCreateWithoutCompanyInput = {
   status?: string
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
+  trialEndsAt?: Date | string | null
+  trialWarningSent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   plan: Prisma.SubscriptionPlanCreateNestedOneWithoutSubscriptionsInput
@@ -476,6 +522,8 @@ export type CompanySubscriptionUncheckedCreateWithoutCompanyInput = {
   status?: string
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
+  trialEndsAt?: Date | string | null
+  trialWarningSent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -500,6 +548,8 @@ export type CompanySubscriptionUpdateWithoutCompanyInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialWarningSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.SubscriptionPlanUpdateOneRequiredWithoutSubscriptionsNestedInput
@@ -510,6 +560,8 @@ export type CompanySubscriptionUncheckedUpdateWithoutCompanyInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialWarningSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -519,6 +571,8 @@ export type CompanySubscriptionCreateWithoutPlanInput = {
   status?: string
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
+  trialEndsAt?: Date | string | null
+  trialWarningSent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutSubscriptionInput
@@ -530,6 +584,8 @@ export type CompanySubscriptionUncheckedCreateWithoutPlanInput = {
   status?: string
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
+  trialEndsAt?: Date | string | null
+  trialWarningSent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -569,6 +625,8 @@ export type CompanySubscriptionScalarWhereInput = {
   status?: Prisma.StringFilter<"CompanySubscription"> | string
   currentPeriodStart?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
+  trialEndsAt?: Prisma.DateTimeNullableFilter<"CompanySubscription"> | Date | string | null
+  trialWarningSent?: Prisma.BoolFilter<"CompanySubscription"> | boolean
   createdAt?: Prisma.DateTimeFilter<"CompanySubscription"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CompanySubscription"> | Date | string
 }
@@ -579,6 +637,8 @@ export type CompanySubscriptionCreateManyPlanInput = {
   status?: string
   currentPeriodStart?: Date | string | null
   currentPeriodEnd?: Date | string | null
+  trialEndsAt?: Date | string | null
+  trialWarningSent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -587,6 +647,8 @@ export type CompanySubscriptionUpdateWithoutPlanInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialWarningSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutSubscriptionNestedInput
@@ -597,6 +659,8 @@ export type CompanySubscriptionUncheckedUpdateWithoutPlanInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialWarningSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -606,6 +670,8 @@ export type CompanySubscriptionUncheckedUpdateManyWithoutPlanInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialWarningSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -619,6 +685,8 @@ export type CompanySubscriptionSelect<ExtArgs extends runtime.Types.Extensions.I
   status?: boolean
   currentPeriodStart?: boolean
   currentPeriodEnd?: boolean
+  trialEndsAt?: boolean
+  trialWarningSent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
@@ -634,11 +702,13 @@ export type CompanySubscriptionSelectScalar = {
   status?: boolean
   currentPeriodStart?: boolean
   currentPeriodEnd?: boolean
+  trialEndsAt?: boolean
+  trialWarningSent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CompanySubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "planId" | "status" | "currentPeriodStart" | "currentPeriodEnd" | "createdAt" | "updatedAt", ExtArgs["result"]["companySubscription"]>
+export type CompanySubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "planId" | "status" | "currentPeriodStart" | "currentPeriodEnd" | "trialEndsAt" | "trialWarningSent" | "createdAt" | "updatedAt", ExtArgs["result"]["companySubscription"]>
 export type CompanySubscriptionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   plan?: boolean | Prisma.SubscriptionPlanDefaultArgs<ExtArgs>
@@ -657,6 +727,8 @@ export type $CompanySubscriptionPayload<ExtArgs extends runtime.Types.Extensions
     status: string
     currentPeriodStart: Date | null
     currentPeriodEnd: Date | null
+    trialEndsAt: Date | null
+    trialWarningSent: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["companySubscription"]>
@@ -1059,6 +1131,8 @@ export interface CompanySubscriptionFieldRefs {
   readonly status: Prisma.FieldRef<"CompanySubscription", 'String'>
   readonly currentPeriodStart: Prisma.FieldRef<"CompanySubscription", 'DateTime'>
   readonly currentPeriodEnd: Prisma.FieldRef<"CompanySubscription", 'DateTime'>
+  readonly trialEndsAt: Prisma.FieldRef<"CompanySubscription", 'DateTime'>
+  readonly trialWarningSent: Prisma.FieldRef<"CompanySubscription", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"CompanySubscription", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"CompanySubscription", 'DateTime'>
 }

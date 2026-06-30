@@ -53,10 +53,6 @@ export const ModelName = {
   User: 'User',
   RefreshToken: 'RefreshToken',
   Incident: 'Incident',
-  IncidentPerson: 'IncidentPerson',
-  Comment: 'Comment',
-  Investigation: 'Investigation',
-  CorrectiveAction: 'CorrectiveAction',
   PasswordResetToken: 'PasswordResetToken',
   EmailVerificationToken: 'EmailVerificationToken',
   SubscriptionPlan: 'SubscriptionPlan',
@@ -152,59 +148,6 @@ export const IncidentScalarFieldEnum = {
 export type IncidentScalarFieldEnum = (typeof IncidentScalarFieldEnum)[keyof typeof IncidentScalarFieldEnum]
 
 
-export const IncidentPersonScalarFieldEnum = {
-  id: 'id',
-  incidentId: 'incidentId',
-  name: 'name',
-  role: 'role',
-  contact: 'contact',
-  notes: 'notes'
-} as const
-
-export type IncidentPersonScalarFieldEnum = (typeof IncidentPersonScalarFieldEnum)[keyof typeof IncidentPersonScalarFieldEnum]
-
-
-export const CommentScalarFieldEnum = {
-  id: 'id',
-  incidentId: 'incidentId',
-  userId: 'userId',
-  message: 'message',
-  createdAt: 'createdAt'
-} as const
-
-export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeof CommentScalarFieldEnum]
-
-
-export const InvestigationScalarFieldEnum = {
-  id: 'id',
-  incidentId: 'incidentId',
-  findings: 'findings',
-  rootCause: 'rootCause',
-  recommendations: 'recommendations',
-  closureNotes: 'closureNotes',
-  completedAt: 'completedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type InvestigationScalarFieldEnum = (typeof InvestigationScalarFieldEnum)[keyof typeof InvestigationScalarFieldEnum]
-
-
-export const CorrectiveActionScalarFieldEnum = {
-  id: 'id',
-  incidentId: 'incidentId',
-  description: 'description',
-  ownerId: 'ownerId',
-  dueDate: 'dueDate',
-  status: 'status',
-  completedAt: 'completedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type CorrectiveActionScalarFieldEnum = (typeof CorrectiveActionScalarFieldEnum)[keyof typeof CorrectiveActionScalarFieldEnum]
-
-
 export const PasswordResetTokenScalarFieldEnum = {
   id: 'id',
   email: 'email',
@@ -252,6 +195,8 @@ export const CompanySubscriptionScalarFieldEnum = {
   status: 'status',
   currentPeriodStart: 'currentPeriodStart',
   currentPeriodEnd: 'currentPeriodEnd',
+  trialEndsAt: 'trialEndsAt',
+  trialWarningSent: 'trialWarningSent',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

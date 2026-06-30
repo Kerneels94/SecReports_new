@@ -15,7 +15,7 @@ import authRoutes from "./routes/auth.routes";
 import incidentRoutes from "./routes/incident.routes";
 import reportRoutes from "./routes/report.routes";
 import exportRoutes from "./routes/export.routes";
-import investigationRoutes from "./routes/investigation.routes";
+
 import apiKeyRoutes from "./routes/apiKey.routes";
 import guardingSiteRoutes from "./routes/guardingSite.routes";
 import guardRoutes from "./routes/guard.routes";
@@ -93,7 +93,7 @@ export async function buildApp() {
   await fastify.register(reportRoutes);
 
   await fastify.register(exportRoutes);
-  await fastify.register(investigationRoutes);
+
   await fastify.register(apiKeyRoutes);
   await fastify.register(guardingSiteRoutes);
   await fastify.register(guardRoutes);

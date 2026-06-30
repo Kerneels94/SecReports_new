@@ -17,26 +17,23 @@ async function main() {
   await prisma.subscriptionPlan.deleteMany();
   await prisma.apiKey.deleteMany();
   await prisma.auditLog.deleteMany();
-  await prisma.correctiveAction.deleteMany();
-  await prisma.investigation.deleteMany();
-  await prisma.comment.deleteMany();
-  await prisma.incidentPerson.deleteMany();
   await prisma.incident.deleteMany();
+  await prisma.user.updateMany({ where: { createdBy: { not: null } }, data: { createdBy: null } });
   await prisma.user.deleteMany();
   await prisma.company.deleteMany();
 
   const allFeatures = JSON.stringify([
     "basic_crud", "status_changes", "email_notifications",
     "export_csv_pdf", "priority_support",
-    "full_lifecycle", "api_access",
+    "api_access",
   ]);
 
   const freePlan = await prisma.subscriptionPlan.create({
     data: {
       name: "Free",
       price: 0,
-      siteLimit: 5,
-      userLimit: 1,
+      siteLimit: 0,
+      userLimit: 0,
       trialPeriodDays: 14,
       features: allFeatures,
     },
@@ -124,52 +121,6 @@ async function main() {
       dispatcher: "Manager User",
       reporterId: admin.id,
       assignedTo: senior.id,
-      people: {
-        create: [
-          {
-            name: "John Witness",
-            role: "witness",
-            contact: "john@example.com",
-            notes: "Was in the adjacent room when alarm went off",
-          },
-        ],
-      },
-    },
-    include: { people: true },
-  });
-
-  await prisma.comment.create({
-    data: {
-      incidentId: incident.id,
-      userId: senior.id,
-      message: "I noticed the temperature alarm at approximately 14:30.",
-    },
-  });
-
-  await prisma.comment.create({
-    data: {
-      incidentId: incident.id,
-      userId: admin.id,
-      message: "I will inspect the HVAC system in the morning.",
-    },
-  });
-
-  await prisma.investigation.create({
-    data: {
-      incidentId: incident.id,
-      findings: "Preliminary inspection shows a failed cooling fan in the main AC unit.",
-      rootCause: "Fan motor bearing failure due to lack of maintenance.",
-      recommendations: "Replace fan motor and implement quarterly maintenance schedule.",
-    },
-  });
-
-  await prisma.correctiveAction.create({
-    data: {
-      incidentId: incident.id,
-      description: "Replace failed cooling fan motor",
-      ownerId: senior.id,
-      dueDate: new Date("2026-06-01"),
-      status: "in_progress",
     },
   });
 

@@ -11,15 +11,13 @@ const tiers = [
     name: "Free",
     price: "Free",
     period: "",
-    limit: "Up to 5 sites",
-    description: "14-day free trial with full access to all features.",
+    limit: "14-day trial",
+    description: "Full access to all features — no limits during your trial.",
     features: [
-      "Up to 5 guarding sites",
-      "Full incident lifecycle management",
-      "Email notifications",
-      "Evidence uploads",
-      "Report export (CSV/PDF)",
-      "14-day trial, then upgrade",
+      "Unlimited guarding sites",
+      "Unlimited users",
+      "All features included",
+      "14-day free trial, no credit card",
     ],
     cta: "Start Free Trial",
     href: "/register",
@@ -27,16 +25,14 @@ const tiers = [
   },
   {
     name: "Professional",
-    price: "R 2000",
+    price: "R 2,000",
     period: "/month",
     limit: "Up to 15 sites",
     description: "For growing security teams managing multiple sites.",
     features: [
       "Up to 15 guarding sites",
-      "Full incident lifecycle management",
-      "Email notifications",
-      "Evidence uploads",
-      "Report export (CSV/PDF)",
+      "Up to 5 user accounts",
+      "CSV & PDF export",
       "Priority support",
     ],
     cta: "Get Started",
@@ -51,11 +47,8 @@ const tiers = [
     description: "For large security operations with unlimited site coverage.",
     features: [
       "Unlimited guarding sites",
-      "Full incident lifecycle management",
-      "Email notifications",
       "Unlimited users",
-      "Evidence uploads",
-      "Report export (CSV/PDF)",
+      "CSV & PDF export",
       "24/7 priority support",
     ],
     cta: "Contact Sales",
@@ -66,33 +59,33 @@ const tiers = [
 
 const features = [
   {
-    title: "Incident Tracking",
+    title: "Incident Reporting",
     description:
-      "Log, categorize, and track every incident from report to resolution.",
+      "Full lifecycle management — log, categorize, investigate, and resolve security incidents with auto-generated reference numbers.",
   },
   {
-    title: "Evidence Management",
+    title: "Patrol Management",
     description:
-      "Upload and manage photos, videos, and documents for each case.",
+      "Record patrol reports with checkpoint scanning (ok / missed / late) and track shifts across all guarding sites.",
   },
   {
-    title: "Team Collaboration",
+    title: "Gate Entry Logs",
     description:
-      "Assign investigators, add comments, and keep everyone in the loop.",
+      "Log vehicle and person entries at security gates with automatic flagged-vehicle alerts on re-entry.",
+  },
+  {
+    title: "Flagged Vehicle Watchlist",
+    description:
+      "Maintain a watchlist of suspicious vehicles and get instant notifications when a flagged vehicle is detected.",
   },
   {
     title: "Audit Trail",
-    description: "Immutable activity logs for compliance and review purposes.",
+    description: "Immutable activity logs recording every change and auth event for compliance and review.",
   },
   {
     title: "Reports & Export",
     description:
-      "Generate PDF and CSV reports for clients, management, or regulators.",
-  },
-  {
-    title: "Role-Based Access",
-    description:
-      "Control permissions with Reporter, Investigator, Manager, and Admin roles.",
+      "Generate branded PDF and CSV reports for management, clients, or regulators with batch email support.",
   },
 ];
 
