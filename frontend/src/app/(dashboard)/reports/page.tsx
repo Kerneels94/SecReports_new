@@ -9,6 +9,7 @@ import { EmailReportModal } from "@/components/incidents/EmailReportModal";
 import { reportService, incidentService, exportService } from "@/services";
 import type { Incident } from "@/types";
 
+
 export default function ReportsPage() {
   const [summary, setSummary] = useState<{
     total: number;
@@ -175,7 +176,6 @@ export default function ReportsPage() {
                 className="mt-3 text-xs font-medium text-primary hover:underline"
               >
                 Email All
-              </button>
             )}
           </CardContent>
         </Card>
