@@ -176,6 +176,7 @@ export default function ReportsPage() {
                 className="mt-3 text-xs font-medium text-primary hover:underline"
               >
                 Email All
+              </button>
             )}
           </CardContent>
         </Card>
