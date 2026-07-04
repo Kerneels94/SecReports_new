@@ -9,20 +9,10 @@ import { EmailReportModal } from "@/components/incidents/EmailReportModal";
 import { reportService, incidentService, exportService } from "@/services";
 import type { Incident } from "@/types";
 
-const statusLabels: Record<string, string> = {
-  draft: "Draft",
-  submitted: "Submitted",
-  under_review: "Under Review",
-  assigned: "Assigned",
-  investigating: "Investigating",
-  resolved: "Resolved",
-  closed: "Closed",
-  rejected: "Rejected",
-};
+
 export default function ReportsPage() {
   const [summary, setSummary] = useState<{
     total: number;
-    byStatus: { status: string; _count: { id: number } }[];
     recent: Incident[];
     attemptedCount: number;
     positiveCount: number;
@@ -188,57 +178,6 @@ export default function ReportsPage() {
                 Email All
               </button>
             )}
-          </CardContent>
-        </Card>
-        <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent" />
-          <CardContent className="relative">
-            <p className="text-sm text-text-secondary">Statuses</p>
-            <p className="mt-2 text-3xl font-bold text-text">{summary.byStatus.length}</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Incidents by Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {summary.byStatus.length === 0 ? (
-              <p className="text-sm text-text-secondary">No data available.</p>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {summary.byStatus.map((s) => (
-                  <div key={s.status} className="flex items-center justify-between">
-                    <span className="text-sm text-text-secondary capitalize">{statusLabels[s.status] || s.status.replace("_", " ")}</span>
-                    <span className="text-sm font-semibold text-text">{s._count.id}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>By Type</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-text-secondary">Attempted</span>
-                <span className="text-sm font-semibold text-warning">{summary.attemptedCount}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-text-secondary">Positive</span>
-                <span className="text-sm font-semibold text-success">{summary.positiveCount}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-text-secondary">Other</span>
-                <span className="text-sm font-semibold text-text">{summary.total - summary.attemptedCount - summary.positiveCount}</span>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>

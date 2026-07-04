@@ -136,7 +136,6 @@ describe("ReportsPage", () => {
 
     await waitFor(() => {
       expect(screen.getAllByText("0").length).toBeGreaterThanOrEqual(3);
-      expect(screen.getByText("No data available.")).toBeInTheDocument();
       expect(screen.getByText("No incidents found.")).toBeInTheDocument();
     });
   });
