@@ -58,6 +58,7 @@ class ApiClient {
       ...options,
       headers,
       credentials: "include",
+      cache: "no-store",
     });
 
     if (res.status === 204) {

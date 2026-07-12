@@ -21,7 +21,6 @@ import guardingSiteRoutes from "./routes/guardingSite.routes";
 import guardRoutes from "./routes/guard.routes";
 import patrolReportRoutes from "./routes/patrolReport.routes";
 import entryLogRoutes from "./routes/entryLog.routes";
-import flaggedVehicleRoutes from "./routes/flaggedVehicle.routes";
 import invoiceRoutes from "./routes/invoice.routes";
 
 /**
@@ -99,7 +98,6 @@ export async function buildApp() {
   await fastify.register(guardRoutes);
   await fastify.register(patrolReportRoutes);
   await fastify.register(entryLogRoutes);
-  await fastify.register(flaggedVehicleRoutes);
   await fastify.register(invoiceRoutes);
 
   fastify.setErrorHandler((error, request, reply) => {

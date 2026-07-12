@@ -17,6 +17,8 @@ export const createEntryLogSchema = z.object({
   vehicleDesc: z.string().max(255).optional(),
   entryTime: z.string(),
   purpose: z.string().max(500).optional(),
+  flagged: z.boolean().optional(),
+  flagReason: z.string().max(500).optional(),
 });
 
 /**
@@ -31,9 +33,15 @@ export const updateEntryLogSchema = z.object({
 });
 
 /**
- * Validates manual vehicle-flagging via an entry-log.
+ * Validates flagging an entry log (requires a reason).
  */
-export const flagVehicleSchema = z.object({
-  vehicleReg: z.string().min(1).max(50),
+export const flagSchema = z.object({
+  reason: z.string().min(1),
+});
+
+/**
+ * Validates resolving (unflagging) an entry log (requires a reason).
+ */
+export const resolveSchema = z.object({
   reason: z.string().min(1),
 });

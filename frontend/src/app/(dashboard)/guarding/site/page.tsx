@@ -181,7 +181,7 @@ function SiteDetailInner() {
                       </p>
                       {e.purpose && <p className="text-xs text-text-secondary mt-0.5">{e.purpose}</p>}
                     </div>
-                    {e.flaggedVehicle && (
+                    {e.flagged && !e.resolvedAt && (
                       <Badge variant="danger">Flagged</Badge>
                     )}
                   </div>

@@ -1,6 +1,6 @@
 /**
  * Entry Log routes — all endpoints require JWT authentication.
- * Role-restricted: create, update, flag (owner/manager/guard); delete (owner/manager).
+ * Role-restricted: create, update, flag (owner/manager/guard); resolve, delete (owner/manager).
  */
 import { FastifyInstance } from "fastify";
 import { EntryLogController } from "../controllers/entryLog.controller";
@@ -14,6 +14,7 @@ export default async function entryLogRoutes(fastify: FastifyInstance) {
   fastify.get("/entry-logs/:id", EntryLogController.getById);
   fastify.post("/entry-logs", { preHandler: [requireRole("owner", "manager", "guard")] }, EntryLogController.create);
   fastify.put("/entry-logs/:id", { preHandler: [requireRole("owner", "manager", "guard")] }, EntryLogController.update);
-  fastify.post("/entry-logs/:id/flag", { preHandler: [requireRole("owner", "manager", "guard")] }, EntryLogController.flagVehicle);
+  fastify.post("/entry-logs/:id/flag", { preHandler: [requireRole("owner", "manager", "guard")] }, EntryLogController.flag);
+  fastify.post("/entry-logs/:id/resolve", { preHandler: [requireRole("owner", "manager")] }, EntryLogController.resolve);
   fastify.delete("/entry-logs/:id", { preHandler: [requireRole("owner", "manager")] }, EntryLogController.delete);
 }

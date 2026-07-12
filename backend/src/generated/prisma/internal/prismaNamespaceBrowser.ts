@@ -65,8 +65,7 @@ export const ModelName = {
   Guard: 'Guard',
   PatrolReport: 'PatrolReport',
   PatrolCheckpoint: 'PatrolCheckpoint',
-  EntryLog: 'EntryLog',
-  FlaggedVehicle: 'FlaggedVehicle'
+  EntryLog: 'EntryLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -331,25 +330,17 @@ export const EntryLogScalarFieldEnum = {
   entryTime: 'entryTime',
   exitTime: 'exitTime',
   purpose: 'purpose',
-  flaggedVehicleId: 'flaggedVehicleId',
+  flagged: 'flagged',
+  flagReason: 'flagReason',
+  flaggedById: 'flaggedById',
+  flaggedAt: 'flaggedAt',
+  resolvedAt: 'resolvedAt',
+  resolveReason: 'resolveReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type EntryLogScalarFieldEnum = (typeof EntryLogScalarFieldEnum)[keyof typeof EntryLogScalarFieldEnum]
-
-
-export const FlaggedVehicleScalarFieldEnum = {
-  id: 'id',
-  companyId: 'companyId',
-  vehicleReg: 'vehicleReg',
-  reason: 'reason',
-  flaggedById: 'flaggedById',
-  resolvedAt: 'resolvedAt',
-  createdAt: 'createdAt'
-} as const
-
-export type FlaggedVehicleScalarFieldEnum = (typeof FlaggedVehicleScalarFieldEnum)[keyof typeof FlaggedVehicleScalarFieldEnum]
 
 
 export const SortOrder = {

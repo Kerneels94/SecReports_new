@@ -24,7 +24,6 @@ model Company {
   apiKeys         ApiKey[]
   guardingSites   GuardingSite[]
   guards          Guard[]
-  flaggedVehicles FlaggedVehicle[]
 
   @@map("companies")
 }
@@ -282,9 +281,8 @@ model Guard {
   company Company      @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   site    GuardingSite? @relation(fields: [siteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  patrolReports   PatrolReport[]
-  entryLogs       EntryLog[]
-  flaggedVehicles FlaggedVehicle[]
+  patrolReports PatrolReport[]
+  entryLogs     EntryLog[]
 
   @@index([companyId])
   @@index([siteId])
@@ -327,44 +325,31 @@ model PatrolCheckpoint {
 }
 
 model EntryLog {
-  id               String    @id @default(auto()) @map("_id") @db.ObjectId
-  siteId           String    @map("site_id") @db.ObjectId
-  guardId          String?   @map("guard_id") @db.ObjectId
-  driverName       String    @map("driver_name")
-  driverContact    String?   @map("driver_contact")
-  vehicleReg       String    @map("vehicle_registration")
-  vehicleDesc      String?   @map("vehicle_description")
-  entryTime        DateTime  @map("entry_time")
-  exitTime         DateTime? @map("exit_time")
-  purpose          String?
-  flaggedVehicleId String?   @map("flagged_vehicle_id") @db.ObjectId
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt @map("updated_at")
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  siteId        String    @map("site_id") @db.ObjectId
+  guardId       String?   @map("guard_id") @db.ObjectId
+  driverName    String    @map("driver_name")
+  driverContact String?   @map("driver_contact")
+  vehicleReg    String    @map("vehicle_registration")
+  vehicleDesc   String?   @map("vehicle_description")
+  entryTime     DateTime  @map("entry_time")
+  exitTime      DateTime? @map("exit_time")
+  purpose       String?
+  flagged       Boolean   @default(false)
+  flagReason    String?   @map("flag_reason")
+  flaggedById   String?   @map("flagged_by") @db.ObjectId
+  flaggedAt     DateTime? @map("flagged_at")
+  resolvedAt    DateTime? @map("resolved_at")
+  resolveReason String?   @map("resolve_reason")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  site           GuardingSite   @relation(fields: [siteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  guard          Guard?         @relation(fields: [guardId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  flaggedVehicle FlaggedVehicle? @relation(fields: [flaggedVehicleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  site  GuardingSite @relation(fields: [siteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  guard Guard?       @relation(fields: [guardId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([siteId])
   @@index([vehicleReg])
+  @@index([flagged])
   @@map("entry_logs")
 }
 
-model FlaggedVehicle {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  companyId   String    @map("company_id") @db.ObjectId
-  vehicleReg  String    @map("vehicle_registration")
-  reason      String
-  flaggedById String    @map("flagged_by") @db.ObjectId
-  resolvedAt  DateTime? @map("resolved_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
-
-  company   Company   @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  flaggedBy Guard     @relation(fields: [flaggedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  entryLogs EntryLog[]
-
-  @@index([companyId])
-  @@index([vehicleReg])
-  @@map("flagged_vehicles")
-}

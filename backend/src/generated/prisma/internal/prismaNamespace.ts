@@ -406,8 +406,7 @@ export const ModelName = {
   Guard: 'Guard',
   PatrolReport: 'PatrolReport',
   PatrolCheckpoint: 'PatrolCheckpoint',
-  EntryLog: 'EntryLog',
-  FlaggedVehicle: 'FlaggedVehicle'
+  EntryLog: 'EntryLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -423,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company" | "user" | "refreshToken" | "incident" | "passwordResetToken" | "emailVerificationToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "invoice" | "apiKey" | "auditLog" | "guardingSite" | "guard" | "patrolReport" | "patrolCheckpoint" | "entryLog" | "flaggedVehicle"
+    modelProps: "company" | "user" | "refreshToken" | "incident" | "passwordResetToken" | "emailVerificationToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "invoice" | "apiKey" | "auditLog" | "guardingSite" | "guard" | "patrolReport" | "patrolCheckpoint" | "entryLog"
     txIsolationLevel: never
   }
   model: {
@@ -1685,80 +1684,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    FlaggedVehicle: {
-      payload: Prisma.$FlaggedVehiclePayload<ExtArgs>
-      fields: Prisma.FlaggedVehicleFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.FlaggedVehicleFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlaggedVehiclePayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.FlaggedVehicleFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlaggedVehiclePayload>
-        }
-        findFirst: {
-          args: Prisma.FlaggedVehicleFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlaggedVehiclePayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.FlaggedVehicleFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlaggedVehiclePayload>
-        }
-        findMany: {
-          args: Prisma.FlaggedVehicleFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlaggedVehiclePayload>[]
-        }
-        create: {
-          args: Prisma.FlaggedVehicleCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlaggedVehiclePayload>
-        }
-        createMany: {
-          args: Prisma.FlaggedVehicleCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.FlaggedVehicleDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlaggedVehiclePayload>
-        }
-        update: {
-          args: Prisma.FlaggedVehicleUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlaggedVehiclePayload>
-        }
-        deleteMany: {
-          args: Prisma.FlaggedVehicleDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.FlaggedVehicleUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.FlaggedVehicleUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlaggedVehiclePayload>
-        }
-        aggregate: {
-          args: Prisma.FlaggedVehicleAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateFlaggedVehicle>
-        }
-        groupBy: {
-          args: Prisma.FlaggedVehicleGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.FlaggedVehicleGroupByOutputType>[]
-        }
-        findRaw: {
-          args: Prisma.FlaggedVehicleFindRawArgs<ExtArgs>
-          result: Prisma.JsonObject
-        }
-        aggregateRaw: {
-          args: Prisma.FlaggedVehicleAggregateRawArgs<ExtArgs>
-          result: Prisma.JsonObject
-        }
-        count: {
-          args: Prisma.FlaggedVehicleCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.FlaggedVehicleCountAggregateOutputType> | number
-        }
-      }
-    }
   }
 } & {
   other: {
@@ -2032,25 +1957,17 @@ export const EntryLogScalarFieldEnum = {
   entryTime: 'entryTime',
   exitTime: 'exitTime',
   purpose: 'purpose',
-  flaggedVehicleId: 'flaggedVehicleId',
+  flagged: 'flagged',
+  flagReason: 'flagReason',
+  flaggedById: 'flaggedById',
+  flaggedAt: 'flaggedAt',
+  resolvedAt: 'resolvedAt',
+  resolveReason: 'resolveReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type EntryLogScalarFieldEnum = (typeof EntryLogScalarFieldEnum)[keyof typeof EntryLogScalarFieldEnum]
-
-
-export const FlaggedVehicleScalarFieldEnum = {
-  id: 'id',
-  companyId: 'companyId',
-  vehicleReg: 'vehicleReg',
-  reason: 'reason',
-  flaggedById: 'flaggedById',
-  resolvedAt: 'resolvedAt',
-  createdAt: 'createdAt'
-} as const
-
-export type FlaggedVehicleScalarFieldEnum = (typeof FlaggedVehicleScalarFieldEnum)[keyof typeof FlaggedVehicleScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2240,7 +2157,6 @@ export type GlobalOmitConfig = {
   patrolReport?: Prisma.PatrolReportOmit
   patrolCheckpoint?: Prisma.PatrolCheckpointOmit
   entryLog?: Prisma.EntryLogOmit
-  flaggedVehicle?: Prisma.FlaggedVehicleOmit
 }
 
 /* Types for Logging */

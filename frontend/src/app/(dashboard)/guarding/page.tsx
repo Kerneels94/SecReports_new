@@ -1,5 +1,5 @@
 /**
- * Guarding dashboard — overview of guarding operations: sites count, guards, patrols, flagged vehicles, and site list.
+ * Guarding dashboard — overview of guarding operations: sites count, guards, patrols, and site list.
  * @route /guarding
  */
 "use client";
@@ -7,13 +7,13 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { guardingSiteService, flaggedVehicleService } from "@/services";
-import type { GuardingSite, FlaggedVehicle } from "@/types";
+import { guardingSiteService, entryLogService } from "@/services";
+import type { GuardingSite, EntryLog } from "@/types";
 
 /** Guarding dashboard component with stat cards, site list, and flagged vehicles overview. */
 export default function GuardingDashboard() {
   const [sites, setSites] = useState<GuardingSite[]>([]);
-  const [flaggedVehicles, setFlaggedVehicles] = useState<FlaggedVehicle[]>([]);
+  const [flaggedEntries, setFlaggedEntries] = useState<EntryLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,12 +21,12 @@ export default function GuardingDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const [sitesRes, flaggedRes] = await Promise.all([
+      const [sitesRes, entriesRes] = await Promise.all([
         guardingSiteService.list(),
-        flaggedVehicleService.list(),
+        entryLogService.listByCompany(),
       ]);
       setSites(sitesRes.data);
-      setFlaggedVehicles(flaggedRes.data);
+      setFlaggedEntries(entriesRes.data.filter((e) => e.flagged && !e.resolvedAt));
     } catch {
       setError("Failed to load guarding data");
     } finally {
@@ -100,7 +100,7 @@ export default function GuardingDashboard() {
         <Card>
           <CardContent className="p-4">
             <p className="text-xs text-text-secondary/70 uppercase tracking-wider">Flagged Vehicles</p>
-            <p className="text-2xl font-bold text-danger mt-1">{flaggedVehicles.length}</p>
+            <p className="text-2xl font-bold text-danger mt-1">{flaggedEntries.length}</p>
           </CardContent>
         </Card>
       </div>
@@ -127,7 +127,7 @@ export default function GuardingDashboard() {
                     </div>
                     <div className="flex gap-3 text-xs text-text-secondary">
                       <span>{site._count?.guards ?? 0} guards</span>
-                       <span>{site._count?.entryLogs ?? 0} access logs</span>
+                      <span>{site._count?.entryLogs ?? 0} access logs</span>
                     </div>
                   </Link>
                 ))}
@@ -141,23 +141,22 @@ export default function GuardingDashboard() {
             <CardTitle>Flagged Vehicles</CardTitle>
           </CardHeader>
           <CardContent>
-            {flaggedVehicles.length === 0 ? (
+            {flaggedEntries.length === 0 ? (
               <p className="text-sm text-text-secondary">No flagged vehicles across all sites.</p>
             ) : (
               <div className="space-y-3">
-                {flaggedVehicles.map((v) => (
+                {flaggedEntries.map((e) => (
                   <div
-                    key={v.id}
+                    key={e.id}
                     className="rounded-lg border border-danger/20 bg-danger/5 p-3"
                   >
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-text">{v.vehicleReg}</p>
+                      <p className="text-sm font-medium text-text">{e.vehicleReg}</p>
                       <span className="text-[10px] uppercase tracking-wider text-danger font-semibold">Flagged</span>
                     </div>
-                    <p className="text-xs text-text-secondary mt-1">{v.reason}</p>
-                    <p className="text-xs text-text-secondary/60 mt-1">
-                      By {v.flaggedBy?.name} {v.flaggedBy?.surname}
-                    </p>
+                    {e.flagReason && <p className="text-xs text-text-secondary mt-1">{e.flagReason}</p>}
+                    <p className="text-xs text-text-secondary mt-1">{e.site?.name}</p>
+                    <p className="text-xs text-text-secondary mt-1">{e.driverName}</p>
                   </div>
                 ))}
               </div>

@@ -35,7 +35,12 @@ export type EntryLogMinAggregateOutputType = {
   entryTime: Date | null
   exitTime: Date | null
   purpose: string | null
-  flaggedVehicleId: string | null
+  flagged: boolean | null
+  flagReason: string | null
+  flaggedById: string | null
+  flaggedAt: Date | null
+  resolvedAt: Date | null
+  resolveReason: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -51,7 +56,12 @@ export type EntryLogMaxAggregateOutputType = {
   entryTime: Date | null
   exitTime: Date | null
   purpose: string | null
-  flaggedVehicleId: string | null
+  flagged: boolean | null
+  flagReason: string | null
+  flaggedById: string | null
+  flaggedAt: Date | null
+  resolvedAt: Date | null
+  resolveReason: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -67,7 +77,12 @@ export type EntryLogCountAggregateOutputType = {
   entryTime: number
   exitTime: number
   purpose: number
-  flaggedVehicleId: number
+  flagged: number
+  flagReason: number
+  flaggedById: number
+  flaggedAt: number
+  resolvedAt: number
+  resolveReason: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -85,7 +100,12 @@ export type EntryLogMinAggregateInputType = {
   entryTime?: true
   exitTime?: true
   purpose?: true
-  flaggedVehicleId?: true
+  flagged?: true
+  flagReason?: true
+  flaggedById?: true
+  flaggedAt?: true
+  resolvedAt?: true
+  resolveReason?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -101,7 +121,12 @@ export type EntryLogMaxAggregateInputType = {
   entryTime?: true
   exitTime?: true
   purpose?: true
-  flaggedVehicleId?: true
+  flagged?: true
+  flagReason?: true
+  flaggedById?: true
+  flaggedAt?: true
+  resolvedAt?: true
+  resolveReason?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -117,7 +142,12 @@ export type EntryLogCountAggregateInputType = {
   entryTime?: true
   exitTime?: true
   purpose?: true
-  flaggedVehicleId?: true
+  flagged?: true
+  flagReason?: true
+  flaggedById?: true
+  flaggedAt?: true
+  resolvedAt?: true
+  resolveReason?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -206,7 +236,12 @@ export type EntryLogGroupByOutputType = {
   entryTime: Date
   exitTime: Date | null
   purpose: string | null
-  flaggedVehicleId: string | null
+  flagged: boolean
+  flagReason: string | null
+  flaggedById: string | null
+  flaggedAt: Date | null
+  resolvedAt: Date | null
+  resolveReason: string | null
   createdAt: Date
   updatedAt: Date
   _count: EntryLogCountAggregateOutputType | null
@@ -243,12 +278,16 @@ export type EntryLogWhereInput = {
   entryTime?: Prisma.DateTimeFilter<"EntryLog"> | Date | string
   exitTime?: Prisma.DateTimeNullableFilter<"EntryLog"> | Date | string | null
   purpose?: Prisma.StringNullableFilter<"EntryLog"> | string | null
-  flaggedVehicleId?: Prisma.StringNullableFilter<"EntryLog"> | string | null
+  flagged?: Prisma.BoolFilter<"EntryLog"> | boolean
+  flagReason?: Prisma.StringNullableFilter<"EntryLog"> | string | null
+  flaggedById?: Prisma.StringNullableFilter<"EntryLog"> | string | null
+  flaggedAt?: Prisma.DateTimeNullableFilter<"EntryLog"> | Date | string | null
+  resolvedAt?: Prisma.DateTimeNullableFilter<"EntryLog"> | Date | string | null
+  resolveReason?: Prisma.StringNullableFilter<"EntryLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"EntryLog"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"EntryLog"> | Date | string
   site?: Prisma.XOR<Prisma.GuardingSiteScalarRelationFilter, Prisma.GuardingSiteWhereInput>
   guard?: Prisma.XOR<Prisma.GuardNullableScalarRelationFilter, Prisma.GuardWhereInput> | null
-  flaggedVehicle?: Prisma.XOR<Prisma.FlaggedVehicleNullableScalarRelationFilter, Prisma.FlaggedVehicleWhereInput> | null
 }
 
 export type EntryLogOrderByWithRelationInput = {
@@ -262,12 +301,16 @@ export type EntryLogOrderByWithRelationInput = {
   entryTime?: Prisma.SortOrder
   exitTime?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
-  flaggedVehicleId?: Prisma.SortOrder
+  flagged?: Prisma.SortOrder
+  flagReason?: Prisma.SortOrder
+  flaggedById?: Prisma.SortOrder
+  flaggedAt?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolveReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   site?: Prisma.GuardingSiteOrderByWithRelationInput
   guard?: Prisma.GuardOrderByWithRelationInput
-  flaggedVehicle?: Prisma.FlaggedVehicleOrderByWithRelationInput
 }
 
 export type EntryLogWhereUniqueInput = Prisma.AtLeast<{
@@ -284,12 +327,16 @@ export type EntryLogWhereUniqueInput = Prisma.AtLeast<{
   entryTime?: Prisma.DateTimeFilter<"EntryLog"> | Date | string
   exitTime?: Prisma.DateTimeNullableFilter<"EntryLog"> | Date | string | null
   purpose?: Prisma.StringNullableFilter<"EntryLog"> | string | null
-  flaggedVehicleId?: Prisma.StringNullableFilter<"EntryLog"> | string | null
+  flagged?: Prisma.BoolFilter<"EntryLog"> | boolean
+  flagReason?: Prisma.StringNullableFilter<"EntryLog"> | string | null
+  flaggedById?: Prisma.StringNullableFilter<"EntryLog"> | string | null
+  flaggedAt?: Prisma.DateTimeNullableFilter<"EntryLog"> | Date | string | null
+  resolvedAt?: Prisma.DateTimeNullableFilter<"EntryLog"> | Date | string | null
+  resolveReason?: Prisma.StringNullableFilter<"EntryLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"EntryLog"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"EntryLog"> | Date | string
   site?: Prisma.XOR<Prisma.GuardingSiteScalarRelationFilter, Prisma.GuardingSiteWhereInput>
   guard?: Prisma.XOR<Prisma.GuardNullableScalarRelationFilter, Prisma.GuardWhereInput> | null
-  flaggedVehicle?: Prisma.XOR<Prisma.FlaggedVehicleNullableScalarRelationFilter, Prisma.FlaggedVehicleWhereInput> | null
 }, "id">
 
 export type EntryLogOrderByWithAggregationInput = {
@@ -303,7 +350,12 @@ export type EntryLogOrderByWithAggregationInput = {
   entryTime?: Prisma.SortOrder
   exitTime?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
-  flaggedVehicleId?: Prisma.SortOrder
+  flagged?: Prisma.SortOrder
+  flagReason?: Prisma.SortOrder
+  flaggedById?: Prisma.SortOrder
+  flaggedAt?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolveReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.EntryLogCountOrderByAggregateInput
@@ -325,7 +377,12 @@ export type EntryLogScalarWhereWithAggregatesInput = {
   entryTime?: Prisma.DateTimeWithAggregatesFilter<"EntryLog"> | Date | string
   exitTime?: Prisma.DateTimeNullableWithAggregatesFilter<"EntryLog"> | Date | string | null
   purpose?: Prisma.StringNullableWithAggregatesFilter<"EntryLog"> | string | null
-  flaggedVehicleId?: Prisma.StringNullableWithAggregatesFilter<"EntryLog"> | string | null
+  flagged?: Prisma.BoolWithAggregatesFilter<"EntryLog"> | boolean
+  flagReason?: Prisma.StringNullableWithAggregatesFilter<"EntryLog"> | string | null
+  flaggedById?: Prisma.StringNullableWithAggregatesFilter<"EntryLog"> | string | null
+  flaggedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"EntryLog"> | Date | string | null
+  resolvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"EntryLog"> | Date | string | null
+  resolveReason?: Prisma.StringNullableWithAggregatesFilter<"EntryLog"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"EntryLog"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"EntryLog"> | Date | string
 }
@@ -339,11 +396,16 @@ export type EntryLogCreateInput = {
   entryTime: Date | string
   exitTime?: Date | string | null
   purpose?: string | null
+  flagged?: boolean
+  flagReason?: string | null
+  flaggedById?: string | null
+  flaggedAt?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolveReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   site: Prisma.GuardingSiteCreateNestedOneWithoutEntryLogsInput
   guard?: Prisma.GuardCreateNestedOneWithoutEntryLogsInput
-  flaggedVehicle?: Prisma.FlaggedVehicleCreateNestedOneWithoutEntryLogsInput
 }
 
 export type EntryLogUncheckedCreateInput = {
@@ -357,7 +419,12 @@ export type EntryLogUncheckedCreateInput = {
   entryTime: Date | string
   exitTime?: Date | string | null
   purpose?: string | null
-  flaggedVehicleId?: string | null
+  flagged?: boolean
+  flagReason?: string | null
+  flaggedById?: string | null
+  flaggedAt?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolveReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -370,11 +437,16 @@ export type EntryLogUpdateInput = {
   entryTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flagged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  flagReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   site?: Prisma.GuardingSiteUpdateOneRequiredWithoutEntryLogsNestedInput
   guard?: Prisma.GuardUpdateOneWithoutEntryLogsNestedInput
-  flaggedVehicle?: Prisma.FlaggedVehicleUpdateOneWithoutEntryLogsNestedInput
 }
 
 export type EntryLogUncheckedUpdateInput = {
@@ -387,7 +459,12 @@ export type EntryLogUncheckedUpdateInput = {
   entryTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  flaggedVehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flagged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  flagReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -403,7 +480,12 @@ export type EntryLogCreateManyInput = {
   entryTime: Date | string
   exitTime?: Date | string | null
   purpose?: string | null
-  flaggedVehicleId?: string | null
+  flagged?: boolean
+  flagReason?: string | null
+  flaggedById?: string | null
+  flaggedAt?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolveReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -416,6 +498,12 @@ export type EntryLogUpdateManyMutationInput = {
   entryTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flagged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  flagReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -430,7 +518,12 @@ export type EntryLogUncheckedUpdateManyInput = {
   entryTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  flaggedVehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flagged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  flagReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -456,7 +549,12 @@ export type EntryLogCountOrderByAggregateInput = {
   entryTime?: Prisma.SortOrder
   exitTime?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
-  flaggedVehicleId?: Prisma.SortOrder
+  flagged?: Prisma.SortOrder
+  flagReason?: Prisma.SortOrder
+  flaggedById?: Prisma.SortOrder
+  flaggedAt?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolveReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -472,7 +570,12 @@ export type EntryLogMaxOrderByAggregateInput = {
   entryTime?: Prisma.SortOrder
   exitTime?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
-  flaggedVehicleId?: Prisma.SortOrder
+  flagged?: Prisma.SortOrder
+  flagReason?: Prisma.SortOrder
+  flaggedById?: Prisma.SortOrder
+  flaggedAt?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolveReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -488,7 +591,12 @@ export type EntryLogMinOrderByAggregateInput = {
   entryTime?: Prisma.SortOrder
   exitTime?: Prisma.SortOrder
   purpose?: Prisma.SortOrder
-  flaggedVehicleId?: Prisma.SortOrder
+  flagged?: Prisma.SortOrder
+  flagReason?: Prisma.SortOrder
+  flaggedById?: Prisma.SortOrder
+  flaggedAt?: Prisma.SortOrder
+  resolvedAt?: Prisma.SortOrder
+  resolveReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -577,48 +685,6 @@ export type EntryLogUncheckedUpdateManyWithoutGuardNestedInput = {
   deleteMany?: Prisma.EntryLogScalarWhereInput | Prisma.EntryLogScalarWhereInput[]
 }
 
-export type EntryLogCreateNestedManyWithoutFlaggedVehicleInput = {
-  create?: Prisma.XOR<Prisma.EntryLogCreateWithoutFlaggedVehicleInput, Prisma.EntryLogUncheckedCreateWithoutFlaggedVehicleInput> | Prisma.EntryLogCreateWithoutFlaggedVehicleInput[] | Prisma.EntryLogUncheckedCreateWithoutFlaggedVehicleInput[]
-  connectOrCreate?: Prisma.EntryLogCreateOrConnectWithoutFlaggedVehicleInput | Prisma.EntryLogCreateOrConnectWithoutFlaggedVehicleInput[]
-  createMany?: Prisma.EntryLogCreateManyFlaggedVehicleInputEnvelope
-  connect?: Prisma.EntryLogWhereUniqueInput | Prisma.EntryLogWhereUniqueInput[]
-}
-
-export type EntryLogUncheckedCreateNestedManyWithoutFlaggedVehicleInput = {
-  create?: Prisma.XOR<Prisma.EntryLogCreateWithoutFlaggedVehicleInput, Prisma.EntryLogUncheckedCreateWithoutFlaggedVehicleInput> | Prisma.EntryLogCreateWithoutFlaggedVehicleInput[] | Prisma.EntryLogUncheckedCreateWithoutFlaggedVehicleInput[]
-  connectOrCreate?: Prisma.EntryLogCreateOrConnectWithoutFlaggedVehicleInput | Prisma.EntryLogCreateOrConnectWithoutFlaggedVehicleInput[]
-  createMany?: Prisma.EntryLogCreateManyFlaggedVehicleInputEnvelope
-  connect?: Prisma.EntryLogWhereUniqueInput | Prisma.EntryLogWhereUniqueInput[]
-}
-
-export type EntryLogUpdateManyWithoutFlaggedVehicleNestedInput = {
-  create?: Prisma.XOR<Prisma.EntryLogCreateWithoutFlaggedVehicleInput, Prisma.EntryLogUncheckedCreateWithoutFlaggedVehicleInput> | Prisma.EntryLogCreateWithoutFlaggedVehicleInput[] | Prisma.EntryLogUncheckedCreateWithoutFlaggedVehicleInput[]
-  connectOrCreate?: Prisma.EntryLogCreateOrConnectWithoutFlaggedVehicleInput | Prisma.EntryLogCreateOrConnectWithoutFlaggedVehicleInput[]
-  upsert?: Prisma.EntryLogUpsertWithWhereUniqueWithoutFlaggedVehicleInput | Prisma.EntryLogUpsertWithWhereUniqueWithoutFlaggedVehicleInput[]
-  createMany?: Prisma.EntryLogCreateManyFlaggedVehicleInputEnvelope
-  set?: Prisma.EntryLogWhereUniqueInput | Prisma.EntryLogWhereUniqueInput[]
-  disconnect?: Prisma.EntryLogWhereUniqueInput | Prisma.EntryLogWhereUniqueInput[]
-  delete?: Prisma.EntryLogWhereUniqueInput | Prisma.EntryLogWhereUniqueInput[]
-  connect?: Prisma.EntryLogWhereUniqueInput | Prisma.EntryLogWhereUniqueInput[]
-  update?: Prisma.EntryLogUpdateWithWhereUniqueWithoutFlaggedVehicleInput | Prisma.EntryLogUpdateWithWhereUniqueWithoutFlaggedVehicleInput[]
-  updateMany?: Prisma.EntryLogUpdateManyWithWhereWithoutFlaggedVehicleInput | Prisma.EntryLogUpdateManyWithWhereWithoutFlaggedVehicleInput[]
-  deleteMany?: Prisma.EntryLogScalarWhereInput | Prisma.EntryLogScalarWhereInput[]
-}
-
-export type EntryLogUncheckedUpdateManyWithoutFlaggedVehicleNestedInput = {
-  create?: Prisma.XOR<Prisma.EntryLogCreateWithoutFlaggedVehicleInput, Prisma.EntryLogUncheckedCreateWithoutFlaggedVehicleInput> | Prisma.EntryLogCreateWithoutFlaggedVehicleInput[] | Prisma.EntryLogUncheckedCreateWithoutFlaggedVehicleInput[]
-  connectOrCreate?: Prisma.EntryLogCreateOrConnectWithoutFlaggedVehicleInput | Prisma.EntryLogCreateOrConnectWithoutFlaggedVehicleInput[]
-  upsert?: Prisma.EntryLogUpsertWithWhereUniqueWithoutFlaggedVehicleInput | Prisma.EntryLogUpsertWithWhereUniqueWithoutFlaggedVehicleInput[]
-  createMany?: Prisma.EntryLogCreateManyFlaggedVehicleInputEnvelope
-  set?: Prisma.EntryLogWhereUniqueInput | Prisma.EntryLogWhereUniqueInput[]
-  disconnect?: Prisma.EntryLogWhereUniqueInput | Prisma.EntryLogWhereUniqueInput[]
-  delete?: Prisma.EntryLogWhereUniqueInput | Prisma.EntryLogWhereUniqueInput[]
-  connect?: Prisma.EntryLogWhereUniqueInput | Prisma.EntryLogWhereUniqueInput[]
-  update?: Prisma.EntryLogUpdateWithWhereUniqueWithoutFlaggedVehicleInput | Prisma.EntryLogUpdateWithWhereUniqueWithoutFlaggedVehicleInput[]
-  updateMany?: Prisma.EntryLogUpdateManyWithWhereWithoutFlaggedVehicleInput | Prisma.EntryLogUpdateManyWithWhereWithoutFlaggedVehicleInput[]
-  deleteMany?: Prisma.EntryLogScalarWhereInput | Prisma.EntryLogScalarWhereInput[]
-}
-
 export type EntryLogCreateWithoutSiteInput = {
   id?: string
   driverName: string
@@ -628,10 +694,15 @@ export type EntryLogCreateWithoutSiteInput = {
   entryTime: Date | string
   exitTime?: Date | string | null
   purpose?: string | null
+  flagged?: boolean
+  flagReason?: string | null
+  flaggedById?: string | null
+  flaggedAt?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolveReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   guard?: Prisma.GuardCreateNestedOneWithoutEntryLogsInput
-  flaggedVehicle?: Prisma.FlaggedVehicleCreateNestedOneWithoutEntryLogsInput
 }
 
 export type EntryLogUncheckedCreateWithoutSiteInput = {
@@ -644,7 +715,12 @@ export type EntryLogUncheckedCreateWithoutSiteInput = {
   entryTime: Date | string
   exitTime?: Date | string | null
   purpose?: string | null
-  flaggedVehicleId?: string | null
+  flagged?: boolean
+  flagReason?: string | null
+  flaggedById?: string | null
+  flaggedAt?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolveReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -688,7 +764,12 @@ export type EntryLogScalarWhereInput = {
   entryTime?: Prisma.DateTimeFilter<"EntryLog"> | Date | string
   exitTime?: Prisma.DateTimeNullableFilter<"EntryLog"> | Date | string | null
   purpose?: Prisma.StringNullableFilter<"EntryLog"> | string | null
-  flaggedVehicleId?: Prisma.StringNullableFilter<"EntryLog"> | string | null
+  flagged?: Prisma.BoolFilter<"EntryLog"> | boolean
+  flagReason?: Prisma.StringNullableFilter<"EntryLog"> | string | null
+  flaggedById?: Prisma.StringNullableFilter<"EntryLog"> | string | null
+  flaggedAt?: Prisma.DateTimeNullableFilter<"EntryLog"> | Date | string | null
+  resolvedAt?: Prisma.DateTimeNullableFilter<"EntryLog"> | Date | string | null
+  resolveReason?: Prisma.StringNullableFilter<"EntryLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"EntryLog"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"EntryLog"> | Date | string
 }
@@ -702,10 +783,15 @@ export type EntryLogCreateWithoutGuardInput = {
   entryTime: Date | string
   exitTime?: Date | string | null
   purpose?: string | null
+  flagged?: boolean
+  flagReason?: string | null
+  flaggedById?: string | null
+  flaggedAt?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolveReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   site: Prisma.GuardingSiteCreateNestedOneWithoutEntryLogsInput
-  flaggedVehicle?: Prisma.FlaggedVehicleCreateNestedOneWithoutEntryLogsInput
 }
 
 export type EntryLogUncheckedCreateWithoutGuardInput = {
@@ -718,7 +804,12 @@ export type EntryLogUncheckedCreateWithoutGuardInput = {
   entryTime: Date | string
   exitTime?: Date | string | null
   purpose?: string | null
-  flaggedVehicleId?: string | null
+  flagged?: boolean
+  flagReason?: string | null
+  flaggedById?: string | null
+  flaggedAt?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolveReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -748,61 +839,6 @@ export type EntryLogUpdateManyWithWhereWithoutGuardInput = {
   data: Prisma.XOR<Prisma.EntryLogUpdateManyMutationInput, Prisma.EntryLogUncheckedUpdateManyWithoutGuardInput>
 }
 
-export type EntryLogCreateWithoutFlaggedVehicleInput = {
-  id?: string
-  driverName: string
-  driverContact?: string | null
-  vehicleReg: string
-  vehicleDesc?: string | null
-  entryTime: Date | string
-  exitTime?: Date | string | null
-  purpose?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  site: Prisma.GuardingSiteCreateNestedOneWithoutEntryLogsInput
-  guard?: Prisma.GuardCreateNestedOneWithoutEntryLogsInput
-}
-
-export type EntryLogUncheckedCreateWithoutFlaggedVehicleInput = {
-  id?: string
-  siteId: string
-  guardId?: string | null
-  driverName: string
-  driverContact?: string | null
-  vehicleReg: string
-  vehicleDesc?: string | null
-  entryTime: Date | string
-  exitTime?: Date | string | null
-  purpose?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type EntryLogCreateOrConnectWithoutFlaggedVehicleInput = {
-  where: Prisma.EntryLogWhereUniqueInput
-  create: Prisma.XOR<Prisma.EntryLogCreateWithoutFlaggedVehicleInput, Prisma.EntryLogUncheckedCreateWithoutFlaggedVehicleInput>
-}
-
-export type EntryLogCreateManyFlaggedVehicleInputEnvelope = {
-  data: Prisma.EntryLogCreateManyFlaggedVehicleInput | Prisma.EntryLogCreateManyFlaggedVehicleInput[]
-}
-
-export type EntryLogUpsertWithWhereUniqueWithoutFlaggedVehicleInput = {
-  where: Prisma.EntryLogWhereUniqueInput
-  update: Prisma.XOR<Prisma.EntryLogUpdateWithoutFlaggedVehicleInput, Prisma.EntryLogUncheckedUpdateWithoutFlaggedVehicleInput>
-  create: Prisma.XOR<Prisma.EntryLogCreateWithoutFlaggedVehicleInput, Prisma.EntryLogUncheckedCreateWithoutFlaggedVehicleInput>
-}
-
-export type EntryLogUpdateWithWhereUniqueWithoutFlaggedVehicleInput = {
-  where: Prisma.EntryLogWhereUniqueInput
-  data: Prisma.XOR<Prisma.EntryLogUpdateWithoutFlaggedVehicleInput, Prisma.EntryLogUncheckedUpdateWithoutFlaggedVehicleInput>
-}
-
-export type EntryLogUpdateManyWithWhereWithoutFlaggedVehicleInput = {
-  where: Prisma.EntryLogScalarWhereInput
-  data: Prisma.XOR<Prisma.EntryLogUpdateManyMutationInput, Prisma.EntryLogUncheckedUpdateManyWithoutFlaggedVehicleInput>
-}
-
 export type EntryLogCreateManySiteInput = {
   id?: string
   guardId?: string | null
@@ -813,7 +849,12 @@ export type EntryLogCreateManySiteInput = {
   entryTime: Date | string
   exitTime?: Date | string | null
   purpose?: string | null
-  flaggedVehicleId?: string | null
+  flagged?: boolean
+  flagReason?: string | null
+  flaggedById?: string | null
+  flaggedAt?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolveReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -826,10 +867,15 @@ export type EntryLogUpdateWithoutSiteInput = {
   entryTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flagged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  flagReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   guard?: Prisma.GuardUpdateOneWithoutEntryLogsNestedInput
-  flaggedVehicle?: Prisma.FlaggedVehicleUpdateOneWithoutEntryLogsNestedInput
 }
 
 export type EntryLogUncheckedUpdateWithoutSiteInput = {
@@ -841,7 +887,12 @@ export type EntryLogUncheckedUpdateWithoutSiteInput = {
   entryTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  flaggedVehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flagged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  flagReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -855,7 +906,12 @@ export type EntryLogUncheckedUpdateManyWithoutSiteInput = {
   entryTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  flaggedVehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flagged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  flagReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -870,7 +926,12 @@ export type EntryLogCreateManyGuardInput = {
   entryTime: Date | string
   exitTime?: Date | string | null
   purpose?: string | null
-  flaggedVehicleId?: string | null
+  flagged?: boolean
+  flagReason?: string | null
+  flaggedById?: string | null
+  flaggedAt?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolveReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -883,10 +944,15 @@ export type EntryLogUpdateWithoutGuardInput = {
   entryTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flagged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  flagReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   site?: Prisma.GuardingSiteUpdateOneRequiredWithoutEntryLogsNestedInput
-  flaggedVehicle?: Prisma.FlaggedVehicleUpdateOneWithoutEntryLogsNestedInput
 }
 
 export type EntryLogUncheckedUpdateWithoutGuardInput = {
@@ -898,7 +964,12 @@ export type EntryLogUncheckedUpdateWithoutGuardInput = {
   entryTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  flaggedVehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flagged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  flagReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -912,64 +983,12 @@ export type EntryLogUncheckedUpdateManyWithoutGuardInput = {
   entryTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  flaggedVehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type EntryLogCreateManyFlaggedVehicleInput = {
-  id?: string
-  siteId: string
-  guardId?: string | null
-  driverName: string
-  driverContact?: string | null
-  vehicleReg: string
-  vehicleDesc?: string | null
-  entryTime: Date | string
-  exitTime?: Date | string | null
-  purpose?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type EntryLogUpdateWithoutFlaggedVehicleInput = {
-  driverName?: Prisma.StringFieldUpdateOperationsInput | string
-  driverContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vehicleReg?: Prisma.StringFieldUpdateOperationsInput | string
-  vehicleDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  entryTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  exitTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  site?: Prisma.GuardingSiteUpdateOneRequiredWithoutEntryLogsNestedInput
-  guard?: Prisma.GuardUpdateOneWithoutEntryLogsNestedInput
-}
-
-export type EntryLogUncheckedUpdateWithoutFlaggedVehicleInput = {
-  siteId?: Prisma.StringFieldUpdateOperationsInput | string
-  guardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  driverName?: Prisma.StringFieldUpdateOperationsInput | string
-  driverContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vehicleReg?: Prisma.StringFieldUpdateOperationsInput | string
-  vehicleDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  entryTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  exitTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type EntryLogUncheckedUpdateManyWithoutFlaggedVehicleInput = {
-  siteId?: Prisma.StringFieldUpdateOperationsInput | string
-  guardId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  driverName?: Prisma.StringFieldUpdateOperationsInput | string
-  driverContact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vehicleReg?: Prisma.StringFieldUpdateOperationsInput | string
-  vehicleDesc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  entryTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  exitTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  purpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flagged?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  flagReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flaggedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -987,12 +1006,16 @@ export type EntryLogSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   entryTime?: boolean
   exitTime?: boolean
   purpose?: boolean
-  flaggedVehicleId?: boolean
+  flagged?: boolean
+  flagReason?: boolean
+  flaggedById?: boolean
+  flaggedAt?: boolean
+  resolvedAt?: boolean
+  resolveReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   site?: boolean | Prisma.GuardingSiteDefaultArgs<ExtArgs>
   guard?: boolean | Prisma.EntryLog$guardArgs<ExtArgs>
-  flaggedVehicle?: boolean | Prisma.EntryLog$flaggedVehicleArgs<ExtArgs>
 }, ExtArgs["result"]["entryLog"]>
 
 
@@ -1008,16 +1031,20 @@ export type EntryLogSelectScalar = {
   entryTime?: boolean
   exitTime?: boolean
   purpose?: boolean
-  flaggedVehicleId?: boolean
+  flagged?: boolean
+  flagReason?: boolean
+  flaggedById?: boolean
+  flaggedAt?: boolean
+  resolvedAt?: boolean
+  resolveReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type EntryLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "siteId" | "guardId" | "driverName" | "driverContact" | "vehicleReg" | "vehicleDesc" | "entryTime" | "exitTime" | "purpose" | "flaggedVehicleId" | "createdAt" | "updatedAt", ExtArgs["result"]["entryLog"]>
+export type EntryLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "siteId" | "guardId" | "driverName" | "driverContact" | "vehicleReg" | "vehicleDesc" | "entryTime" | "exitTime" | "purpose" | "flagged" | "flagReason" | "flaggedById" | "flaggedAt" | "resolvedAt" | "resolveReason" | "createdAt" | "updatedAt", ExtArgs["result"]["entryLog"]>
 export type EntryLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   site?: boolean | Prisma.GuardingSiteDefaultArgs<ExtArgs>
   guard?: boolean | Prisma.EntryLog$guardArgs<ExtArgs>
-  flaggedVehicle?: boolean | Prisma.EntryLog$flaggedVehicleArgs<ExtArgs>
 }
 
 export type $EntryLogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1025,7 +1052,6 @@ export type $EntryLogPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     site: Prisma.$GuardingSitePayload<ExtArgs>
     guard: Prisma.$GuardPayload<ExtArgs> | null
-    flaggedVehicle: Prisma.$FlaggedVehiclePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1038,7 +1064,12 @@ export type $EntryLogPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     entryTime: Date
     exitTime: Date | null
     purpose: string | null
-    flaggedVehicleId: string | null
+    flagged: boolean
+    flagReason: string | null
+    flaggedById: string | null
+    flaggedAt: Date | null
+    resolvedAt: Date | null
+    resolveReason: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["entryLog"]>
@@ -1406,7 +1437,6 @@ export interface Prisma__EntryLogClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   site<T extends Prisma.GuardingSiteDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.GuardingSiteDefaultArgs<ExtArgs>>): Prisma.Prisma__GuardingSiteClient<runtime.Types.Result.GetResult<Prisma.$GuardingSitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   guard<T extends Prisma.EntryLog$guardArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EntryLog$guardArgs<ExtArgs>>): Prisma.Prisma__GuardClient<runtime.Types.Result.GetResult<Prisma.$GuardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  flaggedVehicle<T extends Prisma.EntryLog$flaggedVehicleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EntryLog$flaggedVehicleArgs<ExtArgs>>): Prisma.Prisma__FlaggedVehicleClient<runtime.Types.Result.GetResult<Prisma.$FlaggedVehiclePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1446,7 +1476,12 @@ export interface EntryLogFieldRefs {
   readonly entryTime: Prisma.FieldRef<"EntryLog", 'DateTime'>
   readonly exitTime: Prisma.FieldRef<"EntryLog", 'DateTime'>
   readonly purpose: Prisma.FieldRef<"EntryLog", 'String'>
-  readonly flaggedVehicleId: Prisma.FieldRef<"EntryLog", 'String'>
+  readonly flagged: Prisma.FieldRef<"EntryLog", 'Boolean'>
+  readonly flagReason: Prisma.FieldRef<"EntryLog", 'String'>
+  readonly flaggedById: Prisma.FieldRef<"EntryLog", 'String'>
+  readonly flaggedAt: Prisma.FieldRef<"EntryLog", 'DateTime'>
+  readonly resolvedAt: Prisma.FieldRef<"EntryLog", 'DateTime'>
+  readonly resolveReason: Prisma.FieldRef<"EntryLog", 'String'>
   readonly createdAt: Prisma.FieldRef<"EntryLog", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"EntryLog", 'DateTime'>
 }
@@ -1835,25 +1870,6 @@ export type EntryLog$guardArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   include?: Prisma.GuardInclude<ExtArgs> | null
   where?: Prisma.GuardWhereInput
-}
-
-/**
- * EntryLog.flaggedVehicle
- */
-export type EntryLog$flaggedVehicleArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the FlaggedVehicle
-   */
-  select?: Prisma.FlaggedVehicleSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the FlaggedVehicle
-   */
-  omit?: Prisma.FlaggedVehicleOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.FlaggedVehicleInclude<ExtArgs> | null
-  where?: Prisma.FlaggedVehicleWhereInput
 }
 
 /**
