@@ -67,7 +67,13 @@ interface Attachment {
 /** Parameters for sending a transactional email. */
 interface SendMailParams {
   to: string;
-  subject: "register" | "invoice" | "cancellation" | "suspention" | "report" | "trial_ending";
+  subject:
+    | "register"
+    | "invoice"
+    | "cancellation"
+    | "suspention"
+    | "report"
+    | "trial_ending";
   data?: Record<string, unknown>;
   from?: string;
   attachments?: Attachment[];
@@ -172,7 +178,11 @@ export async function sendWelcomeEmail(to: string, name: string) {
 }
 
 /** Sends an email verification link to a newly registered user. */
-export async function sendVerificationEmail(to: string, name: string, verifyLink: string) {
+export async function sendVerificationEmail(
+  to: string,
+  name: string,
+  verifyLink: string,
+) {
   const { default: template } = await import("../templates/verify-email");
   const html = template(name, verifyLink);
 

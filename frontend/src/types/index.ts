@@ -236,12 +236,16 @@ export interface EntryLog {
   entryTime: string;
   exitTime: string | null;
   purpose: string | null;
-  flaggedVehicleId: string | null;
+  flagged: boolean;
+  flagReason: string | null;
+  flaggedById: string | null;
+  flaggedAt: string | null;
+  resolvedAt: string | null;
+  resolveReason: string | null;
   createdAt: string;
   updatedAt: string;
   site?: { id: string; name: string };
   guard?: { id: string; name: string; surname: string };
-  flaggedVehicle?: FlaggedVehicle | null;
 }
 
 /** An invoice sent to a company. */
@@ -315,18 +319,4 @@ export interface PaymentHistory {
   status: string;
   invoiceId: string | null;
   createdAt: string;
-}
-
-/** A vehicle flagged for security reasons at a site. */
-export interface FlaggedVehicle {
-  id: string;
-  companyId: string;
-  vehicleReg: string;
-  reason: string;
-  flaggedById: string;
-  resolvedAt: string | null;
-  createdAt: string;
-  flaggedBy?: { id: string; name: string; surname: string };
-  entryLogs?: EntryLog[];
-  _count?: { entryLogs: number };
 }

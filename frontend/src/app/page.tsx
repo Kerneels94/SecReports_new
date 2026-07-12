@@ -71,12 +71,7 @@ const features = [
   {
     title: "Gate Entry Logs",
     description:
-      "Log vehicle and person entries at security gates with automatic flagged-vehicle alerts on re-entry.",
-  },
-  {
-    title: "Flagged Vehicle Watchlist",
-    description:
-      "Maintain a watchlist of suspicious vehicles and get instant notifications when a flagged vehicle is detected.",
+      "Log vehicle and person entries at security gates with inline flagging for suspicious vehicles and reason tracking.",
   },
   {
     title: "Audit Trail",

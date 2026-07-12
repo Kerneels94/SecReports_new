@@ -1,9 +1,9 @@
 /**
  * Business logic for vehicle/person entry logs at guarding sites.
- * Handles CRUD with automatic flagged vehicle detection on entry.
+ * Handles CRUD with inline flag/unflag support.
  */
 import { prisma } from "../lib/db";
-import { NotFoundError } from "../lib/errors";
+import { NotFoundError, ConflictError } from "../lib/errors";
 
 interface CreateEntryLogParams {
   siteId: string;
@@ -14,6 +14,9 @@ interface CreateEntryLogParams {
   vehicleDesc?: string;
   entryTime: string;
   purpose?: string;
+  flagged?: boolean;
+  flagReason?: string;
+  flaggedById?: string;
 }
 
 interface UpdateEntryLogParams {
@@ -24,15 +27,17 @@ interface UpdateEntryLogParams {
   purpose?: string;
 }
 
+const ENTRY_INCLUDE = {
+  site: { select: { id: true, name: true } },
+  guard: { select: { id: true, name: true, surname: true } },
+};
+
 export const EntryLogService = {
-  /** Lists entry logs for a site with guard and flagged vehicle info. */
+  /** Lists entry logs for a site with guard info. */
   async listBySite(companyId: string, siteId: string) {
     return prisma.entryLog.findMany({
       where: { siteId, site: { companyId } },
-      include: {
-        guard: { select: { id: true, name: true, surname: true } },
-        flaggedVehicle: { select: { id: true, vehicleReg: true, reason: true, resolvedAt: true } },
-      },
+      include: ENTRY_INCLUDE,
       orderBy: { entryTime: "desc" },
     });
   },
@@ -41,44 +46,58 @@ export const EntryLogService = {
   async listByCompany(companyId: string) {
     return prisma.entryLog.findMany({
       where: { site: { companyId } },
-      include: {
-        site: { select: { id: true, name: true } },
-        guard: { select: { id: true, name: true, surname: true } },
-        flaggedVehicle: { select: { id: true, vehicleReg: true, reason: true, resolvedAt: true } },
-      },
+      include: ENTRY_INCLUDE,
       orderBy: { entryTime: "desc" },
       take: 50,
     });
   },
 
-  /** Gets a single entry log with full site, guard, and flagged vehicle details. */
+  /** Gets a single entry log with full site and guard details. */
   async getById(companyId: string, id: string) {
     const log = await prisma.entryLog.findFirst({
       where: { id, site: { companyId } },
       include: {
         site: { select: { id: true, name: true, address: true } },
         guard: { select: { id: true, name: true, surname: true } },
-        flaggedVehicle: { select: { id: true, vehicleReg: true, reason: true, createdAt: true, resolvedAt: true } },
       },
     });
     if (!log) throw new NotFoundError("Entry log");
     return log;
   },
 
-  /** Creates an entry log and auto-links any unresolved flagged vehicle by registration. */
-  async create(params: CreateEntryLogParams) {
-    let flaggedVehicleId: string | undefined;
+  /** Creates an entry log, optionally flagged at creation time. */
+  async create(companyId: string, params: CreateEntryLogParams) {
+    const site = await prisma.guardingSite.findFirst({ where: { id: params.siteId, companyId } });
+    if (!site) throw new NotFoundError("Site");
 
-    const flagged = await prisma.flaggedVehicle.findFirst({
-      where: {
-        vehicleReg: params.vehicleReg,
-        companyId: (await prisma.guardingSite.findUnique({ where: { id: params.siteId } }))!.companyId,
-        resolvedAt: null,
-      },
-    });
+    if (params.flagged && params.flagReason) {
+      const existing = await prisma.entryLog.findFirst({
+        where: {
+          vehicleReg: params.vehicleReg,
+          site: { companyId },
+          flagged: true,
+          resolvedAt: null,
+        },
+      });
+      if (existing) throw new ConflictError("Vehicle is already flagged");
 
-    if (flagged) {
-      flaggedVehicleId = flagged.id;
+      return prisma.entryLog.create({
+        data: {
+          siteId: params.siteId,
+          guardId: params.guardId,
+          driverName: params.driverName,
+          driverContact: params.driverContact,
+          vehicleReg: params.vehicleReg,
+          vehicleDesc: params.vehicleDesc,
+          entryTime: new Date(params.entryTime),
+          purpose: params.purpose,
+          flagged: true,
+          flagReason: params.flagReason,
+          flaggedById: params.flaggedById,
+          flaggedAt: new Date(),
+        },
+        include: ENTRY_INCLUDE,
+      });
     }
 
     return prisma.entryLog.create({
@@ -91,13 +110,8 @@ export const EntryLogService = {
         vehicleDesc: params.vehicleDesc,
         entryTime: new Date(params.entryTime),
         purpose: params.purpose,
-        flaggedVehicleId,
       },
-      include: {
-        site: { select: { id: true, name: true } },
-        guard: { select: { id: true, name: true, surname: true } },
-        flaggedVehicle: { select: { id: true, vehicleReg: true, reason: true, resolvedAt: true } },
-      },
+      include: ENTRY_INCLUDE,
     });
   },
 
@@ -116,11 +130,50 @@ export const EntryLogService = {
     return prisma.entryLog.update({
       where: { id },
       data,
-      include: {
-        site: { select: { id: true, name: true } },
-        guard: { select: { id: true, name: true, surname: true } },
-        flaggedVehicle: { select: { id: true, vehicleReg: true, reason: true, resolvedAt: true } },
+      include: ENTRY_INCLUDE,
+    });
+  },
+
+  /** Flags an entry log. Rejects if the vehicle is already flagged (same reg, same company, unresolved). */
+  async flag(companyId: string, id: string, userId: string, reason: string) {
+    const log = await prisma.entryLog.findFirst({ where: { id, site: { companyId } } });
+    if (!log) throw new NotFoundError("Entry log");
+    if (log.flagged && !log.resolvedAt) throw new ConflictError("Vehicle is already flagged");
+
+    const existing = await prisma.entryLog.findFirst({
+      where: {
+        vehicleReg: log.vehicleReg,
+        site: { companyId },
+        flagged: true,
+        resolvedAt: null,
       },
+    });
+    if (existing) throw new ConflictError("Vehicle is already flagged");
+
+    return prisma.entryLog.update({
+      where: { id },
+      data: {
+        flagged: true,
+        flagReason: reason,
+        flaggedById: userId,
+        flaggedAt: new Date(),
+        resolvedAt: null,
+      },
+      include: ENTRY_INCLUDE,
+    });
+  },
+
+  /** Unflags (resolves) an entry log by setting resolvedAt and resolveReason. */
+  async resolve(companyId: string, id: string, reason: string) {
+    const log = await prisma.entryLog.findFirst({ where: { id, site: { companyId } } });
+    if (!log) throw new NotFoundError("Entry log");
+    if (!log.flagged) throw new ConflictError("Entry is not flagged");
+    if (log.resolvedAt) throw new ConflictError("Entry is already resolved");
+
+    return prisma.entryLog.update({
+      where: { id },
+      data: { resolvedAt: new Date(), resolveReason: reason },
+      include: ENTRY_INCLUDE,
     });
   },
 

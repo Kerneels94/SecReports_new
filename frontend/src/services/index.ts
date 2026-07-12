@@ -19,7 +19,6 @@ import type {
   Guard,
   PatrolReport,
   EntryLog,
-  FlaggedVehicle,
   Invoice,
   RevenueStats,
   RevenueTrend,
@@ -196,7 +195,7 @@ export const patrolReportService = {
   delete: (id: string) => api.delete<void>(`/patrol-reports/${id}`),
 };
 
-/** Entry-log CRUD and vehicle-flagging endpoints. */
+/** Entry-log CRUD, flag, and resolve endpoints. */
 export const entryLogService = {
   listBySite: (siteId: string) => api.get<EntryLog[]>(`/sites/${siteId}/entry-logs`),
   listByCompany: () => api.get<EntryLog[]>("/entry-logs"),
@@ -209,23 +208,16 @@ export const entryLogService = {
     driverContact?: string;
     vehicleDesc?: string;
     purpose?: string;
+    flagged?: boolean;
+    flagReason?: string;
   }) => api.post<EntryLog>("/entry-logs", data),
   update: (id: string, data: { exitTime?: string; driverName?: string; vehicleDesc?: string; purpose?: string }) =>
     api.put<EntryLog>(`/entry-logs/${id}`, data),
-  flagVehicle: (id: string, data: { vehicleReg: string; reason: string }) =>
-    api.post<FlaggedVehicle>(`/entry-logs/${id}/flag`, data),
+  flag: (id: string, data: { reason: string }) =>
+    api.post<EntryLog>(`/entry-logs/${id}/flag`, data),
+  resolve: (id: string, data: { reason: string }) =>
+    api.post<EntryLog>(`/entry-logs/${id}/resolve`, data),
   delete: (id: string) => api.delete<void>(`/entry-logs/${id}`),
-};
-
-/** Flagged-vehicle CRUD and resolve endpoints. */
-export const flaggedVehicleService = {
-  list: (includeResolved?: boolean) =>
-    api.get<FlaggedVehicle[]>(`/flagged-vehicles${includeResolved ? "?includeResolved=true" : ""}`),
-  getById: (id: string) => api.get<FlaggedVehicle>(`/flagged-vehicles/${id}`),
-  create: (data: { vehicleReg: string; reason: string; entryLogId?: string }) =>
-    api.post<FlaggedVehicle>("/flagged-vehicles", data),
-  resolve: (id: string) => api.post<FlaggedVehicle>(`/flagged-vehicles/${id}/resolve`, {}),
-  delete: (id: string) => api.delete<void>(`/flagged-vehicles/${id}`),
 };
 
 /** Superadmin company-management endpoints. */

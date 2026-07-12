@@ -102,8 +102,3 @@ export type PatrolCheckpoint = Prisma.PatrolCheckpointModel
  * 
  */
 export type EntryLog = Prisma.EntryLogModel
-/**
- * Model FlaggedVehicle
- * 
- */
-export type FlaggedVehicle = Prisma.FlaggedVehicleModel
