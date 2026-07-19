@@ -87,6 +87,8 @@ export const PatrolReportService = {
   async create(companyId: string, params: CreatePatrolReportParams) {
     const site = await prisma.guardingSite.findFirst({ where: { id: params.siteId, companyId } });
     if (!site) throw new NotFoundError("Guarding site");
+    const guard = await prisma.guard.findFirst({ where: { id: params.guardId, companyId } });
+    if (!guard) throw new NotFoundError("Guard");
     return prisma.patrolReport.create({
       data: {
         siteId: params.siteId,
