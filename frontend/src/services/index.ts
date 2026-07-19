@@ -123,6 +123,33 @@ export const exportService = {
     api.post<{ message: string }>("/reports/email", { incidentId, email, format }),
 };
 
+/** Patrol-report export/download endpoints. */
+export const patrolExportService = {
+  downloadCsv: (params?: { siteId?: string; dateFrom?: string; dateTo?: string }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.siteId) searchParams.set("siteId", params.siteId);
+    if (params?.dateFrom) searchParams.set("dateFrom", params.dateFrom);
+    if (params?.dateTo) searchParams.set("dateTo", params.dateTo);
+    const qs = searchParams.toString();
+    return api.downloadBlob(`/export/patrol-reports/csv${qs ? `?${qs}` : ""}`);
+  },
+  downloadPdf: (params?: { siteId?: string; dateFrom?: string; dateTo?: string; siteName?: string }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.siteId) searchParams.set("siteId", params.siteId);
+    if (params?.dateFrom) searchParams.set("dateFrom", params.dateFrom);
+    if (params?.dateTo) searchParams.set("dateTo", params.dateTo);
+    if (params?.siteName) searchParams.set("siteName", params.siteName);
+    const qs = searchParams.toString();
+    return api.downloadBlob(`/export/patrol-reports/pdf${qs ? `?${qs}` : ""}`);
+  },
+  emailReport: (
+    email: string,
+    format: "csv" | "pdf",
+    filters?: { siteId?: string; dateFrom?: string; dateTo?: string; siteName?: string },
+  ) =>
+    api.post<{ message: string }>("/reports/patrol-reports/email", { email, format, ...filters }),
+};
+
 /** Manual user-creation and update endpoints (admin). */
 export const userService = {
   create: (data: { name: string; email: string; password: string; role?: string }) =>

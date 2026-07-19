@@ -1,9 +1,10 @@
 /**
  * Export routes — all endpoints require JWT authentication.
- * Supports CSV and (future) PDF export of incidents.
+ * Supports CSV and PDF export of incidents and patrol reports.
  */
 import { FastifyInstance } from "fastify";
 import { ExportController } from "../controllers/export.controller";
+import { PatrolExportController } from "../controllers/patrolExport.controller";
 import { requireRole } from "../middleware/requireRole";
 
 export default async function exportRoutes(fastify: FastifyInstance) {
@@ -21,4 +22,37 @@ export default async function exportRoutes(fastify: FastifyInstance) {
       },
     },
   }, ExportController.pdf);
+
+  fastify.get("/export/patrol-reports/csv", {
+    preHandler: [requireRole("owner", "manager")],
+    schema: {
+      querystring: {
+        type: "object",
+        properties: {
+          siteId: { type: "string" },
+          dateFrom: { type: "string" },
+          dateTo: { type: "string" },
+        },
+      },
+    },
+  }, PatrolExportController.csv);
+
+  fastify.get("/export/patrol-reports/pdf", {
+    preHandler: [requireRole("owner", "manager")],
+    schema: {
+      querystring: {
+        type: "object",
+        properties: {
+          siteId: { type: "string" },
+          dateFrom: { type: "string" },
+          dateTo: { type: "string" },
+          siteName: { type: "string" },
+        },
+      },
+    },
+  }, PatrolExportController.pdf);
+
+  fastify.post("/reports/patrol-reports/email", {
+    preHandler: [requireRole("owner", "manager")],
+  }, PatrolExportController.email);
 }
