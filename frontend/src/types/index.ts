@@ -109,6 +109,24 @@ export interface AuditLog {
   createdAt: string;
 }
 
+/** An audit log entry with performer details (used in admin audit log view). */
+export interface AuditLogEntry {
+  id: string;
+  entityType: string;
+  entityId: string;
+  action: string;
+  oldValues: string | null;
+  newValues: string | null;
+  performedBy: string;
+  createdAt: string;
+  performedByUser: {
+    id: string;
+    name: string;
+    email: string;
+    company: { id: string; name: string } | null;
+  };
+}
+
 /** Standard success response wrapper from the API. */
 export interface ApiResponse<T> {
   success: true;

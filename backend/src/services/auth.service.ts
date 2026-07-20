@@ -605,13 +605,45 @@ export const AuthService = {
     });
 
     if (data.role !== undefined && data.role !== user.role) {
+      const oldValues: Record<string, string> = { userName: user.name };
+      const newValues: Record<string, string> = { userName: updated.name };
+      if (data.name !== undefined && data.name !== user.name) {
+        oldValues.name = user.name;
+        newValues.name = data.name;
+      }
+      if (data.role !== undefined) {
+        oldValues.role = user.role;
+        newValues.role = data.role;
+      }
+      if (data.email !== undefined && data.email !== user.email) {
+        oldValues.email = user.email;
+        newValues.email = data.email;
+      }
       await createAuditLog({
         entityType: "user",
         entityId: userId,
         action: "role_changed",
         performedBy: performedBy || userId,
-        oldValues: JSON.stringify({ role: user.role }),
-        newValues: JSON.stringify({ role: data.role }),
+        oldValues: JSON.stringify(oldValues),
+        newValues: JSON.stringify(newValues),
+      });
+    } else if (data.name !== undefined && data.name !== user.name) {
+      await createAuditLog({
+        entityType: "user",
+        entityId: userId,
+        action: "user_updated",
+        performedBy: performedBy || userId,
+        oldValues: JSON.stringify({ name: user.name }),
+        newValues: JSON.stringify({ name: data.name }),
+      });
+    } else if (data.email !== undefined && data.email !== user.email) {
+      await createAuditLog({
+        entityType: "user",
+        entityId: userId,
+        action: "user_updated",
+        performedBy: performedBy || userId,
+        oldValues: JSON.stringify({ email: user.email }),
+        newValues: JSON.stringify({ email: data.email }),
       });
     }
 

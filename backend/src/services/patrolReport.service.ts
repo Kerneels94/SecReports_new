@@ -12,6 +12,7 @@ interface CreatePatrolReportParams {
   startedAt: string;
   notes?: string;
   checkpoints?: { name: string; scannedAt: string; status?: string }[];
+  performedBy?: string;
 }
 
 /** Parameters for updating a patrol report. */
@@ -89,7 +90,8 @@ export const PatrolReportService = {
     if (!site) throw new NotFoundError("Guarding site");
     const guard = await prisma.guard.findFirst({ where: { id: params.guardId, companyId } });
     if (!guard) throw new NotFoundError("Guard");
-    return prisma.patrolReport.create({
+
+    const report = await prisma.patrolReport.create({
       data: {
         siteId: params.siteId,
         guardId: params.guardId,
@@ -111,6 +113,20 @@ export const PatrolReportService = {
         checkpoints: { orderBy: { scannedAt: "asc" } },
       },
     });
+
+    if (params.performedBy) {
+      await prisma.auditLog.create({
+        data: {
+          entityType: "patrol_report",
+          entityId: report.id,
+          action: "patrol_created",
+          newValues: JSON.stringify({ siteId: params.siteId, guardId: params.guardId }),
+          performedBy: params.performedBy,
+        },
+      });
+    }
+
+    return report;
   },
 
   /** Updates a patrol report's completion time, status, or notes. */
