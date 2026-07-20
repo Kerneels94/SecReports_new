@@ -338,3 +338,34 @@ export interface PaymentHistory {
   invoiceId: string | null;
   createdAt: string;
 }
+
+/** A subscription plan available for companies. */
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  siteLimit: number;
+  userLimit: number;
+  trialPeriodDays: number | null;
+  features: string;
+  highlighted: boolean;
+}
+
+/** A company's subscription with plan details. */
+export interface CompanySubscription {
+  id: string;
+  companyId: string;
+  planId: string;
+  status: string;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  trialEndsAt: string | null;
+  trialWarningSent: boolean;
+  createdAt: string;
+  updatedAt: string;
+  plan: SubscriptionPlan;
+  usage?: {
+    sites: number;
+    users: number;
+  };
+}

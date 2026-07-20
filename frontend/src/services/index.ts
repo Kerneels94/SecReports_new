@@ -25,6 +25,8 @@ import type {
   AdminCompany,
   MonthlyInvoiceResult,
   AuditLogEntry,
+  SubscriptionPlan,
+  CompanySubscription,
 } from "@/types";
 
 interface TrialStatus {
@@ -294,4 +296,11 @@ export const adminAuditService = {
     const qs = searchParams.toString();
     return api.get<PaginatedResponse<AuditLogEntry>>(`/audit-logs${qs ? `?${qs}` : ""}`);
   },
+};
+
+/** Subscription plan and company subscription endpoints. */
+export const subscriptionService = {
+  listPlans: () => api.get<SubscriptionPlan[]>("/subscription/plans"),
+  getSubscription: () => api.get<CompanySubscription>("/subscription"),
+  changePlan: (planId: string) => api.patch<CompanySubscription>("/subscription/plan", { planId }),
 };

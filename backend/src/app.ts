@@ -23,6 +23,7 @@ import patrolReportRoutes from "./routes/patrolReport.routes";
 import entryLogRoutes from "./routes/entryLog.routes";
 import invoiceRoutes from "./routes/invoice.routes";
 import auditLogRoutes from "./routes/auditLog.routes";
+import subscriptionRoutes from "./routes/subscription.routes";
 
 /**
  * Creates and returns a fully-configured Fastify instance.
@@ -101,6 +102,7 @@ export async function buildApp() {
   await fastify.register(entryLogRoutes);
   await fastify.register(invoiceRoutes);
   await fastify.register(auditLogRoutes);
+  await fastify.register(subscriptionRoutes);
 
   fastify.setErrorHandler((error, request, reply) => {
     if (error instanceof AppError) {

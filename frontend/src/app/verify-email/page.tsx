@@ -36,10 +36,10 @@ function VerifyEmailContent() {
     }
 
     api
-      .post<{ data: { message: string } }>("/auth/verify-email", { token })
+      .post<{ message: string }>("/auth/verify-email", { token })
       .then((res) => {
         setState("success");
-        setMessage(res.data.data.message);
+        setMessage(res.data.message);
       })
       .catch((err) => {
         setState("error");
