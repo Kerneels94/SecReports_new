@@ -41,7 +41,10 @@ export const PatrolReportController = {
     const parsed = createPatrolReportSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const report = await PatrolReportService.create(request.user!.companyId, parsed.data);
+    const report = await PatrolReportService.create(request.user!.companyId, {
+      ...parsed.data,
+      performedBy: request.user!.userId,
+    });
     reply.code(201).send({ success: true, data: report });
   },
 

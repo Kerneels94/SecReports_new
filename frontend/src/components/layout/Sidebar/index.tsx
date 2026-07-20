@@ -31,6 +31,10 @@ const guardingNavItems = [
 
 const settingsItem = { href: "/settings/billing", label: "Billing", icon: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" };
 
+const adminToolsItems = [
+  { href: "/admin/audit-logs", label: "Audit Logs", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" },
+];
+
 /** Props for the Sidebar component */
 interface SidebarProps {
   isOpen?: boolean;
@@ -86,7 +90,9 @@ function NavItemsList({ items, onClose }: { items: typeof incidentNavItems; onCl
 /** A slide-over sidebar with contextual nav items. Shows on desktop always and on mobile when toggled. */
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { mode, setMode } = useDashboardMode();
+  const { user } = useAuth();
   const pathname = usePathname();
+  const isAdmin = user?.role === "owner" || user?.role === "manager";
   const navItems = mode === "incidents" ? incidentNavItems : guardingNavItems;
 
   return (
@@ -133,6 +139,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </p>
           </div>
           <NavItemsList items={navItems} onClose={onClose} />
+          {isAdmin && mode === "incidents" && (
+            <>
+              <div className="px-3 py-1.5 mt-3">
+                <p className="text-[10px] text-text-secondary/50 tracking-wider uppercase font-semibold">
+                  Admin Tools
+                </p>
+              </div>
+              <NavItemsList items={adminToolsItems} onClose={onClose} />
+            </>
+          )}
         </nav>
         <div className="p-3 border-t border-border-light">
           <Link

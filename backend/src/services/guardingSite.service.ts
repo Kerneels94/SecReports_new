@@ -19,6 +19,7 @@ interface CreateGuardingSiteParams {
   name: string;
   address?: string;
   guards?: GuardInput[];
+  performedBy?: string;
 }
 
 /** Parameters for updating a guarding site. */
@@ -60,6 +61,18 @@ export const GuardingSiteService = {
     const site = await prisma.guardingSite.create({
       data: { companyId: params.companyId, name: params.name, address: params.address },
     });
+
+    if (params.performedBy) {
+      await prisma.auditLog.create({
+        data: {
+          entityType: "guarding_site",
+          entityId: site.id,
+          action: "site_created",
+          newValues: JSON.stringify({ name: params.name }),
+          performedBy: params.performedBy,
+        },
+      });
+    }
 
     if (params.guards && params.guards.length > 0) {
       for (const g of params.guards) {

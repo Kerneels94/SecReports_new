@@ -32,6 +32,7 @@ export const GuardingSiteController = {
     const site = await GuardingSiteService.create({
       ...parsed.data,
       companyId: request.user!.companyId,
+      performedBy: request.user!.userId,
     });
 
     reply.code(201).send({ success: true, data: site });

@@ -24,6 +24,7 @@ import type {
   RevenueTrend,
   AdminCompany,
   MonthlyInvoiceResult,
+  AuditLogEntry,
 } from "@/types";
 
 interface TrialStatus {
@@ -277,4 +278,20 @@ export const adminInvoiceService = {
 export const adminRevenueService = {
   stats: () => api.get<RevenueStats>("/admin/revenue"),
   trends: () => api.get<RevenueTrend[]>("/admin/revenue/trends"),
+};
+
+/** Company audit-log endpoints (owner/manager). */
+export const adminAuditService = {
+  list: (params?: { page?: number; perPage?: number; entityType?: string; action?: string; dateFrom?: string; dateTo?: string; search?: string }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set("page", String(params.page));
+    if (params?.perPage) searchParams.set("perPage", String(params.perPage));
+    if (params?.entityType) searchParams.set("entityType", params.entityType);
+    if (params?.action) searchParams.set("action", params.action);
+    if (params?.dateFrom) searchParams.set("dateFrom", params.dateFrom);
+    if (params?.dateTo) searchParams.set("dateTo", params.dateTo);
+    if (params?.search) searchParams.set("search", params.search);
+    const qs = searchParams.toString();
+    return api.get<PaginatedResponse<AuditLogEntry>>(`/audit-logs${qs ? `?${qs}` : ""}`);
+  },
 };
