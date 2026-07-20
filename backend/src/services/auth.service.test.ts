@@ -336,12 +336,11 @@ describe("AuthService", () => {
   });
 
 describe("changePassword", () => {
-  it("changes password when current password is correct", async () => {
+  it("changes password and sends notification email", async () => {
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
-    (hash.comparePassword as jest.Mock).mockResolvedValue(true);
     (hash.hashPassword as jest.Mock).mockResolvedValue("$2b$12$newhash");
 
-    await AuthService.changePassword("1", "current-password", "new-password");
+    await AuthService.changePassword("1", "new-password");
 
     expect(prisma.user.update).toHaveBeenCalledWith({
       where: { id: "1" },
@@ -352,14 +351,7 @@ describe("changePassword", () => {
   it("throws UnauthorizedError when user not found", async () => {
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-    await expect(AuthService.changePassword("1", "current", "new")).rejects.toThrow(UnauthorizedError);
-  });
-
-  it("throws UnauthorizedError when current password is incorrect", async () => {
-    (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
-    (hash.comparePassword as jest.Mock).mockResolvedValue(false);
-
-    await expect(AuthService.changePassword("1", "wrong", "new")).rejects.toThrow(UnauthorizedError);
+    await expect(AuthService.changePassword("1", "new")).rejects.toThrow(UnauthorizedError);
   });
 });
 

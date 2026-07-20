@@ -75,7 +75,6 @@ export const resetPasswordSchema = z.object({
  * Validates authenticated password-change requests.
  */
 export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1),
   newPassword: strongPassword,
 });
 
