@@ -138,15 +138,16 @@ export const AuthController = {
       });
   },
 
-  /** Change the authenticated user's password (requires current password). Invalidates all sessions. */
+  /** Change the authenticated user's password. Invalidates all sessions. */
   async changePassword(request: FastifyRequest, reply: FastifyReply) {
     const parsed = changePasswordSchema.safeParse(request.body);
-    if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+    if (!parsed.success) {
+      const msg = parsed.error.issues[0]?.message || "Invalid input";
+      throw new ValidationError(msg, parsed.error.flatten());
+    }
 
     await AuthService.changePassword(
       request.user!.userId,
-      parsed.data.currentPassword,
       parsed.data.newPassword,
     );
     clearRefreshCookie(reply);

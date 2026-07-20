@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
+import { PatrolReportExportModal } from "@/components/guarding/PatrolReportExportModal";
 import { patrolReportService, guardingSiteService, guardService } from "@/services";
 import type { PatrolReport, GuardingSite, Guard } from "@/types";
 
@@ -36,6 +37,8 @@ export default function PatrolsPage() {
   const [editNotes, setEditNotes] = useState("");
   const [editSubmitting, setEditSubmitting] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   const buildFilters = useCallback(() => {
     const filters: { siteId?: string; dateFrom?: string; dateTo?: string } = {};
@@ -189,12 +192,21 @@ export default function PatrolsPage() {
           <h1 className="text-2xl font-bold text-text">Patrol Reports</h1>
           <p className="text-sm text-text-secondary mt-1">View and filter patrol reports across all sites</p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
-        >
-          New Patrol
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setExportModalOpen(true)}
+            disabled={patrols.length === 0}
+            className="rounded-lg border border-border-light px-4 py-2 text-sm font-medium text-text hover:bg-surface-elevated transition-colors disabled:opacity-50"
+          >
+            Export Report
+          </button>
+          <button
+            onClick={openAddModal}
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
+          >
+            New Patrol
+          </button>
+        </div>
       </div>
 
       <Card>
@@ -475,6 +487,17 @@ export default function PatrolsPage() {
           </div>
         </div>
       </Modal>
+
+      <PatrolReportExportModal
+        open={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
+        filters={{
+          siteId: filterSiteId || undefined,
+          dateFrom: filterDateFrom || undefined,
+          dateTo: filterDateTo || undefined,
+          siteName: filterSiteId ? sites.find((s) => s.id === filterSiteId)?.name : undefined,
+        }}
+      />
     </div>
   );
 }

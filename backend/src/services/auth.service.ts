@@ -505,13 +505,10 @@ export const AuthService = {
     );
   },
 
-  /** Validates the current password and updates to a new password hash. Invalidates all sessions. */
-  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+  /** Updates the user's password to a new hash. Invalidates all sessions and sends a notification email. */
+  async changePassword(userId: string, newPassword: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new UnauthorizedError("User not found");
-
-    const valid = await comparePassword(currentPassword, user.passwordHash);
-    if (!valid) throw new UnauthorizedError("Current password is incorrect");
 
     const passwordHash = await hashPassword(newPassword);
     await prisma.user.update({
@@ -527,6 +524,10 @@ export const AuthService = {
       action: "password_changed",
       performedBy: userId,
     });
+
+    sendPasswordChangedEmail(user.email, user.name).catch((err) =>
+      console.error("[AuthService] Password changed email failed:", err),
+    );
   },
 
   /** Lists all users in a company, ordered by creation date. */

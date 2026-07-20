@@ -55,8 +55,8 @@ describe("authService", () => {
   });
 
   it("changePassword calls api.patch with correct path and data", () => {
-    authService.changePassword("oldpw", "newpw");
-    expect(mockApi.patch).toHaveBeenCalledWith("/auth/me/password", { currentPassword: "oldpw", newPassword: "newpw" });
+    authService.changePassword("newpw");
+    expect(mockApi.patch).toHaveBeenCalledWith("/auth/me/password", { newPassword: "newpw" });
   });
 
   it("listUsers calls api.get with correct path", () => {
