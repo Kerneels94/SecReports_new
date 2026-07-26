@@ -190,6 +190,7 @@ export type CompanyWhereInput = {
   apiKeys?: Prisma.ApiKeyListRelationFilter
   guardingSites?: Prisma.GuardingSiteListRelationFilter
   guards?: Prisma.GuardListRelationFilter
+  patrolSchedules?: Prisma.PatrolScheduleListRelationFilter
 }
 
 export type CompanyOrderByWithRelationInput = {
@@ -206,6 +207,7 @@ export type CompanyOrderByWithRelationInput = {
   apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
   guardingSites?: Prisma.GuardingSiteOrderByRelationAggregateInput
   guards?: Prisma.GuardOrderByRelationAggregateInput
+  patrolSchedules?: Prisma.PatrolScheduleOrderByRelationAggregateInput
 }
 
 export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -225,6 +227,7 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   apiKeys?: Prisma.ApiKeyListRelationFilter
   guardingSites?: Prisma.GuardingSiteListRelationFilter
   guards?: Prisma.GuardListRelationFilter
+  patrolSchedules?: Prisma.PatrolScheduleListRelationFilter
 }, "id" | "email">
 
 export type CompanyOrderByWithAggregationInput = {
@@ -263,6 +266,7 @@ export type CompanyCreateInput = {
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateInput = {
@@ -279,6 +283,7 @@ export type CompanyUncheckedCreateInput = {
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteUncheckedCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardUncheckedCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUpdateInput = {
@@ -294,6 +299,7 @@ export type CompanyUpdateInput = {
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateInput = {
@@ -309,6 +315,7 @@ export type CompanyUncheckedUpdateInput = {
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUncheckedUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUncheckedUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateManyInput = {
@@ -489,6 +496,20 @@ export type CompanyUpdateOneRequiredWithoutGuardsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutGuardsInput, Prisma.CompanyUpdateWithoutGuardsInput>, Prisma.CompanyUncheckedUpdateWithoutGuardsInput>
 }
 
+export type CompanyCreateNestedOneWithoutPatrolSchedulesInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutPatrolSchedulesInput, Prisma.CompanyUncheckedCreateWithoutPatrolSchedulesInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutPatrolSchedulesInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutPatrolSchedulesNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutPatrolSchedulesInput, Prisma.CompanyUncheckedCreateWithoutPatrolSchedulesInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutPatrolSchedulesInput
+  upsert?: Prisma.CompanyUpsertWithoutPatrolSchedulesInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutPatrolSchedulesInput, Prisma.CompanyUpdateWithoutPatrolSchedulesInput>, Prisma.CompanyUncheckedUpdateWithoutPatrolSchedulesInput>
+}
+
 export type CompanyCreateWithoutUsersInput = {
   id?: string
   name: string
@@ -502,6 +523,7 @@ export type CompanyCreateWithoutUsersInput = {
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutUsersInput = {
@@ -517,6 +539,7 @@ export type CompanyUncheckedCreateWithoutUsersInput = {
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteUncheckedCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardUncheckedCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutUsersInput = {
@@ -547,6 +570,7 @@ export type CompanyUpdateWithoutUsersInput = {
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutUsersInput = {
@@ -561,6 +585,7 @@ export type CompanyUncheckedUpdateWithoutUsersInput = {
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUncheckedUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUncheckedUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutIncidentsInput = {
@@ -576,6 +601,7 @@ export type CompanyCreateWithoutIncidentsInput = {
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutIncidentsInput = {
@@ -591,6 +617,7 @@ export type CompanyUncheckedCreateWithoutIncidentsInput = {
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteUncheckedCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardUncheckedCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutIncidentsInput = {
@@ -621,6 +648,7 @@ export type CompanyUpdateWithoutIncidentsInput = {
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutIncidentsInput = {
@@ -635,6 +663,7 @@ export type CompanyUncheckedUpdateWithoutIncidentsInput = {
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUncheckedUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUncheckedUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutSubscriptionInput = {
@@ -650,6 +679,7 @@ export type CompanyCreateWithoutSubscriptionInput = {
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutSubscriptionInput = {
@@ -665,6 +695,7 @@ export type CompanyUncheckedCreateWithoutSubscriptionInput = {
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteUncheckedCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardUncheckedCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutSubscriptionInput = {
@@ -695,6 +726,7 @@ export type CompanyUpdateWithoutSubscriptionInput = {
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutSubscriptionInput = {
@@ -709,6 +741,7 @@ export type CompanyUncheckedUpdateWithoutSubscriptionInput = {
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUncheckedUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUncheckedUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutPaymentsInput = {
@@ -724,6 +757,7 @@ export type CompanyCreateWithoutPaymentsInput = {
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutPaymentsInput = {
@@ -739,6 +773,7 @@ export type CompanyUncheckedCreateWithoutPaymentsInput = {
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteUncheckedCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardUncheckedCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutPaymentsInput = {
@@ -769,6 +804,7 @@ export type CompanyUpdateWithoutPaymentsInput = {
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutPaymentsInput = {
@@ -783,6 +819,7 @@ export type CompanyUncheckedUpdateWithoutPaymentsInput = {
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUncheckedUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUncheckedUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutInvoicesInput = {
@@ -798,6 +835,7 @@ export type CompanyCreateWithoutInvoicesInput = {
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutInvoicesInput = {
@@ -813,6 +851,7 @@ export type CompanyUncheckedCreateWithoutInvoicesInput = {
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteUncheckedCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardUncheckedCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutInvoicesInput = {
@@ -843,6 +882,7 @@ export type CompanyUpdateWithoutInvoicesInput = {
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutInvoicesInput = {
@@ -857,6 +897,7 @@ export type CompanyUncheckedUpdateWithoutInvoicesInput = {
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUncheckedUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUncheckedUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutApiKeysInput = {
@@ -872,6 +913,7 @@ export type CompanyCreateWithoutApiKeysInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutApiKeysInput = {
@@ -887,6 +929,7 @@ export type CompanyUncheckedCreateWithoutApiKeysInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteUncheckedCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardUncheckedCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutApiKeysInput = {
@@ -917,6 +960,7 @@ export type CompanyUpdateWithoutApiKeysInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutApiKeysInput = {
@@ -931,6 +975,7 @@ export type CompanyUncheckedUpdateWithoutApiKeysInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUncheckedUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUncheckedUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutGuardingSitesInput = {
@@ -946,6 +991,7 @@ export type CompanyCreateWithoutGuardingSitesInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutCompanyInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutGuardingSitesInput = {
@@ -961,6 +1007,7 @@ export type CompanyUncheckedCreateWithoutGuardingSitesInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCompanyInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
   guards?: Prisma.GuardUncheckedCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutGuardingSitesInput = {
@@ -991,6 +1038,7 @@ export type CompanyUpdateWithoutGuardingSitesInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutCompanyNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutGuardingSitesInput = {
@@ -1005,6 +1053,7 @@ export type CompanyUncheckedUpdateWithoutGuardingSitesInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
   guards?: Prisma.GuardUncheckedUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutGuardsInput = {
@@ -1020,6 +1069,7 @@ export type CompanyCreateWithoutGuardsInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutCompanyInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutGuardsInput = {
@@ -1035,6 +1085,7 @@ export type CompanyUncheckedCreateWithoutGuardsInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCompanyInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
   guardingSites?: Prisma.GuardingSiteUncheckedCreateNestedManyWithoutCompanyInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutGuardsInput = {
@@ -1065,6 +1116,7 @@ export type CompanyUpdateWithoutGuardsInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutCompanyNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutGuardsInput = {
@@ -1079,6 +1131,85 @@ export type CompanyUncheckedUpdateWithoutGuardsInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
   guardingSites?: Prisma.GuardingSiteUncheckedUpdateManyWithoutCompanyNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutPatrolSchedulesInput = {
+  id?: string
+  name: string
+  email: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  subscription?: Prisma.CompanySubscriptionCreateNestedOneWithoutCompanyInput
+  payments?: Prisma.PaymentHistoryCreateNestedManyWithoutCompanyInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutCompanyInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCompanyInput
+  guardingSites?: Prisma.GuardingSiteCreateNestedManyWithoutCompanyInput
+  guards?: Prisma.GuardCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutPatrolSchedulesInput = {
+  id?: string
+  name: string
+  email: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  subscription?: Prisma.CompanySubscriptionUncheckedCreateNestedOneWithoutCompanyInput
+  payments?: Prisma.PaymentHistoryUncheckedCreateNestedManyWithoutCompanyInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCompanyInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCompanyInput
+  guardingSites?: Prisma.GuardingSiteUncheckedCreateNestedManyWithoutCompanyInput
+  guards?: Prisma.GuardUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutPatrolSchedulesInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutPatrolSchedulesInput, Prisma.CompanyUncheckedCreateWithoutPatrolSchedulesInput>
+}
+
+export type CompanyUpsertWithoutPatrolSchedulesInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutPatrolSchedulesInput, Prisma.CompanyUncheckedUpdateWithoutPatrolSchedulesInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutPatrolSchedulesInput, Prisma.CompanyUncheckedCreateWithoutPatrolSchedulesInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutPatrolSchedulesInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutPatrolSchedulesInput, Prisma.CompanyUncheckedUpdateWithoutPatrolSchedulesInput>
+}
+
+export type CompanyUpdateWithoutPatrolSchedulesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  subscription?: Prisma.CompanySubscriptionUpdateOneWithoutCompanyNestedInput
+  payments?: Prisma.PaymentHistoryUpdateManyWithoutCompanyNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutCompanyNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutCompanyNestedInput
+  guardingSites?: Prisma.GuardingSiteUpdateManyWithoutCompanyNestedInput
+  guards?: Prisma.GuardUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutPatrolSchedulesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  subscription?: Prisma.CompanySubscriptionUncheckedUpdateOneWithoutCompanyNestedInput
+  payments?: Prisma.PaymentHistoryUncheckedUpdateManyWithoutCompanyNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCompanyNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCompanyNestedInput
+  guardingSites?: Prisma.GuardingSiteUncheckedUpdateManyWithoutCompanyNestedInput
+  guards?: Prisma.GuardUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 
@@ -1094,6 +1225,7 @@ export type CompanyCountOutputType = {
   apiKeys: number
   guardingSites: number
   guards: number
+  patrolSchedules: number
 }
 
 export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1104,6 +1236,7 @@ export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   apiKeys?: boolean | CompanyCountOutputTypeCountApiKeysArgs
   guardingSites?: boolean | CompanyCountOutputTypeCountGuardingSitesArgs
   guards?: boolean | CompanyCountOutputTypeCountGuardsArgs
+  patrolSchedules?: boolean | CompanyCountOutputTypeCountPatrolSchedulesArgs
 }
 
 /**
@@ -1165,6 +1298,13 @@ export type CompanyCountOutputTypeCountGuardsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.GuardWhereInput
 }
 
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountPatrolSchedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PatrolScheduleWhereInput
+}
+
 
 export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1180,6 +1320,7 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   apiKeys?: boolean | Prisma.Company$apiKeysArgs<ExtArgs>
   guardingSites?: boolean | Prisma.Company$guardingSitesArgs<ExtArgs>
   guards?: boolean | Prisma.Company$guardsArgs<ExtArgs>
+  patrolSchedules?: boolean | Prisma.Company$patrolSchedulesArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["company"]>
 
@@ -1203,6 +1344,7 @@ export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   apiKeys?: boolean | Prisma.Company$apiKeysArgs<ExtArgs>
   guardingSites?: boolean | Prisma.Company$guardingSitesArgs<ExtArgs>
   guards?: boolean | Prisma.Company$guardsArgs<ExtArgs>
+  patrolSchedules?: boolean | Prisma.Company$patrolSchedulesArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1217,6 +1359,7 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     apiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
     guardingSites: Prisma.$GuardingSitePayload<ExtArgs>[]
     guards: Prisma.$GuardPayload<ExtArgs>[]
+    patrolSchedules: Prisma.$PatrolSchedulePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1595,6 +1738,7 @@ export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.
   apiKeys<T extends Prisma.Company$apiKeysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$apiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   guardingSites<T extends Prisma.Company$guardingSitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$guardingSitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GuardingSitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   guards<T extends Prisma.Company$guardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$guardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GuardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  patrolSchedules<T extends Prisma.Company$patrolSchedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$patrolSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PatrolSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2183,6 +2327,30 @@ export type Company$guardsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.GuardScalarFieldEnum | Prisma.GuardScalarFieldEnum[]
+}
+
+/**
+ * Company.patrolSchedules
+ */
+export type Company$patrolSchedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PatrolSchedule
+   */
+  select?: Prisma.PatrolScheduleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PatrolSchedule
+   */
+  omit?: Prisma.PatrolScheduleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PatrolScheduleInclude<ExtArgs> | null
+  where?: Prisma.PatrolScheduleWhereInput
+  orderBy?: Prisma.PatrolScheduleOrderByWithRelationInput | Prisma.PatrolScheduleOrderByWithRelationInput[]
+  cursor?: Prisma.PatrolScheduleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PatrolScheduleScalarFieldEnum | Prisma.PatrolScheduleScalarFieldEnum[]
 }
 
 /**

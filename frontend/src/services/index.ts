@@ -18,6 +18,7 @@ import type {
   GuardingSite,
   Guard,
   PatrolReport,
+  PatrolSchedule,
   EntryLog,
   Invoice,
   RevenueStats,
@@ -223,6 +224,33 @@ export const patrolReportService = {
   update: (id: string, data: { completedAt?: string; status?: string; notes?: string }) =>
     api.put<PatrolReport>(`/patrol-reports/${id}`, data),
   delete: (id: string) => api.delete<void>(`/patrol-reports/${id}`),
+};
+
+/** Patrol-schedule CRUD and query endpoints. */
+export const patrolScheduleService = {
+  listByCompany: (params?: { siteId?: string; day?: string }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.siteId) searchParams.set("siteId", params.siteId);
+    if (params?.day) searchParams.set("day", params.day);
+    const qs = searchParams.toString();
+    return api.get<PatrolSchedule[]>(`/patrol-schedules${qs ? `?${qs}` : ""}`);
+  },
+  getById: (id: string) => api.get<PatrolSchedule>(`/patrol-schedules/${id}`),
+  create: (data: {
+    siteId: string;
+    day: string;
+    startTime: string;
+    endTime: string;
+    checkpoints?: { name: string; order: number }[];
+  }) => api.post<PatrolSchedule>("/patrol-schedules", data),
+  update: (id: string, data: {
+    siteId?: string;
+    day?: string;
+    startTime?: string;
+    endTime?: string;
+    checkpoints?: { name: string; order: number }[];
+  }) => api.put<PatrolSchedule>(`/patrol-schedules/${id}`, data),
+  delete: (id: string) => api.delete<void>(`/patrol-schedules/${id}`),
 };
 
 /** Entry-log CRUD, flag, and resolve endpoints. */

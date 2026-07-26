@@ -10,8 +10,9 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { PatrolReportExportModal } from "@/components/guarding/PatrolReportExportModal";
-import { patrolReportService, guardingSiteService, guardService } from "@/services";
-import type { PatrolReport, GuardingSite, Guard } from "@/types";
+import { PatrolScheduleModal } from "@/components/guarding/PatrolScheduleModal";
+import { patrolReportService, patrolScheduleService, guardingSiteService, guardService } from "@/services";
+import type { PatrolReport, PatrolSchedule, GuardingSite, Guard } from "@/types";
 
 /** Patrol reports page component with filters by site/date and a paginated table of patrol records. */
 export default function PatrolsPage() {
@@ -39,6 +40,11 @@ export default function PatrolsPage() {
   const [editError, setEditError] = useState<string | null>(null);
 
   const [exportModalOpen, setExportModalOpen] = useState(false);
+
+  const [schedules, setSchedules] = useState<PatrolSchedule[]>([]);
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [editSchedule, setEditSchedule] = useState<PatrolSchedule | null>(null);
+  const [scheduleLoading, setScheduleLoading] = useState(true);
 
   const buildFilters = useCallback(() => {
     const filters: { siteId?: string; dateFrom?: string; dateTo?: string } = {};
@@ -74,9 +80,25 @@ export default function PatrolsPage() {
     fetchSites();
   }, [fetchSites]);
 
+  const fetchSchedules = useCallback(async () => {
+    setScheduleLoading(true);
+    try {
+      const res = await patrolScheduleService.listByCompany();
+      setSchedules(res.data);
+    } catch {
+      // silently fail
+    } finally {
+      setScheduleLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchPatrols();
   }, [fetchPatrols]);
+
+  useEffect(() => {
+    fetchSchedules();
+  }, [fetchSchedules]);
 
   const statusVariant = (status: string) => {
     if (status === "completed") return "success" as const;
@@ -199,6 +221,12 @@ export default function PatrolsPage() {
             className="rounded-lg border border-border-light px-4 py-2 text-sm font-medium text-text hover:bg-surface-elevated transition-colors disabled:opacity-50"
           >
             Export Report
+          </button>
+          <button
+            onClick={() => { setEditSchedule(null); setScheduleModalOpen(true); }}
+            className="rounded-lg border border-border-light px-4 py-2 text-sm font-medium text-text hover:bg-surface-elevated transition-colors"
+          >
+            Patrol Schedule
           </button>
           <button
             onClick={openAddModal}
@@ -497,6 +525,101 @@ export default function PatrolsPage() {
           dateTo: filterDateTo || undefined,
           siteName: filterSiteId ? sites.find((s) => s.id === filterSiteId)?.name : undefined,
         }}
+      />
+
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-bold text-text">Patrol Schedules</h2>
+            <p className="text-sm text-text-secondary mt-1">Recurring patrol route templates by day and time</p>
+          </div>
+        </div>
+
+        {scheduleLoading ? (
+          <div className="flex items-center justify-center min-h-[120px]">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        ) : schedules.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-text-secondary">No patrol schedules configured yet. Click &quot;Patrol Schedule&quot; above to create one.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border-light">
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Site</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Day</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Start Time</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">End Time</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Checkpoints</th>
+                  <th className="text-left py-3 px-4 text-text-secondary font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {schedules.map((s) => (
+                  <tr key={s.id} className="border-b border-border-light hover:bg-surface-elevated/30 transition-colors">
+                    <td className="py-3 px-4 text-text">{s.site?.name}</td>
+                    <td className="py-3 px-4 text-text capitalize">{s.day}</td>
+                    <td className="py-3 px-4 text-text-secondary">{s.startTime}</td>
+                    <td className="py-3 px-4 text-text-secondary">{s.endTime}</td>
+                    <td className="py-3 px-4 text-text-secondary">
+                      {s.checkpoints && s.checkpoints.length > 0
+                        ? `${s.checkpoints.length} checkpoint${s.checkpoints.length !== 1 ? "s" : ""}`
+                        : "None"}
+                      {s.checkpoints && s.checkpoints.length > 0 && (
+                        <p className="text-xs text-text-secondary mt-0.5 truncate max-w-[200px]">
+                          {s.checkpoints.map((cp) => cp.name).join(" → ")}
+                        </p>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => { setEditSchedule(s); setScheduleModalOpen(true); }}
+                          className="rounded-lg p-1.5 text-text-secondary hover:text-primary hover:bg-surface-elevated transition-colors"
+                          title="Edit schedule"
+                        >
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!confirm("Delete this patrol schedule?")) return;
+                            try {
+                              await patrolScheduleService.delete(s.id);
+                              await fetchSchedules();
+                            } catch {
+                              // silently fail
+                            }
+                          }}
+                          className="rounded-lg p-1.5 text-text-secondary hover:text-danger hover:bg-surface-elevated transition-colors"
+                          title="Delete schedule"
+                        >
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <PatrolScheduleModal
+        open={scheduleModalOpen}
+        onClose={() => { setScheduleModalOpen(false); setEditSchedule(null); }}
+        sites={sites}
+        onSaved={fetchSchedules}
+        editSchedule={editSchedule}
       />
     </div>
   );

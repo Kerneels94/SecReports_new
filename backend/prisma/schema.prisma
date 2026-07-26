@@ -24,6 +24,7 @@ model Company {
   apiKeys         ApiKey[]
   guardingSites   GuardingSite[]
   guards          Guard[]
+  patrolSchedules PatrolSchedule[]
 
   @@map("companies")
 }
@@ -258,9 +259,10 @@ model GuardingSite {
 
   company Company @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  guards        Guard[]
-  patrolReports PatrolReport[]
-  entryLogs     EntryLog[]
+  guards          Guard[]
+  patrolReports   PatrolReport[]
+  entryLogs       EntryLog[]
+  patrolSchedules PatrolSchedule[]
 
   @@index([companyId])
   @@map("guarding_sites")
@@ -322,6 +324,38 @@ model PatrolCheckpoint {
 
   @@index([patrolReportId])
   @@map("patrol_checkpoints")
+}
+
+model PatrolSchedule {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  companyId String   @map("company_id") @db.ObjectId
+  siteId    String   @map("site_id") @db.ObjectId
+  day       String
+  startTime String   @map("start_time")
+  endTime   String   @map("end_time")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  company     Company                   @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  site        GuardingSite              @relation(fields: [siteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  checkpoints PatrolScheduleCheckpoint[]
+
+  @@index([companyId])
+  @@index([siteId])
+  @@map("patrol_schedules")
+}
+
+model PatrolScheduleCheckpoint {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  patrolScheduleId String   @map("patrol_schedule_id") @db.ObjectId
+  name             String   @map("checkpoint_name")
+  order            Int
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  patrolSchedule PatrolSchedule @relation(fields: [patrolScheduleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([patrolScheduleId])
+  @@map("patrol_schedule_checkpoints")
 }
 
 model EntryLog {

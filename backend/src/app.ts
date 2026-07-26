@@ -20,6 +20,7 @@ import apiKeyRoutes from "./routes/apiKey.routes";
 import guardingSiteRoutes from "./routes/guardingSite.routes";
 import guardRoutes from "./routes/guard.routes";
 import patrolReportRoutes from "./routes/patrolReport.routes";
+import patrolScheduleRoutes from "./routes/patrolSchedule.routes";
 import entryLogRoutes from "./routes/entryLog.routes";
 import invoiceRoutes from "./routes/invoice.routes";
 import auditLogRoutes from "./routes/auditLog.routes";
@@ -99,6 +100,7 @@ export async function buildApp() {
   await fastify.register(guardingSiteRoutes);
   await fastify.register(guardRoutes);
   await fastify.register(patrolReportRoutes);
+  await fastify.register(patrolScheduleRoutes);
   await fastify.register(entryLogRoutes);
   await fastify.register(invoiceRoutes);
   await fastify.register(auditLogRoutes);

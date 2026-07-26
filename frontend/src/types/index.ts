@@ -242,6 +242,29 @@ export interface PatrolCheckpoint {
   createdAt: string;
 }
 
+/** A patrol schedule template defining a recurring route for a specific day/time. */
+export interface PatrolSchedule {
+  id: string;
+  companyId: string;
+  siteId: string;
+  day: string;
+  startTime: string;
+  endTime: string;
+  createdAt: string;
+  updatedAt: string;
+  site?: { id: string; name: string };
+  checkpoints?: PatrolScheduleCheckpoint[];
+}
+
+/** A checkpoint within a patrol schedule template. */
+export interface PatrolScheduleCheckpoint {
+  id: string;
+  patrolScheduleId: string;
+  name: string;
+  order: number;
+  createdAt: string;
+}
+
 /** A vehicle/person entry/exit log at a guarded site. */
 export interface EntryLog {
   id: string;
