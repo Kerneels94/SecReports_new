@@ -1,7 +1,7 @@
 ---
 description: Generates and manages the database layer — Prisma schema, migrations, seed files, data-access helpers — for MariaDB in the Incident Report System. Use for any database/schema/Prisma task.
 mode: subagent
-model: anthropic/claude-sonnet-4-6
+model: opencode/big-pickle
 permission:
   edit: allow
   bash:

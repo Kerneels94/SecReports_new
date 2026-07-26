@@ -2,7 +2,7 @@
 description: Scans the Incident Report System codebase against OWASP Top 10 2026 for security vulnerabilities — auth bypass, XSS, broken access control, credential leakage, injection, supply chain, error handling, and regression against the golden rules in memory.md. Use before any release or after any auth-related changes.
 command: security-audit
 mode: subagent
-model: claude-sonnet-4-6
+model: opencode/big-pickle
 permission:
   read: allow
   edit: allow

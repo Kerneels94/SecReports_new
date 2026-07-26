@@ -1,7 +1,7 @@
 ---
 description: Generates Node.js backend code (Fastify routes, controllers, services, middleware, validators) with TypeScript strict mode, JWT auth, Prisma ORM, and Jest tests. Use for any backend/API task in the Incident Report System.
 mode: subagent
-model: anthropic/claude-sonnet-4-6
+model: opencode/big-pickle
 permission:
   edit: allow
   bash:
