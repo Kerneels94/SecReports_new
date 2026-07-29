@@ -49,7 +49,6 @@ export default function PatrolsPage() {
   const notifiedStartRef = useRef<Set<string>>(new Set());
   const notifiedFailedRef = useRef<Set<string>>(new Set());
   const completedPatrolsRef = useRef<Set<string>>(new Set());
-
   const buildFilters = useCallback(() => {
     const filters: { siteId?: string; dateFrom?: string; dateTo?: string } = {};
     if (filterSiteId) filters.siteId = filterSiteId;
