@@ -65,6 +65,8 @@ export const ModelName = {
   Guard: 'Guard',
   PatrolReport: 'PatrolReport',
   PatrolCheckpoint: 'PatrolCheckpoint',
+  PatrolSchedule: 'PatrolSchedule',
+  PatrolScheduleCheckpoint: 'PatrolScheduleCheckpoint',
   EntryLog: 'EntryLog'
 } as const
 
@@ -317,6 +319,31 @@ export const PatrolCheckpointScalarFieldEnum = {
 } as const
 
 export type PatrolCheckpointScalarFieldEnum = (typeof PatrolCheckpointScalarFieldEnum)[keyof typeof PatrolCheckpointScalarFieldEnum]
+
+
+export const PatrolScheduleScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  siteId: 'siteId',
+  day: 'day',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PatrolScheduleScalarFieldEnum = (typeof PatrolScheduleScalarFieldEnum)[keyof typeof PatrolScheduleScalarFieldEnum]
+
+
+export const PatrolScheduleCheckpointScalarFieldEnum = {
+  id: 'id',
+  patrolScheduleId: 'patrolScheduleId',
+  name: 'name',
+  order: 'order',
+  createdAt: 'createdAt'
+} as const
+
+export type PatrolScheduleCheckpointScalarFieldEnum = (typeof PatrolScheduleCheckpointScalarFieldEnum)[keyof typeof PatrolScheduleCheckpointScalarFieldEnum]
 
 
 export const EntryLogScalarFieldEnum = {

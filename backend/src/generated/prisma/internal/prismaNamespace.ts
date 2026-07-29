@@ -406,6 +406,8 @@ export const ModelName = {
   Guard: 'Guard',
   PatrolReport: 'PatrolReport',
   PatrolCheckpoint: 'PatrolCheckpoint',
+  PatrolSchedule: 'PatrolSchedule',
+  PatrolScheduleCheckpoint: 'PatrolScheduleCheckpoint',
   EntryLog: 'EntryLog'
 } as const
 
@@ -422,7 +424,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company" | "user" | "refreshToken" | "incident" | "passwordResetToken" | "emailVerificationToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "invoice" | "apiKey" | "auditLog" | "guardingSite" | "guard" | "patrolReport" | "patrolCheckpoint" | "entryLog"
+    modelProps: "company" | "user" | "refreshToken" | "incident" | "passwordResetToken" | "emailVerificationToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "invoice" | "apiKey" | "auditLog" | "guardingSite" | "guard" | "patrolReport" | "patrolCheckpoint" | "patrolSchedule" | "patrolScheduleCheckpoint" | "entryLog"
     txIsolationLevel: never
   }
   model: {
@@ -1610,6 +1612,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PatrolSchedule: {
+      payload: Prisma.$PatrolSchedulePayload<ExtArgs>
+      fields: Prisma.PatrolScheduleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PatrolScheduleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolSchedulePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PatrolScheduleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolSchedulePayload>
+        }
+        findFirst: {
+          args: Prisma.PatrolScheduleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolSchedulePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PatrolScheduleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolSchedulePayload>
+        }
+        findMany: {
+          args: Prisma.PatrolScheduleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolSchedulePayload>[]
+        }
+        create: {
+          args: Prisma.PatrolScheduleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolSchedulePayload>
+        }
+        createMany: {
+          args: Prisma.PatrolScheduleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PatrolScheduleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolSchedulePayload>
+        }
+        update: {
+          args: Prisma.PatrolScheduleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolSchedulePayload>
+        }
+        deleteMany: {
+          args: Prisma.PatrolScheduleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PatrolScheduleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PatrolScheduleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolSchedulePayload>
+        }
+        aggregate: {
+          args: Prisma.PatrolScheduleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePatrolSchedule>
+        }
+        groupBy: {
+          args: Prisma.PatrolScheduleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PatrolScheduleGroupByOutputType>[]
+        }
+        findRaw: {
+          args: Prisma.PatrolScheduleFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.PatrolScheduleAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        count: {
+          args: Prisma.PatrolScheduleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PatrolScheduleCountAggregateOutputType> | number
+        }
+      }
+    }
+    PatrolScheduleCheckpoint: {
+      payload: Prisma.$PatrolScheduleCheckpointPayload<ExtArgs>
+      fields: Prisma.PatrolScheduleCheckpointFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PatrolScheduleCheckpointFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolScheduleCheckpointPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PatrolScheduleCheckpointFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolScheduleCheckpointPayload>
+        }
+        findFirst: {
+          args: Prisma.PatrolScheduleCheckpointFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolScheduleCheckpointPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PatrolScheduleCheckpointFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolScheduleCheckpointPayload>
+        }
+        findMany: {
+          args: Prisma.PatrolScheduleCheckpointFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolScheduleCheckpointPayload>[]
+        }
+        create: {
+          args: Prisma.PatrolScheduleCheckpointCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolScheduleCheckpointPayload>
+        }
+        createMany: {
+          args: Prisma.PatrolScheduleCheckpointCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.PatrolScheduleCheckpointDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolScheduleCheckpointPayload>
+        }
+        update: {
+          args: Prisma.PatrolScheduleCheckpointUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolScheduleCheckpointPayload>
+        }
+        deleteMany: {
+          args: Prisma.PatrolScheduleCheckpointDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PatrolScheduleCheckpointUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.PatrolScheduleCheckpointUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PatrolScheduleCheckpointPayload>
+        }
+        aggregate: {
+          args: Prisma.PatrolScheduleCheckpointAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePatrolScheduleCheckpoint>
+        }
+        groupBy: {
+          args: Prisma.PatrolScheduleCheckpointGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PatrolScheduleCheckpointGroupByOutputType>[]
+        }
+        findRaw: {
+          args: Prisma.PatrolScheduleCheckpointFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.PatrolScheduleCheckpointAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        count: {
+          args: Prisma.PatrolScheduleCheckpointCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PatrolScheduleCheckpointCountAggregateOutputType> | number
+        }
+      }
+    }
     EntryLog: {
       payload: Prisma.$EntryLogPayload<ExtArgs>
       fields: Prisma.EntryLogFieldRefs
@@ -1946,6 +2096,31 @@ export const PatrolCheckpointScalarFieldEnum = {
 export type PatrolCheckpointScalarFieldEnum = (typeof PatrolCheckpointScalarFieldEnum)[keyof typeof PatrolCheckpointScalarFieldEnum]
 
 
+export const PatrolScheduleScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  siteId: 'siteId',
+  day: 'day',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PatrolScheduleScalarFieldEnum = (typeof PatrolScheduleScalarFieldEnum)[keyof typeof PatrolScheduleScalarFieldEnum]
+
+
+export const PatrolScheduleCheckpointScalarFieldEnum = {
+  id: 'id',
+  patrolScheduleId: 'patrolScheduleId',
+  name: 'name',
+  order: 'order',
+  createdAt: 'createdAt'
+} as const
+
+export type PatrolScheduleCheckpointScalarFieldEnum = (typeof PatrolScheduleCheckpointScalarFieldEnum)[keyof typeof PatrolScheduleCheckpointScalarFieldEnum]
+
+
 export const EntryLogScalarFieldEnum = {
   id: 'id',
   siteId: 'siteId',
@@ -2156,6 +2331,8 @@ export type GlobalOmitConfig = {
   guard?: Prisma.GuardOmit
   patrolReport?: Prisma.PatrolReportOmit
   patrolCheckpoint?: Prisma.PatrolCheckpointOmit
+  patrolSchedule?: Prisma.PatrolScheduleOmit
+  patrolScheduleCheckpoint?: Prisma.PatrolScheduleCheckpointOmit
   entryLog?: Prisma.EntryLogOmit
 }
 

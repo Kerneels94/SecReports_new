@@ -127,6 +127,16 @@ export type PatrolReport = Prisma.PatrolReportModel
  */
 export type PatrolCheckpoint = Prisma.PatrolCheckpointModel
 /**
+ * Model PatrolSchedule
+ * 
+ */
+export type PatrolSchedule = Prisma.PatrolScheduleModel
+/**
+ * Model PatrolScheduleCheckpoint
+ * 
+ */
+export type PatrolScheduleCheckpoint = Prisma.PatrolScheduleCheckpointModel
+/**
  * Model EntryLog
  * 
  */

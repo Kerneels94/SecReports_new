@@ -4,7 +4,7 @@
     "frontend": {
       "description": "Generates Next.js frontend code (pages, components, hooks, lib, services) with Tailwind CSS, TypeScript strict mode, and Jest + React Testing Library tests.",
       "mode": "subagent",
-      "model": "claude-sonnet-4-6",
+      "model": "opencode/big-pickle",
       "permission": {
         "edit": "allow",
         "bash": {
@@ -17,7 +17,7 @@
     "nodejs": {
       "description": "Generates Node.js backend code (Fastify routes, controllers, services, middleware, validators) with TypeScript, JWT auth, and Jest tests.",
       "mode": "subagent",
-      "model": "claude-sonnet-4-6",
+      "model": "opencode/big-pickle",
       "permission": {
         "edit": "allow",
         "bash": {
@@ -30,7 +30,7 @@
     "mongodb": {
       "description": "Generates and manages the database layer (Prisma schema, seeds, data-access helpers) for MongoDB, with Jest tests.",
       "mode": "subagent",
-      "model": "claude-sonnet-4-6",
+      "model": "opencode/big-pickle",
       "permission": {
         "edit": "allow",
         "bash": {
@@ -44,7 +44,7 @@
     "security-audit-agent": {
       "description": "Scans the Incident Report System codebase against OWASP Top 10 2026 for security vulnerabilities — auth bypass, XSS, broken access control, credential leakage, injection, supply chain, error handling, and regression against the golden rules in memory.md. Use before any release or after any auth-related changes.",
       "mode": "subagent",
-      "model": "claude-sonnet-4-6",
+      "model": "opencode/big-pickle",
       "permission": {
         "read": "allow",
         "edit": "allow",

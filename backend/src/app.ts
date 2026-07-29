@@ -20,9 +20,11 @@ import apiKeyRoutes from "./routes/apiKey.routes";
 import guardingSiteRoutes from "./routes/guardingSite.routes";
 import guardRoutes from "./routes/guard.routes";
 import patrolReportRoutes from "./routes/patrolReport.routes";
+import patrolScheduleRoutes from "./routes/patrolSchedule.routes";
 import entryLogRoutes from "./routes/entryLog.routes";
 import invoiceRoutes from "./routes/invoice.routes";
 import auditLogRoutes from "./routes/auditLog.routes";
+import subscriptionRoutes from "./routes/subscription.routes";
 
 /**
  * Creates and returns a fully-configured Fastify instance.
@@ -98,9 +100,11 @@ export async function buildApp() {
   await fastify.register(guardingSiteRoutes);
   await fastify.register(guardRoutes);
   await fastify.register(patrolReportRoutes);
+  await fastify.register(patrolScheduleRoutes);
   await fastify.register(entryLogRoutes);
   await fastify.register(invoiceRoutes);
   await fastify.register(auditLogRoutes);
+  await fastify.register(subscriptionRoutes);
 
   fastify.setErrorHandler((error, request, reply) => {
     if (error instanceof AppError) {

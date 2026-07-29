@@ -12,12 +12,10 @@ import type {
   User,
   Incident,
   PaginatedResponse,
-  Comment,
-  Investigation,
-  CorrectiveAction,
   GuardingSite,
   Guard,
   PatrolReport,
+  PatrolSchedule,
   EntryLog,
   Invoice,
   RevenueStats,
@@ -25,7 +23,13 @@ import type {
   AdminCompany,
   MonthlyInvoiceResult,
   AuditLogEntry,
+  SubscriptionPlan,
+  CompanySubscription,
 } from "@/types";
+
+interface Comment { id: number; incidentId: number; userId: number; message: string; createdAt: string; user?: User }
+interface Investigation { id: number; incidentId: number; findings: string | null; rootCause: string | null; recommendations: string | null; closureNotes: string | null; completedAt: string | null }
+interface CorrectiveAction { id: number; incidentId: number; description: string; ownerId: number; dueDate: string; status: "open" | "in_progress" | "completed" | "overdue"; completedAt: string | null; owner?: User }
 
 interface TrialStatus {
   isTrial: boolean;
@@ -223,6 +227,33 @@ export const patrolReportService = {
   delete: (id: string) => api.delete<void>(`/patrol-reports/${id}`),
 };
 
+/** Patrol-schedule CRUD and query endpoints. */
+export const patrolScheduleService = {
+  listByCompany: (params?: { siteId?: string; day?: string }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.siteId) searchParams.set("siteId", params.siteId);
+    if (params?.day) searchParams.set("day", params.day);
+    const qs = searchParams.toString();
+    return api.get<PatrolSchedule[]>(`/patrol-schedules${qs ? `?${qs}` : ""}`);
+  },
+  getById: (id: string) => api.get<PatrolSchedule>(`/patrol-schedules/${id}`),
+  create: (data: {
+    siteId: string;
+    day: string;
+    startTime: string;
+    endTime: string;
+    checkpoints?: { name: string; order: number }[];
+  }) => api.post<PatrolSchedule>("/patrol-schedules", data),
+  update: (id: string, data: {
+    siteId?: string;
+    day?: string;
+    startTime?: string;
+    endTime?: string;
+    checkpoints?: { name: string; order: number }[];
+  }) => api.put<PatrolSchedule>(`/patrol-schedules/${id}`, data),
+  delete: (id: string) => api.delete<void>(`/patrol-schedules/${id}`),
+};
+
 /** Entry-log CRUD, flag, and resolve endpoints. */
 export const entryLogService = {
   listBySite: (siteId: string) => api.get<EntryLog[]>(`/sites/${siteId}/entry-logs`),
@@ -294,4 +325,11 @@ export const adminAuditService = {
     const qs = searchParams.toString();
     return api.get<PaginatedResponse<AuditLogEntry>>(`/audit-logs${qs ? `?${qs}` : ""}`);
   },
+};
+
+/** Subscription plan and company subscription endpoints. */
+export const subscriptionService = {
+  listPlans: () => api.get<SubscriptionPlan[]>("/subscription/plans"),
+  getSubscription: () => api.get<CompanySubscription>("/subscription"),
+  changePlan: (planId: string) => api.patch<CompanySubscription>("/subscription/plan", { planId }),
 };

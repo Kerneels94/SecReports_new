@@ -144,7 +144,7 @@ describe("actionService", () => {
   });
 
   it("update calls api.patch with correct path and data", () => {
-    const data = { status: "completed" };
+    const data = { status: "completed" as const };
     actionService.update(10, data);
     expect(mockApi.patch).toHaveBeenCalledWith("/actions/10", data);
   });

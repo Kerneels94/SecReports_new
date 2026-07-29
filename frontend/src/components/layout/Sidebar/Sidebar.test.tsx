@@ -30,7 +30,7 @@ beforeEach(() => {
 
 function getNavLink(name: string): HTMLAnchorElement | null {
   const links = screen.getAllByRole("link");
-  return links.find((l) => l.textContent?.includes(name)) || null;
+  return (links.find((l) => l.textContent?.includes(name)) as HTMLAnchorElement) || null;
 }
 
 describe("Sidebar", () => {

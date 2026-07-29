@@ -202,6 +202,7 @@ export type GuardingSiteWhereInput = {
   guards?: Prisma.GuardListRelationFilter
   patrolReports?: Prisma.PatrolReportListRelationFilter
   entryLogs?: Prisma.EntryLogListRelationFilter
+  patrolSchedules?: Prisma.PatrolScheduleListRelationFilter
 }
 
 export type GuardingSiteOrderByWithRelationInput = {
@@ -216,6 +217,7 @@ export type GuardingSiteOrderByWithRelationInput = {
   guards?: Prisma.GuardOrderByRelationAggregateInput
   patrolReports?: Prisma.PatrolReportOrderByRelationAggregateInput
   entryLogs?: Prisma.EntryLogOrderByRelationAggregateInput
+  patrolSchedules?: Prisma.PatrolScheduleOrderByRelationAggregateInput
 }
 
 export type GuardingSiteWhereUniqueInput = Prisma.AtLeast<{
@@ -233,6 +235,7 @@ export type GuardingSiteWhereUniqueInput = Prisma.AtLeast<{
   guards?: Prisma.GuardListRelationFilter
   patrolReports?: Prisma.PatrolReportListRelationFilter
   entryLogs?: Prisma.EntryLogListRelationFilter
+  patrolSchedules?: Prisma.PatrolScheduleListRelationFilter
 }, "id">
 
 export type GuardingSiteOrderByWithAggregationInput = {
@@ -272,6 +275,7 @@ export type GuardingSiteCreateInput = {
   guards?: Prisma.GuardCreateNestedManyWithoutSiteInput
   patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutSiteInput
   entryLogs?: Prisma.EntryLogCreateNestedManyWithoutSiteInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutSiteInput
 }
 
 export type GuardingSiteUncheckedCreateInput = {
@@ -285,6 +289,7 @@ export type GuardingSiteUncheckedCreateInput = {
   guards?: Prisma.GuardUncheckedCreateNestedManyWithoutSiteInput
   patrolReports?: Prisma.PatrolReportUncheckedCreateNestedManyWithoutSiteInput
   entryLogs?: Prisma.EntryLogUncheckedCreateNestedManyWithoutSiteInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutSiteInput
 }
 
 export type GuardingSiteUpdateInput = {
@@ -297,6 +302,7 @@ export type GuardingSiteUpdateInput = {
   guards?: Prisma.GuardUpdateManyWithoutSiteNestedInput
   patrolReports?: Prisma.PatrolReportUpdateManyWithoutSiteNestedInput
   entryLogs?: Prisma.EntryLogUpdateManyWithoutSiteNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutSiteNestedInput
 }
 
 export type GuardingSiteUncheckedUpdateInput = {
@@ -309,6 +315,7 @@ export type GuardingSiteUncheckedUpdateInput = {
   guards?: Prisma.GuardUncheckedUpdateManyWithoutSiteNestedInput
   patrolReports?: Prisma.PatrolReportUncheckedUpdateManyWithoutSiteNestedInput
   entryLogs?: Prisma.EntryLogUncheckedUpdateManyWithoutSiteNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutSiteNestedInput
 }
 
 export type GuardingSiteCreateManyInput = {
@@ -460,6 +467,20 @@ export type GuardingSiteUpdateOneRequiredWithoutPatrolReportsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.GuardingSiteUpdateToOneWithWhereWithoutPatrolReportsInput, Prisma.GuardingSiteUpdateWithoutPatrolReportsInput>, Prisma.GuardingSiteUncheckedUpdateWithoutPatrolReportsInput>
 }
 
+export type GuardingSiteCreateNestedOneWithoutPatrolSchedulesInput = {
+  create?: Prisma.XOR<Prisma.GuardingSiteCreateWithoutPatrolSchedulesInput, Prisma.GuardingSiteUncheckedCreateWithoutPatrolSchedulesInput>
+  connectOrCreate?: Prisma.GuardingSiteCreateOrConnectWithoutPatrolSchedulesInput
+  connect?: Prisma.GuardingSiteWhereUniqueInput
+}
+
+export type GuardingSiteUpdateOneRequiredWithoutPatrolSchedulesNestedInput = {
+  create?: Prisma.XOR<Prisma.GuardingSiteCreateWithoutPatrolSchedulesInput, Prisma.GuardingSiteUncheckedCreateWithoutPatrolSchedulesInput>
+  connectOrCreate?: Prisma.GuardingSiteCreateOrConnectWithoutPatrolSchedulesInput
+  upsert?: Prisma.GuardingSiteUpsertWithoutPatrolSchedulesInput
+  connect?: Prisma.GuardingSiteWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.GuardingSiteUpdateToOneWithWhereWithoutPatrolSchedulesInput, Prisma.GuardingSiteUpdateWithoutPatrolSchedulesInput>, Prisma.GuardingSiteUncheckedUpdateWithoutPatrolSchedulesInput>
+}
+
 export type GuardingSiteCreateNestedOneWithoutEntryLogsInput = {
   create?: Prisma.XOR<Prisma.GuardingSiteCreateWithoutEntryLogsInput, Prisma.GuardingSiteUncheckedCreateWithoutEntryLogsInput>
   connectOrCreate?: Prisma.GuardingSiteCreateOrConnectWithoutEntryLogsInput
@@ -484,6 +505,7 @@ export type GuardingSiteCreateWithoutCompanyInput = {
   guards?: Prisma.GuardCreateNestedManyWithoutSiteInput
   patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutSiteInput
   entryLogs?: Prisma.EntryLogCreateNestedManyWithoutSiteInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutSiteInput
 }
 
 export type GuardingSiteUncheckedCreateWithoutCompanyInput = {
@@ -496,6 +518,7 @@ export type GuardingSiteUncheckedCreateWithoutCompanyInput = {
   guards?: Prisma.GuardUncheckedCreateNestedManyWithoutSiteInput
   patrolReports?: Prisma.PatrolReportUncheckedCreateNestedManyWithoutSiteInput
   entryLogs?: Prisma.EntryLogUncheckedCreateNestedManyWithoutSiteInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutSiteInput
 }
 
 export type GuardingSiteCreateOrConnectWithoutCompanyInput = {
@@ -546,6 +569,7 @@ export type GuardingSiteCreateWithoutGuardsInput = {
   company: Prisma.CompanyCreateNestedOneWithoutGuardingSitesInput
   patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutSiteInput
   entryLogs?: Prisma.EntryLogCreateNestedManyWithoutSiteInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutSiteInput
 }
 
 export type GuardingSiteUncheckedCreateWithoutGuardsInput = {
@@ -558,6 +582,7 @@ export type GuardingSiteUncheckedCreateWithoutGuardsInput = {
   updatedAt?: Date | string
   patrolReports?: Prisma.PatrolReportUncheckedCreateNestedManyWithoutSiteInput
   entryLogs?: Prisma.EntryLogUncheckedCreateNestedManyWithoutSiteInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutSiteInput
 }
 
 export type GuardingSiteCreateOrConnectWithoutGuardsInput = {
@@ -585,6 +610,7 @@ export type GuardingSiteUpdateWithoutGuardsInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutGuardingSitesNestedInput
   patrolReports?: Prisma.PatrolReportUpdateManyWithoutSiteNestedInput
   entryLogs?: Prisma.EntryLogUpdateManyWithoutSiteNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutSiteNestedInput
 }
 
 export type GuardingSiteUncheckedUpdateWithoutGuardsInput = {
@@ -596,6 +622,7 @@ export type GuardingSiteUncheckedUpdateWithoutGuardsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   patrolReports?: Prisma.PatrolReportUncheckedUpdateManyWithoutSiteNestedInput
   entryLogs?: Prisma.EntryLogUncheckedUpdateManyWithoutSiteNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutSiteNestedInput
 }
 
 export type GuardingSiteCreateWithoutPatrolReportsInput = {
@@ -608,6 +635,7 @@ export type GuardingSiteCreateWithoutPatrolReportsInput = {
   company: Prisma.CompanyCreateNestedOneWithoutGuardingSitesInput
   guards?: Prisma.GuardCreateNestedManyWithoutSiteInput
   entryLogs?: Prisma.EntryLogCreateNestedManyWithoutSiteInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutSiteInput
 }
 
 export type GuardingSiteUncheckedCreateWithoutPatrolReportsInput = {
@@ -620,6 +648,7 @@ export type GuardingSiteUncheckedCreateWithoutPatrolReportsInput = {
   updatedAt?: Date | string
   guards?: Prisma.GuardUncheckedCreateNestedManyWithoutSiteInput
   entryLogs?: Prisma.EntryLogUncheckedCreateNestedManyWithoutSiteInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutSiteInput
 }
 
 export type GuardingSiteCreateOrConnectWithoutPatrolReportsInput = {
@@ -647,6 +676,7 @@ export type GuardingSiteUpdateWithoutPatrolReportsInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutGuardingSitesNestedInput
   guards?: Prisma.GuardUpdateManyWithoutSiteNestedInput
   entryLogs?: Prisma.EntryLogUpdateManyWithoutSiteNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutSiteNestedInput
 }
 
 export type GuardingSiteUncheckedUpdateWithoutPatrolReportsInput = {
@@ -657,6 +687,73 @@ export type GuardingSiteUncheckedUpdateWithoutPatrolReportsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   guards?: Prisma.GuardUncheckedUpdateManyWithoutSiteNestedInput
+  entryLogs?: Prisma.EntryLogUncheckedUpdateManyWithoutSiteNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutSiteNestedInput
+}
+
+export type GuardingSiteCreateWithoutPatrolSchedulesInput = {
+  id?: string
+  name: string
+  address?: string | null
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutGuardingSitesInput
+  guards?: Prisma.GuardCreateNestedManyWithoutSiteInput
+  patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutSiteInput
+  entryLogs?: Prisma.EntryLogCreateNestedManyWithoutSiteInput
+}
+
+export type GuardingSiteUncheckedCreateWithoutPatrolSchedulesInput = {
+  id?: string
+  companyId: string
+  name: string
+  address?: string | null
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  guards?: Prisma.GuardUncheckedCreateNestedManyWithoutSiteInput
+  patrolReports?: Prisma.PatrolReportUncheckedCreateNestedManyWithoutSiteInput
+  entryLogs?: Prisma.EntryLogUncheckedCreateNestedManyWithoutSiteInput
+}
+
+export type GuardingSiteCreateOrConnectWithoutPatrolSchedulesInput = {
+  where: Prisma.GuardingSiteWhereUniqueInput
+  create: Prisma.XOR<Prisma.GuardingSiteCreateWithoutPatrolSchedulesInput, Prisma.GuardingSiteUncheckedCreateWithoutPatrolSchedulesInput>
+}
+
+export type GuardingSiteUpsertWithoutPatrolSchedulesInput = {
+  update: Prisma.XOR<Prisma.GuardingSiteUpdateWithoutPatrolSchedulesInput, Prisma.GuardingSiteUncheckedUpdateWithoutPatrolSchedulesInput>
+  create: Prisma.XOR<Prisma.GuardingSiteCreateWithoutPatrolSchedulesInput, Prisma.GuardingSiteUncheckedCreateWithoutPatrolSchedulesInput>
+  where?: Prisma.GuardingSiteWhereInput
+}
+
+export type GuardingSiteUpdateToOneWithWhereWithoutPatrolSchedulesInput = {
+  where?: Prisma.GuardingSiteWhereInput
+  data: Prisma.XOR<Prisma.GuardingSiteUpdateWithoutPatrolSchedulesInput, Prisma.GuardingSiteUncheckedUpdateWithoutPatrolSchedulesInput>
+}
+
+export type GuardingSiteUpdateWithoutPatrolSchedulesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutGuardingSitesNestedInput
+  guards?: Prisma.GuardUpdateManyWithoutSiteNestedInput
+  patrolReports?: Prisma.PatrolReportUpdateManyWithoutSiteNestedInput
+  entryLogs?: Prisma.EntryLogUpdateManyWithoutSiteNestedInput
+}
+
+export type GuardingSiteUncheckedUpdateWithoutPatrolSchedulesInput = {
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  guards?: Prisma.GuardUncheckedUpdateManyWithoutSiteNestedInput
+  patrolReports?: Prisma.PatrolReportUncheckedUpdateManyWithoutSiteNestedInput
   entryLogs?: Prisma.EntryLogUncheckedUpdateManyWithoutSiteNestedInput
 }
 
@@ -670,6 +767,7 @@ export type GuardingSiteCreateWithoutEntryLogsInput = {
   company: Prisma.CompanyCreateNestedOneWithoutGuardingSitesInput
   guards?: Prisma.GuardCreateNestedManyWithoutSiteInput
   patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutSiteInput
+  patrolSchedules?: Prisma.PatrolScheduleCreateNestedManyWithoutSiteInput
 }
 
 export type GuardingSiteUncheckedCreateWithoutEntryLogsInput = {
@@ -682,6 +780,7 @@ export type GuardingSiteUncheckedCreateWithoutEntryLogsInput = {
   updatedAt?: Date | string
   guards?: Prisma.GuardUncheckedCreateNestedManyWithoutSiteInput
   patrolReports?: Prisma.PatrolReportUncheckedCreateNestedManyWithoutSiteInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedCreateNestedManyWithoutSiteInput
 }
 
 export type GuardingSiteCreateOrConnectWithoutEntryLogsInput = {
@@ -709,6 +808,7 @@ export type GuardingSiteUpdateWithoutEntryLogsInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutGuardingSitesNestedInput
   guards?: Prisma.GuardUpdateManyWithoutSiteNestedInput
   patrolReports?: Prisma.PatrolReportUpdateManyWithoutSiteNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutSiteNestedInput
 }
 
 export type GuardingSiteUncheckedUpdateWithoutEntryLogsInput = {
@@ -720,6 +820,7 @@ export type GuardingSiteUncheckedUpdateWithoutEntryLogsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   guards?: Prisma.GuardUncheckedUpdateManyWithoutSiteNestedInput
   patrolReports?: Prisma.PatrolReportUncheckedUpdateManyWithoutSiteNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutSiteNestedInput
 }
 
 export type GuardingSiteCreateManyCompanyInput = {
@@ -740,6 +841,7 @@ export type GuardingSiteUpdateWithoutCompanyInput = {
   guards?: Prisma.GuardUpdateManyWithoutSiteNestedInput
   patrolReports?: Prisma.PatrolReportUpdateManyWithoutSiteNestedInput
   entryLogs?: Prisma.EntryLogUpdateManyWithoutSiteNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUpdateManyWithoutSiteNestedInput
 }
 
 export type GuardingSiteUncheckedUpdateWithoutCompanyInput = {
@@ -751,6 +853,7 @@ export type GuardingSiteUncheckedUpdateWithoutCompanyInput = {
   guards?: Prisma.GuardUncheckedUpdateManyWithoutSiteNestedInput
   patrolReports?: Prisma.PatrolReportUncheckedUpdateManyWithoutSiteNestedInput
   entryLogs?: Prisma.EntryLogUncheckedUpdateManyWithoutSiteNestedInput
+  patrolSchedules?: Prisma.PatrolScheduleUncheckedUpdateManyWithoutSiteNestedInput
 }
 
 export type GuardingSiteUncheckedUpdateManyWithoutCompanyInput = {
@@ -770,12 +873,14 @@ export type GuardingSiteCountOutputType = {
   guards: number
   patrolReports: number
   entryLogs: number
+  patrolSchedules: number
 }
 
 export type GuardingSiteCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   guards?: boolean | GuardingSiteCountOutputTypeCountGuardsArgs
   patrolReports?: boolean | GuardingSiteCountOutputTypeCountPatrolReportsArgs
   entryLogs?: boolean | GuardingSiteCountOutputTypeCountEntryLogsArgs
+  patrolSchedules?: boolean | GuardingSiteCountOutputTypeCountPatrolSchedulesArgs
 }
 
 /**
@@ -809,6 +914,13 @@ export type GuardingSiteCountOutputTypeCountEntryLogsArgs<ExtArgs extends runtim
   where?: Prisma.EntryLogWhereInput
 }
 
+/**
+ * GuardingSiteCountOutputType without action
+ */
+export type GuardingSiteCountOutputTypeCountPatrolSchedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PatrolScheduleWhereInput
+}
+
 
 export type GuardingSiteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -822,6 +934,7 @@ export type GuardingSiteSelect<ExtArgs extends runtime.Types.Extensions.Internal
   guards?: boolean | Prisma.GuardingSite$guardsArgs<ExtArgs>
   patrolReports?: boolean | Prisma.GuardingSite$patrolReportsArgs<ExtArgs>
   entryLogs?: boolean | Prisma.GuardingSite$entryLogsArgs<ExtArgs>
+  patrolSchedules?: boolean | Prisma.GuardingSite$patrolSchedulesArgs<ExtArgs>
   _count?: boolean | Prisma.GuardingSiteCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["guardingSite"]>
 
@@ -843,6 +956,7 @@ export type GuardingSiteInclude<ExtArgs extends runtime.Types.Extensions.Interna
   guards?: boolean | Prisma.GuardingSite$guardsArgs<ExtArgs>
   patrolReports?: boolean | Prisma.GuardingSite$patrolReportsArgs<ExtArgs>
   entryLogs?: boolean | Prisma.GuardingSite$entryLogsArgs<ExtArgs>
+  patrolSchedules?: boolean | Prisma.GuardingSite$patrolSchedulesArgs<ExtArgs>
   _count?: boolean | Prisma.GuardingSiteCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -853,6 +967,7 @@ export type $GuardingSitePayload<ExtArgs extends runtime.Types.Extensions.Intern
     guards: Prisma.$GuardPayload<ExtArgs>[]
     patrolReports: Prisma.$PatrolReportPayload<ExtArgs>[]
     entryLogs: Prisma.$EntryLogPayload<ExtArgs>[]
+    patrolSchedules: Prisma.$PatrolSchedulePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1229,6 +1344,7 @@ export interface Prisma__GuardingSiteClient<T, Null = never, ExtArgs extends run
   guards<T extends Prisma.GuardingSite$guardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.GuardingSite$guardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GuardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   patrolReports<T extends Prisma.GuardingSite$patrolReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.GuardingSite$patrolReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PatrolReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   entryLogs<T extends Prisma.GuardingSite$entryLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.GuardingSite$entryLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EntryLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  patrolSchedules<T extends Prisma.GuardingSite$patrolSchedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.GuardingSite$patrolSchedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PatrolSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1704,6 +1820,30 @@ export type GuardingSite$entryLogsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.EntryLogScalarFieldEnum | Prisma.EntryLogScalarFieldEnum[]
+}
+
+/**
+ * GuardingSite.patrolSchedules
+ */
+export type GuardingSite$patrolSchedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PatrolSchedule
+   */
+  select?: Prisma.PatrolScheduleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PatrolSchedule
+   */
+  omit?: Prisma.PatrolScheduleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PatrolScheduleInclude<ExtArgs> | null
+  where?: Prisma.PatrolScheduleWhereInput
+  orderBy?: Prisma.PatrolScheduleOrderByWithRelationInput | Prisma.PatrolScheduleOrderByWithRelationInput[]
+  cursor?: Prisma.PatrolScheduleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PatrolScheduleScalarFieldEnum | Prisma.PatrolScheduleScalarFieldEnum[]
 }
 
 /**

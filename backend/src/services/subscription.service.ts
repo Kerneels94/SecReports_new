@@ -204,4 +204,43 @@ export const SubscriptionService = {
       throw new ForbiddenError("This feature requires an upgraded plan");
     }
   },
+
+  /** Returns all available subscription plans. */
+  async listPlans() {
+    return prisma.subscriptionPlan.findMany({
+      orderBy: { price: "asc" },
+    });
+  },
+
+  /** Changes the company's subscription plan and updates billing period. */
+  async changePlan(companyId: string, planId: string) {
+    const plan = await prisma.subscriptionPlan.findUnique({
+      where: { id: planId },
+    });
+    if (!plan) throw new NotFoundError("Subscription plan");
+
+    const sub = await prisma.companySubscription.findUnique({
+      where: { companyId },
+    });
+    if (!sub) throw new NotFoundError("Subscription");
+
+    const now = new Date();
+    const currentPeriodEnd = new Date(now);
+    currentPeriodEnd.setMonth(currentPeriodEnd.getMonth() + 1);
+
+    const updated = await prisma.companySubscription.update({
+      where: { companyId },
+      data: {
+        planId,
+        status: "active",
+        currentPeriodStart: now,
+        currentPeriodEnd,
+        trialEndsAt: null,
+        trialWarningSent: false,
+      },
+      include: { plan: true },
+    });
+
+    return updated;
+  },
 };
