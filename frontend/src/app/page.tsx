@@ -5,6 +5,8 @@
 "use client";
 
 import Link from "next/link";
+import { Header } from "@/components/header/Header";
+import { Footer } from "@/components/footer/Footer";
 
 const tiers = [
   {
@@ -25,13 +27,14 @@ const tiers = [
   },
   {
     name: "Professional",
-    price: "R 2,000",
+    price: "R 1,500",
     period: "/month",
     limit: "Up to 15 sites",
     description: "For growing security teams managing multiple sites.",
     features: [
       "Up to 15 guarding sites",
       "Up to 5 user accounts",
+      "100 incident reports",
       "CSV & PDF export",
       "Priority support",
     ],
@@ -48,6 +51,7 @@ const tiers = [
     features: [
       "Unlimited guarding sites",
       "Unlimited users",
+      "Unlimited reports",
       "CSV & PDF export",
       "24/7 priority support",
     ],
@@ -61,26 +65,32 @@ const features = [
   {
     title: "Incident Reporting",
     description:
-      "Full lifecycle management — log, categorize, investigate, and resolve security incidents with auto-generated reference numbers.",
+      "Full lifecycle management — log, automatic categorisation, and resolve security incidents with auto-generated reference numbers.",
   },
   {
     title: "Patrol Management",
     description:
-      "Record patrol reports with checkpoint scanning (ok / missed / late) and track shifts across all guarding sites.",
+      "Create patrol reports and upload patrol schedules accros all guarding sites.",
   },
   {
     title: "Gate Entry Logs",
     description:
-      "Log vehicle and person entries at security gates with inline flagging for suspicious vehicles and reason tracking.",
+      "Log vehicle and person entries at security gates with inline flagging for suspicious vehicles and tracking.",
   },
   {
     title: "Audit Trail",
-    description: "Immutable activity logs recording every change and auth event for compliance and review.",
+    description:
+      "Immutable activity logs recording every change and auth event for compliance and review.",
   },
   {
     title: "Reports & Export",
     description:
-      "Generate branded PDF and CSV reports for management, clients, or regulators with batch email support.",
+      "Generate PDF and CSV reports management, clients, or regulators with batch email support.",
+  },
+  {
+    title: "Analytics",
+    description:
+      "Dashboard analytics to keep track of attemped and positive events.",
   },
 ];
 
@@ -89,47 +99,11 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-surface-secondary">
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(134,239,172,0.04),transparent_50%)] pointer-events-none" />
-      <header className="sticky top-0 z-50 border-b border-border-light bg-surface/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-hover text-gray-900 text-sm font-bold shadow-lg shadow-primary/25">
-              S
-            </div>
-            <span className="text-lg font-bold text-text">SecReports</span>
-          </div>
-          <nav className="hidden items-center gap-6 md:flex">
-            <a
-              href="#features"
-              className="text-sm text-text-secondary hover:text-text transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="#pricing"
-              className="text-sm text-text-secondary hover:text-text transition-colors"
-            >
-              Pricing
-            </a>
-            <Link
-              href="/login"
-              className="text-sm font-medium text-primary hover:text-primary-hover transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/register"
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:bg-primary-hover transition-all duration-150"
-            >
-              Get Started
-            </Link>
-          </nav>
-        </div>
-      </header>
-
+      <Header />
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/[0.08] px-4 py-1.5 text-xs font-medium text-primary ring-1 ring-primary/20">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/8 px-4 py-1.5 text-lg text-primary ring-1 ring-primary/20">
               <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
               Incident Management Platform
             </div>
@@ -146,7 +120,7 @@ export default function LandingPage() {
             <div className="mt-10 flex items-center justify-center gap-4">
               <Link
                 href="/register"
-                className="rounded-lg bg-gradient-to-r from-primary to-primary-hover px-6 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary transition-all duration-150"
+                className="rounded-lg bg-linear-to-r from-primary to-primary-hover px-6 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary transition-all duration-150"
               >
                 Start Free Trial
               </Link>
@@ -160,7 +134,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
       <section
         id="features"
         className="border-t border-border-light bg-surface/50"
@@ -181,7 +154,7 @@ export default function LandingPage() {
                 key={feature.title}
                 className="group flex flex-col gap-2 rounded-xl bg-surface p-6 ring-1 ring-border-light hover:ring-primary/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 text-primary ring-1 ring-primary/20 mb-1">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-primary/10 to-primary/5 text-primary ring-1 ring-primary/20 mb-1">
                   <svg
                     className="h-5 w-5"
                     viewBox="0 0 24 24"
@@ -205,7 +178,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
       <section id="pricing" className="border-t border-border-light">
         <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
@@ -272,7 +244,7 @@ export default function LandingPage() {
                   href={tier.href}
                   className={`mt-8 block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-150 ${
                     tier.highlighted
-                      ? "bg-gradient-to-r from-primary to-primary-hover text-gray-900 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary"
+                      ? "bg-linear-to-r from-primary to-primary-hover text-gray-900 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary"
                       : "border border-border-light text-text hover:bg-surface-elevated hover:border-border"
                   }`}
                 >
@@ -283,24 +255,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      <footer className="border-t border-border-light bg-surface/50">
-        <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-hover text-gray-900 text-xs font-bold shadow-lg shadow-primary/25">
-                S
-              </div>
-              <span className="text-sm font-semibold text-text">
-                SecReports
-              </span>
-            </div>
-            <p className="text-xs text-text-secondary">
-              &copy; {new Date().getFullYear()} SecReports. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

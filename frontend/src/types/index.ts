@@ -54,49 +54,6 @@ export interface Incident {
   assignee?: User;
 }
 
-/** A person associated with a specific incident (e.g. witness, suspect). */
-export interface IncidentPerson {
-  id: number;
-  incidentId: number;
-  name: string;
-  role: string;
-  contact: string | null;
-  notes: string | null;
-}
-
-/** A comment left on an incident by a user. */
-export interface Comment {
-  id: number;
-  incidentId: number;
-  userId: number;
-  message: string;
-  createdAt: string;
-  user?: User;
-}
-
-/** Investigation details attached to an incident (findings, root cause, etc.). */
-export interface Investigation {
-  id: number;
-  incidentId: number;
-  findings: string | null;
-  rootCause: string | null;
-  recommendations: string | null;
-  closureNotes: string | null;
-  completedAt: string | null;
-}
-
-/** A corrective action assigned to resolve an incident. */
-export interface CorrectiveAction {
-  id: number;
-  incidentId: number;
-  description: string;
-  ownerId: number;
-  dueDate: string;
-  status: "open" | "in_progress" | "completed" | "overdue";
-  completedAt: string | null;
-  owner?: User;
-}
-
 /** An audit trail entry tracking changes to an entity. */
 export interface AuditLog {
   id: number;
