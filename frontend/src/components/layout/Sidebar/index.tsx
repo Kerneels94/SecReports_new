@@ -39,8 +39,10 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
+interface NavItem { href: string; label: string; icon: string; adminOnly?: boolean }
+
 /** Renders the list of navigation links for the current mode, highlighting the active route. */
-function NavItemsList({ items, onClose }: { items: typeof incidentNavItems; onClose?: () => void }) {
+function NavItemsList({ items, onClose }: { items: NavItem[]; onClose?: () => void }) {
   const pathname = usePathname();
   const { user } = useAuth();
   const isAdmin = user?.role === "owner" || user?.role === "manager";

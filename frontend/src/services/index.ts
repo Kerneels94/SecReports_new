@@ -12,9 +12,6 @@ import type {
   User,
   Incident,
   PaginatedResponse,
-  Comment,
-  Investigation,
-  CorrectiveAction,
   GuardingSite,
   Guard,
   PatrolReport,
@@ -29,6 +26,10 @@ import type {
   SubscriptionPlan,
   CompanySubscription,
 } from "@/types";
+
+interface Comment { id: number; incidentId: number; userId: number; message: string; createdAt: string; user?: User }
+interface Investigation { id: number; incidentId: number; findings: string | null; rootCause: string | null; recommendations: string | null; closureNotes: string | null; completedAt: string | null }
+interface CorrectiveAction { id: number; incidentId: number; description: string; ownerId: number; dueDate: string; status: "open" | "in_progress" | "completed" | "overdue"; completedAt: string | null; owner?: User }
 
 interface TrialStatus {
   isTrial: boolean;
