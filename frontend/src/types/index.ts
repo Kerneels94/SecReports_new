@@ -2,6 +2,7 @@ export interface TrialStatus {
   isTrial: boolean;
   daysRemaining: number;
   isExpired: boolean;
+  trialStartedAt?: string;
   trialEndsAt?: string;
 }
 

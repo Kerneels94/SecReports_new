@@ -111,6 +111,7 @@ export async function sendMail({
           companyName: (data.companyName as string) || "Valued Customer",
           amount: (data.amount as number) || 0,
           invoiceNumber: (data.invoiceNumber as string) || "N/A",
+          dueDate: data.dueDate as string | undefined,
           invoiceLink: data.invoiceLink as string | undefined,
         });
         break;

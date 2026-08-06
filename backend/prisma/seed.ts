@@ -104,6 +104,8 @@ async function main() {
       companyId: company.id,
       planId: freePlan.id,
       status: "active",
+      trialStartedAt: new Date(),
+      trialEndsAt: new Date(Date.now() + freePlan.trialPeriodDays! * 24 * 60 * 60 * 1000),
     },
   });
 

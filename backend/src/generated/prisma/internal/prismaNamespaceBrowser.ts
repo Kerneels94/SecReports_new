@@ -197,6 +197,7 @@ export const CompanySubscriptionScalarFieldEnum = {
   currentPeriodStart: 'currentPeriodStart',
   currentPeriodEnd: 'currentPeriodEnd',
   trialEndsAt: 'trialEndsAt',
+  trialStartedAt: 'trialStartedAt',
   trialWarningSent: 'trialWarningSent',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

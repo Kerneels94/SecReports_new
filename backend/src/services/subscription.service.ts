@@ -3,7 +3,7 @@ import { NotFoundError, ForbiddenError, ConflictError } from "../lib/errors";
 import { sendMail } from "./email.service";
 
 export const SubscriptionService = {
-  /** Activates the free plan for a new company. Sets trial end date to 14 days from now. */
+  /** Activates the free plan for a new company. Sets trial start/end dates based on the plan's trial period. */
   async activateFreePlan(companyId: string) {
     const freePlan = await prisma.subscriptionPlan.findFirst({
       where: { price: 0 },
@@ -15,8 +15,9 @@ export const SubscriptionService = {
     });
     if (existing) return existing;
 
+    const trialStartedAt = new Date();
     const trialEndsAt = freePlan.trialPeriodDays
-      ? new Date(Date.now() + freePlan.trialPeriodDays * 24 * 60 * 60 * 1000)
+      ? new Date(trialStartedAt.getTime() + freePlan.trialPeriodDays * 24 * 60 * 60 * 1000)
       : null;
 
     return prisma.companySubscription.create({
@@ -24,6 +25,7 @@ export const SubscriptionService = {
         companyId,
         planId: freePlan.id,
         status: "active",
+        trialStartedAt,
         trialEndsAt,
       },
       include: { plan: true },
@@ -74,12 +76,58 @@ export const SubscriptionService = {
       isTrial: true,
       daysRemaining,
       isExpired,
+      trialStartedAt: sub.trialStartedAt,
       trialEndsAt: sub.trialEndsAt,
     };
   },
 
+  /** Returns the lowest-priced paid plan, used as the default post-trial upgrade. */
+  async getDefaultPaidPlan() {
+    return prisma.subscriptionPlan.findFirst({
+      where: { price: { gt: 0 } },
+      orderBy: { price: "asc" },
+    });
+  },
+
+  /**
+   * Automatically upgrades a company from an expired free-plan trial to the
+   * default paid plan. No-op when the trial is still active, the plan is
+   * already paid, or the subscription is cancelled.
+   */
+  async upgradeExpiredTrial(companyId: string) {
+    const sub = await prisma.companySubscription.findUnique({
+      where: { companyId },
+      include: { plan: true },
+    });
+    if (!sub || !sub.trialEndsAt || sub.status === "cancelled") return;
+    if (sub.plan.price > 0 || new Date() < sub.trialEndsAt) return;
+
+    const paidPlan = await this.getDefaultPaidPlan();
+    if (!paidPlan) return;
+
+    const now = new Date();
+    const currentPeriodEnd = new Date(now);
+    currentPeriodEnd.setMonth(currentPeriodEnd.getMonth() + 1);
+
+    await prisma.companySubscription.update({
+      where: { companyId },
+      data: {
+        planId: paidPlan.id,
+        status: "active",
+        currentPeriodStart: now,
+        currentPeriodEnd,
+        trialStartedAt: null,
+        trialEndsAt: null,
+        trialWarningSent: false,
+      },
+      include: { plan: true },
+    });
+  },
+
   /** Checks if trial is ending in 2 days and sends a warning email if not yet sent. */
   async checkAndNotifyTrialEnding(companyId: string) {
+    await this.upgradeExpiredTrial(companyId);
+
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
       include: { plan: true },
@@ -235,6 +283,7 @@ export const SubscriptionService = {
         status: "active",
         currentPeriodStart: now,
         currentPeriodEnd,
+        trialStartedAt: null,
         trialEndsAt: null,
         trialWarningSent: false,
       },
