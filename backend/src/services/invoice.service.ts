@@ -98,6 +98,7 @@ export const InvoiceService = {
         amount: invoice.amount,
         currency: invoice.currency,
         invoiceNumber: invoice.invoiceNumber,
+        dueDate: invoice.dueDate.toISOString(),
       },
     });
 
