@@ -271,6 +271,16 @@ export const PatrolExportController = {
         return;
       }
 
+      await prisma.auditLog.create({
+        data: {
+          entityType: "patrol_report",
+          entityId: siteId || "all-sites",
+          action: "patrol_report_email_sent",
+          newValues: JSON.stringify({ recipient: email, format, siteName: siteName || null }),
+          performedBy: request.user!.userId,
+        },
+      });
+
       reply.code(200).send({ success: true, data: { message: `Patrol report for ${reportLabel} sent successfully` } });
     } else {
       const headers = ["Date", "Site", "Guard", "Duration", "Checkpoints", "Status", "Notes"];
@@ -311,6 +321,16 @@ export const PatrolExportController = {
         reply.code(500).send({ success: false, error: { code: "EMAIL_FAILED", message: "Failed to send email" } });
         return;
       }
+
+      await prisma.auditLog.create({
+        data: {
+          entityType: "patrol_report",
+          entityId: siteId || "all-sites",
+          action: "patrol_report_email_sent",
+          newValues: JSON.stringify({ recipient: email, format, siteName: siteName || null }),
+          performedBy: request.user!.userId,
+        },
+      });
 
       reply.code(200).send({ success: true, data: { message: `Patrol report for ${reportLabel} sent successfully` } });
     }

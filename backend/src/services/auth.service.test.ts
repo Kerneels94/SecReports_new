@@ -426,6 +426,28 @@ describe("updateUser", () => {
 
     await expect(AuthService.updateUser("1", "1", { email: "bad@nonexistent-domain-xyz.com" })).rejects.toThrow("Email domain does not accept mail");
   });
+
+  it("resets emailVerified and sends a verification email when email changes", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+    const updatedUser = { ...mockUser, email: "new@test.com", emailVerified: false };
+    (prisma.user.update as jest.Mock).mockResolvedValue(updatedUser);
+
+    await AuthService.updateUser("1", "1", { email: "new@test.com" }, "2", "owner");
+
+    expect(prisma.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ email: "new@test.com", emailVerified: false }),
+      }),
+    );
+    expect(prisma.emailVerificationToken.create).toHaveBeenCalledTimes(1);
+    const { sendVerificationEmail } = require("./email.service");
+    expect(sendVerificationEmail).toHaveBeenCalledWith(
+      "new@test.com",
+      mockUser.name,
+      expect.stringContaining("/verify-email?token="),
+    );
+  });
 });
 
 });
