@@ -146,7 +146,7 @@ export async function buildApp() {
       success: false,
       error: {
         code: "INTERNAL_ERROR",
-        message: error instanceof Error ? error.message : "An unexpected error occurred",
+        message: "An unexpected error occurred",
       },
     });
   });

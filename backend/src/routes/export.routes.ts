@@ -53,6 +53,7 @@ export default async function exportRoutes(fastify: FastifyInstance) {
   }, PatrolExportController.pdf);
 
   fastify.post("/reports/patrol-reports/email", {
-    preHandler: [requireRole("owner", "manager")],
+    config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
+    preHandler: [requireRole("owner", "manager", "senior")],
   }, PatrolExportController.email);
 }

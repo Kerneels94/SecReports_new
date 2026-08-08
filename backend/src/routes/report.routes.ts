@@ -11,6 +11,12 @@ export default async function reportRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
   fastify.get("/reports/summary", { preHandler: [requireRole("owner", "manager", "senior")] }, ReportController.summary);
-  fastify.post("/reports/email", { preHandler: [requireRole("owner", "manager")] }, ExportController.email);
-  fastify.post("/reports/batch-email", { preHandler: [requireRole("owner", "manager")] }, ExportController.batchEmail);
+  fastify.post("/reports/email", {
+    config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
+    preHandler: [requireRole("owner", "manager", "senior")],
+  }, ExportController.email);
+  fastify.post("/reports/batch-email", {
+    config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
+    preHandler: [requireRole("owner", "manager", "senior")],
+  }, ExportController.batchEmail);
 }

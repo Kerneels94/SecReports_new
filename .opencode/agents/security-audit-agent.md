@@ -87,7 +87,7 @@ Two new 2026 categories: **A03 Software Supply Chain Failures** (dependencies, b
 
 ### 7. Email & Verification
 
-- [ ] Is `emailVerified: true` set when admin creates a user?
+- [ ] Does admin user creation always send a verification email? (`emailVerified` stays `false` until the user verifies — never create an admin user without a verification path)
 - [ ] Is `emailVerified` reset to `false` when email is changed?
 - [ ] Is `FROM_EMAIL` read from env (not hardcoded)?
 - [ ] Are verification/reset tokens delivered without exposing in URL query params? (Preferred: POST bodies or fragments)

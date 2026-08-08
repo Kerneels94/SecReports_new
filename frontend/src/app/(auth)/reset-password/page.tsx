@@ -1,5 +1,5 @@
 /**
- * Reset password page — reads token from query string and allows setting a new password.
+ * Reset password page — reads token from the URL hash fragment (query string fallback) and allows setting a new password.
  * @route /reset-password
  */
 "use client";
@@ -13,12 +13,12 @@ import { authService } from "@/services";
 
 function getTokenFromUrl(): string | null {
   if (typeof window === "undefined") return null;
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("token");
-  if (token) return token;
   const hash = window.location.hash;
   const hashParams = new URLSearchParams(hash.replace("#", ""));
-  return hashParams.get("token");
+  const token = hashParams.get("token");
+  if (token) return token;
+  const params = new URLSearchParams(window.location.search);
+  return params.get("token");
 }
 
 /** Inner form component that reads the token and handles password reset submission. */

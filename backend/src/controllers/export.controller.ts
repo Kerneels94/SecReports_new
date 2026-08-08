@@ -252,6 +252,16 @@ export const ExportController = {
         return;
       }
 
+      await prisma.auditLog.create({
+        data: {
+          entityType: "incident",
+          entityId: "batch",
+          action: "report_batch_email_sent",
+          newValues: JSON.stringify({ recipient: email, type, format, count: incidents.length }),
+          performedBy: request.user!.userId,
+        },
+      });
+
       reply.code(200).send({ success: true, data: { message: `Report for ${incidents.length} ${type} incidents sent successfully` } });
     } else {
       const headers = [
@@ -294,6 +304,16 @@ export const ExportController = {
         reply.code(500).send({ success: false, error: { code: "EMAIL_FAILED", message: "Failed to send email" } });
         return;
       }
+
+      await prisma.auditLog.create({
+        data: {
+          entityType: "incident",
+          entityId: "batch",
+          action: "report_batch_email_sent",
+          newValues: JSON.stringify({ recipient: email, type, format, count: incidents.length }),
+          performedBy: request.user!.userId,
+        },
+      });
 
       reply.code(200).send({ success: true, data: { message: `Report for ${incidents.length} ${type} incidents sent successfully` } });
     }
@@ -345,6 +365,16 @@ export const ExportController = {
         return;
       }
 
+      await prisma.auditLog.create({
+        data: {
+          entityType: "incident",
+          entityId: incidentId,
+          action: "report_email_sent",
+          newValues: JSON.stringify({ recipient: email, format }),
+          performedBy: request.user!.userId,
+        },
+      });
+
       reply.code(200).send({ success: true, data: { message: "Report sent successfully" } });
     } else {
       const headers = [
@@ -387,6 +417,16 @@ export const ExportController = {
         reply.code(500).send({ success: false, error: { code: "EMAIL_FAILED", message: "Failed to send email" } });
         return;
       }
+
+      await prisma.auditLog.create({
+        data: {
+          entityType: "incident",
+          entityId: incidentId,
+          action: "report_email_sent",
+          newValues: JSON.stringify({ recipient: email, format }),
+          performedBy: request.user!.userId,
+        },
+      });
 
       reply.code(200).send({ success: true, data: { message: "Report sent successfully" } });
     }
