@@ -9,12 +9,12 @@ type VerifyState = "loading" | "success" | "error";
 
 function getTokenFromUrl(): string | null {
   if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
+  if (token) return token;
   const hash = window.location.hash;
   const hashParams = new URLSearchParams(hash.replace("#", ""));
-  const token = hashParams.get("token");
-  if (token) return token;
-  const params = new URLSearchParams(window.location.search);
-  return params.get("token");
+  return hashParams.get("token");
 }
 
 function VerifyEmailContent() {

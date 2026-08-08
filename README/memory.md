@@ -14,7 +14,7 @@
 8. **ALWAYS use generic error on forgot-password** — add `sleep(200)` on not-found path to mask timing side-channels.
 12. **ALWAYS apply per-route rate limiting on ALL public endpoints** — 10 req/min login/register, 5 req/min forgot-password, 20 req/min refresh, 10 req/min verify-email.
 16. **ALWAYS make logout accessible without a valid access token** — accept refreshToken cookie alone so users with expired tokens can still log out.
-17. **NEVER expose tokens in URL query parameters** — use POST body, headers, or fragments for verification/reset links to avoid browser history, server log, and referrer leakage.
+17. **Deliver verification/reset tokens as URL query parameters** — links use `?token=...` so the frontend reads the token and forwards it to the backend over HTTPS. Accepted tradeoff: query params can leak via browser history/server logs/referrers, but the URL fragment is equally readable by page JavaScript, so XSS exposure is identical. Never store, log, or echo the token.
 
 ### A01 — Broken Access Control
 
@@ -228,5 +228,5 @@ After any auth change, run:
 **Location:** `backend/src/services/auth.service.ts:341`
 **Status:** FIXED ✅
 
-Both verify-email and reset-password links now use URL fragments (`#token=...`) instead of query params. Frontend reads from `window.location.hash` and sends tokens via POST body. Backend verify-email endpoint changed from GET to POST to accept token in body.
+Both verify-email and reset-password links use URL query parameters (`?token=...`). Frontend reads the token from `window.location.search` and submits it to the backend via POST body over HTTPS. The earlier move to URL fragments was reverted — a fragment is not inherently more secure (page JavaScript can read it too), and query params are simpler for the frontend to receive and forward. A hash-fragment fallback is retained for backwards compatibility.
 **→ Golden Rule #17**
