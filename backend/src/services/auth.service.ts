@@ -376,6 +376,13 @@ export const AuthService = {
       }),
     ]);
 
+    await createAuditLog({
+      entityType: "user",
+      entityId: record.userId,
+      action: "email_verified",
+      performedBy: record.userId,
+    });
+
     return { message: "Email verified successfully. You can now log in." };
   },
 
@@ -645,6 +652,20 @@ export const AuthService = {
         oldValues: JSON.stringify({ email: user.email }),
         newValues: JSON.stringify({ email: data.email }),
       });
+
+      const rawToken = crypto.randomBytes(32).toString("hex");
+      await prisma.emailVerificationToken.create({
+        data: {
+          userId,
+          tokenHash: hashToken(rawToken),
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        },
+      });
+
+      const verifyLink = `${getAppUrl()}/verify-email?token=${rawToken}`;
+      sendVerificationEmail(data.email, updated.name, verifyLink).catch((err) =>
+        console.error("[AuthService] Verification email failed:", err),
+      );
     }
 
     return updated;

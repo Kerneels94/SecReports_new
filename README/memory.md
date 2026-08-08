@@ -9,7 +9,7 @@
 3. **ALWAYS invalidate tokens server-side on logout** — call `POST /auth/logout` to delete refresh token from DB.
 4. **ALWAYS auto-refresh access tokens transparently** — 401 interceptor in `ApiClient` calls `/auth/refresh`, updates stored access token, retries. Dedup concurrent refresh calls.
 5. **ALWAYS send a verification email when admin creates a user** — admin-created users are created with `emailVerified: false` and must verify their email before their first login. Never create an admin-created user without a verification email, otherwise they're permanently locked out.
-6. **ALWAYS reset `emailVerified` to `false` when email is changed** by admin.
+6. **ALWAYS reset `emailVerified` to `false` AND send a verification email when email is changed** by admin — never leave a changed email unverified with no path to verify.
 7. **ALWAYS use `userId` (not `familyId`) in refresh token reuse detection** — `deleteMany({ where: { userId: payload.userId } })`.
 8. **ALWAYS use generic error on forgot-password** — add `sleep(200)` on not-found path to mask timing side-channels.
 12. **ALWAYS apply per-route rate limiting on ALL public endpoints** — 10 req/min login/register, 5 req/min forgot-password, 20 req/min refresh, 10 req/min verify-email.
