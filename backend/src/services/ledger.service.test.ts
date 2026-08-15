@@ -1,6 +1,11 @@
 import { LedgerService } from "./ledger.service";
 import { prisma } from "../lib/db";
-import { ValidationError, NotFoundError, ConflictError } from "../lib/errors";
+import {
+  ValidationError,
+  NotFoundError,
+  ConflictError,
+  ForbiddenError,
+} from "../lib/errors";
 
 jest.mock("../lib/db", () => ({
   prisma: {
@@ -11,8 +16,11 @@ jest.mock("../lib/db", () => ({
       create: jest.fn(),
       findMany: jest.fn(),
       findUnique: jest.fn(),
-      update: jest.fn(),
+      updateMany: jest.fn(),
       groupBy: jest.fn(),
+    },
+    auditLog: {
+      create: jest.fn(),
     },
   },
 }));
@@ -92,12 +100,56 @@ describe("LedgerService.postEntry", () => {
     expect(prisma.ledger.create).not.toHaveBeenCalled();
   });
 
+  it("throws ValidationError for a non-integer or out-of-range amount", async () => {
+    await expect(
+      LedgerService.postEntry({ ...validData, amount: 1500.5 }),
+    ).rejects.toThrow(ValidationError);
+    await expect(
+      LedgerService.postEntry({ ...validData, amount: 2147483648 }),
+    ).rejects.toThrow(ValidationError);
+    expect(prisma.ledger.create).not.toHaveBeenCalled();
+  });
+
   it("throws NotFoundError when the company does not exist", async () => {
     (prisma.company.findUnique as jest.Mock).mockResolvedValue(null);
 
     await expect(LedgerService.postEntry(validData)).rejects.toThrow(
       NotFoundError,
     );
+    expect(prisma.ledger.create).not.toHaveBeenCalled();
+  });
+
+  it("writes an audit log when posted by an actor", async () => {
+    const actor = { userId: "user1", role: "superadmin" };
+    (prisma.auditLog.create as jest.Mock).mockResolvedValue({});
+
+    await LedgerService.postEntry(validData, actor);
+
+    expect(prisma.auditLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          entityType: "ledger_entry",
+          entityId: "entry1",
+          action: "ledger_entry_posted",
+          performedBy: "user1",
+        }),
+      }),
+    );
+  });
+
+  it("does not write an audit log for internal (system) posts", async () => {
+    await LedgerService.postEntry(validData);
+
+    expect(prisma.auditLog.create).not.toHaveBeenCalled();
+  });
+
+  it("throws ForbiddenError when actor is not a superadmin", async () => {
+    await expect(
+      LedgerService.postEntry(validData, {
+        userId: "user1",
+        role: "manager",
+      }),
+    ).rejects.toThrow(ForbiddenError);
     expect(prisma.ledger.create).not.toHaveBeenCalled();
   });
 });
@@ -171,21 +223,54 @@ describe("LedgerService.voidEntry", () => {
   beforeEach(() => jest.clearAllMocks());
 
   it("marks a posted entry as void", async () => {
-    (prisma.ledger.findUnique as jest.Mock).mockResolvedValue(entry);
-    (prisma.ledger.update as jest.Mock).mockResolvedValue({
-      ...entry,
-      status: "void",
-    });
+    (prisma.ledger.findUnique as jest.Mock)
+      .mockResolvedValueOnce({ id: "entry1", status: "posted" })
+      .mockResolvedValueOnce({ ...entry, status: "void" });
+    (prisma.ledger.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
 
     const result = await LedgerService.voidEntry("entry1");
 
-    expect(prisma.ledger.update).toHaveBeenCalledWith(
+    expect(prisma.ledger.updateMany).toHaveBeenCalledWith({
+      where: { id: "entry1", status: "posted" },
+      data: { status: "void" },
+    });
+    expect(result?.status).toBe("void");
+  });
+
+  it("writes an audit log when voided by an actor", async () => {
+    (prisma.ledger.findUnique as jest.Mock)
+      .mockResolvedValueOnce({ id: "entry1", status: "posted" })
+      .mockResolvedValueOnce({ ...entry, status: "void" });
+    (prisma.ledger.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
+    (prisma.auditLog.create as jest.Mock).mockResolvedValue({});
+
+    await LedgerService.voidEntry("entry1", {
+      userId: "user1",
+      role: "superadmin",
+    });
+
+    expect(prisma.auditLog.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: "entry1" },
-        data: { status: "void" },
+        data: expect.objectContaining({
+          entityType: "ledger_entry",
+          entityId: "entry1",
+          action: "ledger_entry_voided",
+          oldValues: JSON.stringify({ status: "posted" }),
+          newValues: JSON.stringify({ status: "void" }),
+          performedBy: "user1",
+        }),
       }),
     );
-    expect(result.status).toBe("void");
+  });
+
+  it("throws ForbiddenError when actor is not a superadmin", async () => {
+    await expect(
+      LedgerService.voidEntry("entry1", {
+        userId: "user1",
+        role: "manager",
+      }),
+    ).rejects.toThrow(ForbiddenError);
+    expect(prisma.ledger.updateMany).not.toHaveBeenCalled();
   });
 
   it("throws NotFoundError when the entry does not exist", async () => {
@@ -194,19 +279,19 @@ describe("LedgerService.voidEntry", () => {
     await expect(LedgerService.voidEntry("missing")).rejects.toThrow(
       NotFoundError,
     );
-    expect(prisma.ledger.update).not.toHaveBeenCalled();
+    expect(prisma.ledger.updateMany).not.toHaveBeenCalled();
   });
 
   it("throws ConflictError when the entry is already void", async () => {
     (prisma.ledger.findUnique as jest.Mock).mockResolvedValue({
-      ...entry,
+      id: "entry1",
       status: "void",
     });
 
     await expect(LedgerService.voidEntry("entry1")).rejects.toThrow(
       ConflictError,
     );
-    expect(prisma.ledger.update).not.toHaveBeenCalled();
+    expect(prisma.ledger.updateMany).not.toHaveBeenCalled();
   });
 });
 
@@ -246,5 +331,41 @@ describe("LedgerService.getSummary", () => {
       entryCount: 3,
     });
     expect(result.byType).toHaveLength(3);
+  });
+});
+
+describe("LedgerService authorization", () => {
+  const actor = { userId: "user1", role: "manager" };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it("rejects getEntries from a non-superadmin", async () => {
+    await expect(LedgerService.getEntries({}, actor)).rejects.toThrow(
+      ForbiddenError,
+    );
+    expect(prisma.ledger.findMany).not.toHaveBeenCalled();
+  });
+
+  it("rejects getEntryById from a non-superadmin", async () => {
+    await expect(LedgerService.getEntryById("entry1", actor)).rejects.toThrow(
+      ForbiddenError,
+    );
+    expect(prisma.ledger.findUnique).not.toHaveBeenCalled();
+  });
+
+  it("rejects getSummary from a non-superadmin", async () => {
+    await expect(LedgerService.getSummary(actor)).rejects.toThrow(
+      ForbiddenError,
+    );
+    expect(prisma.ledger.findMany).not.toHaveBeenCalled();
+  });
+
+  it("allows read methods for a superadmin actor", async () => {
+    const admin = { userId: "admin1", role: "superadmin" };
+    (prisma.ledger.findMany as jest.Mock).mockResolvedValue([entry]);
+    (prisma.ledger.groupBy as jest.Mock).mockResolvedValue([]);
+
+    await expect(LedgerService.getSummary(admin)).resolves.toBeDefined();
+    await expect(LedgerService.getEntries({}, admin)).resolves.toEqual([entry]);
   });
 });
