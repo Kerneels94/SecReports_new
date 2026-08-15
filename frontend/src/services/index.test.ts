@@ -7,6 +7,7 @@ import {
   investigationService,
   actionService,
   userService,
+  adminLedgerService,
 } from "./index";
 
 jest.mock("./api", () => ({
@@ -160,5 +161,45 @@ describe("userService", () => {
   it("update calls api.patch with correct path and data", () => {
     userService.update(1, { name: "Bob" });
     expect(mockApi.patch).toHaveBeenCalledWith("/auth/users/1", { name: "Bob" });
+  });
+});
+
+describe("adminLedgerService", () => {
+  it("list calls api.get with the correct path and query params", () => {
+    adminLedgerService.list({ companyId: "c1", entryType: "payment", status: "posted" });
+    expect(mockApi.get).toHaveBeenCalledWith(
+      "/admin/ledger?companyId=c1&entryType=payment&status=posted",
+    );
+  });
+
+  it("list calls api.get without query params when unfiltered", () => {
+    adminLedgerService.list();
+    expect(mockApi.get).toHaveBeenCalledWith("/admin/ledger");
+  });
+
+  it("summary calls api.get with the summary path", () => {
+    adminLedgerService.summary();
+    expect(mockApi.get).toHaveBeenCalledWith("/admin/ledger/summary");
+  });
+
+  it("getById calls api.get with the correct path", () => {
+    adminLedgerService.getById("entry1");
+    expect(mockApi.get).toHaveBeenCalledWith("/admin/ledger/entry1");
+  });
+
+  it("create calls api.post with the correct path and data", () => {
+    const data = {
+      companyId: "c1",
+      entryType: "payment",
+      amount: 150000,
+      description: "Payment received",
+    };
+    adminLedgerService.create(data);
+    expect(mockApi.post).toHaveBeenCalledWith("/admin/ledger", data);
+  });
+
+  it("voidEntry calls api.patch with the void path", () => {
+    adminLedgerService.voidEntry("entry1");
+    expect(mockApi.patch).toHaveBeenCalledWith("/admin/ledger/entry1/void");
   });
 });

@@ -68,6 +68,11 @@ export type PaymentHistory = Prisma.PaymentHistoryModel
  */
 export type Invoice = Prisma.InvoiceModel
 /**
+ * Model Ledger
+ * 
+ */
+export type Ledger = Prisma.LedgerModel
+/**
  * Model ApiKey
  * 
  */

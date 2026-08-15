@@ -59,6 +59,7 @@ export const ModelName = {
   CompanySubscription: 'CompanySubscription',
   PaymentHistory: 'PaymentHistory',
   Invoice: 'Invoice',
+  Ledger: 'Ledger',
   ApiKey: 'ApiKey',
   AuditLog: 'AuditLog',
   GuardingSite: 'GuardingSite',
@@ -237,6 +238,23 @@ export const InvoiceScalarFieldEnum = {
 } as const
 
 export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
+
+
+export const LedgerScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  entryType: 'entryType',
+  amount: 'amount',
+  currency: 'currency',
+  description: 'description',
+  reference: 'reference',
+  status: 'status',
+  postedAt: 'postedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LedgerScalarFieldEnum = (typeof LedgerScalarFieldEnum)[keyof typeof LedgerScalarFieldEnum]
 
 
 export const ApiKeyScalarFieldEnum = {

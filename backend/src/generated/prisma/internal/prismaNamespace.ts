@@ -400,6 +400,7 @@ export const ModelName = {
   CompanySubscription: 'CompanySubscription',
   PaymentHistory: 'PaymentHistory',
   Invoice: 'Invoice',
+  Ledger: 'Ledger',
   ApiKey: 'ApiKey',
   AuditLog: 'AuditLog',
   GuardingSite: 'GuardingSite',
@@ -424,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company" | "user" | "refreshToken" | "incident" | "passwordResetToken" | "emailVerificationToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "invoice" | "apiKey" | "auditLog" | "guardingSite" | "guard" | "patrolReport" | "patrolCheckpoint" | "patrolSchedule" | "patrolScheduleCheckpoint" | "entryLog"
+    modelProps: "company" | "user" | "refreshToken" | "incident" | "passwordResetToken" | "emailVerificationToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "invoice" | "ledger" | "apiKey" | "auditLog" | "guardingSite" | "guard" | "patrolReport" | "patrolCheckpoint" | "patrolSchedule" | "patrolScheduleCheckpoint" | "entryLog"
     txIsolationLevel: never
   }
   model: {
@@ -1165,6 +1166,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.InvoiceCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.InvoiceCountAggregateOutputType> | number
+        }
+      }
+    }
+    Ledger: {
+      payload: Prisma.$LedgerPayload<ExtArgs>
+      fields: Prisma.LedgerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LedgerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LedgerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LedgerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LedgerPayload>
+        }
+        findFirst: {
+          args: Prisma.LedgerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LedgerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LedgerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LedgerPayload>
+        }
+        findMany: {
+          args: Prisma.LedgerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LedgerPayload>[]
+        }
+        create: {
+          args: Prisma.LedgerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LedgerPayload>
+        }
+        createMany: {
+          args: Prisma.LedgerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.LedgerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LedgerPayload>
+        }
+        update: {
+          args: Prisma.LedgerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LedgerPayload>
+        }
+        deleteMany: {
+          args: Prisma.LedgerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LedgerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.LedgerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LedgerPayload>
+        }
+        aggregate: {
+          args: Prisma.LedgerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLedger>
+        }
+        groupBy: {
+          args: Prisma.LedgerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LedgerGroupByOutputType>[]
+        }
+        findRaw: {
+          args: Prisma.LedgerFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.LedgerAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        count: {
+          args: Prisma.LedgerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LedgerCountAggregateOutputType> | number
         }
       }
     }
@@ -2014,6 +2089,23 @@ export const InvoiceScalarFieldEnum = {
 export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
 
 
+export const LedgerScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  entryType: 'entryType',
+  amount: 'amount',
+  currency: 'currency',
+  description: 'description',
+  reference: 'reference',
+  status: 'status',
+  postedAt: 'postedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LedgerScalarFieldEnum = (typeof LedgerScalarFieldEnum)[keyof typeof LedgerScalarFieldEnum]
+
+
 export const ApiKeyScalarFieldEnum = {
   id: 'id',
   companyId: 'companyId',
@@ -2326,6 +2418,7 @@ export type GlobalOmitConfig = {
   companySubscription?: Prisma.CompanySubscriptionOmit
   paymentHistory?: Prisma.PaymentHistoryOmit
   invoice?: Prisma.InvoiceOmit
+  ledger?: Prisma.LedgerOmit
   apiKey?: Prisma.ApiKeyOmit
   auditLog?: Prisma.AuditLogOmit
   guardingSite?: Prisma.GuardingSiteOmit

@@ -320,6 +320,31 @@ export interface PaymentHistory {
   createdAt: string;
 }
 
+/** A single financial ledger entry. Amount is signed integer cents. */
+export interface LedgerEntry {
+  id: string;
+  companyId: string;
+  entryType: "invoice" | "payment" | "refund" | "adjustment" | "credit";
+  amount: number;
+  currency: string;
+  description: string | null;
+  reference: string | null;
+  status: "posted" | "void";
+  postedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  company?: { id: string; name: string; email: string };
+}
+
+/** Aggregated ledger totals for the admin ledger. */
+export interface LedgerSummary {
+  totalIn: number;
+  totalOut: number;
+  netBalance: number;
+  entryCount: number;
+  byType: { entryType: string; total: number; count: number }[];
+}
+
 /** A subscription plan available for companies. */
 export interface SubscriptionPlan {
   id: string;

@@ -21,6 +21,7 @@ model Company {
   subscription    CompanySubscription?
   payments        PaymentHistory[]
   invoices        Invoice[]
+  ledgerEntries   Ledger[]
   apiKeys         ApiKey[]
   guardingSites   GuardingSite[]
   guards          Guard[]
@@ -214,6 +215,28 @@ model Invoice {
   @@index([status])
   @@index([dueDate])
   @@map("invoices")
+}
+
+model Ledger {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  companyId   String   @map("company_id") @db.ObjectId
+  entryType   String   @map("entry_type")
+  amount      Int      @map("amount")
+  currency    String   @default("ZAR")
+  description String?
+  reference   String?
+  status      String   @default("posted")
+  postedAt    DateTime @map("posted_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([companyId])
+  @@index([entryType])
+  @@index([status])
+  @@index([postedAt])
+  @@map("ledger_entries")
 }
 
 model ApiKey {

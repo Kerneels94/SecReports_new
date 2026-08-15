@@ -25,6 +25,8 @@ import type {
   AuditLogEntry,
   SubscriptionPlan,
   CompanySubscription,
+  LedgerEntry,
+  LedgerSummary,
 } from "@/types";
 
 interface Comment {
@@ -427,6 +429,41 @@ export const adminInvoiceService = {
 export const adminRevenueService = {
   stats: () => api.get<RevenueStats>("/admin/revenue"),
   trends: () => api.get<RevenueTrend[]>("/admin/revenue/trends"),
+};
+
+/** Superadmin financial ledger endpoints. */
+export const adminLedgerService = {
+  list: (params?: {
+    companyId?: string;
+    entryType?: string;
+    status?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.companyId) searchParams.set("companyId", params.companyId);
+    if (params?.entryType) searchParams.set("entryType", params.entryType);
+    if (params?.status) searchParams.set("status", params.status);
+    if (params?.dateFrom) searchParams.set("dateFrom", params.dateFrom);
+    if (params?.dateTo) searchParams.set("dateTo", params.dateTo);
+    const qs = searchParams.toString();
+    return api.get<LedgerEntry[]>(
+      `/admin/ledger${qs ? `?${qs}` : ""}`,
+    );
+  },
+  summary: () => api.get<LedgerSummary>("/admin/ledger/summary"),
+  getById: (id: string) => api.get<LedgerEntry>(`/admin/ledger/${id}`),
+  create: (data: {
+    companyId: string;
+    entryType: string;
+    amount: number;
+    currency?: string;
+    description?: string;
+    reference?: string;
+    postedAt?: string;
+  }) => api.post<LedgerEntry>("/admin/ledger", data),
+  voidEntry: (id: string) =>
+    api.patch<LedgerEntry>(`/admin/ledger/${id}/void`),
 };
 
 /** Company audit-log endpoints (owner/manager). */
