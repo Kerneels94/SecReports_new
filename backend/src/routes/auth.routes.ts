@@ -10,7 +10,6 @@ import { requireRole } from "../middleware/requireRole";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   fastify.post("/auth/login", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, AuthController.login);
-  fastify.post("/auth/employee-login", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, AuthController.employeeLogin);
   fastify.post("/auth/register", { config: { rateLimit: { max: 5, timeWindow: "1 minute" } } }, AuthController.register);
   fastify.post("/auth/verify-email", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, AuthController.verifyEmail);
   fastify.post("/auth/refresh", { config: { rateLimit: { max: 20, timeWindow: "1 minute" } } }, AuthController.refresh);

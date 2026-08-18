@@ -192,48 +192,6 @@ export const AuthService = {
   },
 
   /**
-   * Authenticates a guard employee by email/password.
-   * Respects account lockout state. Restricted to the "guard" role.
-   */
-  async employeeLogin(params: { email: string; password: string; deviceInfo?: string }) {
-    const user = await prisma.user.findUnique({ where: { email: params.email } });
-    if (!user || user.role !== "guard") throwGenericAuthError();
-    if (!user.emailVerified) throwGenericAuthError();
-    if (user.lockedUntil && user.lockedUntil > new Date()) throwGenericAuthError();
-
-    const valid = await comparePassword(params.password, user.passwordHash);
-    if (!valid) {
-      return await handleLoginFailure(user.id);
-    }
-
-    await resetLoginAttempts(user.id);
-
-    const familyId = crypto.randomUUID();
-    const payload = { userId: user.id, role: user.role, companyId: user.companyId };
-    const refreshToken = await persistRefreshToken(user.id, familyId, params.deviceInfo);
-
-    await createAuditLog({
-      entityType: "user",
-      entityId: user.id,
-      action: "login",
-      performedBy: user.id,
-    });
-
-    return {
-      accessToken: signAccessToken(payload),
-      refreshToken,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        status: user.status,
-        companyId: user.companyId,
-      },
-    };
-  },
-
-  /**
    * Validates a refresh token, rotates it (invalidates the old, issues a new one),
    * and returns a new access + refresh token pair.
    * Detects token reuse: if the presented token's hash doesn't exist,

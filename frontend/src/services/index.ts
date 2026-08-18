@@ -5,7 +5,6 @@
 import { api } from "./api";
 import type {
   LoginRequest,
-  EmployeeLoginRequest,
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
@@ -89,8 +88,6 @@ export interface UserListItem {
 /** Authentication and user-management endpoints. */
 export const authService = {
   login: (data: LoginRequest) => api.post<LoginResponse>("/auth/login", data),
-  employeeLogin: (data: EmployeeLoginRequest) =>
-    api.post<LoginResponse>("/auth/employee-login", data),
   register: (data: RegisterRequest) =>
     api.post<RegisterResponse>("/auth/register", data),
   logout: () => api.post<void>("/auth/logout", {}),

@@ -71,13 +71,18 @@ Auth uses **JWT access + refresh token** flow:
 | `owner`       | Full company access — manage users, subscriptions, all features              |
 | `manager`     | Standard access — view all incidents, assign investigators, generate reports |
 | `senior`      | Standard access — create incidents, comment                                  |
-| `guard`       | Guard employee portal — patrol reports, entry logs, flagged vehicles         |
 
 ---
 
 ## API Overview
 
 All authenticated endpoints require `Authorization: Bearer <token>` header.
+
+### API Key Authentication
+
+Alternatively, endpoints can be accessed via API key using the `x-api-key` header. API-key-authenticated requests receive a synthetic `"api"` role that is **not** included in any route's `requireRole()` allow-list. This means API key access is effectively **read-only** — only endpoints that use `authenticate` without `requireRole()` are accessible (e.g., GET list/detail routes).
+
+API keys are scoped to a single company and can be generated/revoked by owners and managers via `/api-keys`.
 
 ### Incidents
 

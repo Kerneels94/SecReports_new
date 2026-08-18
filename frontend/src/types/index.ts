@@ -11,7 +11,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role: "owner" | "manager" | "senior" | "guard" | "superadmin";
+  role: "owner" | "manager" | "senior" | "superadmin";
   status: "active" | "inactive";
   companyId: number | null;
   trial?: TrialStatus | null;
@@ -113,12 +113,6 @@ export interface PaginatedResponse<T> {
 
 /** Payload for owner/manager login. */
 export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-/** Payload for employee (guard) login. */
-export interface EmployeeLoginRequest {
   email: string;
   password: string;
 }

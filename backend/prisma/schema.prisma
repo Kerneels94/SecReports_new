@@ -9,6 +9,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  owner
+  manager
+  senior
+  superadmin
+}
+
 model Company {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
@@ -36,7 +43,7 @@ model User {
   name           String
   email          String    @unique
   passwordHash   String    @map("password_hash")
-  role           String    @default("senior")
+  role           UserRole  @default("senior")
   status         String    @default("active")
   loginAttempts  Int       @default(0) @map("login_attempts")
   lockoutCount   Int       @default(0) @map("lockout_count")
