@@ -42,7 +42,7 @@ export type UserMinAggregateOutputType = {
   name: string | null
   email: string | null
   passwordHash: string | null
-  role: string | null
+  role: $Enums.UserRole | null
   status: string | null
   loginAttempts: number | null
   lockoutCount: number | null
@@ -59,7 +59,7 @@ export type UserMaxAggregateOutputType = {
   name: string | null
   email: string | null
   passwordHash: string | null
-  role: string | null
+  role: $Enums.UserRole | null
   status: string | null
   loginAttempts: number | null
   lockoutCount: number | null
@@ -243,7 +243,7 @@ export type UserGroupByOutputType = {
   name: string
   email: string
   passwordHash: string
-  role: string
+  role: $Enums.UserRole
   status: string
   loginAttempts: number
   lockoutCount: number
@@ -283,7 +283,7 @@ export type UserWhereInput = {
   name?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringFilter<"User"> | string
-  role?: Prisma.StringFilter<"User"> | string
+  role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.StringFilter<"User"> | string
   loginAttempts?: Prisma.IntFilter<"User"> | number
   lockoutCount?: Prisma.IntFilter<"User"> | number
@@ -334,7 +334,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   companyId?: Prisma.StringNullableFilter<"User"> | string | null
   name?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringFilter<"User"> | string
-  role?: Prisma.StringFilter<"User"> | string
+  role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.StringFilter<"User"> | string
   loginAttempts?: Prisma.IntFilter<"User"> | number
   lockoutCount?: Prisma.IntFilter<"User"> | number
@@ -383,7 +383,7 @@ export type UserScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   passwordHash?: Prisma.StringWithAggregatesFilter<"User"> | string
-  role?: Prisma.StringWithAggregatesFilter<"User"> | string
+  role?: Prisma.EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
   status?: Prisma.StringWithAggregatesFilter<"User"> | string
   loginAttempts?: Prisma.IntWithAggregatesFilter<"User"> | number
   lockoutCount?: Prisma.IntWithAggregatesFilter<"User"> | number
@@ -399,7 +399,7 @@ export type UserCreateInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -422,7 +422,7 @@ export type UserUncheckedCreateInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -442,7 +442,7 @@ export type UserUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -464,7 +464,7 @@ export type UserUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -486,7 +486,7 @@ export type UserCreateManyInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -501,7 +501,7 @@ export type UserUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -516,7 +516,7 @@ export type UserUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -670,6 +670,10 @@ export type UserUncheckedCreateNestedManyWithoutCreatorInput = {
   connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
 }
 
+export type EnumUserRoleFieldUpdateOperationsInput = {
+  set?: $Enums.UserRole
+}
+
 export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number
@@ -793,7 +797,7 @@ export type UserCreateWithoutCompanyInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -814,7 +818,7 @@ export type UserUncheckedCreateWithoutCompanyInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -864,7 +868,7 @@ export type UserScalarWhereInput = {
   name?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringFilter<"User"> | string
-  role?: Prisma.StringFilter<"User"> | string
+  role?: Prisma.EnumUserRoleFilter<"User"> | $Enums.UserRole
   status?: Prisma.StringFilter<"User"> | string
   loginAttempts?: Prisma.IntFilter<"User"> | number
   lockoutCount?: Prisma.IntFilter<"User"> | number
@@ -880,7 +884,7 @@ export type UserCreateWithoutCreatedUsersInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -902,7 +906,7 @@ export type UserUncheckedCreateWithoutCreatedUsersInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -927,7 +931,7 @@ export type UserCreateWithoutCreatorInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -949,7 +953,7 @@ export type UserUncheckedCreateWithoutCreatorInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -988,7 +992,7 @@ export type UserUpdateWithoutCreatedUsersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1009,7 +1013,7 @@ export type UserUncheckedUpdateWithoutCreatedUsersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1045,7 +1049,7 @@ export type UserCreateWithoutRefreshTokensInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -1067,7 +1071,7 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -1102,7 +1106,7 @@ export type UserUpdateWithoutRefreshTokensInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1123,7 +1127,7 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1143,7 +1147,7 @@ export type UserCreateWithoutReportedIncidentsInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -1165,7 +1169,7 @@ export type UserUncheckedCreateWithoutReportedIncidentsInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -1190,7 +1194,7 @@ export type UserCreateWithoutAssignedIncidentsInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -1212,7 +1216,7 @@ export type UserUncheckedCreateWithoutAssignedIncidentsInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -1247,7 +1251,7 @@ export type UserUpdateWithoutReportedIncidentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1268,7 +1272,7 @@ export type UserUncheckedUpdateWithoutReportedIncidentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1298,7 +1302,7 @@ export type UserUpdateWithoutAssignedIncidentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1319,7 +1323,7 @@ export type UserUncheckedUpdateWithoutAssignedIncidentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1339,7 +1343,7 @@ export type UserCreateWithoutAuditLogsInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -1361,7 +1365,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -1396,7 +1400,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1417,7 +1421,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1437,7 +1441,7 @@ export type UserCreateManyCompanyInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -1452,7 +1456,7 @@ export type UserUpdateWithoutCompanyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1472,7 +1476,7 @@ export type UserUncheckedUpdateWithoutCompanyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1492,7 +1496,7 @@ export type UserUncheckedUpdateManyWithoutCompanyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1509,7 +1513,7 @@ export type UserCreateManyCreatorInput = {
   name: string
   email: string
   passwordHash: string
-  role?: string
+  role?: $Enums.UserRole
   status?: string
   loginAttempts?: number
   lockoutCount?: number
@@ -1523,7 +1527,7 @@ export type UserUpdateWithoutCreatorInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1544,7 +1548,7 @@ export type UserUncheckedUpdateWithoutCreatorInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1564,7 +1568,7 @@ export type UserUncheckedUpdateManyWithoutCreatorInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   status?: Prisma.StringFieldUpdateOperationsInput | string
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1714,7 +1718,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     name: string
     email: string
     passwordHash: string
-    role: string
+    role: $Enums.UserRole
     status: string
     loginAttempts: number
     lockoutCount: number
@@ -2127,7 +2131,7 @@ export interface UserFieldRefs {
   readonly name: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly passwordHash: Prisma.FieldRef<"User", 'String'>
-  readonly role: Prisma.FieldRef<"User", 'String'>
+  readonly role: Prisma.FieldRef<"User", 'UserRole'>
   readonly status: Prisma.FieldRef<"User", 'String'>
   readonly loginAttempts: Prisma.FieldRef<"User", 'Int'>
   readonly lockoutCount: Prisma.FieldRef<"User", 'Int'>

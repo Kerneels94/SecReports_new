@@ -333,18 +333,24 @@ export const patrolScheduleService = {
   create: (data: {
     siteId: string;
     day: string;
-    startTime: string;
-    endTime: string;
-    checkpoints?: { name: string; order: number }[];
+    timeSlots: {
+      startTime: string;
+      endTime: string;
+      order?: number;
+      checkpoints?: { name: string; order: number }[];
+    }[];
   }) => api.post<PatrolSchedule>("/patrol-schedules", data),
   update: (
     id: string,
     data: {
       siteId?: string;
       day?: string;
-      startTime?: string;
-      endTime?: string;
-      checkpoints?: { name: string; order: number }[];
+      timeSlots?: {
+        startTime: string;
+        endTime: string;
+        order?: number;
+        checkpoints?: { name: string; order: number }[];
+      }[];
     },
   ) => api.put<PatrolSchedule>(`/patrol-schedules/${id}`, data),
   delete: (id: string) => api.delete<void>(`/patrol-schedules/${id}`),

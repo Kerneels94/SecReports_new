@@ -362,7 +362,7 @@ export const AuthService = {
         name: params.name,
         email: params.email,
         passwordHash,
-        role: params.role || "senior",
+        role: (params.role || "senior") as any,
         createdBy: params.createdBy,
       },
     });
@@ -558,7 +558,7 @@ export const AuthService = {
       data: {
         ...(data.name !== undefined && { name: data.name }),
         ...(data.email !== undefined && { email: data.email, emailVerified: false }),
-        ...(data.role !== undefined && { role: data.role }),
+        ...(data.role !== undefined && { role: data.role as any }),
       },
       select: {
         id: true,

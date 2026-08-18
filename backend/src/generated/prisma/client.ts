@@ -137,6 +137,11 @@ export type PatrolCheckpoint = Prisma.PatrolCheckpointModel
  */
 export type PatrolSchedule = Prisma.PatrolScheduleModel
 /**
+ * Model PatrolScheduleTimeSlot
+ * 
+ */
+export type PatrolScheduleTimeSlot = Prisma.PatrolScheduleTimeSlotModel
+/**
  * Model PatrolScheduleCheckpoint
  * 
  */
