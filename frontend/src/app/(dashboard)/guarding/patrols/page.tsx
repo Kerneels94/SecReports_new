@@ -113,33 +113,35 @@ export default function PatrolsPage() {
 
       for (const schedule of schedules) {
         if (schedule.day !== currentDay) continue;
-        const key = `${schedule.id}-${now.toISOString().slice(0, 10)}`;
+        for (const slot of schedule.timeSlots ?? []) {
+          const key = `${schedule.id}-${slot.id}-${now.toISOString().slice(0, 10)}`;
 
-        if (currentTime >= schedule.startTime && currentTime < schedule.endTime) {
-          if (!notifiedStartRef.current.has(key)) {
-            notifiedStartRef.current.add(key);
-            addToast(
-              `Patrol should start now for ${schedule.site?.name ?? "site"} (${schedule.startTime} - ${schedule.endTime})`,
-              "info",
-              0,
-            );
+          if (currentTime >= slot.startTime && currentTime < slot.endTime) {
+            if (!notifiedStartRef.current.has(key)) {
+              notifiedStartRef.current.add(key);
+              addToast(
+                `Patrol should start now for ${schedule.site?.name ?? "site"} (${slot.startTime} - ${slot.endTime})`,
+                "info",
+                0,
+              );
+            }
           }
-        }
 
-        if (currentTime >= schedule.endTime) {
-          const hasCompleted = patrols.some(
-            (p) => p.siteId === schedule.siteId && p.status === "completed" && p.completedAt &&
-              new Date(p.completedAt).toISOString().slice(0, 10) === now.toISOString().slice(0, 10),
-          );
-          completedPatrolsRef.current.add(`${schedule.siteId}-${now.toISOString().slice(0, 10)}`);
-
-          if (!hasCompleted && !notifiedFailedRef.current.has(key)) {
-            notifiedFailedRef.current.add(key);
-            addToast(
-              `Patrol failed! End time (${schedule.endTime}) reached for ${schedule.site?.name ?? "site"} without completion.`,
-              "danger",
-              0,
+          if (currentTime >= slot.endTime) {
+            const hasCompleted = patrols.some(
+              (p) => p.siteId === schedule.siteId && p.status === "completed" && p.completedAt &&
+                new Date(p.completedAt).toISOString().slice(0, 10) === now.toISOString().slice(0, 10),
             );
+            completedPatrolsRef.current.add(`${schedule.siteId}-${now.toISOString().slice(0, 10)}`);
+
+            if (!hasCompleted && !notifiedFailedRef.current.has(key)) {
+              notifiedFailedRef.current.add(key);
+              addToast(
+                `Patrol failed! End time (${slot.endTime}) reached for ${schedule.site?.name ?? "site"} without completion.`,
+                "danger",
+                0,
+              );
+            }
           }
         }
       }
@@ -162,8 +164,7 @@ export default function PatrolsPage() {
       siteName: group.siteName,
       schedules: group.schedules.sort((a, b) => {
         const dayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-        const d = dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day);
-        return d !== 0 ? d : a.startTime.localeCompare(b.startTime);
+        return dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day);
       }),
     }));
   }, [schedules]);
@@ -405,29 +406,35 @@ export default function PatrolsPage() {
                         <thead>
                           <tr className="border-b border-border-light bg-surface-elevated/50">
                             <th className="text-left py-2 px-4 text-text-secondary font-medium">Day</th>
-                            <th className="text-left py-2 px-4 text-text-secondary font-medium">Start Time</th>
-                            <th className="text-left py-2 px-4 text-text-secondary font-medium">End Time</th>
-                            <th className="text-left py-2 px-4 text-text-secondary font-medium">Checkpoints</th>
-                            <th className="text-left py-2 px-4 text-text-secondary font-medium">Actions</th>
+                            <th className="text-left py-2 px-4 text-text-secondary font-medium">Time Slots &amp; Checkpoints</th>
+                            <th className="text-left py-2 px-4 text-text-secondary font-medium w-24">Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           {group.schedules.map((s) => (
                             <tr key={s.id} className="border-b border-border-light last:border-b-0 hover:bg-surface-elevated/30 transition-colors">
-                              <td className="py-2 px-4 text-text capitalize">{s.day}</td>
-                              <td className="py-2 px-4 text-text-secondary">{s.startTime}</td>
-                              <td className="py-2 px-4 text-text-secondary">{s.endTime}</td>
-                              <td className="py-2 px-4 text-text-secondary">
-                                {s.checkpoints && s.checkpoints.length > 0
-                                  ? `${s.checkpoints.length} checkpoint${s.checkpoints.length !== 1 ? "s" : ""}`
-                                  : "None"}
-                                {s.checkpoints && s.checkpoints.length > 0 && (
-                                  <p className="text-xs text-text-secondary mt-0.5 truncate max-w-[200px]">
-                                    {s.checkpoints.map((cp) => cp.name).join(" \u2192 ")}
-                                  </p>
+                              <td className="py-2 px-4 text-text capitalize font-medium align-top">{s.day}</td>
+                              <td className="py-2 px-4 text-text-secondary align-top">
+                                {s.timeSlots && s.timeSlots.length > 0 ? (
+                                  <div className="flex flex-col gap-2">
+                                    {s.timeSlots.sort((a, b) => a.order - b.order).map((slot) => (
+                                      <div key={slot.id}>
+                                        <p className="text-text text-xs font-medium">{slot.startTime} – {slot.endTime}</p>
+                                        {slot.checkpoints && slot.checkpoints.length > 0 ? (
+                                          <p className="text-xs text-text-secondary mt-0.5 truncate max-w-[300px]">
+                                            {slot.checkpoints.sort((a, b) => a.order - b.order).map((cp) => cp.name).join(" \u2192 ")}
+                                          </p>
+                                        ) : (
+                                          <p className="text-xs text-text-secondary mt-0.5">No checkpoints</p>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <span className="text-xs">No time slots</span>
                                 )}
                               </td>
-                              <td className="py-2 px-4">
+                              <td className="py-2 px-4 align-top">
                                 <div className="flex items-center gap-1">
                                   <button
                                     onClick={() => { setEditSchedule(s); setScheduleModalOpen(true); }}

@@ -7,7 +7,6 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { AuthService } from "../services/auth.service";
 import {
   loginSchema,
-  employeeLoginSchema,
   registerSchema,
   createUserSchema,
   forgotPasswordSchema,
@@ -43,18 +42,6 @@ export const AuthController = {
     const deviceInfo = (request.headers["user-agent"] as string) || undefined;
     const { refreshToken: _rt1, ...safeResult } = await AuthService.login({ ...parsed.data, deviceInfo });
     setRefreshCookie(reply, _rt1);
-    reply.code(200).send({ success: true, data: safeResult });
-  },
-
-  /** Authenticate a guard employee using their email and password. */
-  async employeeLogin(request: FastifyRequest, reply: FastifyReply) {
-    const parsed = employeeLoginSchema.safeParse(request.body);
-    if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
-
-    const deviceInfo = (request.headers["user-agent"] as string) || undefined;
-    const { refreshToken: _rt2, ...safeResult } = await AuthService.employeeLogin({ ...parsed.data, deviceInfo });
-    setRefreshCookie(reply, _rt2);
     reply.code(200).send({ success: true, data: safeResult });
   },
 

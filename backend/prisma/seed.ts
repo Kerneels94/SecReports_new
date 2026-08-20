@@ -5,10 +5,12 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.patrolScheduleCheckpoint.deleteMany();
+  await prisma.patrolScheduleTimeSlot.deleteMany();
+  await prisma.patrolSchedule.deleteMany();
   await prisma.patrolCheckpoint.deleteMany();
   await prisma.patrolReport.deleteMany();
   await prisma.entryLog.deleteMany();
-  await prisma.flaggedVehicle.deleteMany();
   await prisma.guard.deleteMany();
   await prisma.guardingSite.deleteMany();
   await prisma.paymentHistory.deleteMany();
@@ -200,15 +202,6 @@ async function main() {
     },
   });
 
-  const flagged = await prisma.flaggedVehicle.create({
-    data: {
-      companyId: company.id,
-      vehicleReg: "BK 789-012 GP",
-      reason: "Suspicious activity reported at Riverside site",
-      flaggedById: guard1.id,
-    },
-  });
-
   await prisma.entryLog.create({
     data: {
       siteId: site2.id,
@@ -218,7 +211,10 @@ async function main() {
       vehicleDesc: "Silver Volkswagen Golf",
       entryTime: new Date("2026-06-13T14:00:00Z"),
       purpose: "Unverified",
-      flaggedVehicleId: flagged.id,
+      flagged: true,
+      flagReason: "Suspicious activity reported at Riverside site",
+      flaggedById: guard1.id,
+      flaggedAt: new Date("2026-06-13T14:05:00Z"),
     },
   });
 

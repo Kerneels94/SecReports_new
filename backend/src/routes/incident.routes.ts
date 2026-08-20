@@ -11,7 +11,7 @@ export default async function incidentRoutes(fastify: FastifyInstance) {
 
   fastify.get("/incidents", IncidentController.list);
   fastify.get("/incidents/:id", IncidentController.getById);
-  fastify.post("/incidents", { preHandler: [requireRole("owner", "manager", "guard")] }, IncidentController.create);
+  fastify.post("/incidents", { preHandler: [requireRole("owner", "manager", "senior")] }, IncidentController.create);
   fastify.put("/incidents/:id", { preHandler: [requireRole("owner", "manager")] }, IncidentController.update);
   fastify.patch("/incidents/:id/status", { preHandler: [requireRole("owner", "manager")] }, IncidentController.updateStatus);
   fastify.delete("/incidents/:id", { preHandler: [requireRole("owner", "manager")] }, IncidentController.delete);

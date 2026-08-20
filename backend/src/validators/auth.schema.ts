@@ -22,14 +22,6 @@ export const loginSchema = z.object({
 });
 
 /**
- * Validates employee-specific sign-in credentials.
- */
-export const employeeLoginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-});
-
-/**
  * Validates refresh-token rotation requests.
  */
 export const refreshSchema = z.object({
@@ -53,7 +45,7 @@ export const createUserSchema = z.object({
   name: z.string().min(1).max(255),
   email: z.string().email(),
   password: strongPassword,
-  role: z.enum(["owner", "manager", "senior", "guard"]).optional(),
+  role: z.enum(["owner", "manager", "senior"]).optional(),
 });
 
 /**
@@ -84,7 +76,7 @@ export const changePasswordSchema = z.object({
 export const updateUserSchema = z.object({
   name: z.string().min(1).max(255).optional(),
   email: z.string().email().optional(),
-  role: z.enum(["owner", "manager", "senior", "guard"]).optional(),
+  role: z.enum(["owner", "manager", "senior"]).optional(),
 });
 
 /**

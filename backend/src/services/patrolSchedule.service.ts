@@ -1,6 +1,6 @@
 /**
- * Business logic for patrol schedules. Handles CRUD with checkpoint management
- * for recurring patrol route templates.
+ * Business logic for patrol schedules. Handles CRUD with time-slot and
+ * checkpoint management for recurring patrol route templates.
  */
 import { prisma } from "../lib/db";
 import { NotFoundError } from "../lib/errors";
@@ -9,9 +9,12 @@ import { NotFoundError } from "../lib/errors";
 interface CreatePatrolScheduleParams {
   siteId: string;
   day: string;
-  startTime: string;
-  endTime: string;
-  checkpoints?: { name: string; order: number }[];
+  timeSlots: {
+    startTime: string;
+    endTime: string;
+    order?: number;
+    checkpoints?: { name: string; order: number }[];
+  }[];
   performedBy?: string;
 }
 
@@ -19,11 +22,22 @@ interface CreatePatrolScheduleParams {
 interface UpdatePatrolScheduleParams {
   siteId?: string;
   day?: string;
-  startTime?: string;
-  endTime?: string;
-  checkpoints?: { name: string; order: number }[];
+  timeSlots?: {
+    startTime: string;
+    endTime: string;
+    order?: number;
+    checkpoints?: { name: string; order: number }[];
+  }[];
   performedBy?: string;
 }
+
+const includeTimeSlots = {
+  site: { select: { id: true, name: true } },
+  timeSlots: {
+    orderBy: { order: "asc" as const },
+    include: { checkpoints: { orderBy: { order: "asc" as const } } },
+  },
+};
 
 export const PatrolScheduleService = {
   /** Lists patrol schedules for a company with optional site/day filters. */
@@ -37,28 +51,22 @@ export const PatrolScheduleService = {
 
     return prisma.patrolSchedule.findMany({
       where,
-      include: {
-        site: { select: { id: true, name: true } },
-        checkpoints: { orderBy: { order: "asc" } },
-      },
-      orderBy: [{ day: "asc" }, { startTime: "asc" }],
+      include: includeTimeSlots,
+      orderBy: [{ day: "asc" }],
     });
   },
 
-  /** Gets a patrol schedule with full checkpoint details. */
+  /** Gets a patrol schedule with full time-slot and checkpoint details. */
   async getById(companyId: string, id: string) {
     const schedule = await prisma.patrolSchedule.findFirst({
       where: { id, companyId },
-      include: {
-        site: { select: { id: true, name: true } },
-        checkpoints: { orderBy: { order: "asc" } },
-      },
+      include: includeTimeSlots,
     });
     if (!schedule) throw new NotFoundError("Patrol schedule");
     return schedule;
   },
 
-  /** Creates a patrol schedule with optional checkpoint entries. */
+  /** Creates a patrol schedule with nested time slots and checkpoints. */
   async create(companyId: string, params: CreatePatrolScheduleParams) {
     const site = await prisma.guardingSite.findFirst({ where: { id: params.siteId, companyId } });
     if (!site) throw new NotFoundError("Guarding site");
@@ -68,21 +76,18 @@ export const PatrolScheduleService = {
         companyId,
         siteId: params.siteId,
         day: params.day,
-        startTime: params.startTime,
-        endTime: params.endTime,
-        checkpoints: params.checkpoints
-          ? {
-              create: params.checkpoints.map((cp) => ({
-                name: cp.name,
-                order: cp.order,
-              })),
-            }
-          : undefined,
+        timeSlots: {
+          create: params.timeSlots.map((slot, idx) => ({
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            order: slot.order ?? idx,
+            checkpoints: slot.checkpoints
+              ? { create: slot.checkpoints.map((cp) => ({ name: cp.name, order: cp.order })) }
+              : undefined,
+          })),
+        },
       },
-      include: {
-        site: { select: { id: true, name: true } },
-        checkpoints: { orderBy: { order: "asc" } },
-      },
+      include: includeTimeSlots,
     });
 
     if (params.performedBy) {
@@ -91,7 +96,7 @@ export const PatrolScheduleService = {
           entityType: "patrol_schedule",
           entityId: schedule.id,
           action: "schedule_created",
-          newValues: JSON.stringify({ siteId: params.siteId, day: params.day }),
+          newValues: JSON.stringify({ siteId: params.siteId, day: params.day, slotCount: params.timeSlots.length }),
           performedBy: params.performedBy,
         },
       });
@@ -100,7 +105,7 @@ export const PatrolScheduleService = {
     return schedule;
   },
 
-  /** Updates a patrol schedule. If checkpoints are provided, replaces all existing ones. */
+  /** Updates a patrol schedule. If timeSlots are provided, replaces all existing ones. */
   async update(companyId: string, id: string, params: UpdatePatrolScheduleParams) {
     const schedule = await prisma.patrolSchedule.findFirst({ where: { id, companyId } });
     if (!schedule) throw new NotFoundError("Patrol schedule");
@@ -113,29 +118,51 @@ export const PatrolScheduleService = {
     const data: any = {};
     if (params.siteId !== undefined) data.siteId = params.siteId;
     if (params.day !== undefined) data.day = params.day;
-    if (params.startTime !== undefined) data.startTime = params.startTime;
-    if (params.endTime !== undefined) data.endTime = params.endTime;
 
-    if (params.checkpoints) {
-      await prisma.patrolScheduleCheckpoint.deleteMany({ where: { patrolScheduleId: id } });
-      if (params.checkpoints.length > 0) {
-        await prisma.patrolScheduleCheckpoint.createMany({
-          data: params.checkpoints.map((cp) => ({
+    if (params.timeSlots) {
+      const existingSlots = await prisma.patrolScheduleTimeSlot.findMany({
+        where: { patrolScheduleId: id },
+        select: { id: true },
+      });
+      for (const slot of existingSlots) {
+        await prisma.patrolScheduleCheckpoint.deleteMany({ where: { patrolTimeSlotId: slot.id } });
+      }
+      await prisma.patrolScheduleTimeSlot.deleteMany({ where: { patrolScheduleId: id } });
+
+      if (params.timeSlots.length > 0) {
+        await prisma.patrolScheduleTimeSlot.createMany({
+          data: params.timeSlots.map((slot, idx) => ({
             patrolScheduleId: id,
-            name: cp.name,
-            order: cp.order,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            order: slot.order ?? idx,
           })),
         });
+
+        const createdSlots = await prisma.patrolScheduleTimeSlot.findMany({
+          where: { patrolScheduleId: id },
+          orderBy: { order: "asc" },
+        });
+
+        for (let i = 0; i < params.timeSlots.length; i++) {
+          const slotParams = params.timeSlots[i];
+          if (slotParams.checkpoints && slotParams.checkpoints.length > 0) {
+            await prisma.patrolScheduleCheckpoint.createMany({
+              data: slotParams.checkpoints.map((cp) => ({
+                patrolTimeSlotId: createdSlots[i].id,
+                name: cp.name,
+                order: cp.order,
+              })),
+            });
+          }
+        }
       }
     }
 
     const updated = await prisma.patrolSchedule.update({
       where: { id },
       data,
-      include: {
-        site: { select: { id: true, name: true } },
-        checkpoints: { orderBy: { order: "asc" } },
-      },
+      include: includeTimeSlots,
     });
 
     if (params.performedBy) {
@@ -144,7 +171,7 @@ export const PatrolScheduleService = {
           entityType: "patrol_schedule",
           entityId: id,
           action: "schedule_updated",
-          newValues: JSON.stringify({ siteId: data.siteId, day: data.day, startTime: data.startTime, endTime: data.endTime }),
+          newValues: JSON.stringify({ siteId: data.siteId, day: data.day }),
           performedBy: params.performedBy,
         },
       });
@@ -153,7 +180,7 @@ export const PatrolScheduleService = {
     return updated;
   },
 
-  /** Deletes a patrol schedule. Cascade deletes checkpoints. */
+  /** Deletes a patrol schedule. Cascade deletes time slots and checkpoints. */
   async delete(companyId: string, id: string, performedBy?: string) {
     const schedule = await prisma.patrolSchedule.findFirst({ where: { id, companyId } });
     if (!schedule) throw new NotFoundError("Patrol schedule");

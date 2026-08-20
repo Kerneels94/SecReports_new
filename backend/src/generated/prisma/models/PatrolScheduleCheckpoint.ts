@@ -36,7 +36,7 @@ export type PatrolScheduleCheckpointSumAggregateOutputType = {
 
 export type PatrolScheduleCheckpointMinAggregateOutputType = {
   id: string | null
-  patrolScheduleId: string | null
+  patrolTimeSlotId: string | null
   name: string | null
   order: number | null
   createdAt: Date | null
@@ -44,7 +44,7 @@ export type PatrolScheduleCheckpointMinAggregateOutputType = {
 
 export type PatrolScheduleCheckpointMaxAggregateOutputType = {
   id: string | null
-  patrolScheduleId: string | null
+  patrolTimeSlotId: string | null
   name: string | null
   order: number | null
   createdAt: Date | null
@@ -52,7 +52,7 @@ export type PatrolScheduleCheckpointMaxAggregateOutputType = {
 
 export type PatrolScheduleCheckpointCountAggregateOutputType = {
   id: number
-  patrolScheduleId: number
+  patrolTimeSlotId: number
   name: number
   order: number
   createdAt: number
@@ -70,7 +70,7 @@ export type PatrolScheduleCheckpointSumAggregateInputType = {
 
 export type PatrolScheduleCheckpointMinAggregateInputType = {
   id?: true
-  patrolScheduleId?: true
+  patrolTimeSlotId?: true
   name?: true
   order?: true
   createdAt?: true
@@ -78,7 +78,7 @@ export type PatrolScheduleCheckpointMinAggregateInputType = {
 
 export type PatrolScheduleCheckpointMaxAggregateInputType = {
   id?: true
-  patrolScheduleId?: true
+  patrolTimeSlotId?: true
   name?: true
   order?: true
   createdAt?: true
@@ -86,7 +86,7 @@ export type PatrolScheduleCheckpointMaxAggregateInputType = {
 
 export type PatrolScheduleCheckpointCountAggregateInputType = {
   id?: true
-  patrolScheduleId?: true
+  patrolTimeSlotId?: true
   name?: true
   order?: true
   createdAt?: true
@@ -181,7 +181,7 @@ export type PatrolScheduleCheckpointGroupByArgs<ExtArgs extends runtime.Types.Ex
 
 export type PatrolScheduleCheckpointGroupByOutputType = {
   id: string
-  patrolScheduleId: string
+  patrolTimeSlotId: string
   name: string
   order: number
   createdAt: Date
@@ -212,20 +212,20 @@ export type PatrolScheduleCheckpointWhereInput = {
   OR?: Prisma.PatrolScheduleCheckpointWhereInput[]
   NOT?: Prisma.PatrolScheduleCheckpointWhereInput | Prisma.PatrolScheduleCheckpointWhereInput[]
   id?: Prisma.StringFilter<"PatrolScheduleCheckpoint"> | string
-  patrolScheduleId?: Prisma.StringFilter<"PatrolScheduleCheckpoint"> | string
+  patrolTimeSlotId?: Prisma.StringFilter<"PatrolScheduleCheckpoint"> | string
   name?: Prisma.StringFilter<"PatrolScheduleCheckpoint"> | string
   order?: Prisma.IntFilter<"PatrolScheduleCheckpoint"> | number
   createdAt?: Prisma.DateTimeFilter<"PatrolScheduleCheckpoint"> | Date | string
-  patrolSchedule?: Prisma.XOR<Prisma.PatrolScheduleScalarRelationFilter, Prisma.PatrolScheduleWhereInput>
+  timeSlot?: Prisma.XOR<Prisma.PatrolScheduleTimeSlotScalarRelationFilter, Prisma.PatrolScheduleTimeSlotWhereInput>
 }
 
 export type PatrolScheduleCheckpointOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  patrolScheduleId?: Prisma.SortOrder
+  patrolTimeSlotId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   order?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  patrolSchedule?: Prisma.PatrolScheduleOrderByWithRelationInput
+  timeSlot?: Prisma.PatrolScheduleTimeSlotOrderByWithRelationInput
 }
 
 export type PatrolScheduleCheckpointWhereUniqueInput = Prisma.AtLeast<{
@@ -233,16 +233,16 @@ export type PatrolScheduleCheckpointWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.PatrolScheduleCheckpointWhereInput | Prisma.PatrolScheduleCheckpointWhereInput[]
   OR?: Prisma.PatrolScheduleCheckpointWhereInput[]
   NOT?: Prisma.PatrolScheduleCheckpointWhereInput | Prisma.PatrolScheduleCheckpointWhereInput[]
-  patrolScheduleId?: Prisma.StringFilter<"PatrolScheduleCheckpoint"> | string
+  patrolTimeSlotId?: Prisma.StringFilter<"PatrolScheduleCheckpoint"> | string
   name?: Prisma.StringFilter<"PatrolScheduleCheckpoint"> | string
   order?: Prisma.IntFilter<"PatrolScheduleCheckpoint"> | number
   createdAt?: Prisma.DateTimeFilter<"PatrolScheduleCheckpoint"> | Date | string
-  patrolSchedule?: Prisma.XOR<Prisma.PatrolScheduleScalarRelationFilter, Prisma.PatrolScheduleWhereInput>
+  timeSlot?: Prisma.XOR<Prisma.PatrolScheduleTimeSlotScalarRelationFilter, Prisma.PatrolScheduleTimeSlotWhereInput>
 }, "id">
 
 export type PatrolScheduleCheckpointOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  patrolScheduleId?: Prisma.SortOrder
+  patrolTimeSlotId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   order?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -258,7 +258,7 @@ export type PatrolScheduleCheckpointScalarWhereWithAggregatesInput = {
   OR?: Prisma.PatrolScheduleCheckpointScalarWhereWithAggregatesInput[]
   NOT?: Prisma.PatrolScheduleCheckpointScalarWhereWithAggregatesInput | Prisma.PatrolScheduleCheckpointScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"PatrolScheduleCheckpoint"> | string
-  patrolScheduleId?: Prisma.StringWithAggregatesFilter<"PatrolScheduleCheckpoint"> | string
+  patrolTimeSlotId?: Prisma.StringWithAggregatesFilter<"PatrolScheduleCheckpoint"> | string
   name?: Prisma.StringWithAggregatesFilter<"PatrolScheduleCheckpoint"> | string
   order?: Prisma.IntWithAggregatesFilter<"PatrolScheduleCheckpoint"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PatrolScheduleCheckpoint"> | Date | string
@@ -269,12 +269,12 @@ export type PatrolScheduleCheckpointCreateInput = {
   name: string
   order: number
   createdAt?: Date | string
-  patrolSchedule: Prisma.PatrolScheduleCreateNestedOneWithoutCheckpointsInput
+  timeSlot: Prisma.PatrolScheduleTimeSlotCreateNestedOneWithoutCheckpointsInput
 }
 
 export type PatrolScheduleCheckpointUncheckedCreateInput = {
   id?: string
-  patrolScheduleId: string
+  patrolTimeSlotId: string
   name: string
   order: number
   createdAt?: Date | string
@@ -284,11 +284,11 @@ export type PatrolScheduleCheckpointUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   order?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  patrolSchedule?: Prisma.PatrolScheduleUpdateOneRequiredWithoutCheckpointsNestedInput
+  timeSlot?: Prisma.PatrolScheduleTimeSlotUpdateOneRequiredWithoutCheckpointsNestedInput
 }
 
 export type PatrolScheduleCheckpointUncheckedUpdateInput = {
-  patrolScheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  patrolTimeSlotId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   order?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -296,7 +296,7 @@ export type PatrolScheduleCheckpointUncheckedUpdateInput = {
 
 export type PatrolScheduleCheckpointCreateManyInput = {
   id?: string
-  patrolScheduleId: string
+  patrolTimeSlotId: string
   name: string
   order: number
   createdAt?: Date | string
@@ -309,7 +309,7 @@ export type PatrolScheduleCheckpointUpdateManyMutationInput = {
 }
 
 export type PatrolScheduleCheckpointUncheckedUpdateManyInput = {
-  patrolScheduleId?: Prisma.StringFieldUpdateOperationsInput | string
+  patrolTimeSlotId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   order?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -327,7 +327,7 @@ export type PatrolScheduleCheckpointOrderByRelationAggregateInput = {
 
 export type PatrolScheduleCheckpointCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  patrolScheduleId?: Prisma.SortOrder
+  patrolTimeSlotId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   order?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -339,7 +339,7 @@ export type PatrolScheduleCheckpointAvgOrderByAggregateInput = {
 
 export type PatrolScheduleCheckpointMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  patrolScheduleId?: Prisma.SortOrder
+  patrolTimeSlotId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   order?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -347,7 +347,7 @@ export type PatrolScheduleCheckpointMaxOrderByAggregateInput = {
 
 export type PatrolScheduleCheckpointMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  patrolScheduleId?: Prisma.SortOrder
+  patrolTimeSlotId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   order?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -357,85 +357,85 @@ export type PatrolScheduleCheckpointSumOrderByAggregateInput = {
   order?: Prisma.SortOrder
 }
 
-export type PatrolScheduleCheckpointCreateNestedManyWithoutPatrolScheduleInput = {
-  create?: Prisma.XOR<Prisma.PatrolScheduleCheckpointCreateWithoutPatrolScheduleInput, Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutPatrolScheduleInput> | Prisma.PatrolScheduleCheckpointCreateWithoutPatrolScheduleInput[] | Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutPatrolScheduleInput[]
-  connectOrCreate?: Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutPatrolScheduleInput | Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutPatrolScheduleInput[]
-  createMany?: Prisma.PatrolScheduleCheckpointCreateManyPatrolScheduleInputEnvelope
+export type PatrolScheduleCheckpointCreateNestedManyWithoutTimeSlotInput = {
+  create?: Prisma.XOR<Prisma.PatrolScheduleCheckpointCreateWithoutTimeSlotInput, Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutTimeSlotInput> | Prisma.PatrolScheduleCheckpointCreateWithoutTimeSlotInput[] | Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutTimeSlotInput[]
+  connectOrCreate?: Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutTimeSlotInput | Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutTimeSlotInput[]
+  createMany?: Prisma.PatrolScheduleCheckpointCreateManyTimeSlotInputEnvelope
   connect?: Prisma.PatrolScheduleCheckpointWhereUniqueInput | Prisma.PatrolScheduleCheckpointWhereUniqueInput[]
 }
 
-export type PatrolScheduleCheckpointUncheckedCreateNestedManyWithoutPatrolScheduleInput = {
-  create?: Prisma.XOR<Prisma.PatrolScheduleCheckpointCreateWithoutPatrolScheduleInput, Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutPatrolScheduleInput> | Prisma.PatrolScheduleCheckpointCreateWithoutPatrolScheduleInput[] | Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutPatrolScheduleInput[]
-  connectOrCreate?: Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutPatrolScheduleInput | Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutPatrolScheduleInput[]
-  createMany?: Prisma.PatrolScheduleCheckpointCreateManyPatrolScheduleInputEnvelope
+export type PatrolScheduleCheckpointUncheckedCreateNestedManyWithoutTimeSlotInput = {
+  create?: Prisma.XOR<Prisma.PatrolScheduleCheckpointCreateWithoutTimeSlotInput, Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutTimeSlotInput> | Prisma.PatrolScheduleCheckpointCreateWithoutTimeSlotInput[] | Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutTimeSlotInput[]
+  connectOrCreate?: Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutTimeSlotInput | Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutTimeSlotInput[]
+  createMany?: Prisma.PatrolScheduleCheckpointCreateManyTimeSlotInputEnvelope
   connect?: Prisma.PatrolScheduleCheckpointWhereUniqueInput | Prisma.PatrolScheduleCheckpointWhereUniqueInput[]
 }
 
-export type PatrolScheduleCheckpointUpdateManyWithoutPatrolScheduleNestedInput = {
-  create?: Prisma.XOR<Prisma.PatrolScheduleCheckpointCreateWithoutPatrolScheduleInput, Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutPatrolScheduleInput> | Prisma.PatrolScheduleCheckpointCreateWithoutPatrolScheduleInput[] | Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutPatrolScheduleInput[]
-  connectOrCreate?: Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutPatrolScheduleInput | Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutPatrolScheduleInput[]
-  upsert?: Prisma.PatrolScheduleCheckpointUpsertWithWhereUniqueWithoutPatrolScheduleInput | Prisma.PatrolScheduleCheckpointUpsertWithWhereUniqueWithoutPatrolScheduleInput[]
-  createMany?: Prisma.PatrolScheduleCheckpointCreateManyPatrolScheduleInputEnvelope
+export type PatrolScheduleCheckpointUpdateManyWithoutTimeSlotNestedInput = {
+  create?: Prisma.XOR<Prisma.PatrolScheduleCheckpointCreateWithoutTimeSlotInput, Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutTimeSlotInput> | Prisma.PatrolScheduleCheckpointCreateWithoutTimeSlotInput[] | Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutTimeSlotInput[]
+  connectOrCreate?: Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutTimeSlotInput | Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutTimeSlotInput[]
+  upsert?: Prisma.PatrolScheduleCheckpointUpsertWithWhereUniqueWithoutTimeSlotInput | Prisma.PatrolScheduleCheckpointUpsertWithWhereUniqueWithoutTimeSlotInput[]
+  createMany?: Prisma.PatrolScheduleCheckpointCreateManyTimeSlotInputEnvelope
   set?: Prisma.PatrolScheduleCheckpointWhereUniqueInput | Prisma.PatrolScheduleCheckpointWhereUniqueInput[]
   disconnect?: Prisma.PatrolScheduleCheckpointWhereUniqueInput | Prisma.PatrolScheduleCheckpointWhereUniqueInput[]
   delete?: Prisma.PatrolScheduleCheckpointWhereUniqueInput | Prisma.PatrolScheduleCheckpointWhereUniqueInput[]
   connect?: Prisma.PatrolScheduleCheckpointWhereUniqueInput | Prisma.PatrolScheduleCheckpointWhereUniqueInput[]
-  update?: Prisma.PatrolScheduleCheckpointUpdateWithWhereUniqueWithoutPatrolScheduleInput | Prisma.PatrolScheduleCheckpointUpdateWithWhereUniqueWithoutPatrolScheduleInput[]
-  updateMany?: Prisma.PatrolScheduleCheckpointUpdateManyWithWhereWithoutPatrolScheduleInput | Prisma.PatrolScheduleCheckpointUpdateManyWithWhereWithoutPatrolScheduleInput[]
+  update?: Prisma.PatrolScheduleCheckpointUpdateWithWhereUniqueWithoutTimeSlotInput | Prisma.PatrolScheduleCheckpointUpdateWithWhereUniqueWithoutTimeSlotInput[]
+  updateMany?: Prisma.PatrolScheduleCheckpointUpdateManyWithWhereWithoutTimeSlotInput | Prisma.PatrolScheduleCheckpointUpdateManyWithWhereWithoutTimeSlotInput[]
   deleteMany?: Prisma.PatrolScheduleCheckpointScalarWhereInput | Prisma.PatrolScheduleCheckpointScalarWhereInput[]
 }
 
-export type PatrolScheduleCheckpointUncheckedUpdateManyWithoutPatrolScheduleNestedInput = {
-  create?: Prisma.XOR<Prisma.PatrolScheduleCheckpointCreateWithoutPatrolScheduleInput, Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutPatrolScheduleInput> | Prisma.PatrolScheduleCheckpointCreateWithoutPatrolScheduleInput[] | Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutPatrolScheduleInput[]
-  connectOrCreate?: Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutPatrolScheduleInput | Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutPatrolScheduleInput[]
-  upsert?: Prisma.PatrolScheduleCheckpointUpsertWithWhereUniqueWithoutPatrolScheduleInput | Prisma.PatrolScheduleCheckpointUpsertWithWhereUniqueWithoutPatrolScheduleInput[]
-  createMany?: Prisma.PatrolScheduleCheckpointCreateManyPatrolScheduleInputEnvelope
+export type PatrolScheduleCheckpointUncheckedUpdateManyWithoutTimeSlotNestedInput = {
+  create?: Prisma.XOR<Prisma.PatrolScheduleCheckpointCreateWithoutTimeSlotInput, Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutTimeSlotInput> | Prisma.PatrolScheduleCheckpointCreateWithoutTimeSlotInput[] | Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutTimeSlotInput[]
+  connectOrCreate?: Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutTimeSlotInput | Prisma.PatrolScheduleCheckpointCreateOrConnectWithoutTimeSlotInput[]
+  upsert?: Prisma.PatrolScheduleCheckpointUpsertWithWhereUniqueWithoutTimeSlotInput | Prisma.PatrolScheduleCheckpointUpsertWithWhereUniqueWithoutTimeSlotInput[]
+  createMany?: Prisma.PatrolScheduleCheckpointCreateManyTimeSlotInputEnvelope
   set?: Prisma.PatrolScheduleCheckpointWhereUniqueInput | Prisma.PatrolScheduleCheckpointWhereUniqueInput[]
   disconnect?: Prisma.PatrolScheduleCheckpointWhereUniqueInput | Prisma.PatrolScheduleCheckpointWhereUniqueInput[]
   delete?: Prisma.PatrolScheduleCheckpointWhereUniqueInput | Prisma.PatrolScheduleCheckpointWhereUniqueInput[]
   connect?: Prisma.PatrolScheduleCheckpointWhereUniqueInput | Prisma.PatrolScheduleCheckpointWhereUniqueInput[]
-  update?: Prisma.PatrolScheduleCheckpointUpdateWithWhereUniqueWithoutPatrolScheduleInput | Prisma.PatrolScheduleCheckpointUpdateWithWhereUniqueWithoutPatrolScheduleInput[]
-  updateMany?: Prisma.PatrolScheduleCheckpointUpdateManyWithWhereWithoutPatrolScheduleInput | Prisma.PatrolScheduleCheckpointUpdateManyWithWhereWithoutPatrolScheduleInput[]
+  update?: Prisma.PatrolScheduleCheckpointUpdateWithWhereUniqueWithoutTimeSlotInput | Prisma.PatrolScheduleCheckpointUpdateWithWhereUniqueWithoutTimeSlotInput[]
+  updateMany?: Prisma.PatrolScheduleCheckpointUpdateManyWithWhereWithoutTimeSlotInput | Prisma.PatrolScheduleCheckpointUpdateManyWithWhereWithoutTimeSlotInput[]
   deleteMany?: Prisma.PatrolScheduleCheckpointScalarWhereInput | Prisma.PatrolScheduleCheckpointScalarWhereInput[]
 }
 
-export type PatrolScheduleCheckpointCreateWithoutPatrolScheduleInput = {
+export type PatrolScheduleCheckpointCreateWithoutTimeSlotInput = {
   id?: string
   name: string
   order: number
   createdAt?: Date | string
 }
 
-export type PatrolScheduleCheckpointUncheckedCreateWithoutPatrolScheduleInput = {
+export type PatrolScheduleCheckpointUncheckedCreateWithoutTimeSlotInput = {
   id?: string
   name: string
   order: number
   createdAt?: Date | string
 }
 
-export type PatrolScheduleCheckpointCreateOrConnectWithoutPatrolScheduleInput = {
+export type PatrolScheduleCheckpointCreateOrConnectWithoutTimeSlotInput = {
   where: Prisma.PatrolScheduleCheckpointWhereUniqueInput
-  create: Prisma.XOR<Prisma.PatrolScheduleCheckpointCreateWithoutPatrolScheduleInput, Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutPatrolScheduleInput>
+  create: Prisma.XOR<Prisma.PatrolScheduleCheckpointCreateWithoutTimeSlotInput, Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutTimeSlotInput>
 }
 
-export type PatrolScheduleCheckpointCreateManyPatrolScheduleInputEnvelope = {
-  data: Prisma.PatrolScheduleCheckpointCreateManyPatrolScheduleInput | Prisma.PatrolScheduleCheckpointCreateManyPatrolScheduleInput[]
+export type PatrolScheduleCheckpointCreateManyTimeSlotInputEnvelope = {
+  data: Prisma.PatrolScheduleCheckpointCreateManyTimeSlotInput | Prisma.PatrolScheduleCheckpointCreateManyTimeSlotInput[]
 }
 
-export type PatrolScheduleCheckpointUpsertWithWhereUniqueWithoutPatrolScheduleInput = {
+export type PatrolScheduleCheckpointUpsertWithWhereUniqueWithoutTimeSlotInput = {
   where: Prisma.PatrolScheduleCheckpointWhereUniqueInput
-  update: Prisma.XOR<Prisma.PatrolScheduleCheckpointUpdateWithoutPatrolScheduleInput, Prisma.PatrolScheduleCheckpointUncheckedUpdateWithoutPatrolScheduleInput>
-  create: Prisma.XOR<Prisma.PatrolScheduleCheckpointCreateWithoutPatrolScheduleInput, Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutPatrolScheduleInput>
+  update: Prisma.XOR<Prisma.PatrolScheduleCheckpointUpdateWithoutTimeSlotInput, Prisma.PatrolScheduleCheckpointUncheckedUpdateWithoutTimeSlotInput>
+  create: Prisma.XOR<Prisma.PatrolScheduleCheckpointCreateWithoutTimeSlotInput, Prisma.PatrolScheduleCheckpointUncheckedCreateWithoutTimeSlotInput>
 }
 
-export type PatrolScheduleCheckpointUpdateWithWhereUniqueWithoutPatrolScheduleInput = {
+export type PatrolScheduleCheckpointUpdateWithWhereUniqueWithoutTimeSlotInput = {
   where: Prisma.PatrolScheduleCheckpointWhereUniqueInput
-  data: Prisma.XOR<Prisma.PatrolScheduleCheckpointUpdateWithoutPatrolScheduleInput, Prisma.PatrolScheduleCheckpointUncheckedUpdateWithoutPatrolScheduleInput>
+  data: Prisma.XOR<Prisma.PatrolScheduleCheckpointUpdateWithoutTimeSlotInput, Prisma.PatrolScheduleCheckpointUncheckedUpdateWithoutTimeSlotInput>
 }
 
-export type PatrolScheduleCheckpointUpdateManyWithWhereWithoutPatrolScheduleInput = {
+export type PatrolScheduleCheckpointUpdateManyWithWhereWithoutTimeSlotInput = {
   where: Prisma.PatrolScheduleCheckpointScalarWhereInput
-  data: Prisma.XOR<Prisma.PatrolScheduleCheckpointUpdateManyMutationInput, Prisma.PatrolScheduleCheckpointUncheckedUpdateManyWithoutPatrolScheduleInput>
+  data: Prisma.XOR<Prisma.PatrolScheduleCheckpointUpdateManyMutationInput, Prisma.PatrolScheduleCheckpointUncheckedUpdateManyWithoutTimeSlotInput>
 }
 
 export type PatrolScheduleCheckpointScalarWhereInput = {
@@ -443,32 +443,32 @@ export type PatrolScheduleCheckpointScalarWhereInput = {
   OR?: Prisma.PatrolScheduleCheckpointScalarWhereInput[]
   NOT?: Prisma.PatrolScheduleCheckpointScalarWhereInput | Prisma.PatrolScheduleCheckpointScalarWhereInput[]
   id?: Prisma.StringFilter<"PatrolScheduleCheckpoint"> | string
-  patrolScheduleId?: Prisma.StringFilter<"PatrolScheduleCheckpoint"> | string
+  patrolTimeSlotId?: Prisma.StringFilter<"PatrolScheduleCheckpoint"> | string
   name?: Prisma.StringFilter<"PatrolScheduleCheckpoint"> | string
   order?: Prisma.IntFilter<"PatrolScheduleCheckpoint"> | number
   createdAt?: Prisma.DateTimeFilter<"PatrolScheduleCheckpoint"> | Date | string
 }
 
-export type PatrolScheduleCheckpointCreateManyPatrolScheduleInput = {
+export type PatrolScheduleCheckpointCreateManyTimeSlotInput = {
   id?: string
   name: string
   order: number
   createdAt?: Date | string
 }
 
-export type PatrolScheduleCheckpointUpdateWithoutPatrolScheduleInput = {
+export type PatrolScheduleCheckpointUpdateWithoutTimeSlotInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   order?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type PatrolScheduleCheckpointUncheckedUpdateWithoutPatrolScheduleInput = {
+export type PatrolScheduleCheckpointUncheckedUpdateWithoutTimeSlotInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   order?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type PatrolScheduleCheckpointUncheckedUpdateManyWithoutPatrolScheduleInput = {
+export type PatrolScheduleCheckpointUncheckedUpdateManyWithoutTimeSlotInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   order?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -478,36 +478,36 @@ export type PatrolScheduleCheckpointUncheckedUpdateManyWithoutPatrolScheduleInpu
 
 export type PatrolScheduleCheckpointSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  patrolScheduleId?: boolean
+  patrolTimeSlotId?: boolean
   name?: boolean
   order?: boolean
   createdAt?: boolean
-  patrolSchedule?: boolean | Prisma.PatrolScheduleDefaultArgs<ExtArgs>
+  timeSlot?: boolean | Prisma.PatrolScheduleTimeSlotDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["patrolScheduleCheckpoint"]>
 
 
 
 export type PatrolScheduleCheckpointSelectScalar = {
   id?: boolean
-  patrolScheduleId?: boolean
+  patrolTimeSlotId?: boolean
   name?: boolean
   order?: boolean
   createdAt?: boolean
 }
 
-export type PatrolScheduleCheckpointOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "patrolScheduleId" | "name" | "order" | "createdAt", ExtArgs["result"]["patrolScheduleCheckpoint"]>
+export type PatrolScheduleCheckpointOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "patrolTimeSlotId" | "name" | "order" | "createdAt", ExtArgs["result"]["patrolScheduleCheckpoint"]>
 export type PatrolScheduleCheckpointInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  patrolSchedule?: boolean | Prisma.PatrolScheduleDefaultArgs<ExtArgs>
+  timeSlot?: boolean | Prisma.PatrolScheduleTimeSlotDefaultArgs<ExtArgs>
 }
 
 export type $PatrolScheduleCheckpointPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PatrolScheduleCheckpoint"
   objects: {
-    patrolSchedule: Prisma.$PatrolSchedulePayload<ExtArgs>
+    timeSlot: Prisma.$PatrolScheduleTimeSlotPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    patrolScheduleId: string
+    patrolTimeSlotId: string
     name: string
     order: number
     createdAt: Date
@@ -874,7 +874,7 @@ readonly fields: PatrolScheduleCheckpointFieldRefs;
  */
 export interface Prisma__PatrolScheduleCheckpointClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  patrolSchedule<T extends Prisma.PatrolScheduleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PatrolScheduleDefaultArgs<ExtArgs>>): Prisma.Prisma__PatrolScheduleClient<runtime.Types.Result.GetResult<Prisma.$PatrolSchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  timeSlot<T extends Prisma.PatrolScheduleTimeSlotDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PatrolScheduleTimeSlotDefaultArgs<ExtArgs>>): Prisma.Prisma__PatrolScheduleTimeSlotClient<runtime.Types.Result.GetResult<Prisma.$PatrolScheduleTimeSlotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -905,7 +905,7 @@ export interface Prisma__PatrolScheduleCheckpointClient<T, Null = never, ExtArgs
  */
 export interface PatrolScheduleCheckpointFieldRefs {
   readonly id: Prisma.FieldRef<"PatrolScheduleCheckpoint", 'String'>
-  readonly patrolScheduleId: Prisma.FieldRef<"PatrolScheduleCheckpoint", 'String'>
+  readonly patrolTimeSlotId: Prisma.FieldRef<"PatrolScheduleCheckpoint", 'String'>
   readonly name: Prisma.FieldRef<"PatrolScheduleCheckpoint", 'String'>
   readonly order: Prisma.FieldRef<"PatrolScheduleCheckpoint", 'Int'>
   readonly createdAt: Prisma.FieldRef<"PatrolScheduleCheckpoint", 'DateTime'>

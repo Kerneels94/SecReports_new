@@ -97,6 +97,11 @@ export type PaymentHistory = Prisma.PaymentHistoryModel
  */
 export type Invoice = Prisma.InvoiceModel
 /**
+ * Model Ledger
+ * 
+ */
+export type Ledger = Prisma.LedgerModel
+/**
  * Model ApiKey
  * 
  */
@@ -131,6 +136,11 @@ export type PatrolCheckpoint = Prisma.PatrolCheckpointModel
  * 
  */
 export type PatrolSchedule = Prisma.PatrolScheduleModel
+/**
+ * Model PatrolScheduleTimeSlot
+ * 
+ */
+export type PatrolScheduleTimeSlot = Prisma.PatrolScheduleTimeSlotModel
 /**
  * Model PatrolScheduleCheckpoint
  * 

@@ -59,6 +59,7 @@ export const ModelName = {
   CompanySubscription: 'CompanySubscription',
   PaymentHistory: 'PaymentHistory',
   Invoice: 'Invoice',
+  Ledger: 'Ledger',
   ApiKey: 'ApiKey',
   AuditLog: 'AuditLog',
   GuardingSite: 'GuardingSite',
@@ -66,6 +67,7 @@ export const ModelName = {
   PatrolReport: 'PatrolReport',
   PatrolCheckpoint: 'PatrolCheckpoint',
   PatrolSchedule: 'PatrolSchedule',
+  PatrolScheduleTimeSlot: 'PatrolScheduleTimeSlot',
   PatrolScheduleCheckpoint: 'PatrolScheduleCheckpoint',
   EntryLog: 'EntryLog'
 } as const
@@ -239,6 +241,23 @@ export const InvoiceScalarFieldEnum = {
 export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
 
 
+export const LedgerScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  entryType: 'entryType',
+  amount: 'amount',
+  currency: 'currency',
+  description: 'description',
+  reference: 'reference',
+  status: 'status',
+  postedAt: 'postedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LedgerScalarFieldEnum = (typeof LedgerScalarFieldEnum)[keyof typeof LedgerScalarFieldEnum]
+
+
 export const ApiKeyScalarFieldEnum = {
   id: 'id',
   companyId: 'companyId',
@@ -327,8 +346,6 @@ export const PatrolScheduleScalarFieldEnum = {
   companyId: 'companyId',
   siteId: 'siteId',
   day: 'day',
-  startTime: 'startTime',
-  endTime: 'endTime',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -336,9 +353,21 @@ export const PatrolScheduleScalarFieldEnum = {
 export type PatrolScheduleScalarFieldEnum = (typeof PatrolScheduleScalarFieldEnum)[keyof typeof PatrolScheduleScalarFieldEnum]
 
 
-export const PatrolScheduleCheckpointScalarFieldEnum = {
+export const PatrolScheduleTimeSlotScalarFieldEnum = {
   id: 'id',
   patrolScheduleId: 'patrolScheduleId',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  order: 'order',
+  createdAt: 'createdAt'
+} as const
+
+export type PatrolScheduleTimeSlotScalarFieldEnum = (typeof PatrolScheduleTimeSlotScalarFieldEnum)[keyof typeof PatrolScheduleTimeSlotScalarFieldEnum]
+
+
+export const PatrolScheduleCheckpointScalarFieldEnum = {
+  id: 'id',
+  patrolTimeSlotId: 'patrolTimeSlotId',
   name: 'name',
   order: 'order',
   createdAt: 'createdAt'

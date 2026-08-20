@@ -11,7 +11,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role: "owner" | "manager" | "senior" | "guard" | "superadmin";
+  role: "owner" | "manager" | "senior" | "superadmin";
   status: "active" | "inactive";
   companyId: number | null;
   trial?: TrialStatus | null;
@@ -117,12 +117,6 @@ export interface LoginRequest {
   password: string;
 }
 
-/** Payload for employee (guard) login. */
-export interface EmployeeLoginRequest {
-  email: string;
-  password: string;
-}
-
 /** Payload for new company registration. */
 export interface RegisterRequest {
   companyName: string;
@@ -200,24 +194,33 @@ export interface PatrolCheckpoint {
   createdAt: string;
 }
 
-/** A patrol schedule template defining a recurring route for a specific day/time. */
+/** A patrol schedule template defining a recurring route for a specific day. */
 export interface PatrolSchedule {
   id: string;
   companyId: string;
   siteId: string;
   day: string;
-  startTime: string;
-  endTime: string;
   createdAt: string;
   updatedAt: string;
   site?: { id: string; name: string };
+  timeSlots?: PatrolScheduleTimeSlot[];
+}
+
+/** A time slot within a patrol schedule (e.g., 08:00–09:00 on Monday). */
+export interface PatrolScheduleTimeSlot {
+  id: string;
+  patrolScheduleId: string;
+  startTime: string;
+  endTime: string;
+  order: number;
+  createdAt: string;
   checkpoints?: PatrolScheduleCheckpoint[];
 }
 
-/** A checkpoint within a patrol schedule template. */
+/** A checkpoint within a patrol schedule time slot. */
 export interface PatrolScheduleCheckpoint {
   id: string;
-  patrolScheduleId: string;
+  patrolTimeSlotId: string;
   name: string;
   order: number;
   createdAt: string;
@@ -318,6 +321,31 @@ export interface PaymentHistory {
   status: string;
   invoiceId: string | null;
   createdAt: string;
+}
+
+/** A single financial ledger entry. Amount is signed integer cents. */
+export interface LedgerEntry {
+  id: string;
+  companyId: string;
+  entryType: "invoice" | "payment" | "refund" | "adjustment" | "credit";
+  amount: number;
+  currency: string;
+  description: string | null;
+  reference: string | null;
+  status: "posted" | "void";
+  postedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  company?: { id: string; name: string; email: string };
+}
+
+/** Aggregated ledger totals for the admin ledger. */
+export interface LedgerSummary {
+  totalIn: number;
+  totalOut: number;
+  netBalance: number;
+  entryCount: number;
+  byType: { entryType: string; total: number; count: number }[];
 }
 
 /** A subscription plan available for companies. */

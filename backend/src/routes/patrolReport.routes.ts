@@ -13,7 +13,7 @@ export default async function patrolReportRoutes(fastify: FastifyInstance) {
   fastify.get("/guards/:guardId/patrol-reports", PatrolReportController.listByGuard);
   fastify.get("/patrol-reports", PatrolReportController.listByCompany);
   fastify.get("/patrol-reports/:id", PatrolReportController.getById);
-  fastify.post("/patrol-reports", { preHandler: [requireRole("owner", "manager", "guard")] }, PatrolReportController.create);
-  fastify.put("/patrol-reports/:id", { preHandler: [requireRole("owner", "manager", "guard")] }, PatrolReportController.update);
+  fastify.post("/patrol-reports", { preHandler: [requireRole("owner", "manager")] }, PatrolReportController.create);
+  fastify.put("/patrol-reports/:id", { preHandler: [requireRole("owner", "manager")] }, PatrolReportController.update);
   fastify.delete("/patrol-reports/:id", { preHandler: [requireRole("owner", "manager")] }, PatrolReportController.delete);
 }
