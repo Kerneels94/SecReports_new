@@ -134,9 +134,9 @@ export async function sendMail({
       case "report": {
         const { default: template } = await import("../templates/report");
         html = template({
-          name: (data.name as string) || "there",
-          incidentTitle: (data.incidentTitle as string) || "Incident Report",
-          referenceNumber: (data.referenceNumber as string) || "N/A",
+          companyName: (data.companyName as string) || "SecReports",
+          incidentAddress: (data.incidentAddress as string) || "N/A",
+          incidentType: (data.incidentType as string) || "N/A",
           reportLink: data.reportLink as string | undefined,
         });
         break;
