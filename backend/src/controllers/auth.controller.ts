@@ -62,7 +62,7 @@ export const AuthController = {
     reply.code(200).send({ success: true, data: user });
   },
 
-  /** Register a new company and its owner account. */
+  /** Register a new company and its admin account. */
   async register(request: FastifyRequest, reply: FastifyReply) {
     const parsed = registerSchema.safeParse(request.body);
     if (!parsed.success)
@@ -81,7 +81,7 @@ export const AuthController = {
     reply.code(200).send({ success: true, data: result });
   },
 
-  /** Create a new user within the authenticated owner's company (owner-only via route). */
+  /** Create a new user within the authenticated admin's company (admin-only via route). */
   async createUser(request: FastifyRequest, reply: FastifyReply) {
     const parsed = createUserSchema.safeParse(request.body);
     if (!parsed.success)
@@ -143,20 +143,20 @@ export const AuthController = {
       .send({ success: true, message: "Password changed successfully." });
   },
 
-  /** List all users in the company (owner-only via route). */
+  /** List all users in the company (admin-only via route). */
   async listUsers(request: FastifyRequest, reply: FastifyReply) {
     const users = await AuthService.listUsers(request.user!.companyId);
     reply.code(200).send({ success: true, data: users });
   },
 
-  /** Get a single user by ID (owner-only via route). */
+  /** Get a single user by ID (admin-only via route). */
   async getUserById(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
     const user = await AuthService.getUserById(request.user!.companyId, id);
     reply.code(200).send({ success: true, data: user });
   },
 
-  /** Update a user's details — only owner can change roles, and never their own. */
+  /** Update a user's details — only admins can change roles, and never their own. */
   async updateUser(request: FastifyRequest, reply: FastifyReply) {
     const parsed = updateUserSchema.safeParse(request.body);
     if (!parsed.success)

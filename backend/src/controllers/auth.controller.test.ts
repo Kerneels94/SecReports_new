@@ -48,7 +48,7 @@ describe("AuthController", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockRequest = {
-      user: { userId: "1", companyId: "1", role: "owner" },
+      user: { userId: "1", companyId: "1", role: "admin" },
       headers: { "user-agent": "test-agent" },
       cookies: {},
       body: {},
@@ -277,7 +277,7 @@ describe("AuthController", () => {
 
       await AuthController.updateUser(mockRequest, mockReply);
 
-      expect(AuthService.updateUser).toHaveBeenCalledWith("1", "2", { name: "Updated" }, "1", "owner");
+      expect(AuthService.updateUser).toHaveBeenCalledWith("1", "2", { name: "Updated" }, "1", "admin");
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 

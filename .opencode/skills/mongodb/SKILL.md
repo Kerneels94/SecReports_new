@@ -146,7 +146,7 @@ describe("Seed script", () => {
 
     const users = await prisma.user.findMany();
     const roles = users.map((u) => u.role);
-    expect(roles).toContain("owner");
+    expect(roles).toContain("admin");
     expect(roles).toContain("manager");
     expect(roles).toContain("senior");
   });

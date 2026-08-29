@@ -305,7 +305,7 @@ describe("IncidentService", () => {
         assignedInvestigator: null,
       });
 
-      const result = await IncidentService.update("1", "1", { title: "Admin edit" }, "2", "owner");
+      const result = await IncidentService.update("1", "1", { title: "Admin edit" }, "2", "admin");
 
       expect(result.title).toBe("Admin edit");
     });
@@ -425,7 +425,7 @@ describe("IncidentService", () => {
     it("allows admin to delete any incident", async () => {
       (prisma.incident.findFirst as jest.Mock).mockResolvedValue(baseIncident);
 
-      await IncidentService.delete("1", "1", "2", "owner");
+      await IncidentService.delete("1", "1", "2", "admin");
 
       expect(prisma.incident.delete).toHaveBeenCalledWith({ where: { id: "1" } });
     });

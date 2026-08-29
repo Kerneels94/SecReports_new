@@ -45,7 +45,7 @@ export const createUserSchema = z.object({
   name: z.string().min(1).max(255),
   email: z.string().email(),
   password: strongPassword,
-  role: z.enum(["owner", "manager", "senior"]).optional(),
+  role: z.enum(["admin", "manager", "senior"]).optional(),
 });
 
 /**
@@ -76,7 +76,7 @@ export const changePasswordSchema = z.object({
 export const updateUserSchema = z.object({
   name: z.string().min(1).max(255).optional(),
   email: z.string().email().optional(),
-  role: z.enum(["owner", "manager", "senior"]).optional(),
+  role: z.enum(["admin", "manager", "senior"]).optional(),
 });
 
 /**

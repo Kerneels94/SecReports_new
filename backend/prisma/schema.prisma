@@ -10,7 +10,7 @@ datasource db {
 }
 
 enum UserRole {
-  owner
+  admin
   manager
   senior
   superadmin
@@ -43,7 +43,7 @@ model User {
   name           String
   email          String    @unique
   passwordHash   String    @map("password_hash")
-  role           UserRole  @default("senior")
+  role           UserRole  @default(senior)
   status         String    @default("active")
   loginAttempts  Int       @default(0) @map("login_attempts")
   lockoutCount   Int       @default(0) @map("lockout_count")

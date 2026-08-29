@@ -141,17 +141,17 @@ export const SubscriptionService = {
     if (daysRemaining > 2 || daysRemaining < 1) return;
 
     const company = await prisma.company.findUnique({ where: { id: companyId } });
-    const owner = await prisma.user.findFirst({
-      where: { companyId, role: "owner" },
+    const admin = await prisma.user.findFirst({
+      where: { companyId, role: "admin" },
     });
 
-    if (!owner || !company) return;
+    if (!admin || !company) return;
 
     await sendMail({
-      to: owner.email,
+      to: admin.email,
       subject: "trial_ending",
       data: {
-        name: owner.name,
+        name: admin.name,
         daysRemaining,
       },
     });

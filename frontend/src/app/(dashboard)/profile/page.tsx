@@ -114,9 +114,9 @@ export default function ProfilePage() {
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-5">
-          {user.role !== "owner" && (
+          {user.role !== "admin" && (
             <div className="rounded-lg bg-blue-900/20 px-4 py-3 text-sm text-blue-300 ring-1 ring-blue-500/20" role="status">
-              Your profile details can only be updated by an owner. Contact them to request changes.
+              Your profile details can only be updated by an admin. Contact them to request changes.
             </div>
           )}
 

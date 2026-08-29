@@ -2,7 +2,7 @@
  * Auth routes — public and protected authentication endpoints.
  * Public: login, employee-login, register, refresh, forgot/reset password.
  * Protected (JWT): me, change-password, logout.
- * Owner-only: user CRUD.
+ * Admin-only: user CRUD.
  */
 import { FastifyInstance } from "fastify";
 import { AuthController } from "../controllers/auth.controller";
@@ -39,22 +39,22 @@ export default async function authRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post("/auth/users", {
-    preHandler: [fastify.authenticate, requireRole("owner")],
+    preHandler: [fastify.authenticate, requireRole("admin")],
     handler: AuthController.createUser,
   });
 
   fastify.get("/auth/users", {
-    preHandler: [fastify.authenticate, requireRole("owner")],
+    preHandler: [fastify.authenticate, requireRole("admin")],
     handler: AuthController.listUsers,
   });
 
   fastify.get("/auth/users/:id", {
-    preHandler: [fastify.authenticate, requireRole("owner")],
+    preHandler: [fastify.authenticate, requireRole("admin")],
     handler: AuthController.getUserById,
   });
 
   fastify.patch("/auth/users/:id", {
-    preHandler: [fastify.authenticate, requireRole("owner", "manager")],
+    preHandler: [fastify.authenticate, requireRole("admin", "manager")],
     handler: AuthController.updateUser,
   });
 

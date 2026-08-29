@@ -61,7 +61,7 @@ Two new 2026 categories: **A03 Software Supply Chain Failures** (dependencies, b
 - [ ] Does the `authenticate` decorator always include `companyId` in `request.user`?
 - [ ] Is there only ONE source of truth for `authenticate`? (No duplicate in `plugins/auth.ts`)
 - [ ] Does each protected route have a `preHandler` with `fastify.authenticate`?
-- [ ] Do owner-only routes use `requireRole("owner")`?
+- [ ] Do admin-only routes use `requireRole("admin")`?
 - [ ] Does the service layer also enforce authorization, or only the controller?
 - [ ] Can any role that shouldn't exist (e.g. `senior` with no login path) be assigned?
 

@@ -11,7 +11,7 @@ jest.mock("next/navigation", () => ({
 }));
 
 jest.mock("@/hooks/useAuth", () => ({
-  useAuth: () => ({ user: { id: 1, role: "owner", name: "Admin", email: "admin@test.com", status: "active", companyId: 1 } }),
+  useAuth: () => ({ user: { id: 1, role: "admin", name: "Admin", email: "admin@test.com", status: "active", companyId: 1 } }),
 }));
 
 jest.mock("@/services", () => ({

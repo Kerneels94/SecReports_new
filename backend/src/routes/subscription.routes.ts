@@ -8,6 +8,6 @@ export default async function subscriptionRoutes(fastify: FastifyInstance) {
   fastify.get("/subscription/plans", SubscriptionController.listPlans);
   fastify.get("/subscription", SubscriptionController.getSubscription);
   fastify.patch("/subscription/plan", {
-    preHandler: [requireRole("owner")],
+    preHandler: [requireRole("admin")],
   }, SubscriptionController.changePlan);
 }

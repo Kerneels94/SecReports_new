@@ -1,6 +1,6 @@
 /**
  * Guarding Site routes — all endpoints require JWT authentication.
- * Role-restricted: create/update (owner/manager), delete (owner).
+ * Role-restricted: create/update (admin/manager), delete (admin).
  */
 import { FastifyInstance } from "fastify";
 import { GuardingSiteController } from "../controllers/guardingSite.controller";
@@ -11,7 +11,7 @@ export default async function guardingSiteRoutes(fastify: FastifyInstance) {
 
   fastify.get("/guarding-sites", GuardingSiteController.list);
   fastify.get("/guarding-sites/:id", GuardingSiteController.getById);
-  fastify.post("/guarding-sites", { preHandler: [requireRole("owner", "manager")] }, GuardingSiteController.create);
-  fastify.put("/guarding-sites/:id", { preHandler: [requireRole("owner", "manager")] }, GuardingSiteController.update);
-  fastify.delete("/guarding-sites/:id", { preHandler: [requireRole("owner")] }, GuardingSiteController.delete);
+  fastify.post("/guarding-sites", { preHandler: [requireRole("admin", "manager")] }, GuardingSiteController.create);
+  fastify.put("/guarding-sites/:id", { preHandler: [requireRole("admin", "manager")] }, GuardingSiteController.update);
+  fastify.delete("/guarding-sites/:id", { preHandler: [requireRole("admin")] }, GuardingSiteController.delete);
 }
