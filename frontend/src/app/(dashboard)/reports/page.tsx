@@ -7,6 +7,7 @@ import { Modal } from "@/components/ui/Modal";
 import { IncidentDetailModal } from "@/components/incidents/IncidentDetailModal";
 import { EmailReportModal } from "@/components/incidents/EmailReportModal";
 import { reportService, incidentService, exportService } from "@/services";
+import { incidentReportFileName } from "@/lib/reportName";
 import type { Incident } from "@/types";
 
 
@@ -65,14 +66,14 @@ export default function ReportsPage() {
     fetchData();
   }, [fetchData]);
 
-  const handleDownloadPdf = async (incidentId: number) => {
-    setDownloadingId(incidentId);
+  const handleDownloadPdf = async (incident: Incident) => {
+    setDownloadingId(incident.id);
     try {
-      const blob = await exportService.downloadPdf(incidentId);
+      const blob = await exportService.downloadPdf(incident.id);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `incident-${incidentId}.pdf`;
+      a.download = incidentReportFileName(incident);
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -291,7 +292,7 @@ export default function ReportsPage() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleDownloadPdf(incident.id)}
+                            onClick={() => handleDownloadPdf(incident)}
                             disabled={downloadingId === incident.id}
                             className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors disabled:opacity-50"
                             title="Download PDF"
