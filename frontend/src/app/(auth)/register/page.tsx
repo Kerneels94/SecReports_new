@@ -73,7 +73,15 @@ export default function RegisterPage() {
         <Card variant="elevated" className="w-full max-w-sm animate-slide-up">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
-              <svg className="h-7 w-7 text-gray-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                className="h-7 w-7 text-gray-900"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
@@ -85,7 +93,8 @@ export default function RegisterPage() {
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-sm text-text-secondary">
-              We sent a verification link to your email. Please check your inbox and click the link to verify your account before logging in.
+              We sent a verification link to your email. Please check your inbox
+              and click the link to verify your account before logging in.
             </p>
             <div className="mt-6 space-y-3">
               <Link
@@ -98,7 +107,15 @@ export default function RegisterPage() {
                 href="/"
                 className="inline-flex items-center justify-center gap-1.5 text-primary hover:underline transition-colors text-sm"
               >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  className="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M19 12H5" />
                   <path d="M12 19l-7-7 7-7" />
                 </svg>
@@ -182,6 +199,9 @@ export default function RegisterPage() {
             <Button type="submit" loading={isSubmitting} className="w-full">
               Create Account
             </Button>
+            <p className="font-bold">
+              Note: The first account created is a admin account.
+            </p>
           </form>
           <p className="mt-4 text-center text-sm text-text-secondary">
             Already have an account?{" "}
