@@ -19,10 +19,11 @@ interface PatrolForExport {
 }
 
 const COLORS = {
-  primary: "#2962FF",
-  gray: "#6B7280",
-  dark: "#1F2937",
-  light: "#F3F4F6",
+  primary: "#0b1e33",
+  gray: "#475569",
+  dark: "#1e293b",
+  light: "#f8fafc",
+  border: "#e2e8f0",
   white: "#FFFFFF",
   success: "#10B981",
   warning: "#F59E0B",
@@ -36,7 +37,8 @@ function sanitizeCsv(val: string): string {
 function drawHeader(doc: typeof PDFDocument.prototype) {
   doc.rect(50, 40, 495, 50).fill(COLORS.primary);
   doc.fillColor(COLORS.white).fontSize(18).font("Helvetica-Bold").text("Patrol Report", 60, 52);
-  doc.fillColor(COLORS.white).fontSize(9).font("Helvetica").text("Security Guarding Patrol Summary", 60, 74);
+  doc.fillColor(COLORS.white).fontSize(9).font("Helvetica").text("Incident Management Platform", 60, 74);
+  doc.moveTo(50, 90).lineTo(545, 90).lineWidth(4).strokeColor(COLORS.border).stroke();
   doc.fillColor(COLORS.dark);
 }
 
@@ -65,7 +67,7 @@ function generatePatrolPdf(patrols: PatrolForExport[], siteFilter?: string): Pro
     const colX = [50, 130, 250, 360, 440, 520];
     const colWidths = [80, 120, 110, 80, 80, 80];
 
-    doc.rect(50, y, 520, 22).fill(COLORS.light);
+    doc.rect(50, y, 520, 22).fillAndStroke(COLORS.light, COLORS.border);
     headers.forEach((h, i) => {
       doc.fontSize(8).font("Helvetica-Bold").fillColor(COLORS.dark).text(h, colX[i], y + 6, { width: colWidths[i] });
     });
@@ -75,7 +77,7 @@ function generatePatrolPdf(patrols: PatrolForExport[], siteFilter?: string): Pro
       if (y > 560) {
         doc.addPage();
         y = 50;
-        doc.rect(50, y, 520, 22).fill(COLORS.light);
+        doc.rect(50, y, 520, 22).fillAndStroke(COLORS.light, COLORS.border);
         headers.forEach((h, i) => {
           doc.fontSize(8).font("Helvetica-Bold").fillColor(COLORS.dark).text(h, colX[i], y + 6, { width: colWidths[i] });
         });
