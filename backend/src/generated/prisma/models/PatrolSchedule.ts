@@ -29,8 +29,6 @@ export type PatrolScheduleMinAggregateOutputType = {
   companyId: string | null
   siteId: string | null
   day: string | null
-  startTime: string | null
-  endTime: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -40,8 +38,6 @@ export type PatrolScheduleMaxAggregateOutputType = {
   companyId: string | null
   siteId: string | null
   day: string | null
-  startTime: string | null
-  endTime: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -51,8 +47,6 @@ export type PatrolScheduleCountAggregateOutputType = {
   companyId: number
   siteId: number
   day: number
-  startTime: number
-  endTime: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -64,8 +58,6 @@ export type PatrolScheduleMinAggregateInputType = {
   companyId?: true
   siteId?: true
   day?: true
-  startTime?: true
-  endTime?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -75,8 +67,6 @@ export type PatrolScheduleMaxAggregateInputType = {
   companyId?: true
   siteId?: true
   day?: true
-  startTime?: true
-  endTime?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -86,8 +76,6 @@ export type PatrolScheduleCountAggregateInputType = {
   companyId?: true
   siteId?: true
   day?: true
-  startTime?: true
-  endTime?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -170,8 +158,6 @@ export type PatrolScheduleGroupByOutputType = {
   companyId: string
   siteId: string
   day: string
-  startTime: string
-  endTime: string
   createdAt: Date
   updatedAt: Date
   _count: PatrolScheduleCountAggregateOutputType | null
@@ -202,13 +188,11 @@ export type PatrolScheduleWhereInput = {
   companyId?: Prisma.StringFilter<"PatrolSchedule"> | string
   siteId?: Prisma.StringFilter<"PatrolSchedule"> | string
   day?: Prisma.StringFilter<"PatrolSchedule"> | string
-  startTime?: Prisma.StringFilter<"PatrolSchedule"> | string
-  endTime?: Prisma.StringFilter<"PatrolSchedule"> | string
   createdAt?: Prisma.DateTimeFilter<"PatrolSchedule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PatrolSchedule"> | Date | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   site?: Prisma.XOR<Prisma.GuardingSiteScalarRelationFilter, Prisma.GuardingSiteWhereInput>
-  checkpoints?: Prisma.PatrolScheduleCheckpointListRelationFilter
+  timeSlots?: Prisma.PatrolScheduleTimeSlotListRelationFilter
 }
 
 export type PatrolScheduleOrderByWithRelationInput = {
@@ -216,13 +200,11 @@ export type PatrolScheduleOrderByWithRelationInput = {
   companyId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
   day?: Prisma.SortOrder
-  startTime?: Prisma.SortOrder
-  endTime?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   company?: Prisma.CompanyOrderByWithRelationInput
   site?: Prisma.GuardingSiteOrderByWithRelationInput
-  checkpoints?: Prisma.PatrolScheduleCheckpointOrderByRelationAggregateInput
+  timeSlots?: Prisma.PatrolScheduleTimeSlotOrderByRelationAggregateInput
 }
 
 export type PatrolScheduleWhereUniqueInput = Prisma.AtLeast<{
@@ -233,13 +215,11 @@ export type PatrolScheduleWhereUniqueInput = Prisma.AtLeast<{
   companyId?: Prisma.StringFilter<"PatrolSchedule"> | string
   siteId?: Prisma.StringFilter<"PatrolSchedule"> | string
   day?: Prisma.StringFilter<"PatrolSchedule"> | string
-  startTime?: Prisma.StringFilter<"PatrolSchedule"> | string
-  endTime?: Prisma.StringFilter<"PatrolSchedule"> | string
   createdAt?: Prisma.DateTimeFilter<"PatrolSchedule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PatrolSchedule"> | Date | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   site?: Prisma.XOR<Prisma.GuardingSiteScalarRelationFilter, Prisma.GuardingSiteWhereInput>
-  checkpoints?: Prisma.PatrolScheduleCheckpointListRelationFilter
+  timeSlots?: Prisma.PatrolScheduleTimeSlotListRelationFilter
 }, "id">
 
 export type PatrolScheduleOrderByWithAggregationInput = {
@@ -247,8 +227,6 @@ export type PatrolScheduleOrderByWithAggregationInput = {
   companyId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
   day?: Prisma.SortOrder
-  startTime?: Prisma.SortOrder
-  endTime?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PatrolScheduleCountOrderByAggregateInput
@@ -264,8 +242,6 @@ export type PatrolScheduleScalarWhereWithAggregatesInput = {
   companyId?: Prisma.StringWithAggregatesFilter<"PatrolSchedule"> | string
   siteId?: Prisma.StringWithAggregatesFilter<"PatrolSchedule"> | string
   day?: Prisma.StringWithAggregatesFilter<"PatrolSchedule"> | string
-  startTime?: Prisma.StringWithAggregatesFilter<"PatrolSchedule"> | string
-  endTime?: Prisma.StringWithAggregatesFilter<"PatrolSchedule"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PatrolSchedule"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PatrolSchedule"> | Date | string
 }
@@ -273,13 +249,11 @@ export type PatrolScheduleScalarWhereWithAggregatesInput = {
 export type PatrolScheduleCreateInput = {
   id?: string
   day: string
-  startTime: string
-  endTime: string
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutPatrolSchedulesInput
   site: Prisma.GuardingSiteCreateNestedOneWithoutPatrolSchedulesInput
-  checkpoints?: Prisma.PatrolScheduleCheckpointCreateNestedManyWithoutPatrolScheduleInput
+  timeSlots?: Prisma.PatrolScheduleTimeSlotCreateNestedManyWithoutPatrolScheduleInput
 }
 
 export type PatrolScheduleUncheckedCreateInput = {
@@ -287,33 +261,27 @@ export type PatrolScheduleUncheckedCreateInput = {
   companyId: string
   siteId: string
   day: string
-  startTime: string
-  endTime: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  checkpoints?: Prisma.PatrolScheduleCheckpointUncheckedCreateNestedManyWithoutPatrolScheduleInput
+  timeSlots?: Prisma.PatrolScheduleTimeSlotUncheckedCreateNestedManyWithoutPatrolScheduleInput
 }
 
 export type PatrolScheduleUpdateInput = {
   day?: Prisma.StringFieldUpdateOperationsInput | string
-  startTime?: Prisma.StringFieldUpdateOperationsInput | string
-  endTime?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutPatrolSchedulesNestedInput
   site?: Prisma.GuardingSiteUpdateOneRequiredWithoutPatrolSchedulesNestedInput
-  checkpoints?: Prisma.PatrolScheduleCheckpointUpdateManyWithoutPatrolScheduleNestedInput
+  timeSlots?: Prisma.PatrolScheduleTimeSlotUpdateManyWithoutPatrolScheduleNestedInput
 }
 
 export type PatrolScheduleUncheckedUpdateInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
   day?: Prisma.StringFieldUpdateOperationsInput | string
-  startTime?: Prisma.StringFieldUpdateOperationsInput | string
-  endTime?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  checkpoints?: Prisma.PatrolScheduleCheckpointUncheckedUpdateManyWithoutPatrolScheduleNestedInput
+  timeSlots?: Prisma.PatrolScheduleTimeSlotUncheckedUpdateManyWithoutPatrolScheduleNestedInput
 }
 
 export type PatrolScheduleCreateManyInput = {
@@ -321,16 +289,12 @@ export type PatrolScheduleCreateManyInput = {
   companyId: string
   siteId: string
   day: string
-  startTime: string
-  endTime: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type PatrolScheduleUpdateManyMutationInput = {
   day?: Prisma.StringFieldUpdateOperationsInput | string
-  startTime?: Prisma.StringFieldUpdateOperationsInput | string
-  endTime?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -339,8 +303,6 @@ export type PatrolScheduleUncheckedUpdateManyInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
   day?: Prisma.StringFieldUpdateOperationsInput | string
-  startTime?: Prisma.StringFieldUpdateOperationsInput | string
-  endTime?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -360,8 +322,6 @@ export type PatrolScheduleCountOrderByAggregateInput = {
   companyId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
   day?: Prisma.SortOrder
-  startTime?: Prisma.SortOrder
-  endTime?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -371,8 +331,6 @@ export type PatrolScheduleMaxOrderByAggregateInput = {
   companyId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
   day?: Prisma.SortOrder
-  startTime?: Prisma.SortOrder
-  endTime?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -382,8 +340,6 @@ export type PatrolScheduleMinOrderByAggregateInput = {
   companyId?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
   day?: Prisma.SortOrder
-  startTime?: Prisma.SortOrder
-  endTime?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -477,40 +433,36 @@ export type PatrolScheduleUncheckedUpdateManyWithoutSiteNestedInput = {
   deleteMany?: Prisma.PatrolScheduleScalarWhereInput | Prisma.PatrolScheduleScalarWhereInput[]
 }
 
-export type PatrolScheduleCreateNestedOneWithoutCheckpointsInput = {
-  create?: Prisma.XOR<Prisma.PatrolScheduleCreateWithoutCheckpointsInput, Prisma.PatrolScheduleUncheckedCreateWithoutCheckpointsInput>
-  connectOrCreate?: Prisma.PatrolScheduleCreateOrConnectWithoutCheckpointsInput
+export type PatrolScheduleCreateNestedOneWithoutTimeSlotsInput = {
+  create?: Prisma.XOR<Prisma.PatrolScheduleCreateWithoutTimeSlotsInput, Prisma.PatrolScheduleUncheckedCreateWithoutTimeSlotsInput>
+  connectOrCreate?: Prisma.PatrolScheduleCreateOrConnectWithoutTimeSlotsInput
   connect?: Prisma.PatrolScheduleWhereUniqueInput
 }
 
-export type PatrolScheduleUpdateOneRequiredWithoutCheckpointsNestedInput = {
-  create?: Prisma.XOR<Prisma.PatrolScheduleCreateWithoutCheckpointsInput, Prisma.PatrolScheduleUncheckedCreateWithoutCheckpointsInput>
-  connectOrCreate?: Prisma.PatrolScheduleCreateOrConnectWithoutCheckpointsInput
-  upsert?: Prisma.PatrolScheduleUpsertWithoutCheckpointsInput
+export type PatrolScheduleUpdateOneRequiredWithoutTimeSlotsNestedInput = {
+  create?: Prisma.XOR<Prisma.PatrolScheduleCreateWithoutTimeSlotsInput, Prisma.PatrolScheduleUncheckedCreateWithoutTimeSlotsInput>
+  connectOrCreate?: Prisma.PatrolScheduleCreateOrConnectWithoutTimeSlotsInput
+  upsert?: Prisma.PatrolScheduleUpsertWithoutTimeSlotsInput
   connect?: Prisma.PatrolScheduleWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.PatrolScheduleUpdateToOneWithWhereWithoutCheckpointsInput, Prisma.PatrolScheduleUpdateWithoutCheckpointsInput>, Prisma.PatrolScheduleUncheckedUpdateWithoutCheckpointsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PatrolScheduleUpdateToOneWithWhereWithoutTimeSlotsInput, Prisma.PatrolScheduleUpdateWithoutTimeSlotsInput>, Prisma.PatrolScheduleUncheckedUpdateWithoutTimeSlotsInput>
 }
 
 export type PatrolScheduleCreateWithoutCompanyInput = {
   id?: string
   day: string
-  startTime: string
-  endTime: string
   createdAt?: Date | string
   updatedAt?: Date | string
   site: Prisma.GuardingSiteCreateNestedOneWithoutPatrolSchedulesInput
-  checkpoints?: Prisma.PatrolScheduleCheckpointCreateNestedManyWithoutPatrolScheduleInput
+  timeSlots?: Prisma.PatrolScheduleTimeSlotCreateNestedManyWithoutPatrolScheduleInput
 }
 
 export type PatrolScheduleUncheckedCreateWithoutCompanyInput = {
   id?: string
   siteId: string
   day: string
-  startTime: string
-  endTime: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  checkpoints?: Prisma.PatrolScheduleCheckpointUncheckedCreateNestedManyWithoutPatrolScheduleInput
+  timeSlots?: Prisma.PatrolScheduleTimeSlotUncheckedCreateNestedManyWithoutPatrolScheduleInput
 }
 
 export type PatrolScheduleCreateOrConnectWithoutCompanyInput = {
@@ -546,8 +498,6 @@ export type PatrolScheduleScalarWhereInput = {
   companyId?: Prisma.StringFilter<"PatrolSchedule"> | string
   siteId?: Prisma.StringFilter<"PatrolSchedule"> | string
   day?: Prisma.StringFilter<"PatrolSchedule"> | string
-  startTime?: Prisma.StringFilter<"PatrolSchedule"> | string
-  endTime?: Prisma.StringFilter<"PatrolSchedule"> | string
   createdAt?: Prisma.DateTimeFilter<"PatrolSchedule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PatrolSchedule"> | Date | string
 }
@@ -555,23 +505,19 @@ export type PatrolScheduleScalarWhereInput = {
 export type PatrolScheduleCreateWithoutSiteInput = {
   id?: string
   day: string
-  startTime: string
-  endTime: string
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutPatrolSchedulesInput
-  checkpoints?: Prisma.PatrolScheduleCheckpointCreateNestedManyWithoutPatrolScheduleInput
+  timeSlots?: Prisma.PatrolScheduleTimeSlotCreateNestedManyWithoutPatrolScheduleInput
 }
 
 export type PatrolScheduleUncheckedCreateWithoutSiteInput = {
   id?: string
   companyId: string
   day: string
-  startTime: string
-  endTime: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  checkpoints?: Prisma.PatrolScheduleCheckpointUncheckedCreateNestedManyWithoutPatrolScheduleInput
+  timeSlots?: Prisma.PatrolScheduleTimeSlotUncheckedCreateNestedManyWithoutPatrolScheduleInput
 }
 
 export type PatrolScheduleCreateOrConnectWithoutSiteInput = {
@@ -599,60 +545,52 @@ export type PatrolScheduleUpdateManyWithWhereWithoutSiteInput = {
   data: Prisma.XOR<Prisma.PatrolScheduleUpdateManyMutationInput, Prisma.PatrolScheduleUncheckedUpdateManyWithoutSiteInput>
 }
 
-export type PatrolScheduleCreateWithoutCheckpointsInput = {
+export type PatrolScheduleCreateWithoutTimeSlotsInput = {
   id?: string
   day: string
-  startTime: string
-  endTime: string
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutPatrolSchedulesInput
   site: Prisma.GuardingSiteCreateNestedOneWithoutPatrolSchedulesInput
 }
 
-export type PatrolScheduleUncheckedCreateWithoutCheckpointsInput = {
+export type PatrolScheduleUncheckedCreateWithoutTimeSlotsInput = {
   id?: string
   companyId: string
   siteId: string
   day: string
-  startTime: string
-  endTime: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type PatrolScheduleCreateOrConnectWithoutCheckpointsInput = {
+export type PatrolScheduleCreateOrConnectWithoutTimeSlotsInput = {
   where: Prisma.PatrolScheduleWhereUniqueInput
-  create: Prisma.XOR<Prisma.PatrolScheduleCreateWithoutCheckpointsInput, Prisma.PatrolScheduleUncheckedCreateWithoutCheckpointsInput>
+  create: Prisma.XOR<Prisma.PatrolScheduleCreateWithoutTimeSlotsInput, Prisma.PatrolScheduleUncheckedCreateWithoutTimeSlotsInput>
 }
 
-export type PatrolScheduleUpsertWithoutCheckpointsInput = {
-  update: Prisma.XOR<Prisma.PatrolScheduleUpdateWithoutCheckpointsInput, Prisma.PatrolScheduleUncheckedUpdateWithoutCheckpointsInput>
-  create: Prisma.XOR<Prisma.PatrolScheduleCreateWithoutCheckpointsInput, Prisma.PatrolScheduleUncheckedCreateWithoutCheckpointsInput>
+export type PatrolScheduleUpsertWithoutTimeSlotsInput = {
+  update: Prisma.XOR<Prisma.PatrolScheduleUpdateWithoutTimeSlotsInput, Prisma.PatrolScheduleUncheckedUpdateWithoutTimeSlotsInput>
+  create: Prisma.XOR<Prisma.PatrolScheduleCreateWithoutTimeSlotsInput, Prisma.PatrolScheduleUncheckedCreateWithoutTimeSlotsInput>
   where?: Prisma.PatrolScheduleWhereInput
 }
 
-export type PatrolScheduleUpdateToOneWithWhereWithoutCheckpointsInput = {
+export type PatrolScheduleUpdateToOneWithWhereWithoutTimeSlotsInput = {
   where?: Prisma.PatrolScheduleWhereInput
-  data: Prisma.XOR<Prisma.PatrolScheduleUpdateWithoutCheckpointsInput, Prisma.PatrolScheduleUncheckedUpdateWithoutCheckpointsInput>
+  data: Prisma.XOR<Prisma.PatrolScheduleUpdateWithoutTimeSlotsInput, Prisma.PatrolScheduleUncheckedUpdateWithoutTimeSlotsInput>
 }
 
-export type PatrolScheduleUpdateWithoutCheckpointsInput = {
+export type PatrolScheduleUpdateWithoutTimeSlotsInput = {
   day?: Prisma.StringFieldUpdateOperationsInput | string
-  startTime?: Prisma.StringFieldUpdateOperationsInput | string
-  endTime?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutPatrolSchedulesNestedInput
   site?: Prisma.GuardingSiteUpdateOneRequiredWithoutPatrolSchedulesNestedInput
 }
 
-export type PatrolScheduleUncheckedUpdateWithoutCheckpointsInput = {
+export type PatrolScheduleUncheckedUpdateWithoutTimeSlotsInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
   day?: Prisma.StringFieldUpdateOperationsInput | string
-  startTime?: Prisma.StringFieldUpdateOperationsInput | string
-  endTime?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -661,37 +599,29 @@ export type PatrolScheduleCreateManyCompanyInput = {
   id?: string
   siteId: string
   day: string
-  startTime: string
-  endTime: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type PatrolScheduleUpdateWithoutCompanyInput = {
   day?: Prisma.StringFieldUpdateOperationsInput | string
-  startTime?: Prisma.StringFieldUpdateOperationsInput | string
-  endTime?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   site?: Prisma.GuardingSiteUpdateOneRequiredWithoutPatrolSchedulesNestedInput
-  checkpoints?: Prisma.PatrolScheduleCheckpointUpdateManyWithoutPatrolScheduleNestedInput
+  timeSlots?: Prisma.PatrolScheduleTimeSlotUpdateManyWithoutPatrolScheduleNestedInput
 }
 
 export type PatrolScheduleUncheckedUpdateWithoutCompanyInput = {
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
   day?: Prisma.StringFieldUpdateOperationsInput | string
-  startTime?: Prisma.StringFieldUpdateOperationsInput | string
-  endTime?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  checkpoints?: Prisma.PatrolScheduleCheckpointUncheckedUpdateManyWithoutPatrolScheduleNestedInput
+  timeSlots?: Prisma.PatrolScheduleTimeSlotUncheckedUpdateManyWithoutPatrolScheduleNestedInput
 }
 
 export type PatrolScheduleUncheckedUpdateManyWithoutCompanyInput = {
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
   day?: Prisma.StringFieldUpdateOperationsInput | string
-  startTime?: Prisma.StringFieldUpdateOperationsInput | string
-  endTime?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -700,37 +630,29 @@ export type PatrolScheduleCreateManySiteInput = {
   id?: string
   companyId: string
   day: string
-  startTime: string
-  endTime: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type PatrolScheduleUpdateWithoutSiteInput = {
   day?: Prisma.StringFieldUpdateOperationsInput | string
-  startTime?: Prisma.StringFieldUpdateOperationsInput | string
-  endTime?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutPatrolSchedulesNestedInput
-  checkpoints?: Prisma.PatrolScheduleCheckpointUpdateManyWithoutPatrolScheduleNestedInput
+  timeSlots?: Prisma.PatrolScheduleTimeSlotUpdateManyWithoutPatrolScheduleNestedInput
 }
 
 export type PatrolScheduleUncheckedUpdateWithoutSiteInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   day?: Prisma.StringFieldUpdateOperationsInput | string
-  startTime?: Prisma.StringFieldUpdateOperationsInput | string
-  endTime?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  checkpoints?: Prisma.PatrolScheduleCheckpointUncheckedUpdateManyWithoutPatrolScheduleNestedInput
+  timeSlots?: Prisma.PatrolScheduleTimeSlotUncheckedUpdateManyWithoutPatrolScheduleNestedInput
 }
 
 export type PatrolScheduleUncheckedUpdateManyWithoutSiteInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   day?: Prisma.StringFieldUpdateOperationsInput | string
-  startTime?: Prisma.StringFieldUpdateOperationsInput | string
-  endTime?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -741,11 +663,11 @@ export type PatrolScheduleUncheckedUpdateManyWithoutSiteInput = {
  */
 
 export type PatrolScheduleCountOutputType = {
-  checkpoints: number
+  timeSlots: number
 }
 
 export type PatrolScheduleCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  checkpoints?: boolean | PatrolScheduleCountOutputTypeCountCheckpointsArgs
+  timeSlots?: boolean | PatrolScheduleCountOutputTypeCountTimeSlotsArgs
 }
 
 /**
@@ -761,8 +683,8 @@ export type PatrolScheduleCountOutputTypeDefaultArgs<ExtArgs extends runtime.Typ
 /**
  * PatrolScheduleCountOutputType without action
  */
-export type PatrolScheduleCountOutputTypeCountCheckpointsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.PatrolScheduleCheckpointWhereInput
+export type PatrolScheduleCountOutputTypeCountTimeSlotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PatrolScheduleTimeSlotWhereInput
 }
 
 
@@ -771,13 +693,11 @@ export type PatrolScheduleSelect<ExtArgs extends runtime.Types.Extensions.Intern
   companyId?: boolean
   siteId?: boolean
   day?: boolean
-  startTime?: boolean
-  endTime?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   site?: boolean | Prisma.GuardingSiteDefaultArgs<ExtArgs>
-  checkpoints?: boolean | Prisma.PatrolSchedule$checkpointsArgs<ExtArgs>
+  timeSlots?: boolean | Prisma.PatrolSchedule$timeSlotsArgs<ExtArgs>
   _count?: boolean | Prisma.PatrolScheduleCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["patrolSchedule"]>
 
@@ -788,17 +708,15 @@ export type PatrolScheduleSelectScalar = {
   companyId?: boolean
   siteId?: boolean
   day?: boolean
-  startTime?: boolean
-  endTime?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PatrolScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "siteId" | "day" | "startTime" | "endTime" | "createdAt" | "updatedAt", ExtArgs["result"]["patrolSchedule"]>
+export type PatrolScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "siteId" | "day" | "createdAt" | "updatedAt", ExtArgs["result"]["patrolSchedule"]>
 export type PatrolScheduleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   site?: boolean | Prisma.GuardingSiteDefaultArgs<ExtArgs>
-  checkpoints?: boolean | Prisma.PatrolSchedule$checkpointsArgs<ExtArgs>
+  timeSlots?: boolean | Prisma.PatrolSchedule$timeSlotsArgs<ExtArgs>
   _count?: boolean | Prisma.PatrolScheduleCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -807,15 +725,13 @@ export type $PatrolSchedulePayload<ExtArgs extends runtime.Types.Extensions.Inte
   objects: {
     company: Prisma.$CompanyPayload<ExtArgs>
     site: Prisma.$GuardingSitePayload<ExtArgs>
-    checkpoints: Prisma.$PatrolScheduleCheckpointPayload<ExtArgs>[]
+    timeSlots: Prisma.$PatrolScheduleTimeSlotPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     companyId: string
     siteId: string
     day: string
-    startTime: string
-    endTime: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["patrolSchedule"]>
@@ -1183,7 +1099,7 @@ export interface Prisma__PatrolScheduleClient<T, Null = never, ExtArgs extends r
   readonly [Symbol.toStringTag]: "PrismaPromise"
   company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   site<T extends Prisma.GuardingSiteDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.GuardingSiteDefaultArgs<ExtArgs>>): Prisma.Prisma__GuardingSiteClient<runtime.Types.Result.GetResult<Prisma.$GuardingSitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  checkpoints<T extends Prisma.PatrolSchedule$checkpointsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PatrolSchedule$checkpointsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PatrolScheduleCheckpointPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  timeSlots<T extends Prisma.PatrolSchedule$timeSlotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PatrolSchedule$timeSlotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PatrolScheduleTimeSlotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1217,8 +1133,6 @@ export interface PatrolScheduleFieldRefs {
   readonly companyId: Prisma.FieldRef<"PatrolSchedule", 'String'>
   readonly siteId: Prisma.FieldRef<"PatrolSchedule", 'String'>
   readonly day: Prisma.FieldRef<"PatrolSchedule", 'String'>
-  readonly startTime: Prisma.FieldRef<"PatrolSchedule", 'String'>
-  readonly endTime: Prisma.FieldRef<"PatrolSchedule", 'String'>
   readonly createdAt: Prisma.FieldRef<"PatrolSchedule", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PatrolSchedule", 'DateTime'>
 }
@@ -1591,27 +1505,27 @@ export type PatrolScheduleAggregateRawArgs<ExtArgs extends runtime.Types.Extensi
 }
 
 /**
- * PatrolSchedule.checkpoints
+ * PatrolSchedule.timeSlots
  */
-export type PatrolSchedule$checkpointsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type PatrolSchedule$timeSlotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the PatrolScheduleCheckpoint
+   * Select specific fields to fetch from the PatrolScheduleTimeSlot
    */
-  select?: Prisma.PatrolScheduleCheckpointSelect<ExtArgs> | null
+  select?: Prisma.PatrolScheduleTimeSlotSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the PatrolScheduleCheckpoint
+   * Omit specific fields from the PatrolScheduleTimeSlot
    */
-  omit?: Prisma.PatrolScheduleCheckpointOmit<ExtArgs> | null
+  omit?: Prisma.PatrolScheduleTimeSlotOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.PatrolScheduleCheckpointInclude<ExtArgs> | null
-  where?: Prisma.PatrolScheduleCheckpointWhereInput
-  orderBy?: Prisma.PatrolScheduleCheckpointOrderByWithRelationInput | Prisma.PatrolScheduleCheckpointOrderByWithRelationInput[]
-  cursor?: Prisma.PatrolScheduleCheckpointWhereUniqueInput
+  include?: Prisma.PatrolScheduleTimeSlotInclude<ExtArgs> | null
+  where?: Prisma.PatrolScheduleTimeSlotWhereInput
+  orderBy?: Prisma.PatrolScheduleTimeSlotOrderByWithRelationInput | Prisma.PatrolScheduleTimeSlotOrderByWithRelationInput[]
+  cursor?: Prisma.PatrolScheduleTimeSlotWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.PatrolScheduleCheckpointScalarFieldEnum | Prisma.PatrolScheduleCheckpointScalarFieldEnum[]
+  distinct?: Prisma.PatrolScheduleTimeSlotScalarFieldEnum | Prisma.PatrolScheduleTimeSlotScalarFieldEnum[]
 }
 
 /**

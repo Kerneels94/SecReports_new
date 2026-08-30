@@ -194,24 +194,33 @@ export interface PatrolCheckpoint {
   createdAt: string;
 }
 
-/** A patrol schedule template defining a recurring route for a specific day/time. */
+/** A patrol schedule template defining a recurring route for a specific day. */
 export interface PatrolSchedule {
   id: string;
   companyId: string;
   siteId: string;
   day: string;
-  startTime: string;
-  endTime: string;
   createdAt: string;
   updatedAt: string;
   site?: { id: string; name: string };
+  timeSlots?: PatrolScheduleTimeSlot[];
+}
+
+/** A time slot within a patrol schedule (e.g., 08:00–09:00 on Monday). */
+export interface PatrolScheduleTimeSlot {
+  id: string;
+  patrolScheduleId: string;
+  startTime: string;
+  endTime: string;
+  order: number;
+  createdAt: string;
   checkpoints?: PatrolScheduleCheckpoint[];
 }
 
-/** A checkpoint within a patrol schedule template. */
+/** A checkpoint within a patrol schedule time slot. */
 export interface PatrolScheduleCheckpoint {
   id: string;
-  patrolScheduleId: string;
+  patrolTimeSlotId: string;
   name: string;
   order: number;
   createdAt: string;

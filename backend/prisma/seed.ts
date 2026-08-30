@@ -5,6 +5,9 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.patrolScheduleCheckpoint.deleteMany();
+  await prisma.patrolScheduleTimeSlot.deleteMany();
+  await prisma.patrolSchedule.deleteMany();
   await prisma.patrolCheckpoint.deleteMany();
   await prisma.patrolReport.deleteMany();
   await prisma.entryLog.deleteMany();
