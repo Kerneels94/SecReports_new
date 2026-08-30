@@ -20,7 +20,7 @@ const createUserSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email"),
   password: z.string().min(8, "Min 8 characters"),
-  role: z.enum(["admin", "manager", "senior"]),
+  role: z.enum(["manager", "senior"]),
 });
 
 type CreateUserForm = z.infer<typeof createUserSchema>;
@@ -112,11 +112,14 @@ export default function AdminUsersPage() {
     setEditSaving(true);
     setEditError(null);
     try {
-      await userService.update(editUser.id, {
+      const payload: { name: string; email: string; role?: string } = {
         name: editName,
         email: editEmail,
-        role: editRole as any,
-      });
+      };
+      if (editUser.role !== "admin") {
+        payload.role = editRole;
+      }
+      await userService.update(editUser.id, payload);
       setEditUser(null);
       setSuccess(`User ${editEmail} updated`);
       fetchUsers();
@@ -175,12 +178,11 @@ export default function AdminUsersPage() {
                 <label htmlFor="role" className="text-sm font-medium text-text/90">Role</label>
                 <select
                   id="role"
-                  className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
+                  className="rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
                   {...register("role")}
                 >
-                  <option value="admin">Admin</option>
-                  <option value="manager">Manager</option>
-                  <option value="senior">Senior</option>
+                  <option value="manager" className="bg-surface text-text">Manager</option>
+                  <option value="senior" className="bg-surface text-text">Senior</option>
                 </select>
                 {errors.role && (
                   <p className="text-sm text-danger" role="alert">{errors.role.message}</p>
@@ -254,18 +256,24 @@ export default function AdminUsersPage() {
         <div className="flex flex-col gap-4">
           <Input label="Name" value={editName} onChange={(e) => setEditName(e.target.value)} />
           <Input label="Email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-text/90">Role</label>
-            <select
-              value={editRole}
-              onChange={(e) => setEditRole(e.target.value)}
-              className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
-            >
-              <option value="admin">Admin</option>
-              <option value="manager">Manager</option>
-              <option value="senior">Senior</option>
-            </select>
-          </div>
+          {editUser?.role === "admin" ? (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-text/90">Role</label>
+              <Badge variant="info">admin</Badge>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-text/90">Role</label>
+              <select
+                value={editRole}
+                onChange={(e) => setEditRole(e.target.value)}
+                className="rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
+              >
+                <option value="manager" className="bg-surface text-text">Manager</option>
+                <option value="senior" className="bg-surface text-text">Senior</option>
+              </select>
+            </div>
+          )}
           <div className="flex gap-3 pt-2">
             <Button onClick={handleEditSave} loading={editSaving}>Save</Button>
             <Button variant="secondary" onClick={() => setEditUser(null)}>Cancel</Button>

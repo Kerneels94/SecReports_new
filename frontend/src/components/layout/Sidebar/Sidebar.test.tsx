@@ -92,4 +92,23 @@ describe("Sidebar", () => {
     expect(screen.getByText("SecReports")).toBeInTheDocument();
     expect(screen.getByText("Incident System")).toBeInTheDocument();
   });
+
+  it("renders a logout button in the sidebar footer", () => {
+    mockUsePathname.mockReturnValue("/dashboard");
+    render(<Sidebar onLogout={jest.fn()} />);
+    expect(screen.getByRole("button", { name: /logout/i })).toBeInTheDocument();
+  });
+
+  it("calls onLogout and onClose when logout is clicked", async () => {
+    mockUsePathname.mockReturnValue("/dashboard");
+    const onLogout = jest.fn();
+    const onClose = jest.fn();
+    render(<Sidebar onLogout={onLogout} onClose={onClose} />);
+
+    const button = screen.getByRole("button", { name: /logout/i });
+    button.click();
+
+    expect(onLogout).toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalled();
+  });
 });

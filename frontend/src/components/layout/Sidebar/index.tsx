@@ -37,6 +37,7 @@ const adminToolsItems = [
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
+  onLogout?: () => void;
 }
 
 interface NavItem { href: string; label: string; icon: string; adminOnly?: boolean }
@@ -88,7 +89,7 @@ function NavItemsList({ items, onClose }: { items: NavItem[]; onClose?: () => vo
 }
 
 /** A slide-over sidebar with contextual nav items. Shows on desktop always and on mobile when toggled. */
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
   const { mode, setMode } = useDashboardMode();
   const { user } = useAuth();
   const pathname = usePathname();
@@ -150,7 +151,17 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </>
           )}
         </nav>
-        <div className="p-3 border-t border-border-light">
+        <div className="flex flex-col gap-2 p-3 border-t border-border-light">
+          <button
+            onClick={() => { onClose?.(); onLogout?.(); }}
+            className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-danger/80 hover:text-danger hover:bg-red-500/10 transition-all duration-150"
+            aria-label="Logout"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+            </svg>
+            Logout
+          </button>
           <div className="rounded-lg bg-gradient-to-r from-primary/[0.04] to-transparent px-3 py-2.5">
             <p className="text-[10px] text-text-secondary/50 tracking-wider uppercase">Version</p>
             <p className="text-xs text-text-secondary">2.0.0</p>
