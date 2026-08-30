@@ -246,6 +246,9 @@ export const PatrolExportController = {
     const reportLabel = siteName || "All Sites";
     const filename = format === "pdf" ? "patrol-reports.pdf" : "patrol-reports.csv";
 
+    const company = await prisma.company.findUnique({ where: { id: request.user!.companyId! } });
+    const companyName = company?.name || "SecReports";
+
     if (format === "pdf") {
       let pdfBuffer: Buffer;
       try {
@@ -259,9 +262,9 @@ export const PatrolExportController = {
         to: email,
         subject: "report",
         data: {
-          name: email,
-          incidentTitle: `Patrol Report — ${reportLabel}`,
-          referenceNumber: "PATROL",
+          companyName,
+          incidentAddress: reportLabel,
+          incidentType: "Patrol Report",
         },
         attachments: [{ filename, content: pdfBuffer }],
       });
@@ -310,9 +313,9 @@ export const PatrolExportController = {
         to: email,
         subject: "report",
         data: {
-          name: email,
-          incidentTitle: `Patrol Report — ${reportLabel}`,
-          referenceNumber: "PATROL",
+          companyName,
+          incidentAddress: reportLabel,
+          incidentType: "Patrol Report",
         },
         attachments: [{ filename, content: csv }],
       });

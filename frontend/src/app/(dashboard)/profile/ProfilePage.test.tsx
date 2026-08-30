@@ -50,29 +50,29 @@ describe("ProfilePage", () => {
     expect(screen.getByText("active")).toBeInTheDocument();
   });
 
-  it("shows owner banner for non-owner users", () => {
+  it("shows admin banner for non-admin users", () => {
     mockUseAuth.mockReturnValue({ user: mockUser });
     render(<ProfilePage />);
 
     expect(
-      screen.getByText(/Your profile details can only be updated by an owner/),
+      screen.getByText(/Your profile details can only be updated by an admin/),
     ).toBeInTheDocument();
   });
 
-  it("does not show owner banner for owner users", () => {
+  it("does not show admin banner for admin users", () => {
     mockUseAuth.mockReturnValue({
-      user: { ...mockUser, role: "owner" },
+      user: { ...mockUser, role: "admin" },
     });
     render(<ProfilePage />);
 
     expect(
-      screen.queryByText(/Your profile details can only be updated by an owner/),
+      screen.queryByText(/Your profile details can only be updated by an admin/),
     ).not.toBeInTheDocument();
   });
 
-  it("shows Edit Profile button for owner users", () => {
+  it("shows Edit Profile button for admin users", () => {
     mockUseAuth.mockReturnValue({
-      user: { ...mockUser, role: "owner" },
+      user: { ...mockUser, role: "admin" },
     });
     render(<ProfilePage />);
 

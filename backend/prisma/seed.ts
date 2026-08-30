@@ -77,7 +77,7 @@ async function main() {
       name: "Admin User",
       email: "admin@example.com",
       passwordHash,
-      role: "owner",
+      role: "admin",
     },
   });
 

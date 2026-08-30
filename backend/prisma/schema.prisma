@@ -10,7 +10,7 @@ datasource db {
 }
 
 enum UserRole {
-  owner
+  admin
   manager
   senior
   superadmin

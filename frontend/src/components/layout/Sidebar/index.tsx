@@ -45,7 +45,7 @@ interface NavItem { href: string; label: string; icon: string; adminOnly?: boole
 function NavItemsList({ items, onClose }: { items: NavItem[]; onClose?: () => void }) {
   const pathname = usePathname();
   const { user } = useAuth();
-  const isAdmin = user?.role === "owner" || user?.role === "manager";
+  const isAdmin = user?.role === "admin" || user?.role === "manager";
 
   return (
     <>
@@ -92,7 +92,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { mode, setMode } = useDashboardMode();
   const { user } = useAuth();
   const pathname = usePathname();
-  const isAdmin = user?.role === "owner" || user?.role === "manager";
+  const isAdmin = user?.role === "admin" || user?.role === "manager";
   const navItems = mode === "incidents" ? incidentNavItems : guardingNavItems;
 
   return (

@@ -100,7 +100,7 @@ describe("ApiClient", () => {
           ok: true,
           json: () => Promise.resolve({
             success: true,
-            data: { accessToken: "new-access", refreshToken: "new-refresh", user: { id: 1, name: "A", email: "a@b.com", role: "owner", status: "active", companyId: 1 } },
+            data: { accessToken: "new-access", refreshToken: "new-refresh", user: { id: 1, name: "A", email: "a@b.com", role: "admin", status: "active", companyId: 1 } },
           }),
         })
         .mockResolvedValueOnce({

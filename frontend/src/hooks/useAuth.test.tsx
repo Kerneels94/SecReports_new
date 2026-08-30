@@ -61,7 +61,7 @@ describe("useAuth", () => {
 
   it("fetches user on mount if token exists", async () => {
     localStorage.setItem("accessToken", "tok");
-    mockMe.mockResolvedValue({ data: { id: 1, name: "Alice", email: "a@b.com", role: "owner", status: "active", companyId: 1 } });
+    mockMe.mockResolvedValue({ data: { id: 1, name: "Alice", email: "a@b.com", role: "admin", status: "active", companyId: 1 } });
 
     render(
       <AuthProvider>

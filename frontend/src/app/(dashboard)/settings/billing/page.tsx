@@ -22,7 +22,7 @@ function parseFeatures(features: string): string[] {
 
 export default function BillingPage() {
   const { user } = useAuth();
-  const isOwner = user?.role === "owner";
+  const isAdmin = user?.role === "admin";
 
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [subscription, setSubscription] = useState<CompanySubscription | null>(null);
@@ -85,7 +85,7 @@ export default function BillingPage() {
       <div>
         <h1 className="text-2xl font-bold text-text">Billing & Plan</h1>
         <p className="text-sm text-text-secondary mt-1">
-          View your current plan and usage. {isOwner ? "Select a plan below to update your subscription." : "Monthly invoices are generated and sent automatically."}
+          View your current plan and usage. {isAdmin ? "Select a plan below to update your subscription." : "Monthly invoices are generated and sent automatically."}
         </p>
       </div>
 
@@ -147,7 +147,7 @@ export default function BillingPage() {
                       </li>
                     ))}
                   </ul>
-                  {isOwner && !isCurrent && (
+                  {isAdmin && !isCurrent && (
                     <button
                       onClick={() => handleChangePlan(plan.id)}
                       disabled={isChangingThis}

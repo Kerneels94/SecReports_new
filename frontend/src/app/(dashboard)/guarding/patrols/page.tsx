@@ -273,6 +273,12 @@ export default function PatrolsPage() {
         <div>
           <h1 className="text-2xl font-bold text-text">Patrol Reports</h1>
           <p className="text-sm text-text-secondary mt-1">View and filter patrol reports across all sites</p>
+          <p className="text-sm text-text-secondary mt-1">
+            NOTE: The sole purpose of this page is to keep a backup of your
+            guarding site patrol schedules making it easier to find if they are
+            needed if a site schedule changes there will always be one source of
+            truth.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button

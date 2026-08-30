@@ -19,7 +19,7 @@
 ### A01 — Broken Access Control
 
 18. **ALWAYS scope resource queries by `companyId`** — every `getById`, `update`, `delete` must use `findFirst({ where: { id, companyId } })`, not `findUnique({ where: { id } })` to prevent cross-company IDOR.
-19. **ALWAYS enforce authorization in the service layer (defense in depth)** — the service must re-verify role-change permissions (owner-only, cannot change own role) even if the controller already checks. No controller-only gates.
+19. **ALWAYS enforce authorization in the service layer (defense in depth)** — the service must re-verify role-change permissions (admin-only, cannot change own role) even if the controller already checks. No controller-only gates.
 20. **ALWAYS pass `performedBy` as the acting user's ID to audit logs** — never fall back to `companyId` which corrupts traceability.
 21. **NEVER leave `senior` role users with no login path** — either remove the role from the enum, add a dedicated login endpoint, or allow it in existing login flows.
 
@@ -218,7 +218,7 @@ After any auth change, run:
 **Location:** `backend/src/services/auth.service.ts:546-588`
 **Status:** FIXED ✅
 
-`AuthService.updateUser()` now re-verifies role-change authorization: only owners can change roles, and no one can change their own role. Controller-side checks are retained for defense in depth.
+`AuthService.updateUser()` now re-verifies role-change authorization: only admins can change roles, and no one can change their own role. Controller-side checks are retained for defense in depth.
 **→ Golden Rule #19**
 
 ## 🟢 LOW

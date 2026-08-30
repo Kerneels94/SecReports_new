@@ -13,7 +13,7 @@ jest.mock("@/hooks/useAuth", () => ({
 }));
 
 const mockRouter = { push: jest.fn() };
-const mockUser = { role: "owner" };
+const mockUser = { role: "admin" };
 const mockLogin = jest.fn().mockResolvedValue(mockUser);
 
 beforeEach(() => {
@@ -32,9 +32,10 @@ describe("LoginPage", () => {
     expect(screen.getByRole("button", { name: /sign in as admin\/manager/i })).toBeInTheDocument();
   });
 
-  it("renders Owner/Manager and Senior tabs", () => {
+it("renders Admin/Manager and Senior tabs", () => {
     render(<LoginPage />);
-    expect(screen.getByText("Owner/Manager")).toBeInTheDocument();
+
+    expect(screen.getByText("Admin/Manager")).toBeInTheDocument();
     expect(screen.getByText("Senior")).toBeInTheDocument();
   });
 
@@ -47,7 +48,7 @@ describe("LoginPage", () => {
     await user.click(screen.getByText("Senior"));
     expect(screen.getByRole("button", { name: /sign in as senior/i })).toBeInTheDocument();
 
-    await user.click(screen.getByText("Owner/Manager"));
+    await user.click(screen.getByText("Admin/Manager"));
     expect(screen.getByRole("button", { name: /sign in as admin\/manager/i })).toBeInTheDocument();
   });
 

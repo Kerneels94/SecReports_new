@@ -10,6 +10,6 @@ export default async function apiKeyRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
   fastify.get("/api-keys", ApiKeyController.list);
-  fastify.post("/api-keys", { preHandler: [requireRole("owner", "manager")] }, ApiKeyController.generate);
-  fastify.delete("/api-keys/:id", { preHandler: [requireRole("owner", "manager")] }, ApiKeyController.revoke);
+  fastify.post("/api-keys", { preHandler: [requireRole("admin", "manager")] }, ApiKeyController.generate);
+  fastify.delete("/api-keys/:id", { preHandler: [requireRole("admin", "manager")] }, ApiKeyController.revoke);
 }

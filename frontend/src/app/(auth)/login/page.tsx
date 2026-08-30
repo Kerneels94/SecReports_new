@@ -77,7 +77,7 @@ export default function LoginPage() {
               className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${tab === "company" ? "bg-primary text-gray-900 shadow-sm" : "text-text-secondary hover:text-text"}`}
               onClick={() => setTab("company")}
             >
-              Owner/Manager
+              Admin/Manager
             </button>
             <button
               type="button"

@@ -10,9 +10,9 @@ import { requireRole } from "../middleware/requireRole";
 export default async function exportRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
-  fastify.get("/export/csv", { preHandler: [requireRole("owner", "manager")] }, ExportController.csv);
+  fastify.get("/export/csv", { preHandler: [requireRole("admin", "manager")] }, ExportController.csv);
   fastify.get("/export/pdf", {
-    preHandler: [requireRole("owner", "manager")],
+    preHandler: [requireRole("admin", "manager")],
     schema: {
       querystring: {
         type: "object",
@@ -24,7 +24,7 @@ export default async function exportRoutes(fastify: FastifyInstance) {
   }, ExportController.pdf);
 
   fastify.get("/export/patrol-reports/csv", {
-    preHandler: [requireRole("owner", "manager")],
+    preHandler: [requireRole("admin", "manager")],
     schema: {
       querystring: {
         type: "object",
@@ -38,7 +38,7 @@ export default async function exportRoutes(fastify: FastifyInstance) {
   }, PatrolExportController.csv);
 
   fastify.get("/export/patrol-reports/pdf", {
-    preHandler: [requireRole("owner", "manager")],
+    preHandler: [requireRole("admin", "manager")],
     schema: {
       querystring: {
         type: "object",
@@ -54,6 +54,6 @@ export default async function exportRoutes(fastify: FastifyInstance) {
 
   fastify.post("/reports/patrol-reports/email", {
     config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
-    preHandler: [requireRole("owner", "manager", "senior")],
+    preHandler: [requireRole("admin", "manager", "senior")],
   }, PatrolExportController.email);
 }

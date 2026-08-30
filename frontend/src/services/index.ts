@@ -471,7 +471,7 @@ export const adminLedgerService = {
     api.patch<LedgerEntry>(`/admin/ledger/${id}/void`),
 };
 
-/** Company audit-log endpoints (owner/manager). */
+/** Company audit-log endpoints (superadmin). */
 export const adminAuditService = {
   list: (params?: {
     page?: number;

@@ -33,16 +33,16 @@ const mockUseAuth = useAuth as jest.Mock;
 const mockCreate = userService.create as jest.Mock;
 const mockListUsers = authService.listUsers as jest.Mock;
 
-const ownerUser = {
+const adminUser = {
   id: 1,
-  name: "Owner",
-  email: "owner@example.com",
-  role: "owner" as const,
+  name: "Admin",
+  email: "admin@example.com",
+  role: "admin" as const,
   status: "active" as const,
   companyId: 1,
 };
 
-const nonOwnerUser = {
+const nonAdminUser = {
   id: 2,
   name: "Senior",
   email: "senior@example.com",
@@ -57,21 +57,21 @@ beforeEach(() => {
 });
 
 describe("AdminUsersPage", () => {
-  it("shows owner access required when user is not owner", () => {
-    mockUseAuth.mockReturnValue({ user: nonOwnerUser });
+  it("shows admin access required when user is not admin", () => {
+    mockUseAuth.mockReturnValue({ user: nonAdminUser });
     render(<AdminUsersPage />);
     expect(screen.getByText("Admin access required.")).toBeInTheDocument();
     expect(screen.queryByText("Manage Users")).not.toBeInTheDocument();
   });
 
-  it("shows owner access required when user is null", () => {
+  it("shows admin access required when user is null", () => {
     mockUseAuth.mockReturnValue({ user: null });
     render(<AdminUsersPage />);
     expect(screen.getByText("Admin access required.")).toBeInTheDocument();
   });
 
-  it("renders form when user is owner", () => {
-    mockUseAuth.mockReturnValue({ user: ownerUser });
+  it("renders form when user is admin", () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
     render(<AdminUsersPage />);
     expect(screen.getByRole("heading", { name: /manage users/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /create employee/i })).toBeInTheDocument();
@@ -83,7 +83,7 @@ describe("AdminUsersPage", () => {
   });
 
   it("shows validation errors for empty required fields", async () => {
-    mockUseAuth.mockReturnValue({ user: ownerUser });
+    mockUseAuth.mockReturnValue({ user: adminUser });
     render(<AdminUsersPage />);
     const user = userEvent.setup();
 
@@ -97,7 +97,7 @@ describe("AdminUsersPage", () => {
   });
 
   it("calls userService.create and shows success", async () => {
-    mockUseAuth.mockReturnValue({ user: ownerUser });
+    mockUseAuth.mockReturnValue({ user: adminUser });
     mockCreate.mockResolvedValue({ success: true, data: { message: "Verification email sent" } });
     render(<AdminUsersPage />);
     const user = userEvent.setup();
@@ -119,7 +119,7 @@ describe("AdminUsersPage", () => {
   });
 
   it("shows error on failure", async () => {
-    mockUseAuth.mockReturnValue({ user: ownerUser });
+    mockUseAuth.mockReturnValue({ user: adminUser });
     mockCreate.mockRejectedValue(new Error("Email already exists"));
     render(<AdminUsersPage />);
     const user = userEvent.setup();
@@ -135,7 +135,7 @@ describe("AdminUsersPage", () => {
   });
 
   it("resets form after successful creation", async () => {
-    mockUseAuth.mockReturnValue({ user: ownerUser });
+    mockUseAuth.mockReturnValue({ user: adminUser });
     mockCreate.mockResolvedValue({ success: true, data: { id: 1, message: "Verification email sent" } });
     render(<AdminUsersPage />);
     const user = userEvent.setup();

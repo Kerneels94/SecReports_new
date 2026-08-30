@@ -47,28 +47,28 @@ Auth uses **JWT access + refresh token** flow:
 
 | Endpoint                | Method    | Auth   | Description                               |
 | ----------------------- | --------- | ------ | ----------------------------------------- |
-| `/auth/register`        | POST      | No     | Register a new company + owner user       |
+| `/auth/register`        | POST      | No     | Register a new company + admin user       |
 | `/auth/login`           | POST      | No     | Login, returns access + refresh tokens    |
 | `/auth/refresh`         | POST      | No     | Exchange refresh token for new token pair |
 | `/auth/me`              | GET       | Bearer | Get current user profile                  |
 | `/auth/me/password`     | PATCH     | Bearer | Change current user's password            |
 | `/auth/forgot-password` | POST      | No     | Sends password reset email                |
 | `/auth/reset-password`  | POST      | No     | Reset password with token from email      |
-| `/auth/users`           | GET/POST  | Bearer | List / create users (owner only)          |
-| `/auth/users/:id`       | GET/PATCH | Bearer | Get / update user (owner only)            |
+| `/auth/users`           | GET/POST  | Bearer | List / create users (admin only)          |
+| `/auth/users/:id`       | GET/PATCH | Bearer | Get / update user (admin only)            |
 
 - **Access token:** 15-minute expiry, stored in `localStorage`
 - **Refresh token:** 7-day expiry, exchanged for new pair via `/auth/refresh`
 - **Password hashing:** bcrypt with 12 salt rounds
 - **Rate limiting:** 100 requests/minute per IP via `@fastify/rate-limit`
-- **Role-based authorization:** `requireRole("owner")` middleware on admin routes
+- **Role-based authorization:** `requireRole("admin")` middleware on admin routes
 
 ### User Roles
 
 | Role          | Permissions                                                                  |
 | ------------- | ---------------------------------------------------------------------------- |
 | `superadmin`  | Platform-wide admin — manage all companies, invoices, revenue dashboard      |
-| `owner`       | Full company access — manage users, subscriptions, all features              |
+| `admin`       | Full company access — manage users, subscriptions, all features              |
 | `manager`     | Standard access — view all incidents, assign investigators, generate reports |
 | `senior`      | Standard access — create incidents, comment                                  |
 
@@ -82,7 +82,7 @@ All authenticated endpoints require `Authorization: Bearer <token>` header.
 
 Alternatively, endpoints can be accessed via API key using the `x-api-key` header. API-key-authenticated requests receive a synthetic `"api"` role that is **not** included in any route's `requireRole()` allow-list. This means API key access is effectively **read-only** — only endpoints that use `authenticate` without `requireRole()` are accessible (e.g., GET list/detail routes).
 
-API keys are scoped to a single company and can be generated/revoked by owners and managers via `/api-keys`.
+API keys are scoped to a single company and can be generated/revoked by admins and managers via `/api-keys`.
 
 ### Incidents
 

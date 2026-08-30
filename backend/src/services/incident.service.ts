@@ -252,7 +252,7 @@ export const IncidentService = {
     const incident = await prisma.incident.findFirst({ where: { id, companyId } });
     if (!incident) throw new NotFoundError("Incident");
 
-    if (userRole !== "owner" && userRole !== "manager" && incident.reporterId !== userId) {
+    if (userRole !== "admin" && userRole !== "manager" && incident.reporterId !== userId) {
       throw new ForbiddenError("You can only edit your own incidents");
     }
 
@@ -330,7 +330,7 @@ export const IncidentService = {
     const incident = await prisma.incident.findFirst({ where: { id, companyId } });
     if (!incident) throw new NotFoundError("Incident");
 
-    if (userRole !== "owner" && userRole !== "manager" && incident.reporterId !== userId) {
+    if (userRole !== "admin" && userRole !== "manager" && incident.reporterId !== userId) {
       throw new ForbiddenError("You can only delete your own incidents");
     }
 

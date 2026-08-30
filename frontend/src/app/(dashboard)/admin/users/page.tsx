@@ -1,5 +1,5 @@
 /**
- * Admin users page — allows owners to create, list, and edit employee users with role management.
+ * Admin users page — allows admins to create, list, and edit employee users with role management.
  * @route /admin/users
  */
 "use client";
@@ -20,7 +20,7 @@ const createUserSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email"),
   password: z.string().min(8, "Min 8 characters"),
-  role: z.enum(["owner", "manager", "senior"]),
+  role: z.enum(["admin", "manager", "senior"]),
 });
 
 type CreateUserForm = z.infer<typeof createUserSchema>;
@@ -55,7 +55,7 @@ export default function AdminUsersPage() {
   }, []);
 
   useEffect(() => {
-    if (user?.role === "owner") fetchUsers();
+    if (user?.role === "admin") fetchUsers();
   }, [user, fetchUsers]);
 
   const {
@@ -68,7 +68,7 @@ export default function AdminUsersPage() {
     defaultValues: { role: "senior" },
   });
 
-  if (user?.role !== "owner") {
+  if (user?.role !== "admin") {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="flex flex-col items-center gap-3 px-6 py-8 rounded-xl bg-surface ring-1 ring-border-light">
@@ -178,7 +178,7 @@ export default function AdminUsersPage() {
                   className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
                   {...register("role")}
                 >
-                  <option value="owner">Owner</option>
+                  <option value="admin">Admin</option>
                   <option value="manager">Manager</option>
                   <option value="senior">Senior</option>
                 </select>
@@ -224,7 +224,7 @@ export default function AdminUsersPage() {
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <Badge variant={u.role === "owner" ? "info" : "default"}>{u.role}</Badge>
+                          <Badge variant={u.role === "admin" ? "info" : "default"}>{u.role}</Badge>
                         </td>
                         <td className="px-4 py-3 text-right">
                           <Button variant="ghost" size="sm" onClick={() => openEdit(u)}>
@@ -261,7 +261,7 @@ export default function AdminUsersPage() {
               onChange={(e) => setEditRole(e.target.value)}
               className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
             >
-              <option value="owner">Owner</option>
+              <option value="admin">Admin</option>
               <option value="manager">Manager</option>
               <option value="senior">Senior</option>
             </select>

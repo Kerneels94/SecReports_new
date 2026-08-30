@@ -228,6 +228,9 @@ export const ExportController = {
       return;
     }
 
+    const company = await prisma.company.findUnique({ where: { id: request.user!.companyId! } });
+    const companyName = company?.name || "SecReports";
+
     if (format === "pdf") {
       let pdfBuffer: Buffer;
       try {
@@ -240,9 +243,9 @@ export const ExportController = {
         to: email,
         subject: "report",
         data: {
-          name: email,
-          incidentTitle: `${incidents.length} ${type} incidents`,
-          referenceNumber: "BATCH",
+          companyName,
+          incidentAddress: `${incidents.length} incidents`,
+          incidentType: type,
         },
         attachments: [{ filename: `${type}-incidents.pdf`, content: pdfBuffer }],
       });
@@ -293,9 +296,9 @@ export const ExportController = {
         to: email,
         subject: "report",
         data: {
-          name: email,
-          incidentTitle: `${incidents.length} ${type} incidents`,
-          referenceNumber: "BATCH",
+          companyName,
+          incidentAddress: `${incidents.length} incidents`,
+          incidentType: type,
         },
         attachments: [{ filename: `${type}-incidents.csv`, content: csv }],
       });
@@ -347,15 +350,18 @@ export const ExportController = {
 
     const incidentForExport = incident as IncidentForExport;
 
+    const company = await prisma.company.findUnique({ where: { id: request.user!.companyId! } });
+    const companyName = company?.name || "SecReports";
+
     if (format === "pdf") {
       const pdfBuffer = await generatePdf([incidentForExport]);
       const result = await sendMail({
         to: email,
         subject: "report",
         data: {
-          name: email,
-          incidentTitle: incident.title,
-          referenceNumber: incident.referenceNumber,
+          companyName,
+          incidentAddress: incident.propertyAddress || incident.location || "N/A",
+          incidentType: incident.type || "N/A",
         },
         attachments: [{ filename: `incident-${incidentId}.pdf`, content: pdfBuffer }],
       });
@@ -406,9 +412,9 @@ export const ExportController = {
         to: email,
         subject: "report",
         data: {
-          name: email,
-          incidentTitle: incident.title,
-          referenceNumber: incident.referenceNumber,
+          companyName,
+          incidentAddress: incident.propertyAddress || incident.location || "N/A",
+          incidentType: incident.type || "N/A",
         },
         attachments: [{ filename: `incident-${incidentId}.csv`, content: csv }],
       });
