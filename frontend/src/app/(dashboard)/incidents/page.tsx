@@ -20,7 +20,7 @@ export default function IncidentsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(null);
-  const perPage = 20;
+  const perPage = 25;
 
   const fetchIncidents = useCallback(async () => {
     setLoading(true);

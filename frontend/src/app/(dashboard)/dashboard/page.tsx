@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import { IncidentDetailModal } from "@/components/incidents/IncidentDetailModal";
 import { reportService, incidentService } from "@/services";
 import { DashboardSearch } from "./components/DashboardSearch";
@@ -22,6 +23,10 @@ export default function DashboardPage() {
   const [dateTo, setDateTo] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [tableLoading, setTableLoading] = useState(false);
+  const [filteredTotal, setFilteredTotal] = useState(0);
+  const [isFiltered, setIsFiltered] = useState(false);
+  const [page, setPage] = useState(1);
+  const perPage = 25;
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -44,15 +49,17 @@ export default function DashboardPage() {
     fetchSummary();
   }, [fetchSummary]);
 
-  const fetchFiltered = useCallback(async (from: string, to: string, type: string) => {
+  const fetchFiltered = useCallback(async (from: string, to: string, type: string, pageNum: number) => {
     setTableLoading(true);
     try {
-      const params: Record<string, string> = { page: "1", perPage: "50" };
+      const params: Record<string, string> = { page: String(pageNum), perPage: String(perPage) };
       if (from) params.dateFrom = from;
       if (to) params.dateTo = to;
       if (type) params.type = type;
       const res = await incidentService.list(params);
       setRecent(res.data.data);
+      setFilteredTotal(res.data.total);
+      setIsFiltered(true);
     } catch {
     } finally {
       setTableLoading(false);
@@ -62,8 +69,10 @@ export default function DashboardPage() {
   const handleDateFromChange = (v: string) => {
     setDateFrom(v);
     if (v || dateTo || typeFilter) {
-      fetchFiltered(v, dateTo, typeFilter);
+      setPage(1);
+      fetchFiltered(v, dateTo, typeFilter, 1);
     } else {
+      setIsFiltered(false);
       fetchSummary();
     }
   };
@@ -71,8 +80,10 @@ export default function DashboardPage() {
   const handleDateToChange = (v: string) => {
     setDateTo(v);
     if (dateFrom || v || typeFilter) {
-      fetchFiltered(dateFrom, v, typeFilter);
+      setPage(1);
+      fetchFiltered(dateFrom, v, typeFilter, 1);
     } else {
+      setIsFiltered(false);
       fetchSummary();
     }
   };
@@ -80,11 +91,20 @@ export default function DashboardPage() {
   const handleTypeFilterChange = (v: string) => {
     setTypeFilter(v);
     if (dateFrom || dateTo || v) {
-      fetchFiltered(dateFrom, dateTo, v);
+      setPage(1);
+      fetchFiltered(dateFrom, dateTo, v, 1);
     } else {
+      setIsFiltered(false);
       fetchSummary();
     }
   };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchFiltered(dateFrom, dateTo, typeFilter, newPage);
+  };
+
+  const totalPages = Math.ceil(filteredTotal / perPage);
 
   if (loading) {
     return (
@@ -246,6 +266,31 @@ export default function DashboardPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+            {isFiltered && totalPages > 1 && (
+              <div className="mt-4 flex items-center justify-between">
+                <p className="text-sm text-text-secondary">
+                  Page {page} of {totalPages}
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={page <= 1}
+                    onClick={() => handlePageChange(Math.max(1, page - 1))}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={page >= totalPages}
+                    onClick={() => handlePageChange(page + 1)}
+                  >
+                    Next
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>
