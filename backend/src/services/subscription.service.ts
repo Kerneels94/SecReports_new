@@ -315,7 +315,7 @@ export const SubscriptionService = {
     }
   },
 
-  /** Changes the company's subscription plan. Paid plans are ongoing (start date only); the free plan starts a trial period. */
+  /** Changes the company's subscription plan. The free trial plan is granted once (at signup or on cancellation) and cannot be selected again after the company has upgraded. */
   async changePlan(companyId: string, planId: string) {
     const plan = await prisma.subscriptionPlan.findUnique({
       where: { id: planId },
@@ -324,16 +324,17 @@ export const SubscriptionService = {
 
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
+      include: { plan: true },
     });
     if (!sub) throw new NotFoundError("Subscription");
 
+    if (plan.price === 0) {
+      throw new ForbiddenError(
+        "The free trial plan has already been used. Choose a paid plan to continue.",
+      );
+    }
+
     const now = new Date();
-    const isFreePlan = plan.price === 0;
-    const trialStartedAt = isFreePlan ? now : null;
-    const trialEndsAt =
-      isFreePlan && plan.trialPeriodDays
-        ? new Date(now.getTime() + plan.trialPeriodDays * 24 * 60 * 60 * 1000)
-        : null;
 
     const updated = await prisma.companySubscription.update({
       where: { companyId },
@@ -341,8 +342,8 @@ export const SubscriptionService = {
         planId,
         status: "active",
         currentPeriodStart: now,
-        trialStartedAt,
-        trialEndsAt,
+        trialStartedAt: null,
+        trialEndsAt: null,
         trialWarningSent: false,
       },
       include: { plan: true },

@@ -77,6 +77,18 @@ describe("BillingPage", () => {
     expect(screen.getByText(/current: free/i)).toBeInTheDocument();
   });
 
+  it("does not offer the free trial plan once the company is on a paid plan", async () => {
+    getSubscription.mockResolvedValue({
+      data: { ...currentSub, planId: "pro", plan: plans[1] },
+    });
+    render(<BillingPage />);
+    await waitFor(() => {
+      expect(screen.getAllByText("Professional").length).toBeGreaterThan(0);
+    });
+    expect(screen.getByText(/current: professional/i)).toBeInTheDocument();
+    expect(screen.queryByText("Free")).not.toBeInTheDocument();
+  });
+
   it("requires confirmation before changing the plan", async () => {
     render(<BillingPage />);
     await waitFor(() => {

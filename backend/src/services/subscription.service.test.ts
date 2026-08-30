@@ -331,23 +331,16 @@ describe("SubscriptionService.changePlan", () => {
     expect(arg.data.trialEndsAt).toBe(null);
   });
 
-  it("starts a fresh trial when switching back to the free plan", async () => {
+  it("rejects switching back to the free plan after upgrading", async () => {
     (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(freePlan);
     (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
       sub({ planId: paidPlan.id, plan: paidPlan }),
     );
-    (prisma.companySubscription.update as jest.Mock).mockResolvedValue({});
 
-    await SubscriptionService.changePlan("company1", freePlan.id);
-
-    const arg = (prisma.companySubscription.update as jest.Mock).mock.calls[0][0];
-    expect(arg.data.planId).toBe(freePlan.id);
-    expect(arg.data.currentPeriodStart).toEqual(expect.any(Date));
-    expect(arg.data.trialStartedAt).toEqual(expect.any(Date));
-    expect(arg.data.trialEndsAt).toEqual(expect.any(Date));
-    expect(
-      (arg.data.trialEndsAt as Date).getTime() - (arg.data.trialStartedAt as Date).getTime(),
-    ).toBe(freePlan.trialPeriodDays! * 24 * 60 * 60 * 1000);
+    await expect(
+      SubscriptionService.changePlan("company1", freePlan.id),
+    ).rejects.toThrow(ForbiddenError);
+    expect(prisma.companySubscription.update).not.toHaveBeenCalled();
   });
 
   it("throws NotFoundError when the plan does not exist", async () => {

@@ -102,16 +102,19 @@ export default function BillingPage() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {plans.map((plan) => (
-              <PlanSelectCard
-                key={plan.id}
-                plan={plan}
-                isCurrent={subscription?.planId === plan.id}
-                disabled={!isAdmin || changing}
-                onSelect={() => setConfirming(plan)}
-              />
-            ))}
+          <div className="flex flex-wrap justify-center gap-4">
+            {plans
+              .filter((plan) => !(subscription && plan.price === 0 && subscription.plan.price > 0))
+              .map((plan) => (
+                <div key={plan.id} className="w-full md:w-[calc((100%-2rem)/3)]">
+                  <PlanSelectCard
+                    plan={plan}
+                    isCurrent={subscription?.planId === plan.id}
+                    disabled={!isAdmin || changing}
+                    onSelect={() => setConfirming(plan)}
+                  />
+                </div>
+              ))}
           </div>
         </CardContent>
       </Card>
@@ -161,8 +164,7 @@ export default function BillingPage() {
         <CardContent>
           <p className="text-sm text-text-secondary">
             Monthly invoices are auto-generated for active paid subscriptions and are due on
-            the 25th of each month. Super admins can manage, send, and track invoices from the
-            admin panel.
+            the 25th of each month.
           </p>
         </CardContent>
       </Card>

@@ -43,12 +43,12 @@ describe("SubscriptionModal", () => {
     mockChangePlan.mockResolvedValue({ data: {} });
   });
 
-  it("lists available plans", async () => {
+  it("lists only paid plans (the free trial plan is not re-offered)", async () => {
     render(<SubscriptionModal open onClose={jest.fn()} />);
     await waitFor(() => {
       expect(screen.getByText("Professional")).toBeInTheDocument();
     });
-    expect(screen.getAllByText("Free").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Free")).not.toBeInTheDocument();
   });
 
   it("shows a confirmation after choosing a plan and confirms the change", async () => {
@@ -62,7 +62,7 @@ describe("SubscriptionModal", () => {
       expect(screen.getAllByRole("button", { name: /choose plan/i }).length).toBeGreaterThan(0);
     });
 
-    await userEvent.click(screen.getAllByRole("button", { name: /choose plan/i })[1]);
+    await userEvent.click(screen.getAllByRole("button", { name: /choose plan/i })[0]);
 
     await waitFor(() => {
       expect(screen.getByText("R 1,500/mo")).toBeInTheDocument();

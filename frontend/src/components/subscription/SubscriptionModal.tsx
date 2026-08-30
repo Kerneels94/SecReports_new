@@ -86,14 +86,16 @@ export function SubscriptionModal({ open, onClose, onPlanChanged }: Subscription
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-            {plans.map((plan) => (
-              <PlanSelectCard
-                key={plan.id}
-                plan={plan}
-                isCurrent={Boolean(plan.isCurrent)}
-                onSelect={() => setConfirming(plan)}
-              />
-            ))}
+            {plans
+              .filter((plan) => plan.price > 0)
+              .map((plan) => (
+                <PlanSelectCard
+                  key={plan.id}
+                  plan={plan}
+                  isCurrent={Boolean(plan.isCurrent)}
+                  onSelect={() => setConfirming(plan)}
+                />
+              ))}
           </div>
         )}
       </Modal>
