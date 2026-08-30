@@ -16,6 +16,7 @@ import {
   ConflictError,
   NotFoundError,
   ValidationError,
+  ForbiddenError,
 } from "../lib/errors";
 import { hasMxRecord } from "../lib/email";
 import { getAppUrl } from "../lib/app-url";
@@ -189,6 +190,15 @@ export const AuthService = {
     }
 
     await resetLoginAttempts(user.id);
+
+    if (
+      (user.role === "manager" || user.role === "senior") &&
+      (await SubscriptionService.isTrialExpired(user.companyId))
+    ) {
+      throw new ForbiddenError(
+        "Your organisation's free trial has ended. Please ask your administrator to upgrade the subscription before logging in.",
+      );
+    }
 
     SubscriptionService.checkAndNotifyTrialEnding(user.companyId!).catch(
       (err) => console.error("[AuthService] Trial notification failed:", err),

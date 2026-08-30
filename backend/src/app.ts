@@ -11,6 +11,7 @@ import cookie from "@fastify/cookie";
 import { verifyAccessToken } from "./lib/jwt";
 import { UnauthorizedError } from "./lib/errors";
 import { AppError } from "./lib/errors";
+import { SubscriptionService } from "./services/subscription.service";
 import authRoutes from "./routes/auth.routes";
 import incidentRoutes from "./routes/incident.routes";
 import reportRoutes from "./routes/report.routes";
@@ -88,6 +89,13 @@ export async function buildApp() {
       request.user = { userId: payload.userId, role: payload.role, companyId: payload.companyId };
     } catch {
       throw new UnauthorizedError("Invalid or expired token");
+    }
+
+    const path = request.url.split("?")[0];
+    const isSubscriptionFlow =
+      path.startsWith("/subscription") || path === "/auth/me";
+    if (!isSubscriptionFlow) {
+      await SubscriptionService.assertActive(request.user.companyId);
     }
   });
 

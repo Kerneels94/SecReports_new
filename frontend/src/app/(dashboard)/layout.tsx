@@ -12,6 +12,7 @@ import { DashboardModeProvider, useDashboardMode } from "@/hooks/useDashboardMod
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { MobileHeader } from "@/components/layout/MobileHeader";
+import { SubscriptionStatusGate } from "@/components/subscription/SubscriptionStatusGate";
 
 function DashboardShell({ children }: { children: ReactNode }) {
   const { user, isLoading, logout } = useAuth();
@@ -65,7 +66,9 @@ function DashboardShell({ children }: { children: ReactNode }) {
       <div className="relative flex flex-1 flex-col lg:pl-64">
         <MobileHeader user={user} onToggleSidebar={() => setSidebarOpen((prev) => !prev)} onLogout={logout} />
         <Header user={user} onLogout={logout} />
-        <main className="flex-1 animate-fade-in p-4 pt-6 lg:p-8">{children}</main>
+        <main className="flex-1 animate-fade-in p-4 pt-6 lg:p-8">
+          <SubscriptionStatusGate>{children}</SubscriptionStatusGate>
+        </main>
       </div>
     </div>
   );

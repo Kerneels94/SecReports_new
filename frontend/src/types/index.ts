@@ -297,7 +297,6 @@ export interface AdminCompany {
     id: string;
     status: string;
     currentPeriodStart: string | null;
-    currentPeriodEnd: string | null;
     plan: { id: string; name: string; price: number };
   } | null;
   _count?: { users: number; invoices: number };
@@ -367,7 +366,6 @@ export interface CompanySubscription {
   planId: string;
   status: string;
   currentPeriodStart: string | null;
-  currentPeriodEnd: string | null;
   trialEndsAt: string | null;
   trialWarningSent: boolean;
   createdAt: string;

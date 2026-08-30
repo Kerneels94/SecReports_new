@@ -12,6 +12,11 @@ export const SubscriptionController = {
     reply.code(200).send({ success: true, data });
   },
 
+  async getBillingDetails(request: FastifyRequest, reply: FastifyReply) {
+    const data = await SubscriptionService.getBillingDetails(request.user!.companyId);
+    reply.code(200).send({ success: true, data });
+  },
+
   async changePlan(request: FastifyRequest, reply: FastifyReply) {
     const { planId } = request.body as { planId: string };
     const data = await SubscriptionService.changePlan(request.user!.companyId, planId);

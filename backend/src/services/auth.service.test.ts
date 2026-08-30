@@ -2,7 +2,7 @@ import { AuthService } from "./auth.service";
 import { prisma } from "../lib/db";
 import * as hash from "../lib/hash";
 import * as jwt from "../lib/jwt";
-import { UnauthorizedError, ConflictError, NotFoundError } from "../lib/errors";
+import { UnauthorizedError, ConflictError, NotFoundError, ForbiddenError } from "../lib/errors";
 
 jest.mock("../lib/db", () => ({
   prisma: {
@@ -119,6 +119,46 @@ describe("AuthService", () => {
 
       await expect(AuthService.login({ email: "test@example.com", password: "wrong" }))
         .rejects.toThrow(UnauthorizedError);
+    });
+
+    it("blocks a manager/senior when the company trial has expired", async () => {
+      const { SubscriptionService } = require("./subscription.service");
+      const spy = jest
+        .spyOn(SubscriptionService, "isTrialExpired")
+        .mockResolvedValue(true);
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        ...mockUser,
+        role: "manager",
+      });
+      (hash.comparePassword as jest.Mock).mockResolvedValue(true);
+
+      await expect(
+        AuthService.login({ email: "test@example.com", password: "secret" }),
+      ).rejects.toThrow(ForbiddenError);
+
+      spy.mockRestore();
+    });
+
+    it("allows an admin to log in even when the company trial has expired", async () => {
+      const { SubscriptionService } = require("./subscription.service");
+      const spy = jest
+        .spyOn(SubscriptionService, "isTrialExpired")
+        .mockResolvedValue(true);
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        ...mockUser,
+        role: "admin",
+      });
+      (hash.comparePassword as jest.Mock).mockResolvedValue(true);
+      (jwt.signAccessToken as jest.Mock).mockReturnValue("access-token");
+      (jwt.signRefreshToken as jest.Mock).mockReturnValue("refresh-token");
+
+      const result = await AuthService.login({
+        email: "test@example.com",
+        password: "secret",
+      });
+
+      expect(result.accessToken).toBe("access-token");
+      spy.mockRestore();
     });
   });
 
