@@ -33,6 +33,9 @@
     "resend": "^6.12.4",
     "zod": "^4.4.3"
   },
+  "overrides": {
+    "deepmerge-ts": "^8.0.0"
+  },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/jest": "^30.0.0",
