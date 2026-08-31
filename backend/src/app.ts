@@ -9,8 +9,8 @@ import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import cookie from "@fastify/cookie";
 import { verifyAccessToken } from "./lib/jwt";
-import { UnauthorizedError } from "./lib/errors";
-import { AppError } from "./lib/errors";
+import { UnauthorizedError, AppError } from "./lib/errors";
+import { posthog } from "./lib/posthog";
 import { SubscriptionService } from "./services/subscription.service";
 import authRoutes from "./routes/auth.routes";
 import incidentRoutes from "./routes/incident.routes";
@@ -116,7 +116,7 @@ export async function buildApp() {
   await fastify.register(auditLogRoutes);
   await fastify.register(subscriptionRoutes);
 
-  fastify.setErrorHandler((error, request, reply) => {
+  fastify.setErrorHandler((error: Error & { statusCode?: number; code?: string }, request, reply) => {
     if (error instanceof AppError) {
       reply.code(error.statusCode).send({
         success: false,
@@ -129,7 +129,7 @@ export async function buildApp() {
       return;
     }
 
-    if ((error as any).statusCode === 429) {
+    if (error.statusCode === 429) {
       reply.code(429).send({
         success: false,
         error: {
@@ -140,7 +140,7 @@ export async function buildApp() {
       return;
     }
 
-    if ((error as any).code === "P2002") {
+    if (error.code === "P2002") {
       reply.code(409).send({
         success: false,
         error: {
@@ -152,6 +152,19 @@ export async function buildApp() {
     }
 
     request.log.error(error);
+
+    posthog?.capture({
+      distinctId: (request.user as any)?.userId ?? "anonymous",
+      event: "backend_error",
+      properties: {
+        code: error.code ?? "UNKNOWN",
+        message: error.message,
+        statusCode: error.statusCode ?? 500,
+        path: request.url,
+        method: request.method,
+      },
+    });
+
     reply.code(500).send({
       success: false,
       error: {
