@@ -4,6 +4,7 @@
  * @module suspension
  */
 import { escapeHtml } from "./escape";
+import { emailLayout, greeting, paragraph, alertParagraph, mutedNote, ctaButton } from "./layout";
 
 interface SuspensionData {
   companyName: string;
@@ -11,40 +12,15 @@ interface SuspensionData {
 }
 
 export default function suspensionTemplate(data: SuspensionData): string {
-  const { reason } = data;
-  const companyName = escapeHtml(data.companyName);
-  const safeReason = reason ? escapeHtml(reason) : undefined;
-  return `
-<!DOCTYPE html>
-<html>
-<body style="font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0;">
-  <table style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden;">
-    <tr>
-      <td style="background: #1e3a5f; padding: 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">SecReports</h1>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding: 32px 24px;">
-        <p style="font-size: 16px; color: #333;">Hi ${companyName},</p>
-        <p style="font-size: 16px; color: #b91c1c; font-weight: bold;">Your SecReports account has been suspended.</p>
-        ${safeReason ? `<p style="font-size: 16px; color: #333;">Reason: ${safeReason}</p>` : ""}
-        <p style="font-size: 16px; color: #333;">During the suspension period, you will not be able to access your account or create new incident reports.</p>
-        <p style="font-size: 14px; color: #777;">If you have any questions or believe this was done in error, please contact our support team immediately.</p>
-        <div style="text-align: center; margin: 32px 0;">
-          <a href="mailto:support@secreports.co.za"
-             style="background: #1e3a5f; color: #ffffff; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-size: 16px; display: inline-block;">
-            Contact Support
-          </a>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td style="background: #f4f4f4; padding: 16px 24px; text-align: center; font-size: 12px; color: #999;">
-        &copy; ${new Date().getFullYear()} SecReports. All rights reserved.
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
+  const safeReason = data.reason ? escapeHtml(data.reason) : undefined;
+  const body = `
+        ${greeting(data.companyName)}
+        ${alertParagraph("Your SecReports account has been suspended.")}
+        ${safeReason ? paragraph(`Reason: ${safeReason}`) : ""}
+        ${paragraph("During the suspension period, you will not be able to access your account or create new incident reports.")}
+        ${mutedNote("If you have any questions or believe this was done in error, please contact our support team immediately.")}
+        ${ctaButton("mailto:support@secreports.co.za", "Contact Support")}
+      `;
+
+  return emailLayout({ title: "Account Suspended", body });
 }

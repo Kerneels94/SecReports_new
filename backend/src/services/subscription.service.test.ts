@@ -1,10 +1,12 @@
-import { SubscriptionService } from "./subscription.service";
+import { SubscriptionService, getNextBillingDate } from "./subscription.service";
+import { NotFoundError, ForbiddenError } from "../lib/errors";
 import { prisma } from "../lib/db";
 
 jest.mock("../lib/db", () => ({
   prisma: {
     subscriptionPlan: {
       findFirst: jest.fn(),
+      findUnique: jest.fn(),
     },
     companySubscription: {
       findUnique: jest.fn(),
@@ -33,7 +35,6 @@ function sub(overrides: Record<string, unknown> = {}) {
     planId: freePlan.id,
     status: "active",
     currentPeriodStart: null,
-    currentPeriodEnd: null,
     trialEndsAt: past,
     trialWarningSent: false,
     plan: freePlan,
@@ -59,6 +60,7 @@ describe("SubscriptionService.upgradeExpiredTrial", () => {
         data: expect.objectContaining({
           planId: "pro",
           status: "active",
+          currentPeriodStart: expect.any(Date),
           trialEndsAt: null,
           trialWarningSent: false,
         }),
@@ -165,5 +167,210 @@ describe("SubscriptionService.getTrialStatus", () => {
     const result = await SubscriptionService.getTrialStatus("company1");
 
     expect(result).toEqual({ isTrial: false, daysRemaining: 0, isExpired: false });
+  });
+});
+
+describe("SubscriptionService.isTrialExpired", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns false when companyId is null", async () => {
+    const result = await SubscriptionService.isTrialExpired(null);
+    expect(result).toBe(false);
+    expect(prisma.companySubscription.findUnique).not.toHaveBeenCalled();
+  });
+
+  it("returns false when the trial has not expired", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ trialStartedAt: past, trialEndsAt: future }),
+    );
+
+    const result = await SubscriptionService.isTrialExpired("company1");
+    expect(result).toBe(false);
+  });
+
+  it("returns true when the free-plan trial has expired", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ trialStartedAt: past, trialEndsAt: past }),
+    );
+
+    const result = await SubscriptionService.isTrialExpired("company1");
+    expect(result).toBe(true);
+  });
+
+  it("returns false when already on a paid plan", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: paidPlan.id, plan: paidPlan }),
+    );
+
+    const result = await SubscriptionService.isTrialExpired("company1");
+    expect(result).toBe(false);
+  });
+});
+
+describe("SubscriptionService.assertActive", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("passes when companyId is null (e.g. superadmin)", async () => {
+    await expect(SubscriptionService.assertActive(null)).resolves.toBeUndefined();
+    expect(prisma.companySubscription.findUnique).not.toHaveBeenCalled();
+  });
+
+  it("passes while the trial is still active", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ trialStartedAt: past, trialEndsAt: future }),
+    );
+
+    await expect(SubscriptionService.assertActive("company1")).resolves.toBeUndefined();
+  });
+
+  it("passes when already on a paid plan", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: paidPlan.id, plan: paidPlan }),
+    );
+
+    await expect(SubscriptionService.assertActive("company1")).resolves.toBeUndefined();
+  });
+
+  it("throws ForbiddenError when the free-plan trial has ended", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ trialStartedAt: past, trialEndsAt: past }),
+    );
+
+    await expect(SubscriptionService.assertActive("company1")).rejects.toThrow(
+      ForbiddenError,
+    );
+  });
+});
+
+describe("SubscriptionService expired-trial feature blocking", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("canAddSite throws when the trial has ended", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ trialStartedAt: past, trialEndsAt: past }),
+    );
+
+    await expect(SubscriptionService.canAddSite("company1")).rejects.toThrow(
+      ForbiddenError,
+    );
+  });
+
+  it("canAddUser throws when the trial has ended", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ trialStartedAt: past, trialEndsAt: past }),
+    );
+
+    await expect(SubscriptionService.canAddUser("company1")).rejects.toThrow(
+      ForbiddenError,
+    );
+  });
+
+  it("hasFeature returns false when the trial has ended", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ trialStartedAt: past, trialEndsAt: past }),
+    );
+
+    const result = await SubscriptionService.hasFeature("company1", "export_csv_pdf");
+    expect(result).toBe(false);
+  });
+});
+
+describe("SubscriptionService.getBillingDetails", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns billing details with next billing day of the month (25th)", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: paidPlan.id, plan: paidPlan }),
+    );
+
+    const result = await SubscriptionService.getBillingDetails("company1");
+
+    expect(result).toMatchObject({
+      billingDay: 25,
+      planId: paidPlan.id,
+    });
+    const next = (result as { nextBillingDate: Date }).nextBillingDate;
+    expect(next.getDate()).toBe(25);
+  });
+
+  it("throws NotFoundError when the subscription is missing", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(null);
+    await expect(SubscriptionService.getBillingDetails("missing")).rejects.toThrow(
+      NotFoundError,
+    );
+  });
+});
+
+describe("SubscriptionService.changePlan", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("switches to a paid plan as an ongoing subscription with no end date", async () => {
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(paidPlan);
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: freePlan.id, plan: freePlan }),
+    );
+    (prisma.companySubscription.update as jest.Mock).mockResolvedValue({});
+
+    await SubscriptionService.changePlan("company1", paidPlan.id);
+
+    const arg = (prisma.companySubscription.update as jest.Mock).mock.calls[0][0];
+    expect(arg.data.planId).toBe(paidPlan.id);
+    expect(arg.data.status).toBe("active");
+    expect(arg.data.currentPeriodStart).toEqual(expect.any(Date));
+    expect(arg.data.trialStartedAt).toBe(null);
+    expect(arg.data.trialEndsAt).toBe(null);
+  });
+
+  it("rejects switching back to the free plan after upgrading", async () => {
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(freePlan);
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: paidPlan.id, plan: paidPlan }),
+    );
+
+    await expect(
+      SubscriptionService.changePlan("company1", freePlan.id),
+    ).rejects.toThrow(ForbiddenError);
+    expect(prisma.companySubscription.update).not.toHaveBeenCalled();
+  });
+
+  it("throws NotFoundError when the plan does not exist", async () => {
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(null);
+    await expect(SubscriptionService.changePlan("company1", "nope")).rejects.toThrow(
+      NotFoundError,
+    );
+  });
+
+  it("throws NotFoundError when the subscription does not exist", async () => {
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(paidPlan);
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(null);
+    await expect(SubscriptionService.changePlan("company1", paidPlan.id)).rejects.toThrow(
+      NotFoundError,
+    );
+  });
+});
+
+describe("getNextBillingDate", () => {
+  it("returns the 25th of the current month when before the 25th", () => {
+    const from = new Date(2026, 7, 10); // 10 Aug
+    const result = getNextBillingDate(from);
+    expect(result.getDate()).toBe(25);
+    expect(result.getMonth()).toBe(7);
+  });
+
+  it("returns the 25th of the next month on or after the 25th", () => {
+    const from = new Date(2026, 7, 25); // 25 Aug
+    const result = getNextBillingDate(from);
+    expect(result.getDate()).toBe(25);
+    expect(result.getMonth()).toBe(8);
   });
 });

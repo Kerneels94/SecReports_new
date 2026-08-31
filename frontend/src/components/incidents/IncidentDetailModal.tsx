@@ -9,6 +9,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { incidentService, exportService } from "@/services";
+import { incidentReportFileName } from "@/lib/reportName";
 import type { Incident } from "@/types";
 
 /** A single label-value row used in the detail sections. */
@@ -75,7 +76,7 @@ export function IncidentDetailModal({
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `incident-${incidentId}.pdf`;
+      a.download = incidentReportFileName(incident!);
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

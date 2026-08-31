@@ -168,7 +168,6 @@ model CompanySubscription {
   planId                   String    @map("plan_id") @db.ObjectId
   status                   String    @default("active")
   currentPeriodStart       DateTime? @map("current_period_start")
-  currentPeriodEnd         DateTime? @map("current_period_end")
   trialEndsAt              DateTime? @map("trial_ends_at")
   trialStartedAt           DateTime? @map("trial_started_at")
   trialWarningSent         Boolean   @default(false) @map("trial_warning_sent")

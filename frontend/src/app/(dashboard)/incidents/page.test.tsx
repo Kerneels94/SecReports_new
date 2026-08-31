@@ -41,7 +41,7 @@ const mockPaginated = {
   data: mockIncidents,
   total: 25,
   page: 1,
-  perPage: 20,
+  perPage: 25,
 };
 
 beforeEach(() => {
@@ -88,7 +88,7 @@ describe("IncidentsPage", () => {
     }));
 
     mockList.mockResolvedValue({
-      data: { data: manyItems, total: 25, page: 1, perPage: 20 },
+      data: { data: manyItems, total: 50, page: 1, perPage: 25 },
     });
 
     render(<IncidentsPage />);
@@ -103,7 +103,7 @@ describe("IncidentsPage", () => {
 
   it("pagination next/previous changes page", async () => {
     mockList.mockResolvedValue({
-      data: { data: mockIncidents, total: 25, page: 1, perPage: 20 },
+      data: { data: mockIncidents, total: 50, page: 1, perPage: 25 },
     });
 
     render(<IncidentsPage />);
@@ -113,7 +113,7 @@ describe("IncidentsPage", () => {
     });
 
     mockList.mockResolvedValue({
-      data: { data: mockIncidents, total: 25, page: 2, perPage: 20 },
+      data: { data: mockIncidents, total: 50, page: 2, perPage: 25 },
     });
 
     await userEvent.click(screen.getByText("Next"));
@@ -143,7 +143,7 @@ describe("IncidentsPage", () => {
 
   it("shows empty state when no incidents", async () => {
     mockList.mockResolvedValue({
-      data: { data: [], total: 0, page: 1, perPage: 20 },
+      data: { data: [], total: 0, page: 1, perPage: 25 },
     });
 
     render(<IncidentsPage />);

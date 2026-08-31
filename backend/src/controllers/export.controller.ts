@@ -32,22 +32,24 @@ interface IncidentForExport {
 }
 
 const COLORS = {
-  primary: "#2962FF",
-  gray: "#6B7280",
-  dark: "#1F2937",
-  light: "#F3F4F6",
+  primary: "#0b1e33",
+  gray: "#475569",
+  dark: "#1e293b",
+  light: "#f8fafc",
+  border: "#e2e8f0",
   white: "#FFFFFF",
 };
 
 function drawHeader(doc: typeof PDFDocument.prototype) {
   doc.rect(50, 40, 495, 50).fill(COLORS.primary);
   doc.fillColor(COLORS.white).fontSize(18).font("Helvetica-Bold").text("Incident Report", 60, 52);
-  doc.fillColor(COLORS.white).fontSize(9).font("Helvetica").text("Security Incident Management System", 60, 74);
+  doc.fillColor(COLORS.white).fontSize(9).font("Helvetica").text("Incident Management Platform", 60, 74);
+  doc.moveTo(50, 90).lineTo(545, 90).lineWidth(4).strokeColor(COLORS.border).stroke();
   doc.fillColor(COLORS.dark);
 }
 
 function drawSection(doc: typeof PDFDocument.prototype, title: string, y: number): number {
-  doc.rect(50, y, 495, 22).fill(COLORS.light);
+  doc.rect(50, y, 495, 22).fillAndStroke(COLORS.light, COLORS.border);
   doc.fillColor(COLORS.dark).fontSize(11).font("Helvetica-Bold").text(title, 60, y + 5);
   return y + 30;
 }
@@ -84,7 +86,7 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
       doc.fontSize(9).font("Helvetica").fillColor(COLORS.dark).text(inc.description || "No description", 60, y, { width: 475, align: "left" });
       y += doc.y - y + 12;
 
-      y = drawSection(doc, "Personnel", y);
+      y = drawSection(doc, "Controllers", y);
       y = drawField(doc, "Operator", inc.operatorName || "-", y);
       y = drawField(doc, "Dispatcher", inc.dispatcher || "-", y);
 

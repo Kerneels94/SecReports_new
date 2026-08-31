@@ -2120,7 +2120,6 @@ export const CompanySubscriptionScalarFieldEnum = {
   planId: 'planId',
   status: 'status',
   currentPeriodStart: 'currentPeriodStart',
-  currentPeriodEnd: 'currentPeriodEnd',
   trialEndsAt: 'trialEndsAt',
   trialStartedAt: 'trialStartedAt',
   trialWarningSent: 'trialWarningSent',

@@ -15,7 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 const incidentNavItems = [
   { href: "/dashboard", label: "Dashboard", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
   { href: "/incidents", label: "Incidents", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
-  { href: "/incidents/new", label: "Report Incident", icon: "M12 4v16m8-8H4" },
+  { href: "/incidents/new", label: "Report Incident", icon: "M12 4v16m8-8H4", hideFromAdmin: true },
   { href: "/reports", label: "Reports", icon: "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
 ];
 
@@ -37,9 +37,10 @@ const adminToolsItems = [
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
+  onLogout?: () => void;
 }
 
-interface NavItem { href: string; label: string; icon: string; adminOnly?: boolean }
+interface NavItem { href: string; label: string; icon: string; adminOnly?: boolean; hideFromAdmin?: boolean }
 
 /** Renders the list of navigation links for the current mode, highlighting the active route. */
 function NavItemsList({ items, onClose }: { items: NavItem[]; onClose?: () => void }) {
@@ -51,6 +52,7 @@ function NavItemsList({ items, onClose }: { items: NavItem[]; onClose?: () => vo
     <>
       {items
         .filter((item) => !item.adminOnly || isAdmin)
+        .filter((item) => !item.hideFromAdmin || user?.role !== "admin")
         .map((item) => {
         const isActive =
           pathname === item.href ||
@@ -88,7 +90,7 @@ function NavItemsList({ items, onClose }: { items: NavItem[]; onClose?: () => vo
 }
 
 /** A slide-over sidebar with contextual nav items. Shows on desktop always and on mobile when toggled. */
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
   const { mode, setMode } = useDashboardMode();
   const { user } = useAuth();
   const pathname = usePathname();
@@ -150,7 +152,17 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </>
           )}
         </nav>
-        <div className="p-3 border-t border-border-light">
+        <div className="flex flex-col gap-2 p-3 border-t border-border-light">
+          <button
+            onClick={() => { onClose?.(); onLogout?.(); }}
+            className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-danger/80 hover:text-danger hover:bg-red-500/10 transition-all duration-150"
+            aria-label="Logout"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+            </svg>
+            Logout
+          </button>
           <div className="rounded-lg bg-gradient-to-r from-primary/[0.04] to-transparent px-3 py-2.5">
             <p className="text-[10px] text-text-secondary/50 tracking-wider uppercase">Version</p>
             <p className="text-xs text-text-secondary">2.0.0</p>
