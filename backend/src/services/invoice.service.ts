@@ -1,6 +1,7 @@
 import { prisma } from "../lib/db";
 import { NotFoundError, ConflictError } from "../lib/errors";
 import { sendMail } from "./email.service";
+import { LedgerService } from "./ledger.service";
 
 export const InvoiceService = {
   async generateInvoiceNumber(): Promise<string> {
@@ -27,7 +28,7 @@ export const InvoiceService = {
     description?: string;
   }) {
     const invoiceNumber = await this.generateInvoiceNumber();
-    return prisma.invoice.create({
+    const invoice = await prisma.invoice.create({
       data: {
         companyId: data.companyId,
         invoiceNumber,
@@ -41,6 +42,17 @@ export const InvoiceService = {
       },
       include: { company: true },
     });
+
+    await LedgerService.postEntry({
+      companyId: invoice.companyId,
+      entryType: "invoice",
+      amount: invoice.amount,
+      currency: invoice.currency,
+      reference: invoice.invoiceNumber,
+      description: `Invoice ${invoice.invoiceNumber} issued`,
+    });
+
+    return invoice;
   },
 
   async getInvoices(filters?: {
@@ -98,6 +110,7 @@ export const InvoiceService = {
         amount: invoice.amount,
         currency: invoice.currency,
         invoiceNumber: invoice.invoiceNumber,
+        dueDate: invoice.dueDate.toISOString(),
       },
     });
 
@@ -131,6 +144,18 @@ export const InvoiceService = {
           reference: `PAY-${invoice.invoiceNumber}`,
           status: "completed",
           invoiceId: id,
+        },
+      }),
+      prisma.ledger.create({
+        data: {
+          companyId: invoice.companyId,
+          entryType: "payment",
+          amount: invoice.amount,
+          currency: invoice.currency,
+          reference: `PAY-${invoice.invoiceNumber}`,
+          description: `Payment received for ${invoice.invoiceNumber}`,
+          status: "posted",
+          postedAt: new Date(),
         },
       }),
     ]);

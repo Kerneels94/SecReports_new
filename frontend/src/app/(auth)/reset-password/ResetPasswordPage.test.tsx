@@ -47,6 +47,18 @@ describe("ResetPasswordPage", () => {
     expect(screen.getByRole("button", { name: /reset password/i })).toBeInTheDocument();
   });
 
+  it("shows the password policy", () => {
+    mockToken("valid-token");
+    render(<ResetPasswordPage />);
+
+    expect(screen.getByText("A strong password contains:")).toBeInTheDocument();
+    expect(screen.getByText("At least 8 characters")).toBeInTheDocument();
+    expect(screen.getByText("At least one lowercase letter")).toBeInTheDocument();
+    expect(screen.getByText("At least one uppercase letter")).toBeInTheDocument();
+    expect(screen.getByText("At least one digit")).toBeInTheDocument();
+    expect(screen.getByText("At least one special character")).toBeInTheDocument();
+  });
+
   it("validates password match", async () => {
     mockToken("valid-token");
     render(<ResetPasswordPage />);

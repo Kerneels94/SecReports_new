@@ -1,18 +1,82 @@
 /**
- * Email sending service using Resend. Handles transactional emails for registration,
- * invoices, cancellations, suspensions, and reports using dynamic template imports.
+ * Email sending service using Resend or SMTP (nodemailer) as a fallback.
+ * Handles transactional emails for registration, invoices, cancellations,
+ * suspensions, and reports using dynamic template imports.
  */
 import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const useResend = RESEND_API_KEY && RESEND_API_KEY !== "<your-resend-api-key>";
 const FROM_EMAIL = process.env.FROM_EMAIL || "onboarding@resend.dev";
+
+let resend: Resend | null = null;
+let transporter: nodemailer.Transporter | null = null;
+
+if (useResend) {
+  resend = new Resend(RESEND_API_KEY);
+} else {
+  transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || "smtp.ethereal.email",
+    port: parseInt(process.env.SMTP_PORT || "587", 10),
+    secure: process.env.SMTP_SECURE === "true",
+    auth: {
+      user: process.env.SMTP_USER || "",
+      pass: process.env.SMTP_PASS || "",
+    },
+  });
+}
+
+async function sendEmail({
+  from,
+  to,
+  subject,
+  html,
+  attachments,
+}: {
+  from: string;
+  to: string[];
+  subject: string;
+  html: string;
+  attachments?: { filename: string; content: string | Buffer }[];
+}) {
+  if (resend) {
+    return resend.emails.send({ from, to, subject, html, attachments });
+  }
+
+  try {
+    const info = await transporter!.sendMail({
+      from,
+      to,
+      subject,
+      html,
+      attachments,
+    });
+    return { data: info };
+  } catch (error) {
+    console.error(error);
+    return { error };
+  }
+}
+
+interface Attachment {
+  filename: string;
+  content: string | Buffer;
+}
 
 /** Parameters for sending a transactional email. */
 interface SendMailParams {
   to: string;
-  subject: "register" | "invoice" | "cancellation" | "suspention" | "report";
+  subject:
+    | "register"
+    | "invoice"
+    | "cancellation"
+    | "suspention"
+    | "report"
+    | "trial_ending";
   data?: Record<string, unknown>;
   from?: string;
+  attachments?: Attachment[];
 }
 
 const subjectLabels: Record<string, string> = {
@@ -21,6 +85,7 @@ const subjectLabels: Record<string, string> = {
   cancellation: "Subscription Cancelled",
   suspention: "Account Suspended",
   report: "New Incident Report",
+  trial_ending: "Your SecReports Free Trial Is Ending Soon",
 };
 
 /** Builds HTML from lazy-loaded templates by subject type and sends via Resend. */
@@ -29,6 +94,7 @@ export async function sendMail({
   subject,
   data = {},
   from,
+  attachments,
 }: SendMailParams) {
   try {
     let html = "";
@@ -45,6 +111,7 @@ export async function sendMail({
           companyName: (data.companyName as string) || "Valued Customer",
           amount: (data.amount as number) || 0,
           invoiceNumber: (data.invoiceNumber as string) || "N/A",
+          dueDate: data.dueDate as string | undefined,
           invoiceLink: data.invoiceLink as string | undefined,
         });
         break;
@@ -67,10 +134,18 @@ export async function sendMail({
       case "report": {
         const { default: template } = await import("../templates/report");
         html = template({
-          name: (data.name as string) || "there",
-          incidentTitle: (data.incidentTitle as string) || "Incident Report",
-          referenceNumber: (data.referenceNumber as string) || "N/A",
+          companyName: (data.companyName as string) || "SecReports",
+          incidentAddress: (data.incidentAddress as string) || "N/A",
+          incidentType: (data.incidentType as string) || "N/A",
           reportLink: data.reportLink as string | undefined,
+        });
+        break;
+      }
+      case "trial_ending": {
+        const { default: template } = await import("../templates/trial-ending");
+        html = template({
+          name: (data.name as string) || "there",
+          daysRemaining: (data.daysRemaining as number) || 2,
         });
         break;
       }
@@ -78,11 +153,12 @@ export async function sendMail({
         html = "<p>No content available.</p>";
     }
 
-    const { data: res, error } = await resend.emails.send({
+    const { data: res, error } = await sendEmail({
       from: from || FROM_EMAIL,
       to: [to],
       subject: subjectLabels[subject] || subject,
       html,
+      attachments,
     });
 
     if (error) {
@@ -103,11 +179,15 @@ export async function sendWelcomeEmail(to: string, name: string) {
 }
 
 /** Sends an email verification link to a newly registered user. */
-export async function sendVerificationEmail(to: string, name: string, verifyLink: string) {
+export async function sendVerificationEmail(
+  to: string,
+  name: string,
+  verifyLink: string,
+) {
   const { default: template } = await import("../templates/verify-email");
   const html = template(name, verifyLink);
 
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await sendEmail({
     from: FROM_EMAIL,
     to: [to],
     subject: "Verify Your SecReports Account",
@@ -131,7 +211,7 @@ export async function sendPasswordResetEmail(
   const { default: template } = await import("../templates/reset-password");
   const html = template(name, resetLink);
 
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await sendEmail({
     from: FROM_EMAIL,
     to: [to],
     subject: "Reset Your SecReports Password",
@@ -151,7 +231,7 @@ export async function sendPasswordChangedEmail(to: string, name: string) {
   const { default: template } = await import("../templates/password-changed");
   const html = template(name);
 
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await sendEmail({
     from: FROM_EMAIL,
     to: [to],
     subject: "Your SecReports Password Has Been Changed",

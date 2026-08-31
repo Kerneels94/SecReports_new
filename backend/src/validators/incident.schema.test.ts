@@ -27,21 +27,6 @@ describe("incident schemas", () => {
       expect(result.success).toBe(false);
     });
 
-    it("passes with valid people array", () => {
-      const result = createIncidentSchema.safeParse({
-        ...validCreate,
-        people: [{ name: "John", role: "witness" }],
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it("fails with people array missing name", () => {
-      const result = createIncidentSchema.safeParse({
-        ...validCreate,
-        people: [{ role: "witness" } as any],
-      });
-      expect(result.success).toBe(false);
-    });
   });
 
   describe("updateIncidentSchema", () => {

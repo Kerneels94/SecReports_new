@@ -1,50 +1,116 @@
-/**
- * Reports page — incident summary and statistics showing total count, breakdown by status, and recent incidents.
- * @route /reports
- */
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { reportService } from "@/services";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { IncidentDetailModal } from "@/components/incidents/IncidentDetailModal";
+import { EmailReportModal } from "@/components/incidents/EmailReportModal";
+import { reportService, incidentService, exportService } from "@/services";
+import { incidentReportFileName } from "@/lib/reportName";
+import type { Incident } from "@/types";
 
-const statusLabels: Record<string, string> = {
-  draft: "Draft",
-  submitted: "Submitted",
-  under_review: "Under Review",
-  assigned: "Assigned",
-  investigating: "Investigating",
-  resolved: "Resolved",
-  closed: "Closed",
-  rejected: "Rejected",
-};
 
-/** Reports page component showing summary stats, status breakdown, and recent incidents. */
 export default function ReportsPage() {
-  const [data, setData] = useState<{
+  const [summary, setSummary] = useState<{
     total: number;
-    byStatus: { status: string; _count: { id: number } }[];
-    recent: { id: number; title: string; status: string; createdAt: string; reporter?: { name: string } }[];
+    recent: Incident[];
+    attemptedCount: number;
+    positiveCount: number;
   } | null>(null);
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(null);
+  const [emailIncident, setEmailIncident] = useState<{ id: number; title: string } | null>(null);
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
 
-  const fetchSummary = useCallback(async () => {
+  const [batchType, setBatchType] = useState<"attempted" | "positive" | null>(null);
+  const [batchEmail, setBatchEmail] = useState("");
+  const [batchFormat, setBatchFormat] = useState<"csv" | "pdf">("pdf");
+  const [batchSending, setBatchSending] = useState(false);
+  const [batchSent, setBatchSent] = useState(false);
+  const [batchError, setBatchError] = useState<string | null>(null);
+
+  const perPage = 20;
+
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await reportService.summary();
-      setData(res.data);
+      const params: Record<string, string> = { page: String(page), perPage: String(perPage) };
+      if (dateFrom) params.dateFrom = dateFrom;
+      if (dateTo) params.dateTo = dateTo;
+      if (typeFilter) params.type = typeFilter;
+
+      const [summaryRes, incidentsRes] = await Promise.all([
+        reportService.summary(),
+        incidentService.list(params),
+      ]);
+      setSummary(summaryRes.data);
+      setIncidents(incidentsRes.data.data);
+      setTotal(incidentsRes.data.total);
     } catch {
       setError("Failed to load reports");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, dateFrom, dateTo, typeFilter]);
 
   useEffect(() => {
-    fetchSummary();
-  }, [fetchSummary]);
+    fetchData();
+  }, [fetchData]);
+
+  const handleDownloadPdf = async (incident: Incident) => {
+    setDownloadingId(incident.id);
+    try {
+      const blob = await exportService.downloadPdf(incident.id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = incidentReportFileName(incident);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      setError("Failed to download PDF");
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  const handleBatchSend = async () => {
+    if (!batchEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(batchEmail)) {
+      setBatchError("Please enter a valid email address");
+      return;
+    }
+    setBatchSending(true);
+    setBatchError(null);
+    try {
+      await reportService.batchEmail(batchEmail, batchType!, batchFormat);
+      setBatchSent(true);
+    } catch (err) {
+      setBatchError(err instanceof Error ? err.message : "Failed to send email. Please try again.");
+    } finally {
+      setBatchSending(false);
+    }
+  };
+
+  const openBatchModal = (type: "attempted" | "positive") => {
+    setBatchType(type);
+    setBatchEmail("");
+    setBatchFormat("pdf");
+    setBatchSent(false);
+    setBatchError(null);
+  };
+
+  const totalPages = Math.ceil(total / perPage);
 
   if (loading) {
     return (
@@ -61,11 +127,12 @@ export default function ReportsPage() {
     return (
       <div className="flex flex-col items-center gap-4 py-12">
         <p className="text-sm text-danger">{error}</p>
+        <Button variant="secondary" onClick={fetchData}>Retry</Button>
       </div>
     );
   }
 
-  if (!data) return null;
+  if (!summary) return null;
 
   return (
     <div className="flex flex-col gap-8 animate-fade-in">
@@ -74,59 +141,302 @@ export default function ReportsPage() {
         <p className="text-sm text-text-secondary mt-1">Incident summary and statistics</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
         <Card className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
           <CardContent className="relative">
             <p className="text-sm text-text-secondary">Total Incidents</p>
-            <p className="mt-2 text-3xl font-bold text-text">{data.total}</p>
+            <p className="mt-2 text-3xl font-bold text-text">{summary.total}</p>
           </CardContent>
         </Card>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Incidents by Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {data.byStatus.length === 0 ? (
-              <p className="text-sm text-text-secondary">No data available.</p>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {data.byStatus.map((s) => (
-                  <div key={s.status} className="flex items-center justify-between">
-                    <span className="text-sm text-text-secondary capitalize">{statusLabels[s.status] || s.status.replace("_", " ")}</span>
-                            <span className="text-sm font-semibold text-text">{s._count.id}</span>
-                  </div>
-                ))}
-              </div>
+        <Card className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent" />
+          <CardContent className="relative">
+            <p className="text-sm text-text-secondary">Attempted</p>
+            <p className="mt-2 text-3xl font-bold text-warning">{summary.attemptedCount}</p>
+            {summary.attemptedCount > 0 && (
+              <button
+                type="button"
+                onClick={() => openBatchModal("attempted")}
+                className="mt-3 text-xs font-medium text-primary hover:underline"
+              >
+                Email All
+              </button>
             )}
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Incidents</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {data.recent.length === 0 ? (
-              <p className="text-sm text-text-secondary">No incidents reported yet.</p>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {data.recent.map((inc) => (
-                    <div key={inc.id}>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-text truncate">{inc.title}</p>
-                        <p className="text-xs text-text-secondary">{inc.reporter?.name} &middot; {new Date(inc.createdAt).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                ))}
-              </div>
+        <Card className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent" />
+          <CardContent className="relative">
+            <p className="text-sm text-text-secondary">Positive</p>
+            <p className="mt-2 text-3xl font-bold text-success">{summary.positiveCount}</p>
+            {summary.positiveCount > 0 && (
+              <button
+                type="button"
+                onClick={() => openBatchModal("positive")}
+                className="mt-3 text-xs font-medium text-primary hover:underline"
+              >
+                Email All
+              </button>
             )}
           </CardContent>
         </Card>
       </div>
+
+      <div className="flex flex-wrap items-end gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="filter-date-from" className="text-xs font-medium text-text-secondary">Date From</label>
+          <input
+            id="filter-date-from"
+            type="date"
+            value={dateFrom}
+            onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+            className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-primary transition-colors"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="filter-date-to" className="text-xs font-medium text-text-secondary">Date To</label>
+          <input
+            id="filter-date-to"
+            type="date"
+            value={dateTo}
+            onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+            className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-primary transition-colors"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="filter-type" className="text-xs font-medium text-text-secondary">Type</label>
+          <select
+            id="filter-type"
+            value={typeFilter}
+            onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
+            className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-primary transition-colors"
+          >
+            <option value="">All Types</option>
+            <option value="attempted">Attempted</option>
+            <option value="positive">Positive</option>
+          </select>
+        </div>
+        {(dateFrom || dateTo || typeFilter) && (
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => { setDateFrom(""); setDateTo(""); setTypeFilter(""); setPage(1); }}
+          >
+            Clear
+          </Button>
+        )}
+      </div>
+      <Card className="overflow-hidden">
+        <CardHeader>
+          <CardTitle>All Incidents</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {incidents.length === 0 ? (
+            <div className="flex flex-col items-center gap-4 py-16">
+              <p className="text-sm text-text-secondary">No incidents found.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border-light bg-surface-elevated/20">
+                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Ref #</th>
+                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Title</th>
+                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Type</th>
+
+                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Reporter</th>
+                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Date</th>
+                    <th className="px-6 py-3.5 text-right font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {incidents.map((incident, idx) => (
+                    <tr key={incident.id} className={`border-b border-border-light/50 hover:bg-surface-elevated/30 transition-colors ${idx % 2 === 0 ? 'bg-surface-elevated/20' : ''}`}>
+                      <td className="px-6 py-4">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedIncidentId(incident.id)}
+                          className="font-mono text-xs text-primary hover:underline"
+                        >
+                          {incident.referenceNumber}
+                        </button>
+                      </td>
+                      <td className="px-6 py-4">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedIncidentId(incident.id)}
+                          className="font-medium text-text hover:text-primary transition-colors text-left"
+                        >
+                          {incident.title}
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 text-text-secondary">{incident.type}</td>
+
+                      <td className="px-6 py-4 text-text-secondary">{incident.reporter?.name || "-"}</td>
+                      <td className="px-6 py-4 text-text-secondary">
+                        {new Date(incident.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedIncidentId(incident.id)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors"
+                            title="View"
+                          >
+                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadPdf(incident)}
+                            disabled={downloadingId === incident.id}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors disabled:opacity-50"
+                            title="Download PDF"
+                          >
+                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                              <polyline points="7 10 12 15 17 10" />
+                              <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEmailIncident({ id: incident.id, title: incident.title })}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors"
+                            title="Email"
+                          >
+                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                              <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-text-secondary">
+            Page {page} of {totalPages}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {selectedIncidentId && (
+        <IncidentDetailModal
+          incidentId={selectedIncidentId}
+          open={!!selectedIncidentId}
+          onClose={() => setSelectedIncidentId(null)}
+        />
+      )}
+
+      {emailIncident && (
+        <EmailReportModal
+          incidentId={emailIncident.id}
+          incidentTitle={emailIncident.title}
+          open={!!emailIncident}
+          onClose={() => setEmailIncident(null)}
+        />
+      )}
+      <Modal
+        open={!!batchType}
+        onClose={() => setBatchType(null)}
+        title={`Email All ${batchType ? batchType.charAt(0).toUpperCase() + batchType.slice(1) : ""} Incidents`}
+        className="max-w-md w-full"
+      >
+        {batchSent ? (
+          <div className="flex flex-col items-center gap-4 py-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
+              <svg className="h-6 w-6 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <p className="text-sm text-text text-center">
+              Report for all {batchType} incidents sent to <span className="font-semibold">{batchEmail}</span>
+            </p>
+            <Button variant="secondary" size="sm" onClick={() => setBatchType(null)}>
+              Done
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-text-secondary">
+              Send all <span className="font-semibold text-text">{batchType}</span> incidents as an email attachment.
+            </p>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-text-secondary">Email address</label>
+              <input
+                type="email"
+                value={batchEmail}
+                onChange={(e) => { setBatchEmail(e.target.value); setBatchError(null); }}
+                placeholder="recipient@example.com"
+                className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-primary transition-colors"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-text-secondary">Format</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setBatchFormat("pdf")}
+                  className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${batchFormat === "pdf" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
+                >
+                  PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBatchFormat("csv")}
+                  className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${batchFormat === "csv" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
+                >
+                  CSV
+                </button>
+              </div>
+            </div>
+
+            {batchError && (
+              <p className="text-xs text-danger">{batchError}</p>
+            )}
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="secondary" size="sm" onClick={() => setBatchType(null)}>Cancel</Button>
+              <Button size="sm" onClick={handleBatchSend} disabled={batchSending}>
+                {batchSending ? "Sending..." : "Send"}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

@@ -1,11 +1,20 @@
+export interface TrialStatus {
+  isTrial: boolean;
+  daysRemaining: number;
+  isExpired: boolean;
+  trialStartedAt?: string;
+  trialEndsAt?: string;
+}
+
 /** A user account within a company. */
 export interface User {
   id: number;
   name: string;
   email: string;
-  role: "owner" | "manager" | "senior" | "guard" | "superadmin";
+  role: "admin" | "manager" | "senior" | "superadmin";
   status: "active" | "inactive";
   companyId: number | null;
+  trial?: TrialStatus | null;
 }
 
 /** An organisation (company) that owns reports and users. */
@@ -46,49 +55,6 @@ export interface Incident {
   assignee?: User;
 }
 
-/** A person associated with a specific incident (e.g. witness, suspect). */
-export interface IncidentPerson {
-  id: number;
-  incidentId: number;
-  name: string;
-  role: string;
-  contact: string | null;
-  notes: string | null;
-}
-
-/** A comment left on an incident by a user. */
-export interface Comment {
-  id: number;
-  incidentId: number;
-  userId: number;
-  message: string;
-  createdAt: string;
-  user?: User;
-}
-
-/** Investigation details attached to an incident (findings, root cause, etc.). */
-export interface Investigation {
-  id: number;
-  incidentId: number;
-  findings: string | null;
-  rootCause: string | null;
-  recommendations: string | null;
-  closureNotes: string | null;
-  completedAt: string | null;
-}
-
-/** A corrective action assigned to resolve an incident. */
-export interface CorrectiveAction {
-  id: number;
-  incidentId: number;
-  description: string;
-  ownerId: number;
-  dueDate: string;
-  status: "open" | "in_progress" | "completed" | "overdue";
-  completedAt: string | null;
-  owner?: User;
-}
-
 /** An audit trail entry tracking changes to an entity. */
 export interface AuditLog {
   id: number;
@@ -99,6 +65,24 @@ export interface AuditLog {
   newValues: unknown;
   performedBy: number;
   createdAt: string;
+}
+
+/** An audit log entry with performer details (used in admin audit log view). */
+export interface AuditLogEntry {
+  id: string;
+  entityType: string;
+  entityId: string;
+  action: string;
+  oldValues: string | null;
+  newValues: string | null;
+  performedBy: string;
+  createdAt: string;
+  performedByUser: {
+    id: string;
+    name: string;
+    email: string;
+    company: { id: string; name: string } | null;
+  };
 }
 
 /** Standard success response wrapper from the API. */
@@ -127,14 +111,8 @@ export interface PaginatedResponse<T> {
   perPage: number;
 }
 
-/** Payload for owner/manager login. */
+/** Payload for admin/manager login. */
 export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-/** Payload for employee (guard) login. */
-export interface EmployeeLoginRequest {
   email: string;
   password: string;
 }
@@ -178,17 +156,14 @@ export interface Guard {
   id: string;
   companyId: string;
   siteId: string | null;
-  userId: string;
   name: string;
   surname: string;
   cellphone: string;
-  email: string;
   employeeId: string;
   status: "active" | "inactive" | "on_leave";
   createdAt: string;
   updatedAt: string;
   site?: { id: string; name: string };
-  user?: { id: string; email: string; role: string };
   patrolReports?: PatrolReport[];
 }
 
@@ -219,6 +194,38 @@ export interface PatrolCheckpoint {
   createdAt: string;
 }
 
+/** A patrol schedule template defining a recurring route for a specific day. */
+export interface PatrolSchedule {
+  id: string;
+  companyId: string;
+  siteId: string;
+  day: string;
+  createdAt: string;
+  updatedAt: string;
+  site?: { id: string; name: string };
+  timeSlots?: PatrolScheduleTimeSlot[];
+}
+
+/** A time slot within a patrol schedule (e.g., 08:00–09:00 on Monday). */
+export interface PatrolScheduleTimeSlot {
+  id: string;
+  patrolScheduleId: string;
+  startTime: string;
+  endTime: string;
+  order: number;
+  createdAt: string;
+  checkpoints?: PatrolScheduleCheckpoint[];
+}
+
+/** A checkpoint within a patrol schedule time slot. */
+export interface PatrolScheduleCheckpoint {
+  id: string;
+  patrolTimeSlotId: string;
+  name: string;
+  order: number;
+  createdAt: string;
+}
+
 /** A vehicle/person entry/exit log at a guarded site. */
 export interface EntryLog {
   id: string;
@@ -231,12 +238,16 @@ export interface EntryLog {
   entryTime: string;
   exitTime: string | null;
   purpose: string | null;
-  flaggedVehicleId: string | null;
+  flagged: boolean;
+  flagReason: string | null;
+  flaggedById: string | null;
+  flaggedAt: string | null;
+  resolvedAt: string | null;
+  resolveReason: string | null;
   createdAt: string;
   updatedAt: string;
   site?: { id: string; name: string };
   guard?: { id: string; name: string; surname: string };
-  flaggedVehicle?: FlaggedVehicle | null;
 }
 
 /** An invoice sent to a company. */
@@ -286,7 +297,6 @@ export interface AdminCompany {
     id: string;
     status: string;
     currentPeriodStart: string | null;
-    currentPeriodEnd: string | null;
     plan: { id: string; name: string; price: number };
   } | null;
   _count?: { users: number; invoices: number };
@@ -312,16 +322,57 @@ export interface PaymentHistory {
   createdAt: string;
 }
 
-/** A vehicle flagged for security reasons at a site. */
-export interface FlaggedVehicle {
+/** A single financial ledger entry. Amount is signed integer cents. */
+export interface LedgerEntry {
   id: string;
   companyId: string;
-  vehicleReg: string;
-  reason: string;
-  flaggedById: string;
-  resolvedAt: string | null;
+  entryType: "invoice" | "payment" | "refund" | "adjustment" | "credit";
+  amount: number;
+  currency: string;
+  description: string | null;
+  reference: string | null;
+  status: "posted" | "void";
+  postedAt: string;
   createdAt: string;
-  flaggedBy?: { id: string; name: string; surname: string };
-  entryLogs?: EntryLog[];
-  _count?: { entryLogs: number };
+  updatedAt: string;
+  company?: { id: string; name: string; email: string };
+}
+
+/** Aggregated ledger totals for the admin ledger. */
+export interface LedgerSummary {
+  totalIn: number;
+  totalOut: number;
+  netBalance: number;
+  entryCount: number;
+  byType: { entryType: string; total: number; count: number }[];
+}
+
+/** A subscription plan available for companies. */
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  siteLimit: number;
+  userLimit: number;
+  trialPeriodDays: number | null;
+  features: string;
+  highlighted: boolean;
+}
+
+/** A company's subscription with plan details. */
+export interface CompanySubscription {
+  id: string;
+  companyId: string;
+  planId: string;
+  status: string;
+  currentPeriodStart: string | null;
+  trialEndsAt: string | null;
+  trialWarningSent: boolean;
+  createdAt: string;
+  updatedAt: string;
+  plan: SubscriptionPlan;
+  usage?: {
+    sites: number;
+    users: number;
+  };
 }

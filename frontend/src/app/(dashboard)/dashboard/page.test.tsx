@@ -10,6 +10,10 @@ jest.mock("next/navigation", () => ({
   ),
 }));
 
+jest.mock("@/hooks/useAuth", () => ({
+  useAuth: () => ({ user: { id: 1, role: "admin", name: "Admin", email: "admin@test.com", status: "active", companyId: 1 } }),
+}));
+
 jest.mock("@/services", () => ({
   reportService: { summary: jest.fn() },
   incidentService: { list: jest.fn() },
@@ -114,7 +118,7 @@ describe("DashboardPage", () => {
 
   it("fetches filtered incidents when date changes", async () => {
     mockSummary.mockResolvedValue({ data: mockData });
-    mockList.mockResolvedValue({ data: { data: [mockData.recent[0]], total: 1, page: 1, perPage: 50 } });
+    mockList.mockResolvedValue({ data: { data: [mockData.recent[0]], total: 1, page: 1, perPage: 25 } });
 
     render(<DashboardPage />);
 
@@ -124,5 +128,31 @@ describe("DashboardPage", () => {
 
     const dateInputs = screen.getAllByDisplayValue("");
     expect(dateInputs.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("shows pagination controls and navigates to next page in filtered mode", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockList.mockResolvedValue({ data: mockData });
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("SEC-001")).toBeInTheDocument();
+    });
+
+    mockList.mockResolvedValue({ data: { data: [mockData.recent[0]], total: 100, page: 1, perPage: 25 } });
+
+    const typeSelect = screen.getAllByRole("combobox")[0];
+    await userEvent.selectOptions(typeSelect, "attempted");
+
+    await waitFor(() => {
+      expect(screen.getByText("Next")).toBeInTheDocument();
+    });
+    expect(screen.getByText(/Page 1 of 4/)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByText("Next"));
+
+    expect(mockList).toHaveBeenLastCalledWith(
+      expect.objectContaining({ page: "2", perPage: "25", type: "attempted" }),
+    );
   });
 });

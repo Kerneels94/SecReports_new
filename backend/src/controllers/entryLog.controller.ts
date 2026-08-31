@@ -1,12 +1,11 @@
 /**
  * Entry Log controller — manages vehicle/person entry logs at guarding sites.
- * Supports CRUD operations and flagging vehicles from an entry log record.
+ * Supports CRUD, flagging, and unflagging.
  */
 import { FastifyRequest, FastifyReply } from "fastify";
 import { EntryLogService } from "../services/entryLog.service";
-import { createEntryLogSchema, updateEntryLogSchema, flagVehicleSchema } from "../validators/entryLog.schema";
+import { createEntryLogSchema, updateEntryLogSchema, flagSchema, resolveSchema } from "../validators/entryLog.schema";
 import { ValidationError } from "../lib/errors";
-import { FlaggedVehicleService } from "../services/flaggedVehicle.service";
 
 export const EntryLogController = {
   /** List entry logs for a specific guarding site. */
@@ -34,7 +33,10 @@ export const EntryLogController = {
     const parsed = createEntryLogSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const log = await EntryLogService.create(parsed.data);
+    const log = await EntryLogService.create(request.user!.companyId, {
+      ...parsed.data,
+      flaggedById: parsed.data.flagged ? request.user!.userId : undefined,
+    });
 
     reply.code(201).send({ success: true, data: log });
   },
@@ -49,21 +51,24 @@ export const EntryLogController = {
     reply.code(200).send({ success: true, data: log });
   },
 
-  /** Flag a vehicle from an entry log as a flagged vehicle. */
-  async flagVehicle(request: FastifyRequest, reply: FastifyReply) {
+  /** Flag an entry log as suspicious. */
+  async flag(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    const parsed = flagVehicleSchema.safeParse(request.body);
+    const parsed = flagSchema.safeParse(request.body);
     if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const vehicle = await FlaggedVehicleService.create({
-      companyId: request.user!.companyId,
-      vehicleReg: parsed.data.vehicleReg,
-      reason: parsed.data.reason,
-      flaggedById: request.user!.userId,
-      entryLogId: id,
-    });
+    const log = await EntryLogService.flag(request.user!.companyId, id, request.user!.userId, parsed.data.reason);
+    reply.code(200).send({ success: true, data: log });
+  },
 
-    reply.code(201).send({ success: true, data: vehicle });
+  /** Unflag (resolve) an entry log. */
+  async resolve(request: FastifyRequest, reply: FastifyReply) {
+    const { id } = request.params as { id: string };
+    const parsed = resolveSchema.safeParse(request.body);
+    if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
+
+    const log = await EntryLogService.resolve(request.user!.companyId, id, parsed.data.reason);
+    reply.code(200).send({ success: true, data: log });
   },
 
   /** Delete an entry log. */

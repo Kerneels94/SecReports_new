@@ -58,6 +58,7 @@ class ApiClient {
       ...options,
       headers,
       credentials: "include",
+      cache: "no-store",
     });
 
     if (res.status === 204) {
@@ -140,6 +141,27 @@ class ApiClient {
     }
 
     return json as ApiResponse<T>;
+  }
+
+  async downloadBlob(path: string): Promise<Blob> {
+    const token = this.getToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+    }
+
+    const res = await fetch(`${this.baseUrl}${path}`, {
+      method: "GET",
+      headers,
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Download failed: ${res.status} ${text}`);
+    }
+
+    return res.blob();
   }
 }
 

@@ -11,18 +11,22 @@ import cookie from "@fastify/cookie";
 import { verifyAccessToken } from "./lib/jwt";
 import { UnauthorizedError, AppError } from "./lib/errors";
 import { posthog } from "./lib/posthog";
+import { SubscriptionService } from "./services/subscription.service";
 import authRoutes from "./routes/auth.routes";
 import incidentRoutes from "./routes/incident.routes";
 import reportRoutes from "./routes/report.routes";
 import exportRoutes from "./routes/export.routes";
-import investigationRoutes from "./routes/investigation.routes";
+
 import apiKeyRoutes from "./routes/apiKey.routes";
 import guardingSiteRoutes from "./routes/guardingSite.routes";
 import guardRoutes from "./routes/guard.routes";
 import patrolReportRoutes from "./routes/patrolReport.routes";
+import patrolScheduleRoutes from "./routes/patrolSchedule.routes";
 import entryLogRoutes from "./routes/entryLog.routes";
-import flaggedVehicleRoutes from "./routes/flaggedVehicle.routes";
 import invoiceRoutes from "./routes/invoice.routes";
+import ledgerRoutes from "./routes/ledger.routes";
+import auditLogRoutes from "./routes/auditLog.routes";
+import subscriptionRoutes from "./routes/subscription.routes";
 
 /**
  * Creates and returns a fully-configured Fastify instance.
@@ -86,6 +90,13 @@ export async function buildApp() {
     } catch {
       throw new UnauthorizedError("Invalid or expired token");
     }
+
+    const path = request.url.split("?")[0];
+    const isSubscriptionFlow =
+      path.startsWith("/subscription") || path === "/auth/me";
+    if (!isSubscriptionFlow) {
+      await SubscriptionService.assertActive(request.user.companyId);
+    }
   });
 
   await fastify.register(authRoutes);
@@ -93,14 +104,17 @@ export async function buildApp() {
   await fastify.register(reportRoutes);
 
   await fastify.register(exportRoutes);
-  await fastify.register(investigationRoutes);
+
   await fastify.register(apiKeyRoutes);
   await fastify.register(guardingSiteRoutes);
   await fastify.register(guardRoutes);
   await fastify.register(patrolReportRoutes);
+  await fastify.register(patrolScheduleRoutes);
   await fastify.register(entryLogRoutes);
-  await fastify.register(flaggedVehicleRoutes);
   await fastify.register(invoiceRoutes);
+  await fastify.register(ledgerRoutes);
+  await fastify.register(auditLogRoutes);
+  await fastify.register(subscriptionRoutes);
 
   fastify.setErrorHandler((error: Error & { statusCode?: number; code?: string }, request, reply) => {
     if (error instanceof AppError) {

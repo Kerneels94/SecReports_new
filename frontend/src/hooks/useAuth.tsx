@@ -5,7 +5,7 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
-import type { User, LoginRequest, EmployeeLoginRequest } from "@/types";
+import type { User, LoginRequest } from "@/types";
 import { authService } from "@/services";
 
 /** Shape of the authentication context value. */
@@ -13,7 +13,6 @@ interface AuthState {
   user: User | null;
   isLoading: boolean;
   login: (data: LoginRequest) => Promise<User>;
-  employeeLogin: (data: EmployeeLoginRequest) => Promise<User>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -48,13 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return res.data.user;
   }, []);
 
-  const employeeLogin = useCallback(async (data: EmployeeLoginRequest) => {
-    const res = await authService.employeeLogin(data);
-    localStorage.setItem("accessToken", res.data.accessToken);
-    setUser(res.data.user);
-    return res.data.user;
-  }, []);
-
   const logout = useCallback(async () => {
     try {
       await authService.logout();
@@ -75,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [logout]);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, employeeLogin, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

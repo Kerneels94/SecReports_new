@@ -1,88 +1,161 @@
-/**
- * Billing page — displays current plan and usage. Upgrade, cancellation, and
- * payment history are replaced by a monthly invoicing dashboard (TBD).
- * @route /settings/billing
- */
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-
-const plans = [
-  {
-    id: 1,
-    name: "Free",
-    price: "Free",
-    period: "",
-    limit: "5 sites",
-    sites: 5,
-    users: 1,
-    features: ["Full incident lifecycle", "Email notifications", "Evidence uploads", "CSV & PDF export", "14-day trial"],
-  },
-  {
-    id: 2,
-    name: "Professional",
-    price: "R 1,500",
-    period: "/month",
-    limit: "15 sites",
-    sites: 15,
-    users: 5,
-    features: ["Everything in Free", "Up to 15 sites", "Priority support"],
-  },
-  {
-    id: 3,
-    name: "Enterprise",
-    price: "R 4,500",
-    period: "/month",
-    limit: "Unlimited",
-    sites: 0,
-    users: 0,
-    features: ["Everything in Professional", "Unlimited sites", "Unlimited users", "24/7 priority support"],
-  },
-];
+import { subscriptionService } from "@/services";
+import { useAuth } from "@/hooks/useAuth";
+import { PlanSelectCard } from "@/components/subscription/PlanSelectCard";
+import { ConfirmPlanModal } from "@/components/subscription/ConfirmPlanModal";
+import type { SubscriptionPlan, CompanySubscription } from "@/types";
 
 export default function BillingPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
+
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [subscription, setSubscription] = useState<CompanySubscription | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [changing, setChanging] = useState(false);
+  const [confirming, setConfirming] = useState<SubscriptionPlan | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [plansRes, subRes] = await Promise.all([
+          subscriptionService.listPlans(),
+          subscriptionService.getSubscription(),
+        ]);
+        setPlans(plansRes.data);
+        setSubscription(subRes.data);
+      } catch {
+        setError("Failed to load subscription data");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  async function handleConfirmPlan(planId: string) {
+    if (!subscription || planId === subscription.planId) return;
+    setChanging(true);
+    setError(null);
+    try {
+      const res = await subscriptionService.changePlan(planId);
+      setSubscription(res.data);
+    } catch {
+      setError("Failed to change plan. Please try again.");
+    } finally {
+      setChanging(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-6 max-w-4xl mx-auto animate-fade-in">
+        <div>
+          <h1 className="text-2xl font-bold text-text">Billing & Plan</h1>
+          <p className="text-sm text-text-secondary mt-1">Loading subscription data...</p>
+        </div>
+        <Card>
+          <CardContent>
+            <div className="flex items-center justify-center py-8">
+              <div className="text-sm text-text-secondary">Loading...</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold text-text">Billing & Plan</h1>
-        <p className="text-sm text-text-secondary mt-1">View your current plan and usage. Monthly invoicing coming soon.</p>
+        <p className="text-sm text-text-secondary mt-1">
+          View your current plan and usage.{" "}
+          {isAdmin
+            ? "Select a plan below to update your subscription."
+            : "Contact your administrator to change your plan."}
+        </p>
       </div>
+
+      {error && (
+        <div className="rounded-lg bg-danger/10 border border-danger/20 p-4">
+          <p className="text-sm text-danger">{error}</p>
+        </div>
+      )}
 
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Available Plans</CardTitle>
+            {subscription && (
+              <Badge variant="success">Current: {subscription.plan.name}</Badge>
+            )}
           </div>
+          <p className="text-sm text-text-secondary mt-1">
+            Monthly payments are due on the 25th of each month. Upgrades take effect
+            immediately; your first payment date is shown before you confirm.
+          </p>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {plans.map((plan) => (
-              <div
-                key={plan.id}
-                className="flex flex-col rounded-xl p-5 bg-surface ring-1 ring-border-light"
-              >
-                <h3 className="text-lg font-semibold text-text">{plan.name}</h3>
-                <p className="mt-1">
-                  <span className="text-3xl font-bold text-text">{plan.price}</span>
-                  {plan.period && <span className="text-sm text-text-secondary ml-1">{plan.period}</span>}
-                </p>
-                <p className="mt-1 text-sm text-text-secondary">{plan.limit}</p>
-                <ul className="mt-4 flex-1 space-y-2">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-sm text-text-secondary">
-                      <svg className="mt-0.5 h-4 w-4 shrink-0 text-success" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+          <div className="flex flex-wrap justify-center gap-4">
+            {plans
+              .filter((plan) => !(subscription && plan.price === 0 && subscription.plan.price > 0))
+              .map((plan) => (
+                <div key={plan.id} className="w-full md:w-[calc((100%-2rem)/3)]">
+                  <PlanSelectCard
+                    plan={plan}
+                    isCurrent={subscription?.planId === plan.id}
+                    disabled={!isAdmin || changing}
+                    onSelect={() => setConfirming(plan)}
+                  />
+                </div>
+              ))}
           </div>
         </CardContent>
       </Card>
+
+      {subscription && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Current Subscription</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <p className="text-sm text-text-secondary">Plan</p>
+                <p className="font-medium text-text">{subscription.plan.name}</p>
+              </div>
+              <div>
+                <p className="text-sm text-text-secondary">Status</p>
+                <Badge variant={subscription.status === "active" ? "success" : "default"}>
+                  {subscription.status}
+                </Badge>
+              </div>
+              <div>
+                <p className="text-sm text-text-secondary">Sites Used</p>
+                <p className="font-medium text-text">
+                  {subscription.usage?.sites ?? 0}
+                  {subscription.plan.siteLimit > 0 && ` / ${subscription.plan.siteLimit}`}
+                  {subscription.plan.siteLimit === 0 && " (unlimited)"}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-text-secondary">Users Used</p>
+                <p className="font-medium text-text">
+                  {subscription.usage?.users ?? 0}
+                  {subscription.plan.userLimit > 0 && ` / ${subscription.plan.userLimit}`}
+                  {subscription.plan.userLimit === 0 && " (unlimited)"}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
@@ -90,10 +163,20 @@ export default function BillingPage() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-text-secondary">
-            Monthly invoicing dashboard is under development. You will be able to send, track, and manage invoices for companies here.
+            Monthly invoices are auto-generated for active paid subscriptions and are due on
+            the 25th of each month.
           </p>
         </CardContent>
       </Card>
+
+      {confirming && (
+        <ConfirmPlanModal
+          plan={confirming}
+          open
+          onClose={() => setConfirming(null)}
+          onConfirm={handleConfirmPlan}
+        />
+      )}
     </div>
   );
 }

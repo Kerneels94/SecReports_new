@@ -8,18 +8,18 @@
 2. **NEVER use distinct error messages for auth failures** — always return `"Invalid email or password"` to prevent user enumeration.
 3. **ALWAYS invalidate tokens server-side on logout** — call `POST /auth/logout` to delete refresh token from DB.
 4. **ALWAYS auto-refresh access tokens transparently** — 401 interceptor in `ApiClient` calls `/auth/refresh`, updates stored access token, retries. Dedup concurrent refresh calls.
-5. **ALWAYS set `emailVerified: true` when admin creates a user** — otherwise they're permanently locked out.
-6. **ALWAYS reset `emailVerified` to `false` when email is changed** by admin.
+5. **ALWAYS send a verification email when admin creates a user** — admin-created users are created with `emailVerified: false` and must verify their email before their first login. Never create an admin-created user without a verification email, otherwise they're permanently locked out.
+6. **ALWAYS reset `emailVerified` to `false` AND send a verification email when email is changed** by admin — never leave a changed email unverified with no path to verify.
 7. **ALWAYS use `userId` (not `familyId`) in refresh token reuse detection** — `deleteMany({ where: { userId: payload.userId } })`.
 8. **ALWAYS use generic error on forgot-password** — add `sleep(200)` on not-found path to mask timing side-channels.
 12. **ALWAYS apply per-route rate limiting on ALL public endpoints** — 10 req/min login/register, 5 req/min forgot-password, 20 req/min refresh, 10 req/min verify-email.
 16. **ALWAYS make logout accessible without a valid access token** — accept refreshToken cookie alone so users with expired tokens can still log out.
-17. **NEVER expose tokens in URL query parameters** — use POST body, headers, or fragments for verification/reset links to avoid browser history, server log, and referrer leakage.
+17. **Deliver verification/reset tokens as URL query parameters** — links use `?token=...` so the frontend reads the token and forwards it to the backend over HTTPS. Accepted tradeoff: query params can leak via browser history/server logs/referrers, but the URL fragment is equally readable by page JavaScript, so XSS exposure is identical. Never store, log, or echo the token.
 
 ### A01 — Broken Access Control
 
 18. **ALWAYS scope resource queries by `companyId`** — every `getById`, `update`, `delete` must use `findFirst({ where: { id, companyId } })`, not `findUnique({ where: { id } })` to prevent cross-company IDOR.
-19. **ALWAYS enforce authorization in the service layer (defense in depth)** — the service must re-verify role-change permissions (owner-only, cannot change own role) even if the controller already checks. No controller-only gates.
+19. **ALWAYS enforce authorization in the service layer (defense in depth)** — the service must re-verify role-change permissions (admin-only, cannot change own role) even if the controller already checks. No controller-only gates.
 20. **ALWAYS pass `performedBy` as the acting user's ID to audit logs** — never fall back to `companyId` which corrupts traceability.
 21. **NEVER leave `senior` role users with no login path** — either remove the role from the enum, add a dedicated login endpoint, or allow it in existing login flows.
 
@@ -218,7 +218,7 @@ After any auth change, run:
 **Location:** `backend/src/services/auth.service.ts:546-588`
 **Status:** FIXED ✅
 
-`AuthService.updateUser()` now re-verifies role-change authorization: only owners can change roles, and no one can change their own role. Controller-side checks are retained for defense in depth.
+`AuthService.updateUser()` now re-verifies role-change authorization: only admins can change roles, and no one can change their own role. Controller-side checks are retained for defense in depth.
 **→ Golden Rule #19**
 
 ## 🟢 LOW
@@ -228,5 +228,5 @@ After any auth change, run:
 **Location:** `backend/src/services/auth.service.ts:341`
 **Status:** FIXED ✅
 
-Both verify-email and reset-password links now use URL fragments (`#token=...`) instead of query params. Frontend reads from `window.location.hash` and sends tokens via POST body. Backend verify-email endpoint changed from GET to POST to accept token in body.
+Both verify-email and reset-password links use URL query parameters (`?token=...`). Frontend reads the token from `window.location.search` and submits it to the backend via POST body over HTTPS. The earlier move to URL fragments was reverted — a fragment is not inherently more secure (page JavaScript can read it too), and query params are simpler for the frontend to receive and forward. A hash-fragment fallback is retained for backwards compatibility.
 **→ Golden Rule #17**

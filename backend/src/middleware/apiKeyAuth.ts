@@ -1,7 +1,13 @@
 /**
  * API-key-based authentication hook.
+ *
  * Reads the `x-api-key` header, validates it against the database, and
  * populates `request.user` with a synthetic API identity.
+ *
+ * **Access scope:** The synthetic `"api"` role is NOT included in any
+ * route's `requireRole()` allow-list, so API-key-authenticated requests
+ * are limited to read-only GET endpoints (those protected by `authenticate`
+ * alone, without `requireRole()`).
  */
 import { FastifyRequest, FastifyReply } from "fastify";
 import { ApiKeyService } from "../services/apiKey.service";

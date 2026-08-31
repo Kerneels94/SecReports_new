@@ -1,7 +1,7 @@
 ---
 description: Generates Next.js frontend code (pages, components, hooks, services, lib) with Tailwind CSS, TypeScript strict mode, and Jest + React Testing Library tests. Use for any frontend/UI task in the Incident Report System.
 mode: subagent
-model: anthropic/claude-sonnet-4-6
+model: opencode/big-pickle
 permission:
   edit: allow
   bash:

@@ -1,6 +1,6 @@
 /**
  * Guard routes — all endpoints require JWT authentication.
- * Role-restricted: create/update (owner/manager), delete (owner).
+ * Role-restricted: create/update (admin/manager), delete (admin).
  */
 import { FastifyInstance } from "fastify";
 import { GuardController } from "../controllers/guard.controller";
@@ -11,7 +11,7 @@ export default async function guardRoutes(fastify: FastifyInstance) {
 
   fastify.get("/guards", GuardController.list);
   fastify.get("/guards/:id", GuardController.getById);
-  fastify.post("/guards", { preHandler: [requireRole("owner", "manager")] }, GuardController.create);
-  fastify.put("/guards/:id", { preHandler: [requireRole("owner", "manager")] }, GuardController.update);
-  fastify.delete("/guards/:id", { preHandler: [requireRole("owner")] }, GuardController.delete);
+  fastify.post("/guards", { preHandler: [requireRole("admin", "manager")] }, GuardController.create);
+  fastify.put("/guards/:id", { preHandler: [requireRole("admin", "manager")] }, GuardController.update);
+  fastify.delete("/guards/:id", { preHandler: [requireRole("admin")] }, GuardController.delete);
 }

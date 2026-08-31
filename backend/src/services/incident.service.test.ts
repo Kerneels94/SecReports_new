@@ -209,14 +209,6 @@ describe("IncidentService", () => {
         ...baseIncident,
         reporter: { id: "1", name: "Reporter", email: "reporter@test.com" },
         assignedInvestigator: { id: "2", name: "Investigator", email: "inv@test.com" },
-        people: [{ id: "1", name: "Witness", role: "witness" }],
-        comments: [
-          { id: "1", content: "A comment", user: { id: "1", name: "Reporter" }, createdAt: new Date() },
-        ],
-        investigation: { id: "1", details: "Investigation in progress" },
-        correctiveActions: [
-          { id: "1", action: "Fix the issue", owner: { id: "1", name: "Reporter" } },
-        ],
       };
       (prisma.incident.findFirst as jest.Mock).mockResolvedValue(fullIncident);
 
@@ -225,10 +217,6 @@ describe("IncidentService", () => {
       expect(result.id).toBe("1");
       expect(result.reporter).toBeDefined();
       expect(result.assignedInvestigator).toBeDefined();
-      expect(result.people).toHaveLength(1);
-      expect(result.comments).toHaveLength(1);
-      expect(result.investigation).toBeDefined();
-      expect(result.correctiveActions).toHaveLength(1);
     });
 
     it("throws NotFoundError for non-existent incident", async () => {
@@ -255,7 +243,6 @@ describe("IncidentService", () => {
       (prisma.incident.create as jest.Mock).mockResolvedValue({
         ...baseIncident,
         reporter: { id: "1", name: "Test", email: "test@test.com" },
-        people: [],
       });
 
       const result = await IncidentService.create(createParams);
@@ -273,40 +260,7 @@ describe("IncidentService", () => {
       });
     });
 
-    it("creates incident with people array using create nested", async () => {
-      const people = [
-        { name: "John", role: "witness", contact: "john@test.com", notes: "Saw everything" },
-        { name: "Jane", role: "victim" },
-      ];
-      (prisma.incident.create as jest.Mock).mockResolvedValue({
-        ...baseIncident,
-        reporter: { id: "1", name: "Test", email: "test@test.com" },
-        people: people.map((p, i) => ({ id: String(i + 1), ...p })),
-      });
 
-      await IncidentService.create({ ...createParams, people });
-
-      expect(prisma.incident.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            people: { create: people },
-          }),
-        }),
-      );
-    });
-
-    it("does not include people key when no people provided", async () => {
-      (prisma.incident.create as jest.Mock).mockResolvedValue({
-        ...baseIncident,
-        reporter: { id: "1", name: "Test", email: "test@test.com" },
-        people: [],
-      });
-
-      await IncidentService.create(createParams);
-
-      const data = (prisma.incident.create as jest.Mock).mock.calls[0][0].data;
-      expect(data.people).toBeUndefined();
-    });
   });
 
   describe("update", () => {
@@ -351,7 +305,7 @@ describe("IncidentService", () => {
         assignedInvestigator: null,
       });
 
-      const result = await IncidentService.update("1", "1", { title: "Admin edit" }, "2", "owner");
+      const result = await IncidentService.update("1", "1", { title: "Admin edit" }, "2", "admin");
 
       expect(result.title).toBe("Admin edit");
     });
@@ -471,7 +425,7 @@ describe("IncidentService", () => {
     it("allows admin to delete any incident", async () => {
       (prisma.incident.findFirst as jest.Mock).mockResolvedValue(baseIncident);
 
-      await IncidentService.delete("1", "1", "2", "owner");
+      await IncidentService.delete("1", "1", "2", "admin");
 
       expect(prisma.incident.delete).toHaveBeenCalledWith({ where: { id: "1" } });
     });

@@ -10,6 +10,9 @@ jest.mock("../lib/db", () => ({
     correctiveAction: {
       count: jest.fn(),
     },
+    companySubscription: {
+      findUnique: jest.fn(),
+    },
   },
 }));
 

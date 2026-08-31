@@ -48,7 +48,7 @@ describe("AuthController", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockRequest = {
-      user: { userId: "1", companyId: "1", role: "owner" },
+      user: { userId: "1", companyId: "1", role: "admin" },
       headers: { "user-agent": "test-agent" },
       cookies: {},
       body: {},
@@ -215,23 +215,23 @@ describe("AuthController", () => {
 
   describe("changePassword", () => {
     it("valid input: calls AuthService.changePassword and responds 200", async () => {
-      mockRequest.body = { currentPassword: "old", newPassword: "newpassword123" };
+      mockRequest.body = { newPassword: "newpassword123" };
       (changePasswordSchema.safeParse as jest.Mock).mockReturnValue({
         success: true,
-        data: { currentPassword: "old", newPassword: "newpassword123" },
+        data: { newPassword: "newpassword123" },
       });
       (AuthService.changePassword as jest.Mock).mockResolvedValue(undefined);
 
       await AuthController.changePassword(mockRequest, mockReply);
 
-      expect(AuthService.changePassword).toHaveBeenCalledWith("1", "old", "newpassword123");
+      expect(AuthService.changePassword).toHaveBeenCalledWith("1", "newpassword123");
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 
     it("invalid input: throws ValidationError", async () => {
       (changePasswordSchema.safeParse as jest.Mock).mockReturnValue({
         success: false,
-        error: { flatten: () => ({}) },
+        error: { issues: [{ message: "Password must be at least 8 characters" }], flatten: () => ({}) },
       });
 
       await expect(AuthController.changePassword(mockRequest, mockReply)).rejects.toThrow(ValidationError);
@@ -277,7 +277,7 @@ describe("AuthController", () => {
 
       await AuthController.updateUser(mockRequest, mockReply);
 
-      expect(AuthService.updateUser).toHaveBeenCalledWith("1", "2", { name: "Updated" }, "1", "owner");
+      expect(AuthService.updateUser).toHaveBeenCalledWith("1", "2", { name: "Updated" }, "1", "admin");
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 

@@ -6,23 +6,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
+import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { IncidentDetailModal } from "@/components/incidents/IncidentDetailModal";
 import { incidentService } from "@/services";
 import type { Incident } from "@/types";
-
-const statusVariant: Record<string, "default" | "success" | "warning" | "danger" | "info"> = {
-  draft: "default",
-  submitted: "info",
-  under_review: "warning",
-  assigned: "info",
-  investigating: "info",
-  resolved: "success",
-  closed: "success",
-  rejected: "danger",
-};
 
 /** Incidents page component with paginated table, status badges, and detail modal. */
 export default function IncidentsPage() {
@@ -32,7 +20,7 @@ export default function IncidentsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(null);
-  const perPage = 20;
+  const perPage = 25;
 
   const fetchIncidents = useCallback(async () => {
     setLoading(true);
@@ -99,7 +87,6 @@ export default function IncidentsPage() {
                   <tr className="border-b border-border-light bg-surface-elevated/20">
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Ref #</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Title</th>
-                    <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Type</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Reporter</th>
                     <th className="px-6 py-3.5 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Date</th>
@@ -125,11 +112,6 @@ export default function IncidentsPage() {
                         >
                           {incident.title}
                         </button>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Badge variant={statusVariant[incident.status] || "default"} dot>
-                          {incident.status.replace("_", " ")}
-                        </Badge>
                       </td>
                       <td className="px-6 py-4 text-text-secondary">{incident.type}</td>
                       <td className="px-6 py-4 text-text-secondary">{incident.reporter?.name || "-"}</td>

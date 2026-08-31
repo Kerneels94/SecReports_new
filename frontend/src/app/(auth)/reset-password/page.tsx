@@ -122,6 +122,14 @@ function ResetPasswordForm() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          <p className="text-sm font-medium text-text/90 -my-1">A strong password contains:</p>
+          <ul className="text-sm text-text-secondary/60 space-y-0.5 ml-1">
+            <li>At least 8 characters</li>
+            <li>At least one lowercase letter</li>
+            <li>At least one uppercase letter</li>
+            <li>At least one digit</li>
+            <li>At least one special character</li>
+          </ul>
           <Input
             label="Confirm Password"
             type="password"

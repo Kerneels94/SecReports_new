@@ -2,7 +2,7 @@
 description: Scans the Incident Report System codebase against OWASP Top 10 2026 for security vulnerabilities — auth bypass, XSS, broken access control, credential leakage, injection, supply chain, error handling, and regression against the golden rules in memory.md. Use before any release or after any auth-related changes.
 command: security-audit
 mode: subagent
-model: claude-sonnet-4-6
+model: opencode/big-pickle
 permission:
   read: allow
   edit: allow
@@ -61,7 +61,7 @@ Two new 2026 categories: **A03 Software Supply Chain Failures** (dependencies, b
 - [ ] Does the `authenticate` decorator always include `companyId` in `request.user`?
 - [ ] Is there only ONE source of truth for `authenticate`? (No duplicate in `plugins/auth.ts`)
 - [ ] Does each protected route have a `preHandler` with `fastify.authenticate`?
-- [ ] Do owner-only routes use `requireRole("owner")`?
+- [ ] Do admin-only routes use `requireRole("admin")`?
 - [ ] Does the service layer also enforce authorization, or only the controller?
 - [ ] Can any role that shouldn't exist (e.g. `senior` with no login path) be assigned?
 
@@ -87,10 +87,10 @@ Two new 2026 categories: **A03 Software Supply Chain Failures** (dependencies, b
 
 ### 7. Email & Verification
 
-- [ ] Is `emailVerified: true` set when admin creates a user?
-- [ ] Is `emailVerified` reset to `false` when email is changed?
+- [ ] Does admin user creation always send a verification email? (`emailVerified` stays `false` until the user verifies — never create an admin user without a verification path)
+- [ ] Is `emailVerified` reset to `false` AND a verification email sent when email is changed?
 - [ ] Is `FROM_EMAIL` read from env (not hardcoded)?
-- [ ] Are verification/reset tokens delivered without exposing in URL query params? (Preferred: POST bodies or fragments)
+- [ ] Are verification/reset tokens read from the query param and forwarded to the backend over HTTPS (never stored, logged, or echoed)? Accepted design: `?token=...` links — do NOT flag query-param delivery as a finding.
 
 ### 8. Password & Secrets
 

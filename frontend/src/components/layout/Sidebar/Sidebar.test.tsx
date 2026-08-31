@@ -10,6 +10,12 @@ jest.mock("@/hooks/useDashboardMode", () => ({
   useDashboardMode: () => ({ mode: "incidents", setMode: jest.fn() }),
 }));
 
+let mockUser = { id: 1, role: "manager", name: "Manager", email: "manager@test.com", status: "active", companyId: 1 };
+
+jest.mock("@/hooks/useAuth", () => ({
+  useAuth: () => ({ user: mockUser }),
+}));
+
 jest.mock("next/link", () => {
   const MockLink = ({ children, href, ...props }: { children: React.ReactNode; href: string }) => (
     <a href={href} {...props}>{children}</a>
@@ -22,11 +28,12 @@ const mockUsePathname = usePathname as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockUser = { id: 1, role: "manager", name: "Manager", email: "manager@test.com", status: "active", companyId: 1 };
 });
 
 function getNavLink(name: string): HTMLAnchorElement | null {
   const links = screen.getAllByRole("link");
-  return links.find((l) => l.textContent?.includes(name)) || null;
+  return (links.find((l) => l.textContent?.includes(name)) as HTMLAnchorElement) || null;
 }
 
 describe("Sidebar", () => {
@@ -39,6 +46,23 @@ describe("Sidebar", () => {
     expect(getNavLink("Report Incident")).toHaveAttribute("href", "/incidents/new");
     expect(getNavLink("Reports")).toHaveAttribute("href", "/reports");
     expect(getNavLink("Users")).toHaveAttribute("href", "/admin/users");
+  });
+
+  it("does not render Report Incident for admins", () => {
+    mockUser = { ...mockUser, role: "admin" };
+    mockUsePathname.mockReturnValue("/dashboard");
+    render(<Sidebar />);
+
+    expect(getNavLink("Report Incident")).toBeNull();
+    expect(getNavLink("Incidents")).toHaveAttribute("href", "/incidents");
+  });
+
+  it("renders Report Incident for seniors", () => {
+    mockUser = { ...mockUser, role: "senior" };
+    mockUsePathname.mockReturnValue("/dashboard");
+    render(<Sidebar />);
+
+    expect(getNavLink("Report Incident")).toHaveAttribute("href", "/incidents/new");
   });
 
   it("highlights active link based on pathname", () => {
@@ -87,5 +111,24 @@ describe("Sidebar", () => {
     render(<Sidebar />);
     expect(screen.getByText("SecReports")).toBeInTheDocument();
     expect(screen.getByText("Incident System")).toBeInTheDocument();
+  });
+
+  it("renders a logout button in the sidebar footer", () => {
+    mockUsePathname.mockReturnValue("/dashboard");
+    render(<Sidebar onLogout={jest.fn()} />);
+    expect(screen.getByRole("button", { name: /logout/i })).toBeInTheDocument();
+  });
+
+  it("calls onLogout and onClose when logout is clicked", async () => {
+    mockUsePathname.mockReturnValue("/dashboard");
+    const onLogout = jest.fn();
+    const onClose = jest.fn();
+    render(<Sidebar onLogout={onLogout} onClose={onClose} />);
+
+    const button = screen.getByRole("button", { name: /logout/i });
+    button.click();
+
+    expect(onLogout).toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalled();
   });
 });

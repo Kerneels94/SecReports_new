@@ -6,11 +6,29 @@
 import crypto from "crypto";
 import { prisma } from "../lib/db";
 import { hashPassword, comparePassword } from "../lib/hash";
-import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../lib/jwt";
-import { UnauthorizedError, ConflictError, NotFoundError, ValidationError } from "../lib/errors";
+import {
+  signAccessToken,
+  signRefreshToken,
+  verifyRefreshToken,
+} from "../lib/jwt";
+import {
+  UnauthorizedError,
+  ConflictError,
+  NotFoundError,
+  ValidationError,
+  ForbiddenError,
+} from "../lib/errors";
 import { hasMxRecord } from "../lib/email";
-import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail } from "./email.service";
+import { getAppUrl } from "../lib/app-url";
+import {
+  sendVerificationEmail,
+  sendWelcomeEmail,
+  sendPasswordResetEmail,
+  sendPasswordChangedEmail,
+} from "./email.service";
 import { SubscriptionService } from "./subscription.service";
+import { posthog } from "../lib/posthog";
+import type { UserRole } from "../generated/prisma/enums";
 
 const MAX_LOGIN_ATTEMPTS = 3;
 const BASE_LOCKOUT_MS = 15 * 60 * 1000;
@@ -27,7 +45,7 @@ interface LoginParams {
   password: string;
 }
 
-/** Registration data for a new company and owner user. */
+/** Registration data for a new company and admin user. */
 interface RegisterParams {
   companyName: string;
   name: string;
@@ -40,7 +58,7 @@ interface CreateUserParams {
   name: string;
   email: string;
   password: string;
-  role?: string;
+  role?: UserRole;
   companyId: string;
   createdBy: string;
 }
@@ -73,7 +91,11 @@ function generateRawToken(): string {
 }
 
 /** Stores a new refresh token record for a user and returns the raw token. */
-async function persistRefreshToken(userId: string, familyId: string, deviceInfo?: string): Promise<string> {
+async function persistRefreshToken(
+  userId: string,
+  familyId: string,
+  deviceInfo?: string,
+): Promise<string> {
   const raw = generateRawToken();
   await prisma.refreshToken.create({
     data: {
@@ -148,11 +170,20 @@ export const AuthService = {
    * On failure: increments login counter; locks account after 3 attempts for 15 min.
    */
   async login(params: LoginParams & { deviceInfo?: string }) {
-    const user = await prisma.user.findUnique({ where: { email: params.email } });
+    const user = await prisma.user.findUnique({
+      where: { email: params.email },
+    });
     if (!user) throwGenericAuthError();
-    if (user.role !== "owner" && user.role !== "manager" && user.role !== "senior" && user.role !== "superadmin") throwGenericAuthError();
+    if (
+      user.role !== "admin" &&
+      user.role !== "manager" &&
+      user.role !== "senior" &&
+      user.role !== "superadmin"
+    )
+      throwGenericAuthError();
     if (!user.emailVerified) throwGenericAuthError();
-    if (user.lockedUntil && user.lockedUntil > new Date()) throwGenericAuthError();
+    if (user.lockedUntil && user.lockedUntil > new Date())
+      throwGenericAuthError();
 
     const valid = await comparePassword(params.password, user.passwordHash);
     if (!valid) {
@@ -161,51 +192,30 @@ export const AuthService = {
 
     await resetLoginAttempts(user.id);
 
+    if (
+      (user.role === "manager" || user.role === "senior") &&
+      (await SubscriptionService.isTrialExpired(user.companyId))
+    ) {
+      throw new ForbiddenError(
+        "Your organisation's free trial has ended. Please ask your administrator to upgrade the subscription before logging in.",
+      );
+    }
+
+    SubscriptionService.checkAndNotifyTrialEnding(user.companyId!).catch(
+      (err) => console.error("[AuthService] Trial notification failed:", err),
+    );
+
     const familyId = crypto.randomUUID();
-    const payload = { userId: user.id, role: user.role, companyId: user.companyId };
-    const refreshToken = await persistRefreshToken(user.id, familyId, params.deviceInfo);
-
-    await createAuditLog({
-      entityType: "user",
-      entityId: user.id,
-      action: "login",
-      performedBy: user.id,
-    });
-
-    return {
-      accessToken: signAccessToken(payload),
-      refreshToken,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        status: user.status,
-        companyId: user.companyId,
-      },
+    const payload = {
+      userId: user.id,
+      role: user.role,
+      companyId: user.companyId,
     };
-  },
-
-  /**
-   * Authenticates a guard employee by email/password.
-   * Respects account lockout state. Restricted to the "guard" role.
-   */
-  async employeeLogin(params: { email: string; password: string; deviceInfo?: string }) {
-    const user = await prisma.user.findUnique({ where: { email: params.email } });
-    if (!user || user.role !== "guard") throwGenericAuthError();
-    if (!user.emailVerified) throwGenericAuthError();
-    if (user.lockedUntil && user.lockedUntil > new Date()) throwGenericAuthError();
-
-    const valid = await comparePassword(params.password, user.passwordHash);
-    if (!valid) {
-      return await handleLoginFailure(user.id);
-    }
-
-    await resetLoginAttempts(user.id);
-
-    const familyId = crypto.randomUUID();
-    const payload = { userId: user.id, role: user.role, companyId: user.companyId };
-    const refreshToken = await persistRefreshToken(user.id, familyId, params.deviceInfo);
+    const refreshToken = await persistRefreshToken(
+      user.id,
+      familyId,
+      params.deviceInfo,
+    );
 
     await createAuditLog({
       entityType: "user",
@@ -213,6 +223,20 @@ export const AuthService = {
       action: "login",
       performedBy: user.id,
     });
+
+    if (
+      posthog &&
+      (user.role === "admin" || user.role === "superadmin")
+    ) {
+      posthog.capture({
+        distinctId: user.id,
+        event: "admin_login",
+        properties: {
+          companyId: user.companyId,
+          role: user.role,
+        },
+      });
+    }
 
     return {
       accessToken: signAccessToken(payload),
@@ -243,17 +267,23 @@ export const AuthService = {
     }
 
     const tokenHash = hashToken(refreshToken);
-    const stored = await prisma.refreshToken.findUnique({ where: { tokenHash } });
+    const stored = await prisma.refreshToken.findUnique({
+      where: { tokenHash },
+    });
 
     if (!stored) {
-      await prisma.refreshToken.deleteMany({ where: { userId: payload.userId } });
+      await prisma.refreshToken.deleteMany({
+        where: { userId: payload.userId },
+      });
       await createAuditLog({
         entityType: "user",
         entityId: payload.userId,
         action: "refresh_token_reuse_detected",
         performedBy: payload.userId,
       });
-      throw new UnauthorizedError("Refresh token has been revoked — all sessions invalidated");
+      throw new UnauthorizedError(
+        "Refresh token has been revoked — all sessions invalidated",
+      );
     }
 
     const user = await prisma.user.findUnique({ where: { id: stored.userId } });
@@ -261,8 +291,16 @@ export const AuthService = {
 
     await prisma.refreshToken.delete({ where: { id: stored.id } });
 
-    const newRaw = await persistRefreshToken(user.id, stored.familyId, deviceInfo);
-    const newPayload = { userId: user.id, role: user.role, companyId: user.companyId };
+    const newRaw = await persistRefreshToken(
+      user.id,
+      stored.familyId,
+      deviceInfo,
+    );
+    const newPayload = {
+      userId: user.id,
+      role: user.role,
+      companyId: user.companyId,
+    };
 
     return {
       accessToken: signAccessToken(newPayload),
@@ -278,10 +316,15 @@ export const AuthService = {
     };
   },
 
-  /** Returns the authenticated user's profile. */
+  /** Returns the authenticated user's profile with trial status. */
   async getMe(userId: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new UnauthorizedError("User not found");
+
+    let trial = null;
+    if (user.companyId) {
+      trial = await SubscriptionService.getTrialStatus(user.companyId);
+    }
 
     return {
       id: user.id,
@@ -290,21 +333,27 @@ export const AuthService = {
       role: user.role,
       status: user.status,
       companyId: user.companyId,
+      trial,
     };
   },
 
   /**
-   * Creates a new company + owner user in a transaction, activates the free
+   * Creates a new company + admin user in a transaction, activates the free
    * subscription, persists a refresh token, and sends a welcome email.
    */
   async register(params: RegisterParams) {
     const validDomain = await hasMxRecord(params.email);
-    if (!validDomain) throw new ValidationError("Email domain does not accept mail");
+    if (!validDomain)
+      throw new ValidationError("Email domain does not accept mail");
 
-    const existingUser = await prisma.user.findUnique({ where: { email: params.email } });
+    const existingUser = await prisma.user.findUnique({
+      where: { email: params.email },
+    });
     if (existingUser) throw new ConflictError("Email already in use");
 
-    const existingCompany = await prisma.company.findUnique({ where: { email: params.email } });
+    const existingCompany = await prisma.company.findUnique({
+      where: { email: params.email },
+    });
     if (existingCompany) throw new ConflictError("Email already in use");
 
     const passwordHash = await hashPassword(params.password);
@@ -320,7 +369,7 @@ export const AuthService = {
           name: params.name,
           email: params.email,
           passwordHash,
-          role: "owner",
+          role: "admin",
         },
       });
 
@@ -338,21 +387,33 @@ export const AuthService = {
       },
     });
 
-    const verifyLink = `${process.env.APP_URL || "http://localhost:3000"}/verify-email?token=${rawToken}`;
-    sendVerificationEmail(result.user.email, result.user.name, verifyLink).catch((err) =>
+    const verifyLink = `${getAppUrl()}/verify-email?token=${rawToken}`;
+    sendVerificationEmail(
+      result.user.email,
+      result.user.name,
+      verifyLink,
+    ).catch((err) =>
       console.error("[AuthService] Verification email failed:", err),
     );
 
-    return { message: "Account created. Please check your email to verify your account." };
+    return {
+      message:
+        "Account created. Please check your email to verify your account.",
+    };
   },
 
   /** Verifies a user's email address using a token sent at registration. */
   async verifyEmail(token: string) {
     const tokenHash = hashToken(token);
-    const record = await prisma.emailVerificationToken.findUnique({ where: { tokenHash } });
-    if (!record) throw new ValidationError("Invalid or expired verification link");
-    if (record.usedAt) throw new ValidationError("Verification link has already been used");
-    if (record.expiresAt < new Date()) throw new ValidationError("Verification link has expired");
+    const record = await prisma.emailVerificationToken.findUnique({
+      where: { tokenHash },
+    });
+    if (!record)
+      throw new ValidationError("Invalid or expired verification link");
+    if (record.usedAt)
+      throw new ValidationError("Verification link has already been used");
+    if (record.expiresAt < new Date())
+      throw new ValidationError("Verification link has expired");
 
     await prisma.$transaction([
       prisma.user.update({
@@ -365,6 +426,13 @@ export const AuthService = {
       }),
     ]);
 
+    await createAuditLog({
+      entityType: "user",
+      entityId: record.userId,
+      action: "email_verified",
+      performedBy: record.userId,
+    });
+
     return { message: "Email verified successfully. You can now log in." };
   },
 
@@ -373,9 +441,12 @@ export const AuthService = {
     await SubscriptionService.canAddUser(params.companyId);
 
     const validDomain = await hasMxRecord(params.email);
-    if (!validDomain) throw new ValidationError("Email domain does not accept mail");
+    if (!validDomain)
+      throw new ValidationError("Email domain does not accept mail");
 
-    const existing = await prisma.user.findUnique({ where: { email: params.email } });
+    const existing = await prisma.user.findUnique({
+      where: { email: params.email },
+    });
     if (existing) throw new ConflictError("Email already in use");
 
     const passwordHash = await hashPassword(params.password);
@@ -400,7 +471,7 @@ export const AuthService = {
       },
     });
 
-    const verifyLink = `${process.env.APP_URL || "http://localhost:3000"}/verify-email?token=${rawToken}`;
+    const verifyLink = `${getAppUrl()}/verify-email?token=${rawToken}`;
     sendVerificationEmail(user.email, user.name, verifyLink).catch((err) =>
       console.error("[AuthService] Verification email failed:", err),
     );
@@ -445,7 +516,7 @@ export const AuthService = {
       },
     });
 
-    const resetLink = `${process.env.APP_URL || "http://localhost:3000"}/reset-password?token=${rawToken}`;
+    const resetLink = `${getAppUrl()}/reset-password?token=${rawToken}`;
     sendPasswordResetEmail(email, user.name, resetLink).catch((err) =>
       console.error("[AuthService] Password reset email failed:", err),
     );
@@ -494,13 +565,10 @@ export const AuthService = {
     );
   },
 
-  /** Validates the current password and updates to a new password hash. Invalidates all sessions. */
-  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+  /** Updates the user's password to a new hash. Invalidates all sessions and sends a notification email. */
+  async changePassword(userId: string, newPassword: string) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new UnauthorizedError("User not found");
-
-    const valid = await comparePassword(currentPassword, user.passwordHash);
-    if (!valid) throw new UnauthorizedError("Current password is incorrect");
 
     const passwordHash = await hashPassword(newPassword);
     await prisma.user.update({
@@ -516,6 +584,10 @@ export const AuthService = {
       action: "password_changed",
       performedBy: userId,
     });
+
+    sendPasswordChangedEmail(user.email, user.name).catch((err) =>
+      console.error("[AuthService] Password changed email failed:", err),
+    );
   },
 
   /** Lists all users in a company, ordered by creation date. */
@@ -553,15 +625,21 @@ export const AuthService = {
   },
 
   /** Updates user fields with a duplicate email check before applying changes. */
-  async updateUser(companyId: string, userId: string, data: { name?: string; email?: string; role?: string }, performedBy?: string, actorRole?: string) {
+  async updateUser(
+    companyId: string,
+    userId: string,
+    data: { name?: string; email?: string; role?: UserRole },
+    performedBy?: string,
+    actorRole?: string,
+  ) {
     const user = await prisma.user.findFirst({
       where: { id: userId, companyId },
     });
     if (!user) throw new NotFoundError("User not found");
 
     if (data.role) {
-      if (actorRole !== "owner") {
-        throw new ValidationError("Only the owner can change a user's role");
+      if (actorRole !== "admin") {
+        throw new ValidationError("Only an admin can change a user's role");
       }
       if (performedBy === userId) {
         throw new ValidationError("You cannot change your own role");
@@ -570,9 +648,12 @@ export const AuthService = {
 
     if (data.email && data.email !== user.email) {
       const validDomain = await hasMxRecord(data.email);
-      if (!validDomain) throw new ValidationError("Email domain does not accept mail");
+      if (!validDomain)
+        throw new ValidationError("Email domain does not accept mail");
 
-      const existing = await prisma.user.findUnique({ where: { email: data.email } });
+      const existing = await prisma.user.findUnique({
+        where: { email: data.email },
+      });
       if (existing) throw new ConflictError("Email already in use");
     }
 
@@ -580,7 +661,10 @@ export const AuthService = {
       where: { id: userId },
       data: {
         ...(data.name !== undefined && { name: data.name }),
-        ...(data.email !== undefined && { email: data.email, emailVerified: false }),
+        ...(data.email !== undefined && {
+          email: data.email,
+          emailVerified: false,
+        }),
         ...(data.role !== undefined && { role: data.role }),
       },
       select: {
@@ -593,14 +677,60 @@ export const AuthService = {
     });
 
     if (data.role !== undefined && data.role !== user.role) {
+      const oldValues: Record<string, string> = { userName: user.name };
+      const newValues: Record<string, string> = { userName: updated.name };
+      if (data.name !== undefined && data.name !== user.name) {
+        oldValues.name = user.name;
+        newValues.name = data.name;
+      }
+      if (data.role !== undefined) {
+        oldValues.role = user.role;
+        newValues.role = data.role;
+      }
+      if (data.email !== undefined && data.email !== user.email) {
+        oldValues.email = user.email;
+        newValues.email = data.email;
+      }
       await createAuditLog({
         entityType: "user",
         entityId: userId,
         action: "role_changed",
         performedBy: performedBy || userId,
-        oldValues: JSON.stringify({ role: user.role }),
-        newValues: JSON.stringify({ role: data.role }),
+        oldValues: JSON.stringify(oldValues),
+        newValues: JSON.stringify(newValues),
       });
+    } else if (data.name !== undefined && data.name !== user.name) {
+      await createAuditLog({
+        entityType: "user",
+        entityId: userId,
+        action: "user_updated",
+        performedBy: performedBy || userId,
+        oldValues: JSON.stringify({ name: user.name }),
+        newValues: JSON.stringify({ name: data.name }),
+      });
+    } else if (data.email !== undefined && data.email !== user.email) {
+      await createAuditLog({
+        entityType: "user",
+        entityId: userId,
+        action: "user_updated",
+        performedBy: performedBy || userId,
+        oldValues: JSON.stringify({ email: user.email }),
+        newValues: JSON.stringify({ email: data.email }),
+      });
+
+      const rawToken = crypto.randomBytes(32).toString("hex");
+      await prisma.emailVerificationToken.create({
+        data: {
+          userId,
+          tokenHash: hashToken(rawToken),
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        },
+      });
+
+      const verifyLink = `${getAppUrl()}/verify-email?token=${rawToken}`;
+      sendVerificationEmail(data.email, updated.name, verifyLink).catch((err) =>
+        console.error("[AuthService] Verification email failed:", err),
+      );
     }
 
     return updated;
@@ -612,7 +742,9 @@ export const AuthService = {
    */
   async logout(refreshToken: string) {
     const tokenHash = hashToken(refreshToken);
-    const record = await prisma.refreshToken.findUnique({ where: { tokenHash } });
+    const record = await prisma.refreshToken.findUnique({
+      where: { tokenHash },
+    });
     await prisma.refreshToken.deleteMany({ where: { tokenHash } });
 
     if (record) {

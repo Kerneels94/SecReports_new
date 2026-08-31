@@ -1,5 +1,5 @@
 /**
- * Admin users page — allows owners to create, list, and edit employee users with role management.
+ * Admin users page — allows admins to create, list, and edit employee users with role management.
  * @route /admin/users
  */
 "use client";
@@ -20,7 +20,7 @@ const createUserSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email"),
   password: z.string().min(8, "Min 8 characters"),
-  role: z.enum(["owner", "manager", "senior"]),
+  role: z.enum(["manager", "senior"]),
 });
 
 type CreateUserForm = z.infer<typeof createUserSchema>;
@@ -55,7 +55,7 @@ export default function AdminUsersPage() {
   }, []);
 
   useEffect(() => {
-    if (user?.role === "owner") fetchUsers();
+    if (user?.role === "admin") fetchUsers();
   }, [user, fetchUsers]);
 
   const {
@@ -68,7 +68,7 @@ export default function AdminUsersPage() {
     defaultValues: { role: "senior" },
   });
 
-  if (user?.role !== "owner") {
+  if (user?.role !== "admin") {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="flex flex-col items-center gap-3 px-6 py-8 rounded-xl bg-surface ring-1 ring-border-light">
@@ -112,11 +112,14 @@ export default function AdminUsersPage() {
     setEditSaving(true);
     setEditError(null);
     try {
-      await userService.update(editUser.id, {
+      const payload: { name: string; email: string; role?: string } = {
         name: editName,
         email: editEmail,
-        role: editRole as any,
-      });
+      };
+      if (editUser.role !== "admin") {
+        payload.role = editRole;
+      }
+      await userService.update(editUser.id, payload);
       setEditUser(null);
       setSuccess(`User ${editEmail} updated`);
       fetchUsers();
@@ -175,12 +178,11 @@ export default function AdminUsersPage() {
                 <label htmlFor="role" className="text-sm font-medium text-text/90">Role</label>
                 <select
                   id="role"
-                  className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
+                  className="rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
                   {...register("role")}
                 >
-                  <option value="owner">Owner</option>
-                  <option value="manager">Manager</option>
-                  <option value="senior">Senior</option>
+                  <option value="manager" className="bg-surface text-text">Manager</option>
+                  <option value="senior" className="bg-surface text-text">Senior</option>
                 </select>
                 {errors.role && (
                   <p className="text-sm text-danger" role="alert">{errors.role.message}</p>
@@ -224,7 +226,7 @@ export default function AdminUsersPage() {
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <Badge variant={u.role === "owner" ? "info" : "default"}>{u.role}</Badge>
+                          <Badge variant={u.role === "admin" ? "info" : "default"}>{u.role}</Badge>
                         </td>
                         <td className="px-4 py-3 text-right">
                           <Button variant="ghost" size="sm" onClick={() => openEdit(u)}>
@@ -254,18 +256,24 @@ export default function AdminUsersPage() {
         <div className="flex flex-col gap-4">
           <Input label="Name" value={editName} onChange={(e) => setEditName(e.target.value)} />
           <Input label="Email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-text/90">Role</label>
-            <select
-              value={editRole}
-              onChange={(e) => setEditRole(e.target.value)}
-              className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
-            >
-              <option value="owner">Owner</option>
-              <option value="manager">Manager</option>
-              <option value="senior">Senior</option>
-            </select>
-          </div>
+          {editUser?.role === "admin" ? (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-text/90">Role</label>
+              <Badge variant="info">admin</Badge>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-text/90">Role</label>
+              <select
+                value={editRole}
+                onChange={(e) => setEditRole(e.target.value)}
+                className="rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
+              >
+                <option value="manager" className="bg-surface text-text">Manager</option>
+                <option value="senior" className="bg-surface text-text">Senior</option>
+              </select>
+            </div>
+          )}
           <div className="flex gap-3 pt-2">
             <Button onClick={handleEditSave} loading={editSaving}>Save</Button>
             <Button variant="secondary" onClick={() => setEditUser(null)}>Cancel</Button>

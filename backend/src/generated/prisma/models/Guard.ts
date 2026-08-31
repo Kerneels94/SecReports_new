@@ -226,7 +226,6 @@ export type GuardWhereInput = {
   site?: Prisma.XOR<Prisma.GuardingSiteNullableScalarRelationFilter, Prisma.GuardingSiteWhereInput> | null
   patrolReports?: Prisma.PatrolReportListRelationFilter
   entryLogs?: Prisma.EntryLogListRelationFilter
-  flaggedVehicles?: Prisma.FlaggedVehicleListRelationFilter
 }
 
 export type GuardOrderByWithRelationInput = {
@@ -244,7 +243,6 @@ export type GuardOrderByWithRelationInput = {
   site?: Prisma.GuardingSiteOrderByWithRelationInput
   patrolReports?: Prisma.PatrolReportOrderByRelationAggregateInput
   entryLogs?: Prisma.EntryLogOrderByRelationAggregateInput
-  flaggedVehicles?: Prisma.FlaggedVehicleOrderByRelationAggregateInput
 }
 
 export type GuardWhereUniqueInput = Prisma.AtLeast<{
@@ -265,7 +263,6 @@ export type GuardWhereUniqueInput = Prisma.AtLeast<{
   site?: Prisma.XOR<Prisma.GuardingSiteNullableScalarRelationFilter, Prisma.GuardingSiteWhereInput> | null
   patrolReports?: Prisma.PatrolReportListRelationFilter
   entryLogs?: Prisma.EntryLogListRelationFilter
-  flaggedVehicles?: Prisma.FlaggedVehicleListRelationFilter
 }, "id" | "employeeId">
 
 export type GuardOrderByWithAggregationInput = {
@@ -313,7 +310,6 @@ export type GuardCreateInput = {
   site?: Prisma.GuardingSiteCreateNestedOneWithoutGuardsInput
   patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutGuardInput
   entryLogs?: Prisma.EntryLogCreateNestedManyWithoutGuardInput
-  flaggedVehicles?: Prisma.FlaggedVehicleCreateNestedManyWithoutFlaggedByInput
 }
 
 export type GuardUncheckedCreateInput = {
@@ -329,7 +325,6 @@ export type GuardUncheckedCreateInput = {
   updatedAt?: Date | string
   patrolReports?: Prisma.PatrolReportUncheckedCreateNestedManyWithoutGuardInput
   entryLogs?: Prisma.EntryLogUncheckedCreateNestedManyWithoutGuardInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUncheckedCreateNestedManyWithoutFlaggedByInput
 }
 
 export type GuardUpdateInput = {
@@ -344,7 +339,6 @@ export type GuardUpdateInput = {
   site?: Prisma.GuardingSiteUpdateOneWithoutGuardsNestedInput
   patrolReports?: Prisma.PatrolReportUpdateManyWithoutGuardNestedInput
   entryLogs?: Prisma.EntryLogUpdateManyWithoutGuardNestedInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUpdateManyWithoutFlaggedByNestedInput
 }
 
 export type GuardUncheckedUpdateInput = {
@@ -359,7 +353,6 @@ export type GuardUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   patrolReports?: Prisma.PatrolReportUncheckedUpdateManyWithoutGuardNestedInput
   entryLogs?: Prisma.EntryLogUncheckedUpdateManyWithoutGuardNestedInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUncheckedUpdateManyWithoutFlaggedByNestedInput
 }
 
 export type GuardCreateManyInput = {
@@ -570,20 +563,6 @@ export type GuardUpdateOneWithoutEntryLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.GuardUpdateToOneWithWhereWithoutEntryLogsInput, Prisma.GuardUpdateWithoutEntryLogsInput>, Prisma.GuardUncheckedUpdateWithoutEntryLogsInput>
 }
 
-export type GuardCreateNestedOneWithoutFlaggedVehiclesInput = {
-  create?: Prisma.XOR<Prisma.GuardCreateWithoutFlaggedVehiclesInput, Prisma.GuardUncheckedCreateWithoutFlaggedVehiclesInput>
-  connectOrCreate?: Prisma.GuardCreateOrConnectWithoutFlaggedVehiclesInput
-  connect?: Prisma.GuardWhereUniqueInput
-}
-
-export type GuardUpdateOneRequiredWithoutFlaggedVehiclesNestedInput = {
-  create?: Prisma.XOR<Prisma.GuardCreateWithoutFlaggedVehiclesInput, Prisma.GuardUncheckedCreateWithoutFlaggedVehiclesInput>
-  connectOrCreate?: Prisma.GuardCreateOrConnectWithoutFlaggedVehiclesInput
-  upsert?: Prisma.GuardUpsertWithoutFlaggedVehiclesInput
-  connect?: Prisma.GuardWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.GuardUpdateToOneWithWhereWithoutFlaggedVehiclesInput, Prisma.GuardUpdateWithoutFlaggedVehiclesInput>, Prisma.GuardUncheckedUpdateWithoutFlaggedVehiclesInput>
-}
-
 export type GuardCreateWithoutCompanyInput = {
   id?: string
   name: string
@@ -596,7 +575,6 @@ export type GuardCreateWithoutCompanyInput = {
   site?: Prisma.GuardingSiteCreateNestedOneWithoutGuardsInput
   patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutGuardInput
   entryLogs?: Prisma.EntryLogCreateNestedManyWithoutGuardInput
-  flaggedVehicles?: Prisma.FlaggedVehicleCreateNestedManyWithoutFlaggedByInput
 }
 
 export type GuardUncheckedCreateWithoutCompanyInput = {
@@ -611,7 +589,6 @@ export type GuardUncheckedCreateWithoutCompanyInput = {
   updatedAt?: Date | string
   patrolReports?: Prisma.PatrolReportUncheckedCreateNestedManyWithoutGuardInput
   entryLogs?: Prisma.EntryLogUncheckedCreateNestedManyWithoutGuardInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUncheckedCreateNestedManyWithoutFlaggedByInput
 }
 
 export type GuardCreateOrConnectWithoutCompanyInput = {
@@ -667,7 +644,6 @@ export type GuardCreateWithoutSiteInput = {
   company: Prisma.CompanyCreateNestedOneWithoutGuardsInput
   patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutGuardInput
   entryLogs?: Prisma.EntryLogCreateNestedManyWithoutGuardInput
-  flaggedVehicles?: Prisma.FlaggedVehicleCreateNestedManyWithoutFlaggedByInput
 }
 
 export type GuardUncheckedCreateWithoutSiteInput = {
@@ -682,7 +658,6 @@ export type GuardUncheckedCreateWithoutSiteInput = {
   updatedAt?: Date | string
   patrolReports?: Prisma.PatrolReportUncheckedCreateNestedManyWithoutGuardInput
   entryLogs?: Prisma.EntryLogUncheckedCreateNestedManyWithoutGuardInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUncheckedCreateNestedManyWithoutFlaggedByInput
 }
 
 export type GuardCreateOrConnectWithoutSiteInput = {
@@ -722,7 +697,6 @@ export type GuardCreateWithoutPatrolReportsInput = {
   company: Prisma.CompanyCreateNestedOneWithoutGuardsInput
   site?: Prisma.GuardingSiteCreateNestedOneWithoutGuardsInput
   entryLogs?: Prisma.EntryLogCreateNestedManyWithoutGuardInput
-  flaggedVehicles?: Prisma.FlaggedVehicleCreateNestedManyWithoutFlaggedByInput
 }
 
 export type GuardUncheckedCreateWithoutPatrolReportsInput = {
@@ -737,7 +711,6 @@ export type GuardUncheckedCreateWithoutPatrolReportsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   entryLogs?: Prisma.EntryLogUncheckedCreateNestedManyWithoutGuardInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUncheckedCreateNestedManyWithoutFlaggedByInput
 }
 
 export type GuardCreateOrConnectWithoutPatrolReportsInput = {
@@ -767,7 +740,6 @@ export type GuardUpdateWithoutPatrolReportsInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutGuardsNestedInput
   site?: Prisma.GuardingSiteUpdateOneWithoutGuardsNestedInput
   entryLogs?: Prisma.EntryLogUpdateManyWithoutGuardNestedInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUpdateManyWithoutFlaggedByNestedInput
 }
 
 export type GuardUncheckedUpdateWithoutPatrolReportsInput = {
@@ -781,7 +753,6 @@ export type GuardUncheckedUpdateWithoutPatrolReportsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entryLogs?: Prisma.EntryLogUncheckedUpdateManyWithoutGuardNestedInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUncheckedUpdateManyWithoutFlaggedByNestedInput
 }
 
 export type GuardCreateWithoutEntryLogsInput = {
@@ -796,7 +767,6 @@ export type GuardCreateWithoutEntryLogsInput = {
   company: Prisma.CompanyCreateNestedOneWithoutGuardsInput
   site?: Prisma.GuardingSiteCreateNestedOneWithoutGuardsInput
   patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutGuardInput
-  flaggedVehicles?: Prisma.FlaggedVehicleCreateNestedManyWithoutFlaggedByInput
 }
 
 export type GuardUncheckedCreateWithoutEntryLogsInput = {
@@ -811,7 +781,6 @@ export type GuardUncheckedCreateWithoutEntryLogsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   patrolReports?: Prisma.PatrolReportUncheckedCreateNestedManyWithoutGuardInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUncheckedCreateNestedManyWithoutFlaggedByInput
 }
 
 export type GuardCreateOrConnectWithoutEntryLogsInput = {
@@ -841,7 +810,6 @@ export type GuardUpdateWithoutEntryLogsInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutGuardsNestedInput
   site?: Prisma.GuardingSiteUpdateOneWithoutGuardsNestedInput
   patrolReports?: Prisma.PatrolReportUpdateManyWithoutGuardNestedInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUpdateManyWithoutFlaggedByNestedInput
 }
 
 export type GuardUncheckedUpdateWithoutEntryLogsInput = {
@@ -855,81 +823,6 @@ export type GuardUncheckedUpdateWithoutEntryLogsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   patrolReports?: Prisma.PatrolReportUncheckedUpdateManyWithoutGuardNestedInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUncheckedUpdateManyWithoutFlaggedByNestedInput
-}
-
-export type GuardCreateWithoutFlaggedVehiclesInput = {
-  id?: string
-  name: string
-  surname: string
-  cellphone: string
-  employeeId: string
-  status?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutGuardsInput
-  site?: Prisma.GuardingSiteCreateNestedOneWithoutGuardsInput
-  patrolReports?: Prisma.PatrolReportCreateNestedManyWithoutGuardInput
-  entryLogs?: Prisma.EntryLogCreateNestedManyWithoutGuardInput
-}
-
-export type GuardUncheckedCreateWithoutFlaggedVehiclesInput = {
-  id?: string
-  companyId: string
-  siteId?: string | null
-  name: string
-  surname: string
-  cellphone: string
-  employeeId: string
-  status?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  patrolReports?: Prisma.PatrolReportUncheckedCreateNestedManyWithoutGuardInput
-  entryLogs?: Prisma.EntryLogUncheckedCreateNestedManyWithoutGuardInput
-}
-
-export type GuardCreateOrConnectWithoutFlaggedVehiclesInput = {
-  where: Prisma.GuardWhereUniqueInput
-  create: Prisma.XOR<Prisma.GuardCreateWithoutFlaggedVehiclesInput, Prisma.GuardUncheckedCreateWithoutFlaggedVehiclesInput>
-}
-
-export type GuardUpsertWithoutFlaggedVehiclesInput = {
-  update: Prisma.XOR<Prisma.GuardUpdateWithoutFlaggedVehiclesInput, Prisma.GuardUncheckedUpdateWithoutFlaggedVehiclesInput>
-  create: Prisma.XOR<Prisma.GuardCreateWithoutFlaggedVehiclesInput, Prisma.GuardUncheckedCreateWithoutFlaggedVehiclesInput>
-  where?: Prisma.GuardWhereInput
-}
-
-export type GuardUpdateToOneWithWhereWithoutFlaggedVehiclesInput = {
-  where?: Prisma.GuardWhereInput
-  data: Prisma.XOR<Prisma.GuardUpdateWithoutFlaggedVehiclesInput, Prisma.GuardUncheckedUpdateWithoutFlaggedVehiclesInput>
-}
-
-export type GuardUpdateWithoutFlaggedVehiclesInput = {
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  surname?: Prisma.StringFieldUpdateOperationsInput | string
-  cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutGuardsNestedInput
-  site?: Prisma.GuardingSiteUpdateOneWithoutGuardsNestedInput
-  patrolReports?: Prisma.PatrolReportUpdateManyWithoutGuardNestedInput
-  entryLogs?: Prisma.EntryLogUpdateManyWithoutGuardNestedInput
-}
-
-export type GuardUncheckedUpdateWithoutFlaggedVehiclesInput = {
-  companyId?: Prisma.StringFieldUpdateOperationsInput | string
-  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  surname?: Prisma.StringFieldUpdateOperationsInput | string
-  cellphone?: Prisma.StringFieldUpdateOperationsInput | string
-  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  patrolReports?: Prisma.PatrolReportUncheckedUpdateManyWithoutGuardNestedInput
-  entryLogs?: Prisma.EntryLogUncheckedUpdateManyWithoutGuardNestedInput
 }
 
 export type GuardCreateManyCompanyInput = {
@@ -955,7 +848,6 @@ export type GuardUpdateWithoutCompanyInput = {
   site?: Prisma.GuardingSiteUpdateOneWithoutGuardsNestedInput
   patrolReports?: Prisma.PatrolReportUpdateManyWithoutGuardNestedInput
   entryLogs?: Prisma.EntryLogUpdateManyWithoutGuardNestedInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUpdateManyWithoutFlaggedByNestedInput
 }
 
 export type GuardUncheckedUpdateWithoutCompanyInput = {
@@ -969,7 +861,6 @@ export type GuardUncheckedUpdateWithoutCompanyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   patrolReports?: Prisma.PatrolReportUncheckedUpdateManyWithoutGuardNestedInput
   entryLogs?: Prisma.EntryLogUncheckedUpdateManyWithoutGuardNestedInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUncheckedUpdateManyWithoutFlaggedByNestedInput
 }
 
 export type GuardUncheckedUpdateManyWithoutCompanyInput = {
@@ -1006,7 +897,6 @@ export type GuardUpdateWithoutSiteInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutGuardsNestedInput
   patrolReports?: Prisma.PatrolReportUpdateManyWithoutGuardNestedInput
   entryLogs?: Prisma.EntryLogUpdateManyWithoutGuardNestedInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUpdateManyWithoutFlaggedByNestedInput
 }
 
 export type GuardUncheckedUpdateWithoutSiteInput = {
@@ -1020,7 +910,6 @@ export type GuardUncheckedUpdateWithoutSiteInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   patrolReports?: Prisma.PatrolReportUncheckedUpdateManyWithoutGuardNestedInput
   entryLogs?: Prisma.EntryLogUncheckedUpdateManyWithoutGuardNestedInput
-  flaggedVehicles?: Prisma.FlaggedVehicleUncheckedUpdateManyWithoutFlaggedByNestedInput
 }
 
 export type GuardUncheckedUpdateManyWithoutSiteInput = {
@@ -1042,13 +931,11 @@ export type GuardUncheckedUpdateManyWithoutSiteInput = {
 export type GuardCountOutputType = {
   patrolReports: number
   entryLogs: number
-  flaggedVehicles: number
 }
 
 export type GuardCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   patrolReports?: boolean | GuardCountOutputTypeCountPatrolReportsArgs
   entryLogs?: boolean | GuardCountOutputTypeCountEntryLogsArgs
-  flaggedVehicles?: boolean | GuardCountOutputTypeCountFlaggedVehiclesArgs
 }
 
 /**
@@ -1075,13 +962,6 @@ export type GuardCountOutputTypeCountEntryLogsArgs<ExtArgs extends runtime.Types
   where?: Prisma.EntryLogWhereInput
 }
 
-/**
- * GuardCountOutputType without action
- */
-export type GuardCountOutputTypeCountFlaggedVehiclesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.FlaggedVehicleWhereInput
-}
-
 
 export type GuardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1098,7 +978,6 @@ export type GuardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   site?: boolean | Prisma.Guard$siteArgs<ExtArgs>
   patrolReports?: boolean | Prisma.Guard$patrolReportsArgs<ExtArgs>
   entryLogs?: boolean | Prisma.Guard$entryLogsArgs<ExtArgs>
-  flaggedVehicles?: boolean | Prisma.Guard$flaggedVehiclesArgs<ExtArgs>
   _count?: boolean | Prisma.GuardCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["guard"]>
 
@@ -1123,7 +1002,6 @@ export type GuardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   site?: boolean | Prisma.Guard$siteArgs<ExtArgs>
   patrolReports?: boolean | Prisma.Guard$patrolReportsArgs<ExtArgs>
   entryLogs?: boolean | Prisma.Guard$entryLogsArgs<ExtArgs>
-  flaggedVehicles?: boolean | Prisma.Guard$flaggedVehiclesArgs<ExtArgs>
   _count?: boolean | Prisma.GuardCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1134,7 +1012,6 @@ export type $GuardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     site: Prisma.$GuardingSitePayload<ExtArgs> | null
     patrolReports: Prisma.$PatrolReportPayload<ExtArgs>[]
     entryLogs: Prisma.$EntryLogPayload<ExtArgs>[]
-    flaggedVehicles: Prisma.$FlaggedVehiclePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1514,7 +1391,6 @@ export interface Prisma__GuardClient<T, Null = never, ExtArgs extends runtime.Ty
   site<T extends Prisma.Guard$siteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guard$siteArgs<ExtArgs>>): Prisma.Prisma__GuardingSiteClient<runtime.Types.Result.GetResult<Prisma.$GuardingSitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   patrolReports<T extends Prisma.Guard$patrolReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guard$patrolReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PatrolReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   entryLogs<T extends Prisma.Guard$entryLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guard$entryLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EntryLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  flaggedVehicles<T extends Prisma.Guard$flaggedVehiclesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guard$flaggedVehiclesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FlaggedVehiclePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1988,30 +1864,6 @@ export type Guard$entryLogsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.EntryLogScalarFieldEnum | Prisma.EntryLogScalarFieldEnum[]
-}
-
-/**
- * Guard.flaggedVehicles
- */
-export type Guard$flaggedVehiclesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the FlaggedVehicle
-   */
-  select?: Prisma.FlaggedVehicleSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the FlaggedVehicle
-   */
-  omit?: Prisma.FlaggedVehicleOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.FlaggedVehicleInclude<ExtArgs> | null
-  where?: Prisma.FlaggedVehicleWhereInput
-  orderBy?: Prisma.FlaggedVehicleOrderByWithRelationInput | Prisma.FlaggedVehicleOrderByWithRelationInput[]
-  cursor?: Prisma.FlaggedVehicleWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.FlaggedVehicleScalarFieldEnum | Prisma.FlaggedVehicleScalarFieldEnum[]
 }
 
 /**

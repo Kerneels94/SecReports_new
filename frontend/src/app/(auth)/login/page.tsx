@@ -1,5 +1,5 @@
 /**
- * Login page — supports both company and employee sign-in with tabbed form.
+ * Login page — supports both company and senior sign-in with tabbed form.
  * @route /login
  */
 "use client";
@@ -14,25 +14,19 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { useAuth } from "@/hooks/useAuth";
 
-const companySchema = z.object({
+const schema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
 });
 
-const employeeSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
-});
+type FormData = z.infer<typeof schema>;
 
-type CompanyFormData = z.infer<typeof companySchema>;
-type EmployeeFormData = z.infer<typeof employeeSchema>;
-
-/** Login page component with company/employee tabs, email/password form, and error handling. */
+/** Login page component with company/senior tabs, email/password form, and error handling. */
 export default function LoginPage() {
   const router = useRouter();
-  const { login, employeeLogin } = useAuth();
+  const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<"company" | "employee">("company");
+  const [tab, setTab] = useState<"company" | "senior">("company");
 
   const isCompany = tab === "company";
 
@@ -40,19 +34,14 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<CompanyFormData | EmployeeFormData>({
-    resolver: zodResolver(isCompany ? companySchema : employeeSchema),
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
   });
 
-  const onSubmit = async (data: CompanyFormData | EmployeeFormData) => {
+  const onSubmit = async (data: FormData) => {
     try {
       setError(null);
-      let user;
-      if (isCompany) {
-        user = await login(data as CompanyFormData);
-      } else {
-        user = await employeeLogin(data as EmployeeFormData);
-      }
+      const user = await login(data);
       router.push(user.role === "superadmin" ? "/portal" : "/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -88,12 +77,12 @@ export default function LoginPage() {
               className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${tab === "company" ? "bg-primary text-gray-900 shadow-sm" : "text-text-secondary hover:text-text"}`}
               onClick={() => setTab("company")}
             >
-              Owner/Manager
+              Admin/Manager
             </button>
             <button
               type="button"
-              className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${tab === "employee" ? "bg-primary text-gray-900 shadow-sm" : "text-text-secondary hover:text-text"}`}
-              onClick={() => setTab("employee")}
+              className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${tab === "senior" ? "bg-primary text-gray-900 shadow-sm" : "text-text-secondary hover:text-text"}`}
+              onClick={() => setTab("senior")}
             >
               Senior
             </button>

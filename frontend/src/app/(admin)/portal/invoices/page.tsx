@@ -12,11 +12,24 @@ function formatCurrency(cents: number): string {
 }
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-ZA", { year: "numeric", month: "short", day: "numeric" });
+  return new Date(dateStr).toLocaleDateString("en-ZA", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function InvoiceStatusBadge({ status }: { status: string }) {
-  const variant = status === "paid" ? "success" : status === "sent" ? "info" : status === "overdue" ? "danger" : status === "draft" ? "warning" : "default";
+  const variant =
+    status === "paid"
+      ? "success"
+      : status === "sent"
+        ? "info"
+        : status === "overdue"
+          ? "danger"
+          : status === "draft"
+            ? "warning"
+            : "default";
   return <Badge variant={variant}>{status}</Badge>;
 }
 
@@ -32,7 +45,8 @@ export default function AdminInvoicesPage() {
   const fetchInvoices = async () => {
     setLoading(true);
     try {
-      const params = statusFilter !== "all" ? { status: statusFilter } : undefined;
+      const params =
+        statusFilter !== "all" ? { status: statusFilter } : undefined;
       const res = await adminInvoiceService.list(params);
       setInvoices(res.data);
     } catch (err) {
@@ -42,7 +56,9 @@ export default function AdminInvoicesPage() {
     }
   };
 
-  useEffect(() => { fetchInvoices(); }, [statusFilter]);
+  useEffect(() => {
+    fetchInvoices();
+  }, [statusFilter]);
 
   const handleMarkPaid = async (id: string) => {
     try {
@@ -76,7 +92,9 @@ export default function AdminInvoicesPage() {
       setSuccess("Invoice marked as overdue");
       fetchInvoices();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to mark as overdue");
+      setError(
+        err instanceof Error ? err.message : "Failed to mark as overdue",
+      );
     }
   };
 
@@ -85,20 +103,28 @@ export default function AdminInvoicesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">Invoices</h1>
-          <p className="text-sm text-text-secondary mt-1">Manage and track all invoices.</p>
+          <p className="text-sm text-text-secondary mt-1">
+            Manage and track all invoices.
+          </p>
         </div>
-        <Button onClick={() => window.location.href = "/portal/invoices/new"}>
+        <Button onClick={() => (window.location.href = "/portal/invoices/new")}>
           New Invoice
         </Button>
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+        <div
+          className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20"
+          role="alert"
+        >
           {error}
         </div>
       )}
       {success && (
-        <div className="rounded-lg bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20" role="alert">
+        <div
+          className="rounded-lg bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20"
+          role="alert"
+        >
           {success}
         </div>
       )}
@@ -123,45 +149,98 @@ export default function AdminInvoicesPage() {
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             </div>
           ) : invoices.length === 0 ? (
-            <p className="px-6 py-8 text-sm text-text-secondary text-center">No invoices found.</p>
+            <p className="px-6 py-8 text-sm text-text-secondary text-center">
+              No invoices found.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border-light bg-surface-elevated/20">
-                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Invoice</th>
-                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Company</th>
-                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Amount</th>
-                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Due Date</th>
-                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Period</th>
-                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-right font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Actions</th>
+                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">
+                      Invoice
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">
+                      Company
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">
+                      Due Date
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">
+                      Period
+                    </th>
+                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-right font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {invoices.map((inv, idx) => (
-                    <tr key={inv.id} className={`border-b border-border-light/50 hover:bg-surface-elevated/20 transition-colors ${idx % 2 === 0 ? 'bg-surface-elevated/10' : ''}`}>
-                      <td className="px-4 py-3 font-medium text-text">{inv.invoiceNumber}</td>
-                      <td className="px-4 py-3 text-text-secondary">{inv.company?.name || "—"}</td>
-                      <td className="px-4 py-3 text-text font-medium">{formatCurrency(inv.amount)}</td>
-                      <td className="px-4 py-3 text-text-secondary">{formatDate(inv.dueDate)}</td>
-                      <td className="px-4 py-3 text-text-secondary">
-                        {inv.periodStart ? `${formatDate(inv.periodStart)} - ${inv.periodEnd ? formatDate(inv.periodEnd) : ""}` : "—"}
+                    <tr
+                      key={inv.id}
+                      className={`border-b border-border-light/50 hover:bg-surface-elevated/20 transition-colors ${idx % 2 === 0 ? "bg-surface-elevated/10" : ""}`}
+                    >
+                      <td className="px-4 py-3 font-medium text-text">
+                        {inv.invoiceNumber}
                       </td>
-                      <td className="px-4 py-3"><InvoiceStatusBadge status={inv.status} /></td>
+                      <td className="px-4 py-3 text-text-secondary">
+                        {inv.company?.name || "—"}
+                      </td>
+                      <td className="px-4 py-3 text-text font-medium">
+                        {formatCurrency(inv.amount)}
+                      </td>
+                      <td className="px-4 py-3 text-text-secondary">
+                        {formatDate(inv.dueDate)}
+                      </td>
+                      <td className="px-4 py-3 text-text-secondary">
+                        {inv.periodStart
+                          ? `${formatDate(inv.periodStart)} - ${inv.periodEnd ? formatDate(inv.periodEnd) : ""}`
+                          : "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <InvoiceStatusBadge status={inv.status} />
+                      </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-1">
                           {inv.status === "draft" && (
-                            <Button variant="ghost" size="sm" onClick={() => handleSend(inv.id)}>Send</Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleSend(inv.id)}
+                            >
+                              Send
+                            </Button>
                           )}
-                          {(inv.status === "sent" || inv.status === "overdue") && (
-                            <Button variant="ghost" size="sm" onClick={() => handleMarkPaid(inv.id)}>Mark Paid</Button>
+                          {(inv.status === "sent" ||
+                            inv.status === "overdue") && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleMarkPaid(inv.id)}
+                            >
+                              Mark Paid
+                            </Button>
                           )}
                           {inv.status === "sent" && (
-                            <Button variant="ghost" size="sm" onClick={() => handleMarkOverdue(inv.id)}>Overdue</Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleMarkOverdue(inv.id)}
+                            >
+                              Overdue
+                            </Button>
                           )}
-                          {(inv.status === "draft" || inv.status === "paid") && (
-                            <span className="text-xs text-text-secondary/50 px-2">—</span>
+                          {(inv.status === "draft" ||
+                            inv.status === "paid") && (
+                            <span className="text-xs text-text-secondary/50 px-2">
+                              —
+                            </span>
                           )}
                         </div>
                       </td>

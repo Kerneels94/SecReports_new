@@ -4,7 +4,7 @@
  */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -17,9 +17,7 @@ export default function ProfilePage() {
 
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
-  const [editRole, setEditRole] = useState<string>("senior");
 
-  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -31,11 +29,16 @@ export default function ProfilePage() {
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [passwordLoading, setPasswordLoading] = useState(false);
 
+  useEffect(() => {
+    if (!passwordSuccess) return;
+    const timer = setTimeout(() => setPasswordSuccess(null), 5000);
+    return () => clearTimeout(timer);
+  }, [passwordSuccess]);
+
   if (!user) return null;
 
   const startEditing = () => {
     setEditName(user.name);
-    setEditRole(user.role);
     setEditing(true);
     setProfileError(null);
     setProfileSuccess(null);
@@ -57,7 +60,6 @@ export default function ProfilePage() {
     try {
       await userService.update(user.id, {
         name: editName,
-        role: editRole,
       });
       await refreshUser();
       setProfileSuccess("Profile updated");
@@ -72,10 +74,6 @@ export default function ProfilePage() {
   const handlePasswordChange = async () => {
     setPasswordError(null);
     setPasswordSuccess(null);
-    if (!currentPassword) {
-      setPasswordError("Current password is required");
-      return;
-    }
     if (!newPassword || newPassword.length < 8) {
       setPasswordError("New password must be at least 8 characters");
       return;
@@ -86,9 +84,8 @@ export default function ProfilePage() {
     }
     setPasswordLoading(true);
     try {
-      await authService.changePassword(currentPassword, newPassword);
+      await authService.changePassword(newPassword);
       setPasswordSuccess("Password changed successfully");
-      setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
@@ -109,7 +106,7 @@ export default function ProfilePage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Account Information</CardTitle>
-            {user.role === "owner" && !editing && (
+            {!editing && (
               <Button variant="secondary" size="sm" onClick={startEditing}>
                 Edit Profile
               </Button>
@@ -117,9 +114,9 @@ export default function ProfilePage() {
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-5">
-          {user.role !== "owner" && (
+          {user.role !== "admin" && (
             <div className="rounded-lg bg-blue-900/20 px-4 py-3 text-sm text-blue-300 ring-1 ring-blue-500/20" role="status">
-              Your profile details can only be updated by an owner. Contact them to request changes.
+              Your profile details can only be updated by an admin. Contact them to request changes.
             </div>
           )}
 
@@ -151,19 +148,49 @@ export default function ProfilePage() {
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
               />
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-text/90">Role</label>
-                <select
-                  value={editRole}
-                  onChange={(e) => setEditRole(e.target.value)}
-                  className="rounded-lg border border-border bg-surface-elevated/40 px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
-                >
-                  <option value="owner">Owner</option>
-                  <option value="manager">Manager</option>
-                  <option value="senior">Senior</option>
-                </select>
+
+              <div className="border-t border-border-light/30 pt-4 mt-2">
+                <p className="text-sm font-semibold text-text mb-3">Change Password</p>
+                {passwordError && (
+                  <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20 mb-3" role="alert">
+                    {passwordError}
+                  </div>
+                )}
+                {passwordSuccess && (
+                  <div className="rounded-lg bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20 mb-3" role="status">
+                    {passwordSuccess}
+                  </div>
+                )}
+                <Input
+                  label="New Password"
+                  labelClassName="text-base"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Min. 8 characters"
+                />
+                <p className="text-base font-medium text-text/90 mt-2 mb-1">A strong password contains:</p>
+                <ul className="text-base text-text-secondary/60 space-y-0.5 ml-1 mb-3">
+                  <li>At least 8 characters</li>
+                  <li>At least one lowercase letter</li>
+                  <li>At least one uppercase letter</li>
+                  <li>At least one digit</li>
+                  <li>At least one special character</li>
+                </ul>
+                <Input
+                  label="Confirm New Password"
+                  labelClassName="text-base"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter new password"
+                />
+                <Button type="button" loading={passwordLoading} className="self-start mt-2" onClick={handlePasswordChange}>
+                  Update Password
+                </Button>
               </div>
-              <div className="flex gap-3">
+
+              <div className="flex gap-3 justify-end">
                 <Button onClick={handleProfileSave} loading={profileLoading}>
                   Save
                 </Button>
@@ -188,54 +215,6 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Change Password</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={(e) => { e.preventDefault(); handlePasswordChange(); }}
-            className="flex flex-col gap-4"
-          >
-            {passwordError && (
-              <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
-                {passwordError}
-              </div>
-            )}
-            {passwordSuccess && (
-              <div className="rounded-lg bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20" role="status">
-                {passwordSuccess}
-              </div>
-            )}
-
-            <Input
-              label="Current Password"
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              placeholder="Enter your current password"
-            />
-            <Input
-              label="New Password"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Min. 8 characters"
-            />
-            <Input
-              label="Confirm New Password"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Re-enter new password"
-            />
-            <Button type="submit" loading={passwordLoading} className="self-start">
-              Update Password
-            </Button>
-          </form>
         </CardContent>
       </Card>
     </div>

@@ -57,7 +57,6 @@ export const GuardService = {
     const existing = await prisma.guard.findFirst({
       where: {
         employeeId: params.employeeId,
-        companyId: params.companyId,
       },
     });
     if (existing)

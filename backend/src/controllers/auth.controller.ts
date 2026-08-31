@@ -7,7 +7,6 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { AuthService } from "../services/auth.service";
 import {
   loginSchema,
-  employeeLoginSchema,
   registerSchema,
   createUserSchema,
   forgotPasswordSchema,
@@ -46,18 +45,6 @@ export const AuthController = {
     reply.code(200).send({ success: true, data: safeResult });
   },
 
-  /** Authenticate a guard employee using their email and password. */
-  async employeeLogin(request: FastifyRequest, reply: FastifyReply) {
-    const parsed = employeeLoginSchema.safeParse(request.body);
-    if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
-
-    const deviceInfo = (request.headers["user-agent"] as string) || undefined;
-    const { refreshToken: _rt2, ...safeResult } = await AuthService.employeeLogin({ ...parsed.data, deviceInfo });
-    setRefreshCookie(reply, _rt2);
-    reply.code(200).send({ success: true, data: safeResult });
-  },
-
   /** Refresh an expired access token using a valid refresh token. */
   async refresh(request: FastifyRequest, reply: FastifyReply) {
     const refreshToken = request.cookies?.refreshToken;
@@ -75,7 +62,7 @@ export const AuthController = {
     reply.code(200).send({ success: true, data: user });
   },
 
-  /** Register a new company and its owner account. */
+  /** Register a new company and its admin account. */
   async register(request: FastifyRequest, reply: FastifyReply) {
     const parsed = registerSchema.safeParse(request.body);
     if (!parsed.success)
@@ -94,7 +81,7 @@ export const AuthController = {
     reply.code(200).send({ success: true, data: result });
   },
 
-  /** Create a new user within the authenticated owner's company (owner-only via route). */
+  /** Create a new user within the authenticated admin's company (admin-only via route). */
   async createUser(request: FastifyRequest, reply: FastifyReply) {
     const parsed = createUserSchema.safeParse(request.body);
     if (!parsed.success)
@@ -138,15 +125,16 @@ export const AuthController = {
       });
   },
 
-  /** Change the authenticated user's password (requires current password). Invalidates all sessions. */
+  /** Change the authenticated user's password. Invalidates all sessions. */
   async changePassword(request: FastifyRequest, reply: FastifyReply) {
     const parsed = changePasswordSchema.safeParse(request.body);
-    if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+    if (!parsed.success) {
+      const msg = parsed.error.issues[0]?.message || "Invalid input";
+      throw new ValidationError(msg, parsed.error.flatten());
+    }
 
     await AuthService.changePassword(
       request.user!.userId,
-      parsed.data.currentPassword,
       parsed.data.newPassword,
     );
     clearRefreshCookie(reply);
@@ -155,20 +143,20 @@ export const AuthController = {
       .send({ success: true, message: "Password changed successfully." });
   },
 
-  /** List all users in the company (owner-only via route). */
+  /** List all users in the company (admin-only via route). */
   async listUsers(request: FastifyRequest, reply: FastifyReply) {
     const users = await AuthService.listUsers(request.user!.companyId);
     reply.code(200).send({ success: true, data: users });
   },
 
-  /** Get a single user by ID (owner-only via route). */
+  /** Get a single user by ID (admin-only via route). */
   async getUserById(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
     const user = await AuthService.getUserById(request.user!.companyId, id);
     reply.code(200).send({ success: true, data: user });
   },
 
-  /** Update a user's details — only owner can change roles, and never their own. */
+  /** Update a user's details — only admins can change roles, and never their own. */
   async updateUser(request: FastifyRequest, reply: FastifyReply) {
     const parsed = updateUserSchema.safeParse(request.body);
     if (!parsed.success)

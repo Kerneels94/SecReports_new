@@ -115,7 +115,6 @@ interface CreateIncidentParams {
   businessOrComplex?: string;
   sapsReference?: string;
   reporterId: string;
-  people?: { name: string; role: string; contact?: string; notes?: string }[];
 }
 
 /** Parameters for updating an incident report. */
@@ -191,19 +190,13 @@ export const IncidentService = {
     return { data, total, page: params.page, perPage: params.perPage };
   },
 
-  /** Gets a full incident with all relations (reporter, investigator, comments, investigation, corrective actions). */
+  /** Gets a full incident with related reporter and investigator. */
   async getById(companyId: string, id: string) {
     const incident = await prisma.incident.findFirst({
       where: { id, companyId },
       include: {
         reporter: { select: { id: true, name: true, email: true } },
         assignedInvestigator: { select: { id: true, name: true, email: true } },
-        people: true,
-        comments: { include: { user: { select: { id: true, name: true } } }, orderBy: { createdAt: "asc" } },
-        investigation: true,
-        correctiveActions: {
-          include: { owner: { select: { id: true, name: true } } },
-        },
       },
     });
 
@@ -235,13 +228,9 @@ export const IncidentService = {
         businessOrComplex: params.businessOrComplex,
         sapsReference: params.sapsReference,
         reporterId: params.reporterId,
-        people: params.people
-          ? { create: params.people }
-          : undefined,
       },
       include: {
         reporter: { select: { id: true, name: true, email: true } },
-        people: true,
       },
     });
 
@@ -263,7 +252,7 @@ export const IncidentService = {
     const incident = await prisma.incident.findFirst({ where: { id, companyId } });
     if (!incident) throw new NotFoundError("Incident");
 
-    if (userRole !== "owner" && userRole !== "manager" && incident.reporterId !== userId) {
+    if (userRole !== "admin" && userRole !== "manager" && incident.reporterId !== userId) {
       throw new ForbiddenError("You can only edit your own incidents");
     }
 
@@ -341,7 +330,7 @@ export const IncidentService = {
     const incident = await prisma.incident.findFirst({ where: { id, companyId } });
     if (!incident) throw new NotFoundError("Incident");
 
-    if (userRole !== "owner" && userRole !== "manager" && incident.reporterId !== userId) {
+    if (userRole !== "admin" && userRole !== "manager" && incident.reporterId !== userId) {
       throw new ForbiddenError("You can only delete your own incidents");
     }
 

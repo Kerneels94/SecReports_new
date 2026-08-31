@@ -181,7 +181,7 @@ function SiteDetailInner() {
                       </p>
                       {e.purpose && <p className="text-xs text-text-secondary mt-0.5">{e.purpose}</p>}
                     </div>
-                    {e.flaggedVehicle && (
+                    {e.flagged && !e.resolvedAt && (
                       <Badge variant="danger">Flagged</Badge>
                     )}
                   </div>
@@ -205,7 +205,6 @@ function SiteDetailInner() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-text">{g.name} {g.surname}</p>
-                      <p className="text-xs text-text-secondary mt-0.5">{g.email}</p>
                       <p className="text-xs text-text-secondary">{g.cellphone}</p>
                     </div>
                     <Badge variant={g.status === "active" ? "success" : g.status === "on_leave" ? "warning" : "default"}>

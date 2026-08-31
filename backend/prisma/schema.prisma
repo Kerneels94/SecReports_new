@@ -9,6 +9,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  admin
+  manager
+  senior
+  superadmin
+}
+
 model Company {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
@@ -21,10 +28,11 @@ model Company {
   subscription    CompanySubscription?
   payments        PaymentHistory[]
   invoices        Invoice[]
+  ledgerEntries   Ledger[]
   apiKeys         ApiKey[]
   guardingSites   GuardingSite[]
   guards          Guard[]
-  flaggedVehicles FlaggedVehicle[]
+  patrolSchedules PatrolSchedule[]
 
   @@map("companies")
 }
@@ -35,7 +43,7 @@ model User {
   name           String
   email          String    @unique
   passwordHash   String    @map("password_hash")
-  role           String    @default("senior")
+  role           UserRole  @default(senior)
   status         String    @default("active")
   loginAttempts  Int       @default(0) @map("login_attempts")
   lockoutCount   Int       @default(0) @map("lockout_count")
@@ -50,8 +58,6 @@ model User {
   createdUsers      User[]          @relation("created_users")
   reportedIncidents Incident[]      @relation("reporter")
   assignedIncidents Incident[]      @relation("assigned_investigator")
-  comments          Comment[]
-  actionOwner       CorrectiveAction[]
   auditLogs         AuditLog[]
 
   refreshTokens     RefreshToken[]
@@ -105,10 +111,7 @@ model Incident {
   company           Company            @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   reporter          User               @relation("reporter", fields: [reporterId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   assignedInvestigator User?           @relation("assigned_investigator", fields: [assignedTo], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  people            IncidentPerson[]
-  comments          Comment[]
-  investigation     Investigation?
-  correctiveActions CorrectiveAction[]
+
 
   @@index([companyId])
   @@index([status])
@@ -116,70 +119,6 @@ model Incident {
   @@index([assignedTo])
   @@index([incidentDate])
   @@map("incidents")
-}
-
-model IncidentPerson {
-  id         String @id @default(auto()) @map("_id") @db.ObjectId
-  incidentId String @map("incident_id") @db.ObjectId
-  name       String
-  role       String
-  contact    String?
-  notes      String?
-
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([incidentId])
-  @@map("incident_people")
-}
-
-model Comment {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  incidentId String   @map("incident_id") @db.ObjectId
-  userId     String   @map("user_id") @db.ObjectId
-  message    String
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  user     User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([incidentId])
-  @@map("comments")
-}
-
-model Investigation {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  incidentId      String    @unique @map("incident_id") @db.ObjectId
-  findings        String?
-  rootCause       String?   @map("root_cause")
-  recommendations String?
-  closureNotes    String?   @map("closure_notes")
-  completedAt     DateTime? @map("completed_at")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@map("investigations")
-}
-
-model CorrectiveAction {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
-  incidentId   String    @map("incident_id") @db.ObjectId
-  description  String
-  ownerId      String    @map("owner_id") @db.ObjectId
-  dueDate      DateTime  @map("due_date")
-  status       String    @default("open")
-  completedAt  DateTime? @map("completed_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  owner    User     @relation(fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([incidentId])
-  @@index([ownerId])
-  @@index([status])
-  @@map("corrective_actions")
 }
 
 model PasswordResetToken {
@@ -224,14 +163,16 @@ model SubscriptionPlan {
 }
 
 model CompanySubscription {
-  id                       String   @id @default(auto()) @map("_id") @db.ObjectId
-  companyId                String   @unique @map("company_id") @db.ObjectId
-  planId                   String   @map("plan_id") @db.ObjectId
-  status                   String   @default("active")
-  currentPeriodStart DateTime? @map("current_period_start")
-  currentPeriodEnd   DateTime? @map("current_period_end")
-  createdAt                DateTime @default(now()) @map("created_at")
-  updatedAt                DateTime @updatedAt @map("updated_at")
+  id                       String    @id @default(auto()) @map("_id") @db.ObjectId
+  companyId                String    @unique @map("company_id") @db.ObjectId
+  planId                   String    @map("plan_id") @db.ObjectId
+  status                   String    @default("active")
+  currentPeriodStart       DateTime? @map("current_period_start")
+  trialEndsAt              DateTime? @map("trial_ends_at")
+  trialStartedAt           DateTime? @map("trial_started_at")
+  trialWarningSent         Boolean   @default(false) @map("trial_warning_sent")
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
 
   company Company          @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   plan    SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -282,6 +223,28 @@ model Invoice {
   @@map("invoices")
 }
 
+model Ledger {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  companyId   String   @map("company_id") @db.ObjectId
+  entryType   String   @map("entry_type")
+  amount      Int      @map("amount")
+  currency    String   @default("ZAR")
+  description String?
+  reference   String?
+  status      String   @default("posted")
+  postedAt    DateTime @map("posted_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([companyId])
+  @@index([entryType])
+  @@index([status])
+  @@index([postedAt])
+  @@map("ledger_entries")
+}
+
 model ApiKey {
   id         String    @id @default(auto()) @map("_id") @db.ObjectId
   companyId  String    @map("company_id") @db.ObjectId
@@ -326,9 +289,10 @@ model GuardingSite {
 
   company Company @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  guards        Guard[]
-  patrolReports PatrolReport[]
-  entryLogs     EntryLog[]
+  guards          Guard[]
+  patrolReports   PatrolReport[]
+  entryLogs       EntryLog[]
+  patrolSchedules PatrolSchedule[]
 
   @@index([companyId])
   @@map("guarding_sites")
@@ -349,9 +313,8 @@ model Guard {
   company Company      @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   site    GuardingSite? @relation(fields: [siteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  patrolReports   PatrolReport[]
-  entryLogs       EntryLog[]
-  flaggedVehicles FlaggedVehicle[]
+  patrolReports PatrolReport[]
+  entryLogs     EntryLog[]
 
   @@index([companyId])
   @@index([siteId])
@@ -393,45 +356,77 @@ model PatrolCheckpoint {
   @@map("patrol_checkpoints")
 }
 
-model EntryLog {
-  id               String    @id @default(auto()) @map("_id") @db.ObjectId
-  siteId           String    @map("site_id") @db.ObjectId
-  guardId          String?   @map("guard_id") @db.ObjectId
-  driverName       String    @map("driver_name")
-  driverContact    String?   @map("driver_contact")
-  vehicleReg       String    @map("vehicle_registration")
-  vehicleDesc      String?   @map("vehicle_description")
-  entryTime        DateTime  @map("entry_time")
-  exitTime         DateTime? @map("exit_time")
-  purpose          String?
-  flaggedVehicleId String?   @map("flagged_vehicle_id") @db.ObjectId
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt @map("updated_at")
+model PatrolSchedule {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  companyId String   @map("company_id") @db.ObjectId
+  siteId    String   @map("site_id") @db.ObjectId
+  day       String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  site           GuardingSite   @relation(fields: [siteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  guard          Guard?         @relation(fields: [guardId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  flaggedVehicle FlaggedVehicle? @relation(fields: [flaggedVehicleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  company    Company                  @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  site       GuardingSite             @relation(fields: [siteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  timeSlots  PatrolScheduleTimeSlot[]
+
+  @@index([companyId])
+  @@index([siteId])
+  @@map("patrol_schedules")
+}
+
+model PatrolScheduleTimeSlot {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  patrolScheduleId String   @map("patrol_schedule_id") @db.ObjectId
+  startTime        String   @map("start_time")
+  endTime          String   @map("end_time")
+  order            Int
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  patrolSchedule PatrolSchedule          @relation(fields: [patrolScheduleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  checkpoints    PatrolScheduleCheckpoint[]
+
+  @@index([patrolScheduleId])
+  @@map("patrol_schedule_time_slots")
+}
+
+model PatrolScheduleCheckpoint {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  patrolTimeSlotId  String   @map("patrol_time_slot_id") @db.ObjectId
+  name              String   @map("checkpoint_name")
+  order             Int
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  timeSlot PatrolScheduleTimeSlot @relation(fields: [patrolTimeSlotId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([patrolTimeSlotId])
+  @@map("patrol_schedule_checkpoints")
+}
+
+model EntryLog {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  siteId        String    @map("site_id") @db.ObjectId
+  guardId       String?   @map("guard_id") @db.ObjectId
+  driverName    String    @map("driver_name")
+  driverContact String?   @map("driver_contact")
+  vehicleReg    String    @map("vehicle_registration")
+  vehicleDesc   String?   @map("vehicle_description")
+  entryTime     DateTime  @map("entry_time")
+  exitTime      DateTime? @map("exit_time")
+  purpose       String?
+  flagged       Boolean   @default(false)
+  flagReason    String?   @map("flag_reason")
+  flaggedById   String?   @map("flagged_by") @db.ObjectId
+  flaggedAt     DateTime? @map("flagged_at")
+  resolvedAt    DateTime? @map("resolved_at")
+  resolveReason String?   @map("resolve_reason")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  site  GuardingSite @relation(fields: [siteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  guard Guard?       @relation(fields: [guardId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([siteId])
   @@index([vehicleReg])
+  @@index([flagged])
   @@map("entry_logs")
 }
 
-model FlaggedVehicle {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  companyId   String    @map("company_id") @db.ObjectId
-  vehicleReg  String    @map("vehicle_registration")
-  reason      String
-  flaggedById String    @map("flagged_by") @db.ObjectId
-  resolvedAt  DateTime? @map("resolved_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
-
-  company   Company   @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  flaggedBy Guard     @relation(fields: [flaggedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  entryLogs EntryLog[]
-
-  @@index([companyId])
-  @@index([vehicleReg])
-  @@map("flagged_vehicles")
-}

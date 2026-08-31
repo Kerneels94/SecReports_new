@@ -67,26 +67,6 @@ export type RefreshToken = Prisma.RefreshTokenModel
  */
 export type Incident = Prisma.IncidentModel
 /**
- * Model IncidentPerson
- * 
- */
-export type IncidentPerson = Prisma.IncidentPersonModel
-/**
- * Model Comment
- * 
- */
-export type Comment = Prisma.CommentModel
-/**
- * Model Investigation
- * 
- */
-export type Investigation = Prisma.InvestigationModel
-/**
- * Model CorrectiveAction
- * 
- */
-export type CorrectiveAction = Prisma.CorrectiveActionModel
-/**
  * Model PasswordResetToken
  * 
  */
@@ -116,6 +96,11 @@ export type PaymentHistory = Prisma.PaymentHistoryModel
  * 
  */
 export type Invoice = Prisma.InvoiceModel
+/**
+ * Model Ledger
+ * 
+ */
+export type Ledger = Prisma.LedgerModel
 /**
  * Model ApiKey
  * 
@@ -147,12 +132,22 @@ export type PatrolReport = Prisma.PatrolReportModel
  */
 export type PatrolCheckpoint = Prisma.PatrolCheckpointModel
 /**
+ * Model PatrolSchedule
+ * 
+ */
+export type PatrolSchedule = Prisma.PatrolScheduleModel
+/**
+ * Model PatrolScheduleTimeSlot
+ * 
+ */
+export type PatrolScheduleTimeSlot = Prisma.PatrolScheduleTimeSlotModel
+/**
+ * Model PatrolScheduleCheckpoint
+ * 
+ */
+export type PatrolScheduleCheckpoint = Prisma.PatrolScheduleCheckpointModel
+/**
  * Model EntryLog
  * 
  */
 export type EntryLog = Prisma.EntryLogModel
-/**
- * Model FlaggedVehicle
- * 
- */
-export type FlaggedVehicle = Prisma.FlaggedVehicleModel
