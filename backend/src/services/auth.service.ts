@@ -27,6 +27,7 @@ import {
   sendPasswordChangedEmail,
 } from "./email.service";
 import { SubscriptionService } from "./subscription.service";
+import { posthog } from "../lib/posthog";
 import type { UserRole } from "../generated/prisma/enums";
 
 const MAX_LOGIN_ATTEMPTS = 3;
@@ -222,6 +223,20 @@ export const AuthService = {
       action: "login",
       performedBy: user.id,
     });
+
+    if (
+      posthog &&
+      (user.role === "admin" || user.role === "superadmin")
+    ) {
+      posthog.capture({
+        distinctId: user.id,
+        event: "admin_login",
+        properties: {
+          companyId: user.companyId,
+          role: user.role,
+        },
+      });
+    }
 
     return {
       accessToken: signAccessToken(payload),
