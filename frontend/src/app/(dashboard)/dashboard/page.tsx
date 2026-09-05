@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { reportService } from "@/services";
+import { Button } from "@/components/ui/Button";
+import { reportService, exportService } from "@/services";
 import { IncidentPieChart, YearlyTrendChart } from "./components/DashboardCharts";
 import { useAuth } from "@/hooks/useAuth";
 import type { TrialStatus } from "@/types";
@@ -27,6 +28,7 @@ export default function DashboardPage() {
   const [chartMode, setChartMode] = useState<"monthly" | "yearly">("monthly");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -55,6 +57,25 @@ export default function DashboardPage() {
   const chartData = useMemo(() => {
     return chartMode === "yearly" ? aggregateYearly(monthlyData) : monthlyData;
   }, [monthlyData, chartMode]);
+
+  const handleDownloadPdf = async () => {
+    setDownloading(true);
+    try {
+      const blob = await exportService.downloadYearlyPdf();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "yearly-crime-stats.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      setError("Failed to download PDF");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -149,21 +170,29 @@ export default function DashboardPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Incident Trends</CardTitle>
-              <div className="flex rounded-lg bg-surface-secondary p-0.5 ring-1 ring-border-light">
-                {(["monthly", "yearly"] as const).map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setChartMode(m)}
-                    className={`rounded-md px-3 py-1 text-xs font-medium capitalize transition-colors ${
-                      chartMode === m
-                        ? "bg-surface-elevated text-primary"
-                        : "text-text-secondary hover:text-text"
-                    }`}
-                  >
-                    {m}
-                  </button>
-                ))}
+              <div className="flex items-center gap-2">
+                <div className="flex rounded-lg bg-surface-secondary p-0.5 ring-1 ring-border-light">
+                  {(["monthly", "yearly"] as const).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setChartMode(m)}
+                      className={`rounded-md px-3 py-1 text-xs font-medium capitalize transition-colors ${
+                        chartMode === m
+                          ? "bg-surface-elevated text-primary"
+                          : "text-text-secondary hover:text-text"
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+                <Button variant="secondary" size="sm" onClick={handleDownloadPdf} loading={downloading}>
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  PDF
+                </Button>
               </div>
             </div>
           </CardHeader>

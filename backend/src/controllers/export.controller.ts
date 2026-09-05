@@ -40,6 +40,16 @@ const COLORS = {
   white: "#FFFFFF",
 };
 
+const INCIDENT_CSV_HEADERS = [
+  "Reference", "Title", "Type", "Report",
+  "Date", "Location", "Operator", "Dispatcher", "Reporter", "Created",
+];
+
+function sanitizeCsv(val: string): string {
+  if (/^[=+\-@]/.test(val)) return `" ${val.replace(/"/g, '""')}"`;
+  return `"${val.replace(/"/g, '""')}"`;
+}
+
 function drawHeader(doc: typeof PDFDocument.prototype) {
   doc.rect(50, 40, 495, 50).fill(COLORS.primary);
   doc.fillColor(COLORS.white).fontSize(18).font("Helvetica-Bold").text("Incident Report", 60, 52);
@@ -122,6 +132,95 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
   });
 }
 
+interface YearBreakdown {
+  year: number;
+  count: number;
+  attempted: number;
+  positive: number;
+}
+
+/** Draws a vertical bar chart with values above bars and labels below. */
+function drawBarChart(
+  doc: typeof PDFDocument.prototype,
+  data: { label: string; value: number; color?: string }[],
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) {
+  const maxValue = Math.max(...data.map((d) => d.value), 1);
+  const slot = width / data.length;
+  const barWidth = Math.min(slot * 0.6, 60);
+  const baseY = y + height;
+
+  doc.lineWidth(1).strokeColor(COLORS.border).moveTo(x, baseY).lineTo(x + width, baseY).stroke();
+
+  data.forEach((d, i) => {
+    const barHeight = Math.max((d.value / maxValue) * height, d.value > 0 ? 6 : 0);
+    const barX = x + slot * i + (slot - barWidth) / 2;
+
+    doc.rect(barX, baseY - barHeight, barWidth, barHeight).fill(d.color || COLORS.primary);
+    doc.fillColor(COLORS.gray).fontSize(8).text(String(d.value), barX, baseY - barHeight - 12, { width: barWidth, align: "center" });
+    doc.fillColor(COLORS.dark).fontSize(8).text(d.label, barX, baseY + 4, { width: barWidth, align: "center" });
+  });
+}
+
+function generateYearlyPdf(data: { total: number; attempted: number; positive: number; byYear: YearBreakdown[] }): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    const chunks: Buffer[] = [];
+
+    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    doc.rect(50, 40, 495, 50).fill(COLORS.primary);
+    doc.fillColor(COLORS.white).fontSize(18).font("Helvetica-Bold").text("Crime Statistics Report", 60, 52);
+    doc.fillColor(COLORS.white).fontSize(9).font("Helvetica").text("Incident Management Platform", 60, 74);
+    doc.moveTo(50, 90).lineTo(545, 90).lineWidth(4).strokeColor(COLORS.border).stroke();
+    doc.fillColor(COLORS.dark);
+
+    const summary = [
+      { label: "Total Incidents", value: data.total, color: COLORS.primary },
+      { label: "Attempted", value: data.attempted, color: "#f59e0b" },
+      { label: "Positive", value: data.positive, color: "#10b981" },
+    ];
+    const boxWidth = 150;
+    const boxGap = 22;
+    let boxX = 50;
+    summary.forEach((s, i) => {
+      doc.roundedRect(boxX, 110, boxWidth, 52, 6).fill(COLORS.light);
+      doc.rect(boxX, 110, boxWidth, 4).fill(s.color);
+      doc.fillColor(COLORS.gray).fontSize(8).text(s.label.toUpperCase(), boxX + 10, 122, { width: boxWidth - 20 });
+      doc.fillColor(COLORS.dark).fontSize(20).font("Helvetica-Bold").text(String(s.value), boxX + 10, 134);
+      boxX += boxWidth + boxGap;
+      if (i === 0) boxX += 10;
+    });
+
+    doc.font("Helvetica");
+
+    let y = drawSection(doc, "Incidents by Year", 185);
+    if (data.byYear.length === 0) {
+      doc.fontSize(9).fillColor(COLORS.gray).text("No incident data available.", 60, y);
+    } else {
+      const yearData = data.byYear.map((b) => ({ label: String(b.year), value: b.count }));
+      drawBarChart(doc, yearData, 60, y + 10, 480, 120);
+      y += 150;
+    }
+
+    const typeData = [
+      { label: "Attempted", value: data.attempted, color: "#f59e0b" },
+      { label: "Positive", value: data.positive, color: "#10b981" },
+    ];
+    y = drawSection(doc, "Incidents by Type", y + 20);
+    drawBarChart(doc, typeData, 60, y + 10, 220, 130);
+
+    doc.fontSize(7).font("Helvetica").fillColor(COLORS.gray).text(`Generated on ${new Date().toLocaleString("en-US")}`, 50, 750, { align: "center" });
+
+    doc.end();
+  });
+}
+
 export const ExportController = {
   /** Export all company incidents as a CSV file download. */
   async csv(request: FastifyRequest, reply: FastifyReply) {
@@ -134,16 +233,6 @@ export const ExportController = {
       },
       orderBy: { createdAt: "desc" },
     });
-
-    const headers = [
-      "Reference", "Title", "Type", "Report",
-      "Date", "Location", "Operator", "Dispatcher", "Reporter", "Created",
-    ];
-
-    function sanitizeCsv(val: string): string {
-      if (/^[=+\-@]/.test(val)) return `" ${val.replace(/"/g, '""')}"`;
-      return `"${val.replace(/"/g, '""')}"`;
-    }
 
     const rows = incidents.map((i) => [
       sanitizeCsv(i.referenceNumber),
@@ -158,11 +247,56 @@ export const ExportController = {
       sanitizeCsv(i.createdAt.toISOString().split("T")[0]),
     ]);
 
-    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csv = [INCIDENT_CSV_HEADERS.join(","), ...rows.map((r) => r.join(","))].join("\n");
 
     reply.header("Content-Type", "text/csv");
     reply.header("Content-Disposition", "attachment; filename=incidents.csv");
     reply.code(200).send(csv);
+  },
+
+  /** Export a visual yearly crime statistics report as a PDF download. */
+  async yearlyPdf(request: FastifyRequest, reply: FastifyReply) {
+    await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
+
+    const incidents = await prisma.incident.findMany({
+      where: { companyId: request.user!.companyId },
+      select: { incidentDate: true, type: true },
+    });
+
+    if (incidents.length === 0) {
+      reply.code(404).send({ success: false, error: { code: "NOT_FOUND", message: "No incidents found" } });
+      return;
+    }
+
+    const byYearMap: Record<string, YearBreakdown> = {};
+    let attempted = 0;
+    let positive = 0;
+
+    for (const inc of incidents) {
+      const year = inc.incidentDate.getFullYear();
+      const isAttempted = inc.type.toLowerCase().includes("attempted");
+      const isPositive = inc.type.toLowerCase().includes("positive");
+      if (isAttempted) attempted++;
+      if (isPositive) positive++;
+
+      byYearMap[year] = byYearMap[year] || { year, count: 0, attempted: 0, positive: 0 };
+      byYearMap[year].count++;
+      if (isAttempted) byYearMap[year].attempted++;
+      if (isPositive) byYearMap[year].positive++;
+    }
+
+    const byYear = Object.values(byYearMap).sort((a, b) => b.year - a.year);
+
+    const pdfBuffer = await generateYearlyPdf({
+      total: incidents.length,
+      attempted,
+      positive,
+      byYear,
+    });
+
+    reply.header("Content-Type", "application/pdf");
+    reply.header("Content-Disposition", "attachment; filename=yearly-crime-stats.pdf");
+    reply.code(200).send(pdfBuffer);
   },
 
   /** Export incidents as a PDF file download. Accepts optional `incidentId` query param for a single incident. */
@@ -269,16 +403,6 @@ export const ExportController = {
 
       reply.code(200).send({ success: true, data: { message: `Report for ${incidents.length} ${type} incidents sent successfully` } });
     } else {
-      const headers = [
-        "Reference", "Title", "Type", "Report",
-        "Date", "Location", "Operator", "Dispatcher", "Reporter", "Created",
-      ];
-
-      function sanitizeCsv(val: string): string {
-        if (/^[=+\-@]/.test(val)) return `" ${val.replace(/"/g, '""')}"`;
-        return `"${val.replace(/"/g, '""')}"`;
-      }
-
       const rows = incidents.map((i) => [
         sanitizeCsv(i.referenceNumber),
         sanitizeCsv(i.title),
@@ -292,7 +416,7 @@ export const ExportController = {
         sanitizeCsv(i.createdAt.toISOString().split("T")[0]),
       ]);
 
-      const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+      const csv = [INCIDENT_CSV_HEADERS.join(","), ...rows.map((r) => r.join(","))].join("\n");
 
       const result = await sendMail({
         to: email,
@@ -385,16 +509,6 @@ export const ExportController = {
 
       reply.code(200).send({ success: true, data: { message: "Report sent successfully" } });
     } else {
-      const headers = [
-        "Reference", "Title", "Type", "Report",
-        "Date", "Location", "Operator", "Dispatcher", "Reporter", "Created",
-      ];
-
-      function sanitizeCsv(val: string): string {
-        if (/^[=+\-@]/.test(val)) return `" ${val.replace(/"/g, '""')}"`;
-        return `"${val.replace(/"/g, '""')}"`;
-      }
-
       const row = [
         sanitizeCsv(incident.referenceNumber),
         sanitizeCsv(incident.title),
@@ -408,7 +522,7 @@ export const ExportController = {
         sanitizeCsv(incident.createdAt.toISOString().split("T")[0]),
       ];
 
-      const csv = [headers.join(","), row.join(",")].join("\n");
+      const csv = [INCIDENT_CSV_HEADERS.join(","), row.join(",")].join("\n");
 
       const result = await sendMail({
         to: email,

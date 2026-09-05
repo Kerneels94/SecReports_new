@@ -11,6 +11,7 @@ export default async function exportRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
   fastify.get("/export/csv", { preHandler: [requireRole("admin", "manager")] }, ExportController.csv);
+  fastify.get("/export/yearly-pdf", { preHandler: [requireRole("admin", "manager", "senior")] }, ExportController.yearlyPdf);
   fastify.get("/export/pdf", {
     preHandler: [requireRole("admin", "manager")],
     schema: {

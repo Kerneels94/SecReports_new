@@ -169,6 +169,7 @@ export const exportService = {
     return api.downloadBlob(`/export/pdf${params}`);
   },
   downloadCsv: () => api.downloadBlob("/export/csv"),
+  downloadYearlyPdf: () => api.downloadBlob("/export/yearly-pdf"),
   emailReport: (incidentId: number, email: string, format: "csv" | "pdf") =>
     api.post<{ message: string }>("/reports/email", {
       incidentId,
@@ -457,9 +458,7 @@ export const adminLedgerService = {
     if (params?.dateFrom) searchParams.set("dateFrom", params.dateFrom);
     if (params?.dateTo) searchParams.set("dateTo", params.dateTo);
     const qs = searchParams.toString();
-    return api.get<LedgerEntry[]>(
-      `/admin/ledger${qs ? `?${qs}` : ""}`,
-    );
+    return api.get<LedgerEntry[]>(`/admin/ledger${qs ? `?${qs}` : ""}`);
   },
   summary: () => api.get<LedgerSummary>("/admin/ledger/summary"),
   getById: (id: string) => api.get<LedgerEntry>(`/admin/ledger/${id}`),
@@ -472,8 +471,7 @@ export const adminLedgerService = {
     reference?: string;
     postedAt?: string;
   }) => api.post<LedgerEntry>("/admin/ledger", data),
-  voidEntry: (id: string) =>
-    api.patch<LedgerEntry>(`/admin/ledger/${id}/void`),
+  voidEntry: (id: string) => api.patch<LedgerEntry>(`/admin/ledger/${id}/void`),
 };
 
 /** Company audit-log endpoints (superadmin). */

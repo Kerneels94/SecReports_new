@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import DashboardPage, { aggregateYearly } from "./page";
-import { reportService } from "@/services";
+import { reportService, exportService } from "@/services";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(() => ({ push: jest.fn() })),
@@ -16,10 +16,12 @@ jest.mock("@/hooks/useAuth", () => ({
 
 jest.mock("@/services", () => ({
   reportService: { summary: jest.fn(), monthlyStats: jest.fn() },
+  exportService: { downloadYearlyPdf: jest.fn() },
 }));
 
 const mockSummary = reportService.summary as jest.Mock;
 const mockMonthly = reportService.monthlyStats as jest.Mock;
+const mockDownloadPdf = exportService.downloadYearlyPdf as jest.Mock;
 
 const mockData = {
   total: 25,
@@ -122,6 +124,23 @@ describe("DashboardPage", () => {
 
     await userEvent.click(yearlyBtn);
     expect(yearlyBtn.className).toContain("text-primary");
+  });
+
+  it("downloads yearly crime stats PDF on button click", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockMonthly.mockResolvedValue({ data: [{ month: "2026-01", count: 2 }] });
+    URL.createObjectURL = jest.fn(() => "blob:mock-url");
+    mockDownloadPdf.mockResolvedValue(new Blob(["%PDF"], { type: "application/pdf" }));
+
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Incident Trends")).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: /pdf/i }));
+
+    expect(mockDownloadPdf).toHaveBeenCalledTimes(1);
   });
 });
 
