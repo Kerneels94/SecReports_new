@@ -68,14 +68,14 @@ const features = [
       "Full lifecycle management — log, automatic categorisation, and resolve security incidents with auto-generated reference numbers.",
   },
   {
+    title: "Crime statistics",
+    description:
+      "Generate reports detailing a monhtly or yearly crime analaysis which aids in visibility.",
+  },
+  {
     title: "Patrol Management",
     description:
       "Create patrol reports and upload patrol schedules accros all guarding sites.",
-  },
-  {
-    title: "Gate Entry Logs",
-    description:
-      "Log vehicle and person entries at security gates with inline flagging for suspicious vehicles and tracking.",
   },
   {
     title: "Audit Trail",
@@ -83,7 +83,7 @@ const features = [
       "Immutable activity logs recording every change and auth event for compliance and review.",
   },
   {
-    title: "Reports & Export",
+    title: "Reports & Exporting",
     description:
       "Generate PDF and CSV reports management, clients, or regulators with batch email support.",
   },

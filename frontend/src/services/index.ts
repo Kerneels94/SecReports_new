@@ -64,6 +64,12 @@ interface TrialStatus {
   trialEndsAt?: string;
 }
 
+/** Monthly incident count data point. */
+export interface MonthlyStat {
+  month: string;
+  count: number;
+}
+
 /** Aggregated report summary data for the dashboard. */
 interface ReportSummary {
   total: number;
@@ -147,6 +153,7 @@ export const actionService = {
 /** Dashboard report-summary endpoints. */
 export const reportService = {
   summary: () => api.get<ReportSummary>("/reports/summary"),
+  monthlyStats: () => api.get<MonthlyStat[]>("/reports/monthly-stats"),
   batchEmail: (email: string, type: string, format: "csv" | "pdf") =>
     api.post<{ message: string }>("/reports/batch-email", {
       email,
