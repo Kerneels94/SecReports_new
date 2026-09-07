@@ -45,6 +45,7 @@ export async function buildApp() {
     origin: corsOrigin,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    exposedHeaders: ["Content-Disposition"],
   });
 
   await fastify.register(helmet, {

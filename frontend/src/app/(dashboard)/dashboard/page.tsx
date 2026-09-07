@@ -61,11 +61,11 @@ export default function DashboardPage() {
   const handleDownloadPdf = async () => {
     setDownloading(true);
     try {
-      const blob = await exportService.downloadYearlyPdf();
-      const url = URL.createObjectURL(blob);
+      const result = await exportService.downloadYearlyPdf();
+      const url = URL.createObjectURL(result);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "yearly-crime-stats.pdf";
+      a.download = result.filename || "yearly-crime-stats.pdf";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

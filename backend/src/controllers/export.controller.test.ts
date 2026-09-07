@@ -5,6 +5,7 @@ import { SubscriptionService } from "../services/subscription.service";
 jest.mock("../lib/db", () => ({
   prisma: {
     incident: { findMany: jest.fn() },
+    company: { findUnique: jest.fn() },
   },
 }));
 
@@ -24,13 +25,30 @@ describe("ExportController.yearlyPdf", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (prisma.company.findUnique as jest.Mock).mockResolvedValue({ name: "Acme Security" });
   });
 
   it("generates a PDF of yearly crime statistics", async () => {
     (prisma.incident.findMany as jest.Mock).mockResolvedValue([
-      { incidentDate: new Date("2026-05-01"), type: "attempted" },
-      { incidentDate: new Date("2026-03-01"), type: "positive" },
-      { incidentDate: new Date("2025-12-20"), type: "attempted" },
+      {
+        incidentDate: new Date("2026-05-01"),
+        type: "attempted",
+        propertyAddress: "123 Main St",
+        dispatchTime: new Date("2026-05-01T10:00:00Z"),
+        arrivalTime: new Date("2026-05-01T10:12:00Z"),
+      },
+      {
+        incidentDate: new Date("2026-03-01"),
+        type: "positive",
+        propertyAddress: "123 Main St",
+        dispatchTime: new Date("2026-03-01T09:00:00Z"),
+        arrivalTime: new Date("2026-03-01T09:00:30Z"),
+      },
+      {
+        incidentDate: new Date("2025-12-20"),
+        type: "attempted",
+        propertyAddress: "456 Oak Ave",
+      },
     ]);
 
     await ExportController.yearlyPdf(request, reply as any);
@@ -42,7 +60,7 @@ describe("ExportController.yearlyPdf", () => {
     expect(reply.header).toHaveBeenCalledWith("Content-Type", "application/pdf");
     expect(reply.header).toHaveBeenCalledWith(
       "Content-Disposition",
-      "attachment; filename=yearly-crime-stats.pdf",
+      expect.stringMatching(/^attachment; filename=yearly-crime-stats-acme-security-\d{4}-\d{2}-\d{2}\.pdf$/),
     );
     expect(reply.send.mock.calls[0][0]).toBeInstanceOf(Buffer);
     expect(reply.send.mock.calls[0][0].length).toBeGreaterThan(1000);

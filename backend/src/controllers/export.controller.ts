@@ -139,6 +139,18 @@ interface YearBreakdown {
   positive: number;
 }
 
+interface TypeBreakdown {
+  type: string;
+  count: number;
+}
+
+interface AreaBreakdown {
+  area: string;
+  count: number;
+  avgMs: number | null;
+  maxMs: number | null;
+}
+
 /** Draws a vertical bar chart with values above bars and labels below. */
 function drawBarChart(
   doc: typeof PDFDocument.prototype,
@@ -165,7 +177,62 @@ function drawBarChart(
   });
 }
 
-function generateYearlyPdf(data: { total: number; attempted: number; positive: number; byYear: YearBreakdown[] }): Promise<Buffer> {
+function formatDuration(ms: number | null): string {
+  if (ms == null) return "-";
+  const totalSec = Math.round(ms / 1000);
+  return `${Math.floor(totalSec / 60)}m ${totalSec % 60}s`;
+}
+
+/** Returns y on a new page if content would overflow, otherwise unchanged. */
+function pageSpace(doc: typeof PDFDocument.prototype, y: number, needed: number): number {
+  if (y + needed > doc.page.height - 60) {
+    doc.addPage();
+    return 50;
+  }
+  return y;
+}
+
+function drawTable(
+  doc: typeof PDFDocument.prototype,
+  cols: { label: string; width: number }[],
+  rows: string[][],
+  x: number,
+  startY: number,
+): number {
+  const totalWidth = cols.reduce((s, c) => s + c.width, 0);
+  const headerH = 20;
+  const rowH = 18;
+  let y = startY;
+
+  doc.rect(x, startY, totalWidth, headerH).fill(COLORS.primary);
+  let cx = x;
+  cols.forEach((c) => {
+    doc.fillColor(COLORS.white).fontSize(9).font("Helvetica-Bold").text(c.label, cx + 6, startY + 5, { width: c.width - 12 });
+    cx += c.width;
+  });
+  y += headerH;
+
+  rows.forEach((r, i) => {
+    if (i % 2 === 1) doc.rect(x, y, totalWidth, rowH).fill(COLORS.light);
+    cx = x;
+    r.forEach((cell, j) => {
+      doc.fillColor(COLORS.dark).fontSize(9).font("Helvetica").text(cell, cx + 6, y + 4, { width: cols[j].width - 12 });
+      cx += cols[j].width;
+    });
+    y += rowH;
+  });
+
+  return y;
+}
+
+function generateYearlyPdf(data: {
+  total: number;
+  attempted: number;
+  positive: number;
+  byYear: YearBreakdown[];
+  byType: TypeBreakdown[];
+  byArea: AreaBreakdown[];
+}): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 50, size: "A4" });
     const chunks: Buffer[] = [];
@@ -208,12 +275,40 @@ function generateYearlyPdf(data: { total: number; attempted: number; positive: n
       y += 150;
     }
 
-    const typeData = [
-      { label: "Attempted", value: data.attempted, color: "#f59e0b" },
-      { label: "Positive", value: data.positive, color: "#10b981" },
-    ];
+    const typeRows = data.byType.map((t) => [t.type, String(t.count)]);
+    y = pageSpace(doc, y + 20, 40 + typeRows.length * 18);
     y = drawSection(doc, "Incidents by Type", y + 20);
-    drawBarChart(doc, typeData, 60, y + 10, 220, 130);
+    y = drawTable(
+      doc,
+      [
+        { label: "Type", width: 380 },
+        { label: "Incidents", width: 120 },
+      ],
+      typeRows,
+      60,
+      y,
+    );
+
+    const areaRows = data.byArea.map((a) => [
+      a.area,
+      String(a.count),
+      formatDuration(a.avgMs),
+      formatDuration(a.maxMs),
+    ]);
+    y = pageSpace(doc, y + 20, 40 + areaRows.length * 18);
+    y = drawSection(doc, "Incidents by Area", y + 20);
+    y = drawTable(
+      doc,
+      [
+        { label: "Area", width: 170 },
+        { label: "Incidents", width: 70 },
+        { label: "Avg Response", width: 130 },
+        { label: "Longest Response", width: 130 },
+      ],
+      areaRows,
+      60,
+      y,
+    );
 
     doc.fontSize(7).font("Helvetica").fillColor(COLORS.gray).text(`Generated on ${new Date().toLocaleString("en-US")}`, 50, 750, { align: "center" });
 
@@ -260,7 +355,7 @@ export const ExportController = {
 
     const incidents = await prisma.incident.findMany({
       where: { companyId: request.user!.companyId },
-      select: { incidentDate: true, type: true },
+      select: { incidentDate: true, type: true, propertyAddress: true, dispatchTime: true, arrivalTime: true },
     });
 
     if (incidents.length === 0) {
@@ -269,6 +364,8 @@ export const ExportController = {
     }
 
     const byYearMap: Record<string, YearBreakdown> = {};
+    const byTypeMap: Record<string, number> = {};
+    const byAreaMap: Record<string, { count: number; responded: number; totalMs: number; maxMs: number }> = {};
     let attempted = 0;
     let positive = 0;
 
@@ -283,19 +380,51 @@ export const ExportController = {
       byYearMap[year].count++;
       if (isAttempted) byYearMap[year].attempted++;
       if (isPositive) byYearMap[year].positive++;
+
+      byTypeMap[inc.type] = (byTypeMap[inc.type] || 0) + 1;
+
+      const area = inc.propertyAddress || "Unknown";
+      const entry = byAreaMap[area] || { count: 0, responded: 0, totalMs: 0, maxMs: 0 };
+      entry.count++;
+      if (inc.dispatchTime && inc.arrivalTime) {
+        const ms = inc.arrivalTime.getTime() - inc.dispatchTime.getTime();
+        if (ms > 0) {
+          entry.responded++;
+          entry.totalMs += ms;
+          entry.maxMs = Math.max(entry.maxMs, ms);
+        }
+      }
+      byAreaMap[area] = entry;
     }
 
     const byYear = Object.values(byYearMap).sort((a, b) => b.year - a.year);
+    const byType = Object.entries(byTypeMap)
+      .sort((a, b) => b[1] - a[1])
+      .map(([type, count]) => ({ type, count }));
+    const byArea = Object.entries(byAreaMap)
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([area, d]) => ({
+        area,
+        count: d.count,
+        avgMs: d.responded > 0 ? Math.round(d.totalMs / d.responded) : null,
+        maxMs: d.maxMs > 0 ? d.maxMs : null,
+      }));
 
     const pdfBuffer = await generateYearlyPdf({
       total: incidents.length,
       attempted,
       positive,
       byYear,
+      byType,
+      byArea,
     });
 
+    const company = await prisma.company.findUnique({ where: { id: request.user!.companyId } });
+    const companySlug = (company?.name || "SecReports").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const date = new Date().toISOString().split("T")[0];
+
     reply.header("Content-Type", "application/pdf");
-    reply.header("Content-Disposition", "attachment; filename=yearly-crime-stats.pdf");
+    reply.header("Content-Disposition", `attachment; filename=yearly-crime-stats-${companySlug}-${date}.pdf`);
     reply.code(200).send(pdfBuffer);
   },
 
