@@ -7,6 +7,8 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -52,6 +54,27 @@ export function IncidentPieChart({ attempted, positive }: { attempted: number; p
             formatter={(value) => <span className="text-xs" style={{ color: "#a1a1aa" }}>{value}</span>}
           />
         </PieChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+export function ResponseTimeChart({ data }: { data: { month: string; avgMinutes: number }[] }) {
+  return (
+    <div className="h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
+          <XAxis
+            dataKey="month"
+            tick={{ fill: "#a1a1aa", fontSize: 11 }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <YAxis tick={{ fill: "#a1a1aa", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} unit="m" />
+          <Tooltip content={<ChartTooltip />} />
+          <Bar dataKey="avgMinutes" name="Avg response (min)" fill="#fbbf24" radius={[4, 4, 0, 0]} />
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );

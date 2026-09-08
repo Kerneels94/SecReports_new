@@ -65,4 +65,28 @@ export const ReportService = {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([month, count]) => ({ month, count }));
   },
+
+  /** Average response time (dispatch→arrival, minutes) per month, for incidents with both times set. */
+  async monthlyResponse(companyId: string) {
+    const incidents = await prisma.incident.findMany({
+      where: { companyId, dispatchTime: { not: null }, arrivalTime: { not: null } },
+      select: { incidentDate: true, dispatchTime: true, arrivalTime: true },
+    });
+
+    const byMonth: Record<string, number[]> = {};
+    for (const inc of incidents) {
+      const d = new Date(inc.incidentDate);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const mins = (inc.arrivalTime!.getTime() - inc.dispatchTime!.getTime()) / 60000;
+      if (mins < 0) continue;
+      (byMonth[key] ||= []).push(mins);
+    }
+
+    return Object.entries(byMonth)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, times]) => ({
+        month,
+        avgMinutes: Math.round(times.reduce((sum, t) => sum + t, 0) / times.length),
+      }));
+  },
 };

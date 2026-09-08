@@ -4,12 +4,14 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { reportService, exportService } from "@/services";
-import { IncidentPieChart, YearlyTrendChart } from "./components/DashboardCharts";
+import { IncidentPieChart, ResponseTimeChart, YearlyTrendChart } from "./components/DashboardCharts";
+import type { MonthlyResponseStat } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
-import type { TrialStatus } from "@/types";
+import type { Incident, TrialStatus } from "@/types";
+
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export function aggregateYearly(data: { month: string; count: number }[]): { month: string; count: number }[] {
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const totals = new Array(12).fill(0);
   for (const d of data) {
     const i = Number(d.month.slice(5, 7)) - 1;
@@ -23,8 +25,10 @@ export default function DashboardPage() {
   const [total, setTotal] = useState(0);
   const [attemptedCount, setAttemptedCount] = useState(0);
   const [positiveCount, setPositiveCount] = useState(0);
+  const [recent, setRecent] = useState<Incident[]>([]);
   const [trial, setTrial] = useState<TrialStatus | null>(null);
   const [monthlyData, setMonthlyData] = useState<{ month: string; count: number }[]>([]);
+  const [responseData, setResponseData] = useState<MonthlyResponseStat[]>([]);
   const [chartMode, setChartMode] = useState<"monthly" | "yearly">("monthly");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,15 +38,18 @@ export default function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const [summaryRes, monthlyRes] = await Promise.all([
+      const [summaryRes, monthlyRes, responseRes] = await Promise.all([
         reportService.summary(),
         reportService.monthlyStats(),
+        reportService.monthlyResponse(),
       ]);
       setTotal(summaryRes.data.total);
       setAttemptedCount(summaryRes.data.attemptedCount);
       setPositiveCount(summaryRes.data.positiveCount);
+      setRecent(summaryRes.data.recent ?? []);
       setTrial(summaryRes.data.trial);
       setMonthlyData(monthlyRes.data);
+      setResponseData(responseRes.data);
     } catch {
       setError("Failed to load dashboard data");
     } finally {
@@ -57,6 +64,18 @@ export default function DashboardPage() {
   const chartData = useMemo(() => {
     return chartMode === "yearly" ? aggregateYearly(monthlyData) : monthlyData;
   }, [monthlyData, chartMode]);
+
+  const latestMonth = useMemo(() => {
+    const last = monthlyData[monthlyData.length - 1];
+    const prev = monthlyData[monthlyData.length - 2];
+    if (!last) return null;
+    const [y, m] = last.month.split("-");
+    return {
+      label: `${monthNames[Number(m) - 1]} ${y}`,
+      count: last.count,
+      delta: prev ? last.count - prev.count : null,
+    };
+  }, [monthlyData]);
 
   const handleDownloadPdf = async () => {
     setDownloading(true);
@@ -102,10 +121,21 @@ export default function DashboardPage() {
     );
   }
 
-  const statCards = [
+  const statCards: { label: string; value: number; color: string; gradient: string; icon: string; delta?: number | null }[] = [
+    { label: "Total incidents", value: total, color: "text-text", gradient: "from-primary/10 to-primary/5", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
     { label: "Attempted incidents", value: attemptedCount, color: "text-warning", gradient: "from-amber-500/10 to-amber-500/5", icon: "M12 9v2m0 4h.01m21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
     { label: "Positive incidents", value: positiveCount, color: "text-success", gradient: "from-emerald-500/10 to-emerald-500/5", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
   ];
+  if (latestMonth) {
+    statCards.unshift({
+      label: `${latestMonth.label} incidents`,
+      value: latestMonth.count,
+      color: "text-primary",
+      gradient: "from-sky-500/10 to-sky-500/5",
+      icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+      delta: latestMonth.delta,
+    });
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -146,7 +176,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {statCards.map((stat) => (
           <Card key={stat.label} className="relative overflow-hidden">
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient}`} />
@@ -160,6 +190,11 @@ export default function DashboardPage() {
                 </div>
               </div>
               <p className={`mt-3 text-3xl font-bold tracking-tight ${stat.color}`}>{stat.value}</p>
+              {stat.delta !== undefined && stat.delta !== null && (
+                <p className={`mt-1 text-xs font-medium ${stat.delta >= 0 ? "text-danger" : "text-success"}`}>
+                  {stat.delta >= 0 ? "▲" : "▼"} {Math.abs(stat.delta)} vs previous month
+                </p>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -218,6 +253,45 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Avg Response Time</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {responseData.length === 0 ? (
+            <p className="text-sm text-text-secondary">No response time data yet (dispatch/arrival times not recorded).</p>
+          ) : (
+            <ResponseTimeChart data={responseData} />
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Latest Activity</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {recent.length === 0 ? (
+            <p className="text-sm text-text-secondary">No incidents reported yet.</p>
+          ) : (
+            <div className="divide-y divide-border-light/50">
+              {recent.map((incident) => (
+                <div key={incident.id} className="flex items-center justify-between gap-4 py-3">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <span className="font-mono text-xs text-primary shrink-0">{incident.referenceNumber}</span>
+                    <span className="font-medium text-text truncate">{incident.title}</span>
+                  </div>
+                  <div className="flex items-center gap-4 shrink-0">
+                    <span className="text-sm text-text-secondary hidden sm:inline">{incident.reporter?.name || "-"}</span>
+                    <span className="text-sm text-text-secondary">{new Date(incident.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

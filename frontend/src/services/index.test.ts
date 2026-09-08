@@ -102,6 +102,11 @@ describe("reportService", () => {
     reportService.summary();
     expect(mockApi.get).toHaveBeenCalledWith("/reports/summary");
   });
+
+  it("monthlyResponse calls api.get with the response path", () => {
+    reportService.monthlyResponse();
+    expect(mockApi.get).toHaveBeenCalledWith("/reports/monthly-response");
+  });
 });
 
 describe("userService", () => {
