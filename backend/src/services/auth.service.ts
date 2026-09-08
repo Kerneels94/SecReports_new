@@ -730,6 +730,27 @@ export const AuthService = {
     return updated;
   },
 
+  /** Deletes a user and all their refresh tokens. Admin cannot delete themselves. */
+  async deleteUser(companyId: string, userId: string, performedBy: string) {
+    const user = await prisma.user.findFirst({
+      where: { id: userId, companyId },
+    });
+    if (!user) throw new NotFoundError("User not found");
+    if (userId === performedBy) throw new ValidationError("You cannot delete your own account");
+
+    await prisma.refreshToken.deleteMany({ where: { userId } });
+
+    await prisma.user.delete({ where: { id: userId } });
+
+    await createAuditLog({
+      entityType: "user",
+      entityId: userId,
+      action: "user_deleted",
+      performedBy,
+      oldValues: JSON.stringify({ name: user.name, email: user.email, role: user.role }),
+    });
+  },
+
   /**
    * Logs out by deleting the specific refresh token from the DB.
    * After this, the token can no longer be used to refresh.

@@ -174,6 +174,13 @@ export const AuthController = {
     reply.code(200).send({ success: true, data: user });
   },
 
+  /** Delete a user and revoke their access (admin-only via route). */
+  async deleteUser(request: FastifyRequest, reply: FastifyReply) {
+    const { id } = request.params as { id: string };
+    await AuthService.deleteUser(request.user!.companyId, id, request.user!.userId);
+    reply.code(200).send({ success: true, message: "User deleted successfully." });
+  },
+
   /** Log out by deleting the provided refresh token. */
   async logout(request: FastifyRequest, reply: FastifyReply) {
     const refreshToken = request.cookies?.refreshToken;

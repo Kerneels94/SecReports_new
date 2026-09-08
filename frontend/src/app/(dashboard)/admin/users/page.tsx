@@ -42,6 +42,10 @@ export default function AdminUsersPage() {
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
+  const [deleteUser, setDeleteUser] = useState<UserListItem | null>(null);
+  const [deleteSaving, setDeleteSaving] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   const fetchUsers = useCallback(async () => {
     setUsersLoading(true);
     try {
@@ -102,6 +106,22 @@ export default function AdminUsersPage() {
     setEditEmail(u.email);
     setEditRole(u.role);
     setEditError(null);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteUser) return;
+    setDeleteSaving(true);
+    setDeleteError(null);
+    try {
+      await userService.remove(deleteUser.id);
+      setDeleteUser(null);
+      setSuccess(`User ${deleteUser.name} removed`);
+      fetchUsers();
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Failed to remove user");
+    } finally {
+      setDeleteSaving(false);
+    }
   };
 
   const handleEditSave = async () => {
@@ -229,9 +249,16 @@ export default function AdminUsersPage() {
                           <Badge variant={u.role === "admin" ? "info" : "default"}>{u.role}</Badge>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <Button variant="ghost" size="sm" onClick={() => openEdit(u)}>
-                            Edit
-                          </Button>
+                          <div className="flex items-center justify-end gap-2">
+                            <Button variant="ghost" size="sm" onClick={() => openEdit(u)}>
+                              Edit
+                            </Button>
+                            {u.role !== "admin" && user?.id !== u.id && (
+                              <Button variant="danger" size="sm" onClick={() => { setDeleteUser(u); setDeleteError(null); }}>
+                                Remove
+                              </Button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -278,6 +305,30 @@ export default function AdminUsersPage() {
             <Button onClick={handleEditSave} loading={editSaving}>Save</Button>
             <Button variant="secondary" onClick={() => setEditUser(null)}>Cancel</Button>
           </div>
+        </div>
+      </Modal>
+
+      <Modal
+        open={!!deleteUser}
+        onClose={() => setDeleteUser(null)}
+        title={`Remove user`}
+      >
+        {deleteError && (
+          <div className="mb-4 rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+            {deleteError}
+          </div>
+        )}
+        <p className="text-sm text-text-secondary">
+          Remove {deleteUser?.name} ({deleteUser?.email})? Their account will be
+          permanently deleted and all their sessions revoked. This cannot be undone.
+        </p>
+        <div className="flex gap-3 pt-4">
+          <Button variant="danger" onClick={handleDelete} loading={deleteSaving}>
+            Remove User
+          </Button>
+          <Button variant="secondary" onClick={() => setDeleteUser(null)}>
+            Cancel
+          </Button>
         </div>
       </Modal>
     </div>

@@ -15,6 +15,7 @@ jest.mock("../services/auth.service", () => ({
     listUsers: jest.fn(),
     getUserById: jest.fn(),
     updateUser: jest.fn(),
+    deleteUser: jest.fn(),
     logout: jest.fn(),
     logoutAll: jest.fn(),
     listSessions: jest.fn(),
@@ -289,6 +290,19 @@ describe("AuthController", () => {
       });
 
       await expect(AuthController.updateUser(mockRequest, mockReply)).rejects.toThrow(ValidationError);
+    });
+  });
+
+  describe("deleteUser", () => {
+    it("calls AuthService.deleteUser and responds 200", async () => {
+      mockRequest.params = { id: "2" };
+      (AuthService.deleteUser as jest.Mock).mockResolvedValue(undefined);
+
+      await AuthController.deleteUser(mockRequest, mockReply);
+
+      expect(AuthService.deleteUser).toHaveBeenCalledWith("1", "2", "1");
+      expect(mockReply.code).toHaveBeenCalledWith(200);
+      expect(mockReply.send).toHaveBeenCalledWith({ success: true, message: "User deleted successfully." });
     });
   });
 

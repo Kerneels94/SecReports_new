@@ -9,7 +9,7 @@ jest.mock("@/hooks/useAuth", () => ({
 }));
 
 jest.mock("@/services", () => ({
-  userService: { create: jest.fn(), update: jest.fn() },
+  userService: { create: jest.fn(), update: jest.fn(), remove: jest.fn() },
   authService: { listUsers: jest.fn() },
 }));
 
@@ -32,6 +32,7 @@ jest.mock("@/components/ui/Badge", () => ({
 const mockUseAuth = useAuth as jest.Mock;
 const mockCreate = userService.create as jest.Mock;
 const mockListUsers = authService.listUsers as jest.Mock;
+const mockRemove = userService.remove as jest.Mock;
 
 const adminUser = {
   id: 1,
@@ -147,6 +148,24 @@ describe("AdminUsersPage", () => {
 
     await waitFor(() => {
       expect(screen.getByLabelText<HTMLInputElement>("Name").value).toBe("");
+    });
+  });
+
+  it("removes a user after confirmation and refreshes the list", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockListUsers.mockResolvedValue({ data: [{ id: 2, name: "Senior", email: "senior@example.com", role: "senior", status: "active", createdAt: "" }] });
+    mockRemove.mockResolvedValue({ success: true, data: { message: "User deleted successfully." } });
+    render(<AdminUsersPage />);
+    const user = userEvent.setup();
+
+    const removeButton = await screen.findByRole("button", { name: /remove/i });
+    await user.click(removeButton);
+
+    await user.click(screen.getByRole("button", { name: /remove user/i }));
+
+    await waitFor(() => {
+      expect(mockRemove).toHaveBeenCalledWith(2);
+      expect(screen.getByText(/user senior removed/i)).toBeInTheDocument();
     });
   });
 });

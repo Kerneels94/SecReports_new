@@ -58,6 +58,11 @@ export default async function authRoutes(fastify: FastifyInstance) {
     handler: AuthController.updateUser,
   });
 
+  fastify.delete("/auth/users/:id", {
+    preHandler: [fastify.authenticate, requireRole("admin")],
+    handler: AuthController.deleteUser,
+  });
+
   fastify.post("/auth/forgot-password", { config: { rateLimit: { max: 5, timeWindow: "1 minute" } } }, AuthController.forgotPassword);
   fastify.post("/auth/reset-password", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, AuthController.resetPassword);
 }

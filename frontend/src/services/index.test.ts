@@ -125,6 +125,11 @@ describe("userService", () => {
     userService.update(1, { name: "Bob" });
     expect(mockApi.patch).toHaveBeenCalledWith("/auth/users/1", { name: "Bob" });
   });
+
+  it("remove calls api.delete with correct path", () => {
+    userService.remove(1);
+    expect(mockApi.delete).toHaveBeenCalledWith("/auth/users/1");
+  });
 });
 
 describe("adminLedgerService", () => {

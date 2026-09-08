@@ -16,6 +16,7 @@ jest.mock("../lib/db", () => ({
       findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      delete: jest.fn(),
       count: jest.fn().mockResolvedValue(0),
     },
     passwordResetToken: {
@@ -490,6 +491,37 @@ describe("updateUser", () => {
       mockUser.name,
       expect.stringContaining("/verify-email?token="),
     );
+  });
+});
+
+describe("deleteUser", () => {
+  it("deletes refresh tokens, the user, and writes an audit log", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
+
+    await AuthService.deleteUser("1", "1", "2");
+
+    expect(prisma.refreshToken.deleteMany).toHaveBeenCalledWith({ where: { userId: "1" } });
+    expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: "1" } });
+    expect(prisma.auditLog.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        entityType: "user",
+        entityId: "1",
+        action: "user_deleted",
+        performedBy: "2",
+      }),
+    });
+  });
+
+  it("throws NotFoundError when user is not in the company", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
+
+    await expect(AuthService.deleteUser("1", "999", "2")).rejects.toThrow(NotFoundError);
+  });
+
+  it("throws ValidationError when admin tries to delete their own account", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
+
+    await expect(AuthService.deleteUser("1", "1", "1")).rejects.toThrow("You cannot delete your own account");
   });
 });
 
