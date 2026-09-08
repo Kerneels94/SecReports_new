@@ -34,7 +34,10 @@ export const SubscriptionService = {
 
     const trialStartedAt = new Date();
     const trialEndsAt = freePlan.trialPeriodDays
-      ? new Date(trialStartedAt.getTime() + freePlan.trialPeriodDays * 24 * 60 * 60 * 1000)
+      ? new Date(
+          trialStartedAt.getTime() +
+            freePlan.trialPeriodDays * 24 * 60 * 60 * 1000,
+        )
       : null;
 
     return prisma.companySubscription.create({
@@ -87,7 +90,10 @@ export const SubscriptionService = {
 
     const now = new Date();
     const diffMs = sub.trialEndsAt.getTime() - now.getTime();
-    const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+    const daysRemaining = Math.max(
+      0,
+      Math.ceil(diffMs / (1000 * 60 * 60 * 24)),
+    );
     const isExpired = now >= sub.trialEndsAt;
 
     return {
@@ -151,7 +157,9 @@ export const SubscriptionService = {
 
     if (daysRemaining > 2 || daysRemaining < 1) return;
 
-    const company = await prisma.company.findUnique({ where: { id: companyId } });
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+    });
     const admin = await prisma.user.findFirst({
       where: { companyId, role: "admin" },
     });
@@ -179,7 +187,8 @@ export const SubscriptionService = {
       where: { companyId },
     });
     if (!sub) throw new NotFoundError("Subscription");
-    if (sub.status === "cancelled") throw new ConflictError("Already cancelled");
+    if (sub.status === "cancelled")
+      throw new ConflictError("Already cancelled");
 
     const freePlan = await prisma.subscriptionPlan.findFirst({
       where: { price: 0 },

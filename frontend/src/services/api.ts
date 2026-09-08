@@ -143,7 +143,7 @@ class ApiClient {
     return json as ApiResponse<T>;
   }
 
-  async downloadBlob(path: string): Promise<Blob> {
+  async downloadBlob(path: string): Promise<Blob & { filename?: string }> {
     const token = this.getToken();
     const headers: HeadersInit = {};
     if (token) {
@@ -161,7 +161,11 @@ class ApiClient {
       throw new Error(`Download failed: ${res.status} ${text}`);
     }
 
-    return res.blob();
+    const disposition = res.headers.get("Content-Disposition") || "";
+    const match = disposition.match(/filename="?([^";]+)"?/i);
+    const blob = await res.blob();
+    if (match) (blob as Blob & { filename?: string }).filename = match[1];
+    return blob as Blob & { filename?: string };
   }
 }
 

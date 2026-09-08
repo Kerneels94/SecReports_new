@@ -164,4 +164,46 @@ describe("IncidentsPage", () => {
       expect(reportBtn.closest("a")).toHaveAttribute("href", "/incidents/new");
     });
   });
+
+  it("passes date and type filters to the service", async () => {
+    mockList.mockResolvedValue({ data: mockPaginated });
+    render(<IncidentsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("SEC-001")).toBeInTheDocument();
+    });
+
+    await userEvent.type(screen.getByLabelText("Date From"), "2026-05-01");
+    await userEvent.type(screen.getByLabelText("Date To"), "2026-05-31");
+    await userEvent.selectOptions(screen.getByLabelText("Type"), "attempted");
+
+    await waitFor(() => {
+      expect(mockList).toHaveBeenLastCalledWith({
+        page: "1",
+        perPage: "25",
+        dateFrom: "2026-05-01",
+        dateTo: "2026-05-31",
+        type: "attempted",
+      });
+    });
+  });
+
+  it("shows Clear button when a filter is active and resets on click", async () => {
+    mockList.mockResolvedValue({ data: mockPaginated });
+    render(<IncidentsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("SEC-001")).toBeInTheDocument();
+    });
+
+    await userEvent.selectOptions(screen.getByLabelText("Type"), "positive");
+    await waitFor(() => {
+      expect(screen.getByText("Clear")).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByText("Clear"));
+    await waitFor(() => {
+      expect(mockList).toHaveBeenLastCalledWith({ page: "1", perPage: "25" });
+    });
+  });
 });

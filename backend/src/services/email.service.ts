@@ -173,11 +173,6 @@ export async function sendMail({
   }
 }
 
-/** Convenience wrapper to send a welcome email using the "register" template. */
-export async function sendWelcomeEmail(to: string, name: string) {
-  return sendMail({ to, subject: "register", data: { name } });
-}
-
 /** Sends an email verification link to a newly registered user. */
 export async function sendVerificationEmail(
   to: string,

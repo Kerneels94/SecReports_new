@@ -28,40 +28,18 @@ import type {
   LedgerSummary,
 } from "@/types";
 
-interface Comment {
-  id: number;
-  incidentId: number;
-  userId: number;
-  message: string;
-  createdAt: string;
-  user?: User;
-}
-interface Investigation {
-  id: number;
-  incidentId: number;
-  findings: string | null;
-  rootCause: string | null;
-  recommendations: string | null;
-  closureNotes: string | null;
-  completedAt: string | null;
-}
-interface CorrectiveAction {
-  id: number;
-  incidentId: number;
-  description: string;
-  ownerId: number;
-  dueDate: string;
-  status: "open" | "in_progress" | "completed" | "overdue";
-  completedAt: string | null;
-  owner?: User;
-}
-
 interface TrialStatus {
   isTrial: boolean;
   daysRemaining: number;
   isExpired: boolean;
   trialStartedAt?: string;
   trialEndsAt?: string;
+}
+
+/** Monthly incident count data point. */
+export interface MonthlyStat {
+  month: string;
+  count: number;
 }
 
 /** Aggregated report summary data for the dashboard. */
@@ -118,35 +96,10 @@ export const incidentService = {
   delete: (id: number) => api.delete<void>(`/incidents/${id}`),
 };
 
-/** Incident comment endpoints. */
-export const commentService = {
-  list: (incidentId: number) =>
-    api.get<Comment[]>(`/incidents/${incidentId}/comments`),
-  create: (incidentId: number, message: string) =>
-    api.post<Comment>(`/incidents/${incidentId}/comments`, { message }),
-};
-
-/** Incident investigation endpoints. */
-export const investigationService = {
-  get: (incidentId: number) =>
-    api.get<Investigation>(`/incidents/${incidentId}/investigation`),
-  upsert: (incidentId: number, data: Partial<Investigation>) =>
-    api.post<Investigation>(`/incidents/${incidentId}/investigation`, data),
-};
-
-/** Corrective-action CRUD endpoints. */
-export const actionService = {
-  list: (incidentId: number) =>
-    api.get<CorrectiveAction[]>(`/incidents/${incidentId}/actions`),
-  create: (incidentId: number, data: Partial<CorrectiveAction>) =>
-    api.post<CorrectiveAction>(`/incidents/${incidentId}/actions`, data),
-  update: (actionId: number, data: Partial<CorrectiveAction>) =>
-    api.patch<CorrectiveAction>(`/actions/${actionId}`, data),
-};
-
 /** Dashboard report-summary endpoints. */
 export const reportService = {
   summary: () => api.get<ReportSummary>("/reports/summary"),
+  monthlyStats: () => api.get<MonthlyStat[]>("/reports/monthly-stats"),
   batchEmail: (email: string, type: string, format: "csv" | "pdf") =>
     api.post<{ message: string }>("/reports/batch-email", {
       email,
@@ -162,6 +115,7 @@ export const exportService = {
     return api.downloadBlob(`/export/pdf${params}`);
   },
   downloadCsv: () => api.downloadBlob("/export/csv"),
+  downloadYearlyPdf: () => api.downloadBlob("/export/yearly-pdf"),
   emailReport: (incidentId: number, email: string, format: "csv" | "pdf") =>
     api.post<{ message: string }>("/reports/email", {
       incidentId,
@@ -450,9 +404,7 @@ export const adminLedgerService = {
     if (params?.dateFrom) searchParams.set("dateFrom", params.dateFrom);
     if (params?.dateTo) searchParams.set("dateTo", params.dateTo);
     const qs = searchParams.toString();
-    return api.get<LedgerEntry[]>(
-      `/admin/ledger${qs ? `?${qs}` : ""}`,
-    );
+    return api.get<LedgerEntry[]>(`/admin/ledger${qs ? `?${qs}` : ""}`);
   },
   summary: () => api.get<LedgerSummary>("/admin/ledger/summary"),
   getById: (id: string) => api.get<LedgerEntry>(`/admin/ledger/${id}`),
@@ -465,8 +417,7 @@ export const adminLedgerService = {
     reference?: string;
     postedAt?: string;
   }) => api.post<LedgerEntry>("/admin/ledger", data),
-  voidEntry: (id: string) =>
-    api.patch<LedgerEntry>(`/admin/ledger/${id}/void`),
+  voidEntry: (id: string) => api.patch<LedgerEntry>(`/admin/ledger/${id}/void`),
 };
 
 /** Company audit-log endpoints (superadmin). */

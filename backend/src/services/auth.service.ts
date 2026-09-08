@@ -5,7 +5,7 @@
  */
 import crypto from "crypto";
 import { prisma } from "../lib/db";
-import { hashPassword, comparePassword } from "../lib/hash";
+import { hashPassword, comparePassword, hashToken } from "../lib/hash";
 import {
   signAccessToken,
   signRefreshToken,
@@ -22,7 +22,6 @@ import { hasMxRecord } from "../lib/email";
 import { getAppUrl } from "../lib/app-url";
 import {
   sendVerificationEmail,
-  sendWelcomeEmail,
   sendPasswordResetEmail,
   sendPasswordChangedEmail,
 } from "./email.service";
@@ -78,11 +77,6 @@ async function createAuditLog(params: {
 /** Sleep for a given number of milliseconds. */
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/** Hashes a raw refresh token for storage and lookup. */
-function hashToken(raw: string): string {
-  return crypto.createHash("sha256").update(raw).digest("hex");
 }
 
 /** Generates a cryptographically random refresh token string. */

@@ -15,8 +15,7 @@ function formatDateOnly(value: string): string {
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  return date.toLocaleDateString("en-CA");
 }
 
 /** Removes characters that are unsafe or awkward in filenames. */

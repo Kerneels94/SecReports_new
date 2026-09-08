@@ -204,8 +204,8 @@ Two new categories in 2026 vs 2021: **A03 Software Supply Chain Failures** (expa
 ## Test Verification
 
 After any auth change, run:
-- Backend: `148/148` tests passing
-- Frontend: `196/196` tests passing
+- Backend: `224/224` tests passing
+- Frontend: `273/273` tests passing
 
 ---
 

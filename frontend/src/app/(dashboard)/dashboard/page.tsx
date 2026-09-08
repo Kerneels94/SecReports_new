@@ -1,43 +1,48 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { IncidentDetailModal } from "@/components/incidents/IncidentDetailModal";
-import { reportService, incidentService } from "@/services";
-import { DashboardSearch } from "./components/DashboardSearch";
+import { reportService, exportService } from "@/services";
+import { IncidentPieChart, YearlyTrendChart } from "./components/DashboardCharts";
 import { useAuth } from "@/hooks/useAuth";
-import type { Incident, TrialStatus } from "@/types";
+import type { TrialStatus } from "@/types";
+
+export function aggregateYearly(data: { month: string; count: number }[]): { month: string; count: number }[] {
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const totals = new Array(12).fill(0);
+  for (const d of data) {
+    const i = Number(d.month.slice(5, 7)) - 1;
+    totals[i] += d.count;
+  }
+  return totals.map((count, i) => ({ month: monthNames[i], count }));
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [total, setTotal] = useState(0);
   const [attemptedCount, setAttemptedCount] = useState(0);
   const [positiveCount, setPositiveCount] = useState(0);
-  const [recent, setRecent] = useState<Incident[]>([]);
   const [trial, setTrial] = useState<TrialStatus | null>(null);
+  const [monthlyData, setMonthlyData] = useState<{ month: string; count: number }[]>([]);
+  const [chartMode, setChartMode] = useState<"monthly" | "yearly">("monthly");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(null);
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [tableLoading, setTableLoading] = useState(false);
-  const [filteredTotal, setFilteredTotal] = useState(0);
-  const [isFiltered, setIsFiltered] = useState(false);
-  const [page, setPage] = useState(1);
-  const perPage = 25;
+  const [downloading, setDownloading] = useState(false);
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await reportService.summary();
-      setTotal(res.data.total);
-      setAttemptedCount(res.data.attemptedCount);
-      setPositiveCount(res.data.positiveCount);
-      setRecent(res.data.recent);
-      setTrial(res.data.trial);
+      const [summaryRes, monthlyRes] = await Promise.all([
+        reportService.summary(),
+        reportService.monthlyStats(),
+      ]);
+      setTotal(summaryRes.data.total);
+      setAttemptedCount(summaryRes.data.attemptedCount);
+      setPositiveCount(summaryRes.data.positiveCount);
+      setTrial(summaryRes.data.trial);
+      setMonthlyData(monthlyRes.data);
     } catch {
       setError("Failed to load dashboard data");
     } finally {
@@ -49,62 +54,28 @@ export default function DashboardPage() {
     fetchSummary();
   }, [fetchSummary]);
 
-  const fetchFiltered = useCallback(async (from: string, to: string, type: string, pageNum: number) => {
-    setTableLoading(true);
+  const chartData = useMemo(() => {
+    return chartMode === "yearly" ? aggregateYearly(monthlyData) : monthlyData;
+  }, [monthlyData, chartMode]);
+
+  const handleDownloadPdf = async () => {
+    setDownloading(true);
     try {
-      const params: Record<string, string> = { page: String(pageNum), perPage: String(perPage) };
-      if (from) params.dateFrom = from;
-      if (to) params.dateTo = to;
-      if (type) params.type = type;
-      const res = await incidentService.list(params);
-      setRecent(res.data.data);
-      setFilteredTotal(res.data.total);
-      setIsFiltered(true);
+      const result = await exportService.downloadYearlyPdf();
+      const url = URL.createObjectURL(result);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = result.filename || "yearly-crime-stats.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch {
+      setError("Failed to download PDF");
     } finally {
-      setTableLoading(false);
-    }
-  }, []);
-
-  const handleDateFromChange = (v: string) => {
-    setDateFrom(v);
-    if (v || dateTo || typeFilter) {
-      setPage(1);
-      fetchFiltered(v, dateTo, typeFilter, 1);
-    } else {
-      setIsFiltered(false);
-      fetchSummary();
+      setDownloading(false);
     }
   };
-
-  const handleDateToChange = (v: string) => {
-    setDateTo(v);
-    if (dateFrom || v || typeFilter) {
-      setPage(1);
-      fetchFiltered(dateFrom, v, typeFilter, 1);
-    } else {
-      setIsFiltered(false);
-      fetchSummary();
-    }
-  };
-
-  const handleTypeFilterChange = (v: string) => {
-    setTypeFilter(v);
-    if (dateFrom || dateTo || v) {
-      setPage(1);
-      fetchFiltered(dateFrom, dateTo, v, 1);
-    } else {
-      setIsFiltered(false);
-      fetchSummary();
-    }
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    fetchFiltered(dateFrom, dateTo, typeFilter, newPage);
-  };
-
-  const totalPages = Math.ceil(filteredTotal / perPage);
 
   if (loading) {
     return (
@@ -132,7 +103,6 @@ export default function DashboardPage() {
   }
 
   const statCards = [
-    { label: "Incidents", value: total, color: "text-primary", gradient: "from-primary/10 to-primary/5", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
     { label: "Attempted incidents", value: attemptedCount, color: "text-warning", gradient: "from-amber-500/10 to-amber-500/5", icon: "M12 9v2m0 4h.01m21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
     { label: "Positive incidents", value: positiveCount, color: "text-success", gradient: "from-emerald-500/10 to-emerald-500/5", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
   ];
@@ -176,16 +146,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <DashboardSearch
-        dateFrom={dateFrom}
-        dateTo={dateTo}
-        typeFilter={typeFilter}
-        onDateFromChange={handleDateFromChange}
-        onDateToChange={handleDateToChange}
-        onTypeFilterChange={handleTypeFilterChange}
-      />
-
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         {statCards.map((stat) => (
           <Card key={stat.label} className="relative overflow-hidden">
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient}`} />
@@ -204,106 +165,59 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div>
-        <Card>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Recent Incidents</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Incident Trends</CardTitle>
+              <div className="flex items-center gap-2">
+                <div className="flex rounded-lg bg-surface-secondary p-0.5 ring-1 ring-border-light">
+                  {(["monthly", "yearly"] as const).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setChartMode(m)}
+                      className={`rounded-md px-3 py-1 text-xs font-medium capitalize transition-colors ${
+                        chartMode === m
+                          ? "bg-surface-elevated text-primary"
+                          : "text-text-secondary hover:text-text"
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+                <Button variant="secondary" size="sm" onClick={handleDownloadPdf} loading={downloading}>
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  PDF
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            {tableLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              </div>
-            ) : recent.length === 0 ? (
+            {monthlyData.length === 0 ? (
+              <p className="text-sm text-text-secondary">No incident data yet.</p>
+            ) : (
+              <YearlyTrendChart data={chartData} />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Incidents by Type</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {total === 0 ? (
               <p className="text-sm text-text-secondary">No incidents reported yet.</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="pb-2 pr-4 text-left font-medium text-text-secondary">Ref #</th>
-                      <th className="pb-2 pr-4 text-left font-medium text-text-secondary">Title</th>
-                      <th className="pb-2 pr-4 text-left font-medium text-text-secondary">Created by</th>
-                      <th className="pb-2 pr-4 text-left font-medium text-text-secondary">Dispatcher</th>
-                      <th className="pb-2 text-left font-medium text-text-secondary">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recent.map((incident) => (
-                      <tr key={incident.id} className="border-b border-border last:border-0">
-                        <td className="py-3 pr-4">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedIncidentId(incident.id)}
-                            className="font-mono text-xs text-primary hover:underline"
-                          >
-                            {incident.referenceNumber}
-                          </button>
-                        </td>
-                        <td className="py-3 pr-4">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedIncidentId(incident.id)}
-                            className="font-medium text-text hover:underline text-left"
-                          >
-                            {incident.title}
-                          </button>
-                        </td>
-                        <td className="py-3 pr-4 text-sm text-text-secondary">
-                          {incident.operatorName}
-                        </td>
-                        <td className="py-3 pr-4 text-sm text-text-secondary">
-                          {incident.dispatcher}
-                        </td>
-                        <td className="py-3 text-sm text-text-secondary">
-                          {new Date(incident.incidentDate).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-            {isFiltered && totalPages > 1 && (
-              <div className="mt-4 flex items-center justify-between">
-                <p className="text-sm text-text-secondary">
-                  Page {page} of {totalPages}
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    disabled={page <= 1}
-                    onClick={() => handlePageChange(Math.max(1, page - 1))}
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    disabled={page >= totalPages}
-                    onClick={() => handlePageChange(page + 1)}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
+              <IncidentPieChart attempted={attemptedCount} positive={positiveCount} />
             )}
           </CardContent>
         </Card>
       </div>
-
-      {selectedIncidentId && (
-        <IncidentDetailModal
-          incidentId={selectedIncidentId}
-          open={!!selectedIncidentId}
-          onClose={() => setSelectedIncidentId(null)}
-        />
-      )}
     </div>
   );
 }

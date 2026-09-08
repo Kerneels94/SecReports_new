@@ -7,7 +7,7 @@ import { SubscriptionService } from "./subscription.service";
 
 export const ReportService = {
   /** Aggregates incident counts by status, recent incidents, and type-based counts (attempted/positive) for the dashboard. */
-  async summary(companyId: string, userId: string) {
+  async summary(companyId: string) {
     const [
       total,
       allIncidents,
@@ -46,5 +46,23 @@ export const ReportService = {
     const trial = await SubscriptionService.getTrialStatus(companyId);
 
     return { total, byStatus, recent, attemptedCount, positiveCount, trial };
+  },
+
+  async monthlyStats(companyId: string) {
+    const incidents = await prisma.incident.findMany({
+      where: { companyId },
+      select: { incidentDate: true },
+    });
+
+    const byMonth: Record<string, number> = {};
+    for (const inc of incidents) {
+      const d = new Date(inc.incidentDate);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      byMonth[key] = (byMonth[key] || 0) + 1;
+    }
+
+    return Object.entries(byMonth)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, count]) => ({ month, count }));
   },
 };

@@ -7,9 +7,6 @@ jest.mock("../lib/db", () => ({
       count: jest.fn(),
       findMany: jest.fn(),
     },
-    correctiveAction: {
-      count: jest.fn(),
-    },
     companySubscription: {
       findUnique: jest.fn(),
     },
@@ -34,7 +31,7 @@ describe("ReportService", () => {
       (prisma.incident.count as jest.Mock).mockResolvedValueOnce(3);
       (prisma.incident.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const result = await ReportService.summary("company1", "user1");
+      const result = await ReportService.summary("company1");
 
       expect(result.total).toBe(42);
       expect(result.byStatus).toEqual([
@@ -51,13 +48,41 @@ describe("ReportService", () => {
       (prisma.incident.count as jest.Mock).mockResolvedValue(0);
       (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
 
-      const result = await ReportService.summary("empty", "user");
+      const result = await ReportService.summary("empty");
 
       expect(result.total).toBe(0);
       expect(result.byStatus).toEqual([]);
       expect(result.recent).toEqual([]);
       expect(result.attemptedCount).toBe(0);
       expect(result.positiveCount).toBe(0);
+    });
+  });
+
+  describe("monthlyStats", () => {
+    it("groups incidents by month in ascending order", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+        { incidentDate: "2026-01-15T00:00:00Z" },
+        { incidentDate: "2026-01-20T00:00:00Z" },
+        { incidentDate: "2025-12-05T00:00:00Z" },
+        { incidentDate: "2026-03-10T00:00:00Z" },
+      ]);
+
+      const result = await ReportService.monthlyStats("company1");
+
+      expect(result).toEqual([
+        { month: "2025-12", count: 1 },
+        { month: "2026-01", count: 2 },
+        { month: "2026-03", count: 1 },
+      ]);
+      expect(prisma.incident.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { companyId: "company1" } }),
+      );
+    });
+
+    it("returns empty array when no incidents exist", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
+      const result = await ReportService.monthlyStats("empty");
+      expect(result).toEqual([]);
     });
   });
 });

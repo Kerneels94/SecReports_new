@@ -47,13 +47,16 @@ jest.mock("../lib/db", () => ({
   },
 }));
 
-jest.mock("../lib/hash");
+jest.mock("../lib/hash", () => ({
+  hashPassword: jest.fn(),
+  comparePassword: jest.fn(),
+  hashToken: jest.fn((raw: string) => `hash-${raw}`),
+}));
 jest.mock("../lib/jwt");
 jest.mock("../lib/email", () => ({
   hasMxRecord: jest.fn().mockResolvedValue(true),
 }));
 jest.mock("./email.service", () => ({
-  sendWelcomeEmail: jest.fn().mockResolvedValue(undefined),
   sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
   sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
   sendPasswordChangedEmail: jest.fn().mockResolvedValue(undefined),
