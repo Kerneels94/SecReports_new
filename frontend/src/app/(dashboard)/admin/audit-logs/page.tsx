@@ -68,6 +68,7 @@ export default function AuditLogsPage() {
 
   const [page, setPage] = useState(1);
   const [entityType, setEntityType] = useState("");
+  const [action, setAction] = useState("");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
 
@@ -79,6 +80,7 @@ export default function AuditLogsPage() {
         page,
         perPage: 20,
         entityType: entityType || undefined,
+        action: action || undefined,
         search: search || undefined,
       });
       setData(res.data);
@@ -91,7 +93,7 @@ export default function AuditLogsPage() {
 
   useEffect(() => {
     fetchData();
-  }, [page, entityType, search]);
+  }, [page, entityType, action, search]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,6 +133,18 @@ export default function AuditLogsPage() {
                   {et.label}
                 </button>
               ))}
+            </div>
+            <div className="flex gap-2">
+              <select
+                value={action}
+                onChange={(e) => { setAction(e.target.value); setPage(1); }}
+                className="rounded-lg border border-border-light bg-surface-elevated/50 px-3 py-1.5 text-xs font-medium text-text-secondary"
+              >
+                <option value="">All Actions</option>
+                {Object.entries(ACTION_LABELS).map(([val, label]) => (
+                  <option key={val} value={val}>{label}</option>
+                ))}
+              </select>
             </div>
             <form onSubmit={handleSearch} className="flex gap-2 sm:ml-auto">
               <Input
