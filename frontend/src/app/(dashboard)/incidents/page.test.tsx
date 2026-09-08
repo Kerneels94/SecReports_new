@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import IncidentsPage from "./page";
-import { incidentService } from "@/services";
+import { incidentService, reportService, exportService } from "@/services";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(() => ({ push: jest.fn() })),
@@ -12,9 +12,12 @@ jest.mock("next/navigation", () => ({
 
 jest.mock("@/services", () => ({
   incidentService: { list: jest.fn() },
+  reportService: { summary: jest.fn(), batchEmail: jest.fn() },
+  exportService: { downloadPdf: jest.fn() },
 }));
 
 const mockList = incidentService.list as jest.Mock;
+const mockSummary = reportService.summary as jest.Mock;
 
 const mockIncidents = [
   {
@@ -44,6 +47,12 @@ const mockPaginated = {
   perPage: 25,
 };
 
+const mockSummaryData = {
+  total: 42,
+  attemptedCount: 10,
+  positiveCount: 5,
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -51,12 +60,37 @@ beforeEach(() => {
 describe("IncidentsPage", () => {
   it("shows loading spinner initially", () => {
     mockList.mockReturnValue(new Promise(() => {}));
+    mockSummary.mockReturnValue(new Promise(() => {}));
     render(<IncidentsPage />);
     expect(document.querySelector(".animate-spin")).toBeInTheDocument();
   });
 
+  it("renders summary cards", async () => {
+    mockList.mockResolvedValue({ data: mockPaginated });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
+    render(<IncidentsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Total Incidents")).toBeInTheDocument();
+      expect(screen.getByText("42")).toBeInTheDocument();
+      expect(screen.getAllByText("Attempted").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("Positive").length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  it("renders Email All buttons when counts are positive", async () => {
+    mockList.mockResolvedValue({ data: mockPaginated });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
+    render(<IncidentsPage />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Email All")).toHaveLength(2);
+    });
+  });
+
   it("renders table with incident data", async () => {
     mockList.mockResolvedValue({ data: mockPaginated });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
     render(<IncidentsPage />);
 
     await waitFor(() => {
@@ -69,10 +103,23 @@ describe("IncidentsPage", () => {
 
   it("shows total count", async () => {
     mockList.mockResolvedValue({ data: mockPaginated });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
     render(<IncidentsPage />);
 
     await waitFor(() => {
       expect(screen.getByText("25 total incidents")).toBeInTheDocument();
+    });
+  });
+
+  it("renders action buttons per row", async () => {
+    mockList.mockResolvedValue({ data: mockPaginated });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
+    render(<IncidentsPage />);
+
+    await waitFor(() => {
+      expect(screen.getAllByTitle("View")).toHaveLength(2);
+      expect(screen.getAllByTitle("Download PDF")).toHaveLength(2);
+      expect(screen.getAllByTitle("Email")).toHaveLength(2);
     });
   });
 
@@ -90,6 +137,7 @@ describe("IncidentsPage", () => {
     mockList.mockResolvedValue({
       data: { data: manyItems, total: 50, page: 1, perPage: 25 },
     });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
 
     render(<IncidentsPage />);
 
@@ -105,6 +153,7 @@ describe("IncidentsPage", () => {
     mockList.mockResolvedValue({
       data: { data: mockIncidents, total: 50, page: 1, perPage: 25 },
     });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
 
     render(<IncidentsPage />);
 
@@ -125,6 +174,7 @@ describe("IncidentsPage", () => {
 
   it("shows error state with retry", async () => {
     mockList.mockRejectedValue(new Error("Failed"));
+    mockSummary.mockRejectedValue(new Error("Failed"));
     render(<IncidentsPage />);
 
     await waitFor(() => {
@@ -134,6 +184,7 @@ describe("IncidentsPage", () => {
     expect(screen.getByText("Retry")).toBeInTheDocument();
 
     mockList.mockResolvedValue({ data: mockPaginated });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
     await userEvent.click(screen.getByText("Retry"));
 
     await waitFor(() => {
@@ -145,6 +196,7 @@ describe("IncidentsPage", () => {
     mockList.mockResolvedValue({
       data: { data: [], total: 0, page: 1, perPage: 25 },
     });
+    mockSummary.mockResolvedValue({ data: { total: 0, attemptedCount: 0, positiveCount: 0 } });
 
     render(<IncidentsPage />);
 
@@ -157,6 +209,7 @@ describe("IncidentsPage", () => {
 
   it("renders Report Incident button", async () => {
     mockList.mockResolvedValue({ data: mockPaginated });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
     render(<IncidentsPage />);
 
     await waitFor(() => {
@@ -167,6 +220,7 @@ describe("IncidentsPage", () => {
 
   it("passes date and type filters to the service", async () => {
     mockList.mockResolvedValue({ data: mockPaginated });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
     render(<IncidentsPage />);
 
     await waitFor(() => {
@@ -190,6 +244,7 @@ describe("IncidentsPage", () => {
 
   it("shows Clear button when a filter is active and resets on click", async () => {
     mockList.mockResolvedValue({ data: mockPaginated });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
     render(<IncidentsPage />);
 
     await waitFor(() => {

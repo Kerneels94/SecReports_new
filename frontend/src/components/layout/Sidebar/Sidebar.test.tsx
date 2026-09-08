@@ -37,14 +37,13 @@ function getNavLink(name: string): HTMLAnchorElement | null {
 }
 
 describe("Sidebar", () => {
-  it("renders all 5 nav items", () => {
+  it("renders all 4 nav items", () => {
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar />);
 
     expect(getNavLink("Dashboard")).toHaveAttribute("href", "/dashboard");
     expect(getNavLink("Incidents")).toHaveAttribute("href", "/incidents");
     expect(getNavLink("Report Incident")).toHaveAttribute("href", "/incidents/new");
-    expect(getNavLink("Reports")).toHaveAttribute("href", "/reports");
     expect(getNavLink("Users")).toHaveAttribute("href", "/admin/users");
   });
 
@@ -83,7 +82,6 @@ describe("Sidebar", () => {
     expect(getNavLink("Dashboard")).toHaveAttribute("href", "/dashboard");
     expect(getNavLink("Incidents")).toHaveAttribute("href", "/incidents");
     expect(getNavLink("Report Incident")).toHaveAttribute("href", "/incidents/new");
-    expect(getNavLink("Reports")).toHaveAttribute("href", "/reports");
     expect(getNavLink("Users")).toHaveAttribute("href", "/admin/users");
   });
 
