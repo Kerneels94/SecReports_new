@@ -7,8 +7,6 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -17,6 +15,7 @@ import {
 } from "recharts";
 
 const PIE_COLORS = ["#fbbf24", "#4ade80"];
+const CURSOR = { stroke: "#71717a", strokeWidth: 1, strokeDasharray: "4 4" };
 
 function ChartTooltip({ active, payload, label }: {
   active?: boolean;
@@ -63,7 +62,7 @@ export function ResponseTimeChart({ data }: { data: { month: string; avgMinutes:
   return (
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
+        <LineChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
           <XAxis
             dataKey="month"
@@ -72,9 +71,17 @@ export function ResponseTimeChart({ data }: { data: { month: string; avgMinutes:
             tickLine={false}
           />
           <YAxis tick={{ fill: "#a1a1aa", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} unit="m" />
-          <Tooltip content={<ChartTooltip />} />
-          <Bar dataKey="avgMinutes" name="Avg response (min)" fill="#fbbf24" radius={[4, 4, 0, 0]} />
-        </BarChart>
+          <Tooltip content={<ChartTooltip />} cursor={CURSOR} />
+          <Line
+            type="monotone"
+            dataKey="avgMinutes"
+            name="Avg response (min)"
+            stroke="#fbbf24"
+            strokeWidth={2.5}
+            dot={{ fill: "#fbbf24", r: 3, strokeWidth: 0 }}
+            activeDot={{ r: 5 }}
+          />
+        </LineChart>
       </ResponsiveContainer>
     </div>
   );
@@ -93,7 +100,7 @@ export function YearlyTrendChart({ data }: { data: { month: string; count: numbe
             tickLine={false}
           />
           <YAxis tick={{ fill: "#a1a1aa", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
-          <Tooltip content={<ChartTooltip />} />
+          <Tooltip content={<ChartTooltip />} cursor={CURSOR} />
           <Line
             type="monotone"
             dataKey="count"

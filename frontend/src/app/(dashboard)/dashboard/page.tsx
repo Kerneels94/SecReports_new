@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { reportService, exportService } from "@/services";
 import { IncidentPieChart, ResponseTimeChart, YearlyTrendChart } from "./components/DashboardCharts";
-import type { MonthlyResponseStat } from "@/services";
+import type { AreaResponseStat, MonthlyResponseStat } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 import type { Incident, TrialStatus } from "@/types";
 
@@ -29,19 +29,20 @@ export default function DashboardPage() {
   const [trial, setTrial] = useState<TrialStatus | null>(null);
   const [monthlyData, setMonthlyData] = useState<{ month: string; count: number }[]>([]);
   const [responseData, setResponseData] = useState<MonthlyResponseStat[]>([]);
+  const [areaData, setAreaData] = useState<AreaResponseStat[]>([]);
   const [chartMode, setChartMode] = useState<"monthly" | "yearly">("monthly");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [responseError, setResponseError] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [summaryRes, monthlyRes, responseRes] = await Promise.all([
+      const [summaryRes, monthlyRes] = await Promise.all([
         reportService.summary(),
         reportService.monthlyStats(),
-        reportService.monthlyResponse(),
       ]);
       setTotal(summaryRes.data.total);
       setAttemptedCount(summaryRes.data.attemptedCount);
@@ -49,7 +50,6 @@ export default function DashboardPage() {
       setRecent(summaryRes.data.recent ?? []);
       setTrial(summaryRes.data.trial);
       setMonthlyData(monthlyRes.data);
-      setResponseData(responseRes.data);
     } catch {
       setError("Failed to load dashboard data");
     } finally {
@@ -57,9 +57,24 @@ export default function DashboardPage() {
     }
   }, []);
 
+  const fetchResponseMetrics = useCallback(async () => {
+    setResponseError(false);
+    try {
+      const [responseRes, areaRes] = await Promise.all([
+        reportService.monthlyResponse(),
+        reportService.responseByArea(),
+      ]);
+      setResponseData(responseRes.data);
+      setAreaData(areaRes.data ?? []);
+    } catch {
+      setResponseError(true);
+    }
+  }, []);
+
   useEffect(() => {
     fetchSummary();
-  }, [fetchSummary]);
+    fetchResponseMetrics();
+  }, [fetchSummary, fetchResponseMetrics]);
 
   const chartData = useMemo(() => {
     return chartMode === "yearly" ? aggregateYearly(monthlyData) : monthlyData;
@@ -254,18 +269,61 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Avg Response Time</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {responseData.length === 0 ? (
-            <p className="text-sm text-text-secondary">No response time data yet (dispatch/arrival times not recorded).</p>
-          ) : (
-            <ResponseTimeChart data={responseData} />
-          )}
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Avg Response Time</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {responseError ? (
+              <div className="flex flex-col items-center gap-3 py-8">
+                <p className="text-sm text-danger">Failed to load response time data</p>
+                <Button variant="secondary" size="sm" onClick={fetchResponseMetrics}>Retry</Button>
+              </div>
+            ) : responseData.length === 0 ? (
+              <p className="text-sm text-text-secondary">No response time data yet (dispatch/arrival times not recorded).</p>
+            ) : (
+              <ResponseTimeChart data={responseData} />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Response Time by Area</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {responseError ? (
+              <div className="flex h-full items-center justify-center py-8">
+                <p className="text-sm text-danger">Failed to load response time data</p>
+              </div>
+            ) : areaData.length === 0 ? (
+              <p className="text-sm text-text-secondary">No area response data yet.</p>
+            ) : (
+              <div className="flex h-full flex-col justify-center divide-y divide-border-light/50">
+                {areaData.map((area) => {
+                  const max = areaData[0]?.avgMinutes || 1;
+                  return (
+                    <div key={area.area} className="flex items-center gap-4 py-2.5">
+                      <span className="w-32 shrink-0 truncate text-sm text-text-secondary">{area.area}</span>
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-secondary">
+                        <div
+                          className="h-full rounded-full bg-warning/80"
+                          style={{ width: `${(area.avgMinutes / max) * 100}%` }}
+                        />
+                      </div>
+                      <span className="w-14 shrink-0 text-right text-sm font-medium text-text">
+                        {area.avgMinutes}m
+                      </span>
+                      <span className="w-16 shrink-0 text-right text-xs text-text-secondary">{area.count} incidents</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       <Card>
         <CardHeader>

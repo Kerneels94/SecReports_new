@@ -20,4 +20,9 @@ export const ReportController = {
     const data = await ReportService.monthlyResponse(request.user!.companyId);
     reply.code(200).send({ success: true, data });
   },
+
+  async responseByArea(request: FastifyRequest, reply: FastifyReply) {
+    const data = await ReportService.responseByArea(request.user!.companyId);
+    reply.code(200).send({ success: true, data });
+  },
 };

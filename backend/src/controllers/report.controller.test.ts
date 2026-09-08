@@ -5,6 +5,7 @@ jest.mock("../services/report.service", () => ({
   ReportService: {
     summary: jest.fn(),
     monthlyResponse: jest.fn(),
+    responseByArea: jest.fn(),
   },
 }));
 
@@ -54,6 +55,22 @@ describe("ReportController", () => {
       await ReportController.monthlyResponse(mockRequest, mockReply);
 
       expect(ReportService.monthlyResponse).toHaveBeenCalledWith("5");
+      expect(mockReply.code).toHaveBeenCalledWith(200);
+      expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: mockData });
+    });
+  });
+
+  describe("responseByArea", () => {
+    it("calls ReportService.responseByArea with companyId and sends result", async () => {
+      const mockData = [
+        { area: "North CBD", avgMinutes: 30, count: 2 },
+        { area: "South Gate", avgMinutes: 10, count: 1 },
+      ];
+      (ReportService.responseByArea as jest.Mock).mockResolvedValue(mockData);
+
+      await ReportController.responseByArea(mockRequest, mockReply);
+
+      expect(ReportService.responseByArea).toHaveBeenCalledWith("5");
       expect(mockReply.code).toHaveBeenCalledWith(200);
       expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: mockData });
     });
