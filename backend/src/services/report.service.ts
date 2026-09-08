@@ -7,7 +7,7 @@ import { SubscriptionService } from "./subscription.service";
 
 export const ReportService = {
   /** Aggregates incident counts by status, recent incidents, and type-based counts (attempted/positive) for the dashboard. */
-  async summary(companyId: string, userId: string) {
+  async summary(companyId: string) {
     const [
       total,
       allIncidents,

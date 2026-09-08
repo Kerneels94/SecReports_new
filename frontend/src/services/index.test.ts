@@ -3,9 +3,6 @@ import {
   authService,
   incidentService,
   reportService,
-  commentService,
-  investigationService,
-  actionService,
   userService,
   adminLedgerService,
 } from "./index";
@@ -104,50 +101,6 @@ describe("reportService", () => {
   it("summary calls api.get with correct path", () => {
     reportService.summary();
     expect(mockApi.get).toHaveBeenCalledWith("/reports/summary");
-  });
-});
-
-describe("commentService", () => {
-  it("list calls api.get with correct path", () => {
-    commentService.list(1);
-    expect(mockApi.get).toHaveBeenCalledWith("/incidents/1/comments");
-  });
-
-  it("create calls api.post with correct path and message", () => {
-    commentService.create(1, "Nice work");
-    expect(mockApi.post).toHaveBeenCalledWith("/incidents/1/comments", { message: "Nice work" });
-  });
-});
-
-describe("investigationService", () => {
-  it("get calls api.get with correct path", () => {
-    investigationService.get(1);
-    expect(mockApi.get).toHaveBeenCalledWith("/incidents/1/investigation");
-  });
-
-  it("upsert calls api.post with correct path and data", () => {
-    const data = { findings: "Found issue" };
-    investigationService.upsert(1, data);
-    expect(mockApi.post).toHaveBeenCalledWith("/incidents/1/investigation", data);
-  });
-});
-
-describe("actionService", () => {
-  it("list calls api.get with correct path", () => {
-    actionService.list(1);
-    expect(mockApi.get).toHaveBeenCalledWith("/incidents/1/actions");
-  });
-
-  it("create calls api.post with correct path and data", () => {
-    const data = { description: "Fix it" };
-    actionService.create(1, data);
-    expect(mockApi.post).toHaveBeenCalledWith("/incidents/1/actions", data);
-  });
-
-  it("update calls api.patch with correct path and data", () => {
-    const data = { status: "completed" as const };
-    actionService.update(10, data);
-    expect(mockApi.patch).toHaveBeenCalledWith("/actions/10", data);
   });
 });
 

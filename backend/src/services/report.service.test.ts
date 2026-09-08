@@ -34,7 +34,7 @@ describe("ReportService", () => {
       (prisma.incident.count as jest.Mock).mockResolvedValueOnce(3);
       (prisma.incident.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const result = await ReportService.summary("company1", "user1");
+      const result = await ReportService.summary("company1");
 
       expect(result.total).toBe(42);
       expect(result.byStatus).toEqual([
@@ -51,7 +51,7 @@ describe("ReportService", () => {
       (prisma.incident.count as jest.Mock).mockResolvedValue(0);
       (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
 
-      const result = await ReportService.summary("empty", "user");
+      const result = await ReportService.summary("empty");
 
       expect(result.total).toBe(0);
       expect(result.byStatus).toEqual([]);

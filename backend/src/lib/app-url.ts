@@ -1,12 +1,13 @@
 /**
- * Returns the base URL for the frontend application based on the ENVIRONMENT variable.
- * - localhost -> http://localhost:3000
- * - anything else (staging, production) -> https://roaring-sable-cba735.netlify.app
+ * Returns the base URL for the frontend application.
+ * Falls back to localhost during local dev, otherwise the deployed app URL.
+ * Override with the FRONTEND_URL environment variable.
  */
 export function getAppUrl(): string {
-  const env = process.env.ENVIRONMENT || "staging";
-  if (env === "localhost") {
-    return "http://localhost:3000";
-  }
-  return "https://roaring-sable-cba735.netlify.app";
+  return (
+    process.env.FRONTEND_URL ||
+    (process.env.ENVIRONMENT === "localhost"
+      ? "http://localhost:3000"
+      : "https://roaring-sable-cba735.netlify.app")
+  );
 }

@@ -5,16 +5,13 @@
 import crypto from "crypto";
 import { prisma } from "../lib/db";
 import { NotFoundError, ConflictError } from "../lib/errors";
-
-function hashApiKey(raw: string): string {
-  return crypto.createHash("sha256").update(raw).digest("hex");
-}
+import { hashToken } from "../lib/hash";
 
 export const ApiKeyService = {
   /** Creates a new API key with a random `sk_`-prefixed secret. Stores only the SHA-256 hash. */
   async generate(companyId: string, name: string) {
     const key = `sk_${crypto.randomBytes(32).toString("hex")}`;
-    const keyHash = hashApiKey(key);
+    const keyHash = hashToken(key);
 
     await prisma.apiKey.create({
       data: { companyId, name, key: keyHash },
@@ -51,7 +48,7 @@ export const ApiKeyService = {
 
   /** Validates an API key and updates its last-used timestamp. Returns null if inactive. */
   async validate(key: string) {
-    const keyHash = hashApiKey(key);
+    const keyHash = hashToken(key);
     const apiKey = await prisma.apiKey.findUnique({ where: { key: keyHash } });
     if (!apiKey || !apiKey.active) return null;
 

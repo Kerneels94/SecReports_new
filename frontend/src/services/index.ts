@@ -28,34 +28,6 @@ import type {
   LedgerSummary,
 } from "@/types";
 
-interface Comment {
-  id: number;
-  incidentId: number;
-  userId: number;
-  message: string;
-  createdAt: string;
-  user?: User;
-}
-interface Investigation {
-  id: number;
-  incidentId: number;
-  findings: string | null;
-  rootCause: string | null;
-  recommendations: string | null;
-  closureNotes: string | null;
-  completedAt: string | null;
-}
-interface CorrectiveAction {
-  id: number;
-  incidentId: number;
-  description: string;
-  ownerId: number;
-  dueDate: string;
-  status: "open" | "in_progress" | "completed" | "overdue";
-  completedAt: string | null;
-  owner?: User;
-}
-
 interface TrialStatus {
   isTrial: boolean;
   daysRemaining: number;
@@ -122,32 +94,6 @@ export const incidentService = {
   updateStatus: (id: number, status: string) =>
     api.patch<Incident>(`/incidents/${id}/status`, { status }),
   delete: (id: number) => api.delete<void>(`/incidents/${id}`),
-};
-
-/** Incident comment endpoints. */
-export const commentService = {
-  list: (incidentId: number) =>
-    api.get<Comment[]>(`/incidents/${incidentId}/comments`),
-  create: (incidentId: number, message: string) =>
-    api.post<Comment>(`/incidents/${incidentId}/comments`, { message }),
-};
-
-/** Incident investigation endpoints. */
-export const investigationService = {
-  get: (incidentId: number) =>
-    api.get<Investigation>(`/incidents/${incidentId}/investigation`),
-  upsert: (incidentId: number, data: Partial<Investigation>) =>
-    api.post<Investigation>(`/incidents/${incidentId}/investigation`, data),
-};
-
-/** Corrective-action CRUD endpoints. */
-export const actionService = {
-  list: (incidentId: number) =>
-    api.get<CorrectiveAction[]>(`/incidents/${incidentId}/actions`),
-  create: (incidentId: number, data: Partial<CorrectiveAction>) =>
-    api.post<CorrectiveAction>(`/incidents/${incidentId}/actions`, data),
-  update: (actionId: number, data: Partial<CorrectiveAction>) =>
-    api.patch<CorrectiveAction>(`/actions/${actionId}`, data),
 };
 
 /** Dashboard report-summary endpoints. */

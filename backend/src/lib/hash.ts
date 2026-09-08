@@ -1,10 +1,17 @@
 /**
  * Password hashing utilities wrapping bcrypt with a configurable salt-round
  * setting (default 12) read from the `BCRYPT_SALT_ROUNDS` environment variable.
+ * Also exposes a SHA-256 digest helper for hashing tokens/keys before storage.
  */
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 const SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || "12", 10);
+
+/** SHA-256 hex digest — used to hash tokens/API keys so raw values never hit the DB. */
+export function hashToken(raw: string): string {
+  return crypto.createHash("sha256").update(raw).digest("hex");
+}
 
 /**
  * Hash a plain-text password using bcrypt.
