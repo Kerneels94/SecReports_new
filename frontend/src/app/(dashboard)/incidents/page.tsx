@@ -20,13 +20,20 @@ export default function IncidentsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(null);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
   const perPage = 25;
 
   const fetchIncidents = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await incidentService.list({ page: String(page), perPage: String(perPage) });
+      const params: Record<string, string> = { page: String(page), perPage: String(perPage) };
+      if (dateFrom) params.dateFrom = dateFrom;
+      if (dateTo) params.dateTo = dateTo;
+      if (typeFilter) params.type = typeFilter;
+      const res = await incidentService.list(params);
       setIncidents(res.data.data);
       setTotal(res.data.total);
     } catch {
@@ -34,7 +41,7 @@ export default function IncidentsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, [page, dateFrom, dateTo, typeFilter]);
 
   useEffect(() => {
     fetchIncidents();
@@ -52,6 +59,51 @@ export default function IncidentsPage() {
         <Link href="/incidents/new">
           <Button>Report Incident</Button>
         </Link>
+      </div>
+
+      <div className="flex flex-wrap items-end gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="filter-date-from" className="text-xs font-medium text-text-secondary">Date From</label>
+          <input
+            id="filter-date-from"
+            type="date"
+            value={dateFrom}
+            onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+            className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-primary transition-colors"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="filter-date-to" className="text-xs font-medium text-text-secondary">Date To</label>
+          <input
+            id="filter-date-to"
+            type="date"
+            value={dateTo}
+            onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+            className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-primary transition-colors"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="filter-type" className="text-xs font-medium text-text-secondary">Type</label>
+          <select
+            id="filter-type"
+            value={typeFilter}
+            onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
+            className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-primary transition-colors"
+          >
+            <option value="">All Types</option>
+            <option value="attempted">Attempted</option>
+            <option value="positive">Positive</option>
+          </select>
+        </div>
+        {(dateFrom || dateTo || typeFilter) && (
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => { setDateFrom(""); setDateTo(""); setTypeFilter(""); setPage(1); }}
+          >
+            Clear
+          </Button>
+        )}
       </div>
 
       <Card className="overflow-hidden">
