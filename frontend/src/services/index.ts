@@ -42,6 +42,12 @@ export interface MonthlyStat {
   count: number;
 }
 
+/** Average response time in minutes for a month. */
+export interface MonthlyResponseStat {
+  month: string;
+  avgMinutes: number;
+}
+
 /** Aggregated report summary data for the dashboard. */
 interface ReportSummary {
   total: number;
@@ -100,6 +106,7 @@ export const incidentService = {
 export const reportService = {
   summary: () => api.get<ReportSummary>("/reports/summary"),
   monthlyStats: () => api.get<MonthlyStat[]>("/reports/monthly-stats"),
+  monthlyResponse: () => api.get<MonthlyResponseStat[]>("/reports/monthly-response"),
   batchEmail: (email: string, type: string, format: "csv" | "pdf") =>
     api.post<{ message: string }>("/reports/batch-email", {
       email,

@@ -15,4 +15,9 @@ export const ReportController = {
     const data = await ReportService.monthlyStats(request.user!.companyId);
     reply.code(200).send({ success: true, data });
   },
+
+  async monthlyResponse(request: FastifyRequest, reply: FastifyReply) {
+    const data = await ReportService.monthlyResponse(request.user!.companyId);
+    reply.code(200).send({ success: true, data });
+  },
 };

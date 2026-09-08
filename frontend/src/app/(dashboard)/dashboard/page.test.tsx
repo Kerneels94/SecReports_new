@@ -15,20 +15,21 @@ jest.mock("@/hooks/useAuth", () => ({
 }));
 
 jest.mock("@/services", () => ({
-  reportService: { summary: jest.fn(), monthlyStats: jest.fn() },
+  reportService: { summary: jest.fn(), monthlyStats: jest.fn(), monthlyResponse: jest.fn() },
   exportService: { downloadYearlyPdf: jest.fn() },
 }));
 
 const mockSummary = reportService.summary as jest.Mock;
 const mockMonthly = reportService.monthlyStats as jest.Mock;
+const mockMonthlyResponse = reportService.monthlyResponse as jest.Mock;
 const mockDownloadPdf = exportService.downloadYearlyPdf as jest.Mock;
 
 const mockData = {
   total: 25,
   byStatus: [],
   recent: [
-    { id: 1, referenceNumber: "SEC-001", title: "Server down", status: "under_review", incidentDate: "2026-05-01T00:00:00Z", createdAt: "2026-05-01T00:00:00Z" },
-    { id: 2, referenceNumber: "SEC-002", title: "Phishing email", status: "submitted", incidentDate: "2026-05-15T00:00:00Z", createdAt: "2026-05-15T00:00:00Z" },
+    { id: 1, referenceNumber: "SEC-001", title: "Server down", status: "under_review", incidentDate: "2026-05-01T00:00:00Z", createdAt: "2026-05-01T00:00:00Z", reporter: { id: 1, name: "John Doe" } },
+    { id: 2, referenceNumber: "SEC-002", title: "Phishing email", status: "submitted", incidentDate: "2026-05-15T00:00:00Z", createdAt: "2026-05-15T00:00:00Z", reporter: { id: 2, name: "Jane Smith" } },
   ],
   attemptedCount: 3,
   positiveCount: 2,
@@ -37,6 +38,7 @@ const mockData = {
 beforeEach(() => {
   jest.clearAllMocks();
   mockMonthly.mockResolvedValue({ data: [] });
+  mockMonthlyResponse.mockResolvedValue({ data: [] });
 });
 
 describe("DashboardPage", () => {
@@ -56,6 +58,7 @@ describe("DashboardPage", () => {
     });
 
     expect(screen.getByText("Positive incidents")).toBeInTheDocument();
+    expect(screen.getByText("Total incidents")).toBeInTheDocument();
   });
 
   it("renders stat card values", async () => {
@@ -67,6 +70,55 @@ describe("DashboardPage", () => {
     });
 
     expect(screen.getByText("2")).toBeInTheDocument();
+    expect(screen.getByText("25")).toBeInTheDocument();
+  });
+
+  it("renders latest activity list from recent incidents", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Latest Activity")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("SEC-001")).toBeInTheDocument();
+    expect(screen.getByText("Server down")).toBeInTheDocument();
+    expect(screen.getByText("John Doe")).toBeInTheDocument();
+    expect(screen.getByText("Phishing email")).toBeInTheDocument();
+    expect(screen.getByText("Jane Smith")).toBeInTheDocument();
+  });
+
+  it("renders month-over-month delta card", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockMonthly.mockResolvedValue({
+      data: [
+        { month: "2026-03", count: 10 },
+        { month: "2026-04", count: 7 },
+      ],
+    });
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Apr 2026 incidents")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("7")).toBeInTheDocument();
+    expect(screen.getByText(/▼ 3 vs previous month/)).toBeInTheDocument();
+  });
+
+  it("renders avg response time chart", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockMonthlyResponse.mockResolvedValue({
+      data: [
+        { month: "2026-01", avgMinutes: 30 },
+        { month: "2026-02", avgMinutes: 22 },
+      ],
+    });
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Avg Response Time")).toBeInTheDocument();
+    });
   });
 
   it("shows error state with retry", async () => {

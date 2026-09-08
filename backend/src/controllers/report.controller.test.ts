@@ -4,6 +4,7 @@ import { ReportService } from "../services/report.service";
 jest.mock("../services/report.service", () => ({
   ReportService: {
     summary: jest.fn(),
+    monthlyResponse: jest.fn(),
   },
 }));
 
@@ -37,6 +38,22 @@ describe("ReportController", () => {
       await ReportController.summary(mockRequest, mockReply);
 
       expect(ReportService.summary).toHaveBeenCalledWith("5");
+      expect(mockReply.code).toHaveBeenCalledWith(200);
+      expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: mockData });
+    });
+  });
+
+  describe("monthlyResponse", () => {
+    it("calls ReportService.monthlyResponse with companyId and sends result", async () => {
+      const mockData = [
+        { month: "2026-01", avgMinutes: 30 },
+        { month: "2026-02", avgMinutes: 22 },
+      ];
+      (ReportService.monthlyResponse as jest.Mock).mockResolvedValue(mockData);
+
+      await ReportController.monthlyResponse(mockRequest, mockReply);
+
+      expect(ReportService.monthlyResponse).toHaveBeenCalledWith("5");
       expect(mockReply.code).toHaveBeenCalledWith(200);
       expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: mockData });
     });

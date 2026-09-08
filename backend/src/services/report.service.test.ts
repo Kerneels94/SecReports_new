@@ -85,4 +85,35 @@ describe("ReportService", () => {
       expect(result).toEqual([]);
     });
   });
+
+  describe("monthlyResponse", () => {
+    it("averages dispatch→arrival minutes per month", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+        { incidentDate: "2026-01-15T00:00:00Z", dispatchTime: new Date("2026-01-15T08:00:00Z"), arrivalTime: new Date("2026-01-15T08:25:00Z") },
+        { incidentDate: "2026-01-20T00:00:00Z", dispatchTime: new Date("2026-01-20T08:00:00Z"), arrivalTime: new Date("2026-01-20T08:35:00Z") },
+        { incidentDate: "2025-12-05T00:00:00Z", dispatchTime: new Date("2025-12-05T08:00:00Z"), arrivalTime: new Date("2025-12-05T08:10:00Z") },
+      ]);
+
+      const result = await ReportService.monthlyResponse("company1");
+
+      expect(result).toEqual([
+        { month: "2025-12", avgMinutes: 10 },
+        { month: "2026-01", avgMinutes: 30 },
+      ]);
+    });
+
+    it("ignores incidents with missing or negative response times", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+        { incidentDate: "2026-02-01T00:00:00Z", dispatchTime: new Date("2026-02-01T09:00:00Z"), arrivalTime: new Date("2026-02-01T08:00:00Z") },
+        { incidentDate: "2026-03-01T00:00:00Z", dispatchTime: new Date("2026-03-01T09:00:00Z"), arrivalTime: new Date("2026-03-01T09:15:00Z") },
+      ]);
+
+      const result = await ReportService.monthlyResponse("company1");
+
+      expect(result).toEqual([{ month: "2026-03", avgMinutes: 15 }]);
+      expect(prisma.incident.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { companyId: "company1", dispatchTime: { not: null }, arrivalTime: { not: null } } }),
+      );
+    });
+  });
 });
