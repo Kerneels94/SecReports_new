@@ -15,13 +15,14 @@ jest.mock("@/hooks/useAuth", () => ({
 }));
 
 jest.mock("@/services", () => ({
-  reportService: { summary: jest.fn(), monthlyStats: jest.fn(), monthlyResponse: jest.fn() },
+  reportService: { summary: jest.fn(), monthlyStats: jest.fn(), monthlyResponse: jest.fn(), responseByArea: jest.fn() },
   exportService: { downloadYearlyPdf: jest.fn() },
 }));
 
 const mockSummary = reportService.summary as jest.Mock;
 const mockMonthly = reportService.monthlyStats as jest.Mock;
 const mockMonthlyResponse = reportService.monthlyResponse as jest.Mock;
+const mockResponseByArea = reportService.responseByArea as jest.Mock;
 const mockDownloadPdf = exportService.downloadYearlyPdf as jest.Mock;
 
 const mockData = {
@@ -39,6 +40,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockMonthly.mockResolvedValue({ data: [] });
   mockMonthlyResponse.mockResolvedValue({ data: [] });
+  mockResponseByArea.mockResolvedValue({ data: [] });
 });
 
 describe("DashboardPage", () => {
@@ -119,6 +121,39 @@ describe("DashboardPage", () => {
     await waitFor(() => {
       expect(screen.getByText("Avg Response Time")).toBeInTheDocument();
     });
+  });
+
+  it("renders response time by area breakdown", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockResponseByArea.mockResolvedValue({
+      data: [
+        { area: "North CBD", avgMinutes: 30, count: 2 },
+        { area: "South Gate", avgMinutes: 10, count: 1 },
+      ],
+    });
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Response Time by Area")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("North CBD")).toBeInTheDocument();
+    expect(screen.getByText("30m")).toBeInTheDocument();
+    expect(screen.getByText("2 incidents")).toBeInTheDocument();
+  });
+
+  it("keeps dashboard rendering when response metrics fail", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockMonthlyResponse.mockRejectedValue(new Error("down"));
+    mockResponseByArea.mockRejectedValue(new Error("down"));
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Failed to load response time data").length).toBeGreaterThanOrEqual(1);
+    });
+
+    expect(screen.getByText("Attempted incidents")).toBeInTheDocument();
+    expect(screen.getByText("Incident Trends")).toBeInTheDocument();
   });
 
   it("shows error state with retry", async () => {

@@ -116,4 +116,37 @@ describe("ReportService", () => {
       );
     });
   });
+
+  describe("responseByArea", () => {
+    it("averages dispatch→arrival minutes per area, sorted by slowest, with counts", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+        { location: "North CBD", dispatchTime: new Date("2026-01-15T08:00:00Z"), arrivalTime: new Date("2026-01-15T08:25:00Z") },
+        { location: "North CBD", dispatchTime: new Date("2026-01-20T08:00:00Z"), arrivalTime: new Date("2026-01-20T08:35:00Z") },
+        { location: "South Gate", dispatchTime: new Date("2026-01-21T08:00:00Z"), arrivalTime: new Date("2026-01-21T08:10:00Z") },
+      ]);
+
+      const result = await ReportService.responseByArea("company1");
+
+      expect(result).toEqual([
+        { area: "North CBD", avgMinutes: 30, count: 2 },
+        { area: "South Gate", avgMinutes: 10, count: 1 },
+      ]);
+      expect(prisma.incident.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            companyId: "company1",
+            dispatchTime: { not: null },
+            arrivalTime: { not: null },
+            location: { not: null },
+          },
+        }),
+      );
+    });
+
+    it("returns empty array when no incidents match", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
+      const result = await ReportService.responseByArea("empty");
+      expect(result).toEqual([]);
+    });
+  });
 });
