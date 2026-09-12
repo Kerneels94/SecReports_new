@@ -3,7 +3,7 @@
  * permission checks for reporters, and natural language date parsing for searches.
  */
 import { prisma } from "../lib/db";
-import { NotFoundError, ForbiddenError } from "../lib/errors";
+import { NotFoundError } from "../lib/errors";
 import { generateReferenceNumber } from "../lib/utils";
 
 const MONTH_NAMES: Record<string, number> = {
@@ -117,25 +117,6 @@ interface CreateIncidentParams {
   reporterId: string;
 }
 
-/** Parameters for updating an incident report. */
-interface UpdateIncidentParams {
-  title?: string;
-  description?: string;
-  type?: string;
-  incidentDate?: string;
-  location?: string;
-  operatorName?: string;
-  dispatcher?: string;
-  dispatchTime?: string;
-  arrivalTime?: string;
-  callSign?: string;
-  propertyAddress?: string;
-  clientName?: string;
-  clientCode?: string;
-  businessOrComplex?: string;
-  sapsReference?: string;
-}
-
 /** Pagination and filtering options for listing incidents. */
 interface ListParams {
   page: number;
@@ -247,103 +228,4 @@ export const IncidentService = {
     return incident;
   },
 
-  /** Updates an incident with reporter ownership check and audit log of old/new values. */
-  async update(companyId: string, id: string, params: UpdateIncidentParams, userId: string, userRole: string) {
-    const incident = await prisma.incident.findFirst({ where: { id, companyId } });
-    if (!incident) throw new NotFoundError("Incident");
-
-    if (userRole !== "admin" && userRole !== "manager" && incident.reporterId !== userId) {
-      throw new ForbiddenError("You can only edit your own incidents");
-    }
-
-    const data: any = {};
-    if (params.title !== undefined) data.title = params.title;
-    if (params.description !== undefined) data.description = params.description;
-    if (params.type !== undefined) data.type = params.type;
-    if (params.incidentDate !== undefined) data.incidentDate = new Date(params.incidentDate);
-    if (params.location !== undefined) data.location = params.location;
-    if (params.operatorName !== undefined) data.operatorName = params.operatorName;
-    if (params.dispatcher !== undefined) data.dispatcher = params.dispatcher;
-    if (params.dispatchTime !== undefined) data.dispatchTime = params.dispatchTime ? new Date(params.dispatchTime) : null;
-    if (params.arrivalTime !== undefined) data.arrivalTime = params.arrivalTime ? new Date(params.arrivalTime) : null;
-    if (params.callSign !== undefined) data.callSign = params.callSign;
-    if (params.propertyAddress !== undefined) data.propertyAddress = params.propertyAddress;
-    if (params.clientName !== undefined) data.clientName = params.clientName;
-    if (params.clientCode !== undefined) data.clientCode = params.clientCode;
-    if (params.businessOrComplex !== undefined) data.businessOrComplex = params.businessOrComplex;
-    if (params.sapsReference !== undefined) data.sapsReference = params.sapsReference;
-
-    const updated = await prisma.incident.update({
-      where: { id },
-      data,
-      include: {
-        reporter: { select: { id: true, name: true, email: true } },
-        assignedInvestigator: { select: { id: true, name: true, email: true } },
-      },
-    });
-
-    await prisma.auditLog.create({
-      data: {
-        entityType: "incident",
-        entityId: id,
-        action: "update",
-        oldValues: JSON.stringify({
-          title: incident.title,
-          status: incident.status,
-        }),
-        newValues: JSON.stringify({ title: params.title }),
-        performedBy: userId,
-      },
-    });
-
-    return updated;
-  },
-
-  /** Changes incident status and logs the transition in the audit log. */
-  async updateStatus(companyId: string, id: string, status: string, userId: string) {
-    const incident = await prisma.incident.findFirst({ where: { id, companyId } });
-    if (!incident) throw new NotFoundError("Incident");
-
-    const oldStatus = incident.status;
-
-    const updated = await prisma.incident.update({
-      where: { id },
-      data: { status: status as any },
-    });
-
-    await prisma.auditLog.create({
-      data: {
-        entityType: "incident",
-        entityId: id,
-        action: "status_change",
-        oldValues: JSON.stringify({ status: oldStatus }),
-        newValues: JSON.stringify({ status }),
-        performedBy: userId,
-      },
-    });
-
-    return updated;
-  },
-
-  /** Deletes an incident with reporter ownership check and audit log. */
-  async delete(companyId: string, id: string, userId: string, userRole: string) {
-    const incident = await prisma.incident.findFirst({ where: { id, companyId } });
-    if (!incident) throw new NotFoundError("Incident");
-
-    if (userRole !== "admin" && userRole !== "manager" && incident.reporterId !== userId) {
-      throw new ForbiddenError("You can only delete your own incidents");
-    }
-
-    await prisma.incident.delete({ where: { id } });
-
-    await prisma.auditLog.create({
-      data: {
-        entityType: "incident",
-        entityId: id,
-        action: "delete",
-        oldValues: JSON.stringify({ title: incident.title }),
-        performedBy: userId,
-      },
-    });
-  },
-};
+  };

@@ -41,6 +41,9 @@ jest.mock("../lib/db", () => ({
       delete: jest.fn(),
       deleteMany: jest.fn(),
     },
+    companyPermission: {
+      findMany: jest.fn().mockResolvedValue([]),
+    },
     auditLog: {
       create: jest.fn().mockResolvedValue({ id: "al1" }),
     },

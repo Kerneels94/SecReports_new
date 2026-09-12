@@ -1,6 +1,6 @@
 import { IncidentService } from "./incident.service";
 import { prisma } from "../lib/db";
-import { NotFoundError, ForbiddenError } from "../lib/errors";
+import { NotFoundError } from "../lib/errors";
 
 jest.mock("../lib/db", () => ({
   prisma: {
@@ -8,8 +8,6 @@ jest.mock("../lib/db", () => ({
       findMany: jest.fn(),
       findFirst: jest.fn(),
       create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
       count: jest.fn(),
     },
     auditLog: {
@@ -258,190 +256,6 @@ describe("IncidentService", () => {
           performedBy: "1",
         },
       });
-    });
-
-
-  });
-
-  describe("update", () => {
-    const updateParams = { title: "Updated Title" };
-
-    it("allows reporter to update own incident and creates audit log", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(baseIncident);
-      (prisma.incident.update as jest.Mock).mockResolvedValue({
-        ...baseIncident,
-        ...updateParams,
-        reporter: { id: "1", name: "Test", email: "test@test.com" },
-        assignedInvestigator: null,
-      });
-
-      const result = await IncidentService.update("1", "1", updateParams, "1", "reporter");
-
-      expect(result.title).toBe("Updated Title");
-      expect(prisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          entityType: "incident",
-          entityId: "1",
-          action: "update",
-          performedBy: "1",
-        }),
-      });
-    });
-
-    it("throws ForbiddenError when reporter edits another's incident", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(baseIncident);
-
-      await expect(
-        IncidentService.update("1", "1", { title: "Hack" }, "2", "reporter"),
-      ).rejects.toThrow(ForbiddenError);
-    });
-
-    it("allows admin to edit any incident regardless of reporterId", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(baseIncident);
-      (prisma.incident.update as jest.Mock).mockResolvedValue({
-        ...baseIncident,
-        title: "Admin edit",
-        reporter: { id: "1", name: "Test", email: "test@test.com" },
-        assignedInvestigator: null,
-      });
-
-      const result = await IncidentService.update("1", "1", { title: "Admin edit" }, "2", "admin");
-
-      expect(result.title).toBe("Admin edit");
-    });
-
-    it("allows manager to edit any incident", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(baseIncident);
-      (prisma.incident.update as jest.Mock).mockResolvedValue({
-        ...baseIncident,
-        title: "Mgr edit",
-        reporter: { id: "1", name: "Test", email: "test@test.com" },
-        assignedInvestigator: null,
-      });
-
-      const result = await IncidentService.update("1", "1", { title: "Mgr edit" }, "2", "manager");
-
-      expect(result.title).toBe("Mgr edit");
-    });
-
-    it("performs partial update with only provided fields", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(baseIncident);
-      (prisma.incident.update as jest.Mock).mockResolvedValue({
-        ...baseIncident,
-        title: "Only title changed",
-        reporter: { id: "1", name: "Test", email: "test@test.com" },
-        assignedInvestigator: null,
-      });
-
-      await IncidentService.update("1", "1", { title: "Only title changed" }, "1", "reporter");
-
-      const updateData = (prisma.incident.update as jest.Mock).mock.calls[0][0].data;
-      expect(updateData.title).toBe("Only title changed");
-      expect(updateData.description).toBeUndefined();
-    });
-
-    it("throws NotFoundError for non-existent incident", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(null);
-
-      await expect(
-        IncidentService.update("1", "999", { title: "Nope" }, "1", "admin"),
-      ).rejects.toThrow(NotFoundError);
-    });
-
-    it("includes oldValues in audit log with previous title and status", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(baseIncident);
-      (prisma.incident.update as jest.Mock).mockResolvedValue({
-        ...baseIncident,
-        title: "Updated",
-        reporter: { id: "1", name: "Test", email: "test@test.com" },
-        assignedInvestigator: null,
-      });
-
-      await IncidentService.update("1", "1", { title: "Updated" }, "1", "reporter");
-
-      expect(prisma.auditLog.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            oldValues: JSON.stringify({
-              title: "Test Incident",
-              status: "submitted",
-            }),
-          }),
-        }),
-      );
-    });
-  });
-
-  describe("updateStatus", () => {
-    it("changes status and writes audit log with old and new status", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(baseIncident);
-      (prisma.incident.update as jest.Mock).mockResolvedValue({ ...baseIncident, status: "under_review" });
-
-      const result = await IncidentService.updateStatus("1", "1", "under_review", "1");
-
-      expect(result.status).toBe("under_review");
-      expect(prisma.auditLog.create).toHaveBeenCalledWith({
-        data: {
-          entityType: "incident",
-          entityId: "1",
-          action: "status_change",
-          oldValues: JSON.stringify({ status: "submitted" }),
-          newValues: JSON.stringify({ status: "under_review" }),
-          performedBy: "1",
-        },
-      });
-    });
-
-    it("throws NotFoundError for non-existent incident", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(null);
-
-      await expect(IncidentService.updateStatus("1", "999", "closed", "1")).rejects.toThrow(NotFoundError);
-    });
-  });
-
-  describe("delete", () => {
-    it("deletes own incident as reporter and creates audit log", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(baseIncident);
-
-      await IncidentService.delete("1", "1", "1", "reporter");
-
-      expect(prisma.incident.delete).toHaveBeenCalledWith({ where: { id: "1" } });
-      expect(prisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          entityType: "incident",
-          entityId: "1",
-          action: "delete",
-          performedBy: "1",
-        }),
-      });
-    });
-
-    it("throws ForbiddenError when reporter deletes another's incident", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(baseIncident);
-
-      await expect(IncidentService.delete("1", "1", "2", "reporter")).rejects.toThrow(ForbiddenError);
-    });
-
-    it("allows admin to delete any incident", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(baseIncident);
-
-      await IncidentService.delete("1", "1", "2", "admin");
-
-      expect(prisma.incident.delete).toHaveBeenCalledWith({ where: { id: "1" } });
-    });
-
-    it("allows investigator to delete any incident", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(baseIncident);
-
-      await IncidentService.delete("1", "1", "2", "manager");
-
-      expect(prisma.incident.delete).toHaveBeenCalledWith({ where: { id: "1" } });
-    });
-
-    it("throws NotFoundError for non-existent incident", async () => {
-      (prisma.incident.findFirst as jest.Mock).mockResolvedValue(null);
-
-      await expect(IncidentService.delete("1", "999", "1", "admin")).rejects.toThrow(NotFoundError);
     });
   });
 });

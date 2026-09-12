@@ -26,7 +26,10 @@ import type {
   CompanySubscription,
   LedgerEntry,
   LedgerSummary,
+  PermissionMatrix,
 } from "@/types";
+
+export type { PermissionMatrix } from "@/types";
 
 interface TrialStatus {
   isTrial: boolean;
@@ -94,7 +97,7 @@ export const authService = {
   getUserById: (id: number) => api.get<UserListItem>(`/auth/users/${id}`),
 };
 
-/** Incident CRUD and status-update endpoints. */
+/** Incident list, detail, and creation endpoints. */
 export const incidentService = {
   list: (params?: Record<string, string>) =>
     api.get<PaginatedResponse<Incident>>(
@@ -102,11 +105,6 @@ export const incidentService = {
     ),
   getById: (id: number) => api.get<Incident>(`/incidents/${id}`),
   create: (data: Partial<Incident>) => api.post<Incident>("/incidents", data),
-  update: (id: number, data: Partial<Incident>) =>
-    api.put<Incident>(`/incidents/${id}`, data),
-  updateStatus: (id: number, status: string) =>
-    api.patch<Incident>(`/incidents/${id}/status`, { status }),
-  delete: (id: number) => api.delete<void>(`/incidents/${id}`),
 };
 
 /** Dashboard report-summary endpoints. */
@@ -468,4 +466,11 @@ export const subscriptionService = {
   getSubscription: () => api.get<CompanySubscription>("/subscription"),
   changePlan: (planId: string) =>
     api.patch<CompanySubscription>("/subscription/plan", { planId }),
+};
+
+/** Role × permission matrix endpoints (company admin). */
+export const permissionsService = {
+  get: () => api.get<PermissionMatrix>("/admin/permissions"),
+  update: (permissions: { key: string; roles: string[] }[]) =>
+    api.put<PermissionMatrix>("/admin/permissions", { permissions }),
 };

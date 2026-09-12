@@ -1,9 +1,9 @@
 import { FastifyInstance } from "fastify";
 import { AuditLogController } from "../controllers/auditLog.controller";
-import { requireRole } from "../middleware/requireRole";
+import { requirePermission } from "../middleware/requirePermission";
 
 export default async function auditLogRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
-  fastify.get("/audit-logs", { preHandler: [requireRole("admin", "manager")] }, AuditLogController.list);
+  fastify.get("/audit-logs", { preHandler: [requirePermission("auditLogs.view")] }, AuditLogController.list);
 }

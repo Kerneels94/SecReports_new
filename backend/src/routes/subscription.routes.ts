@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { SubscriptionController } from "../controllers/subscription.controller";
-import { requireRole } from "../middleware/requireRole";
+import { requirePermission } from "../middleware/requirePermission";
 
 export default async function subscriptionRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
@@ -9,6 +9,6 @@ export default async function subscriptionRoutes(fastify: FastifyInstance) {
   fastify.get("/subscription", SubscriptionController.getSubscription);
   fastify.get("/subscription/billing", SubscriptionController.getBillingDetails);
   fastify.patch("/subscription/plan", {
-    preHandler: [requireRole("admin")],
+    preHandler: [requirePermission("billing.manage")],
   }, SubscriptionController.changePlan);
 }

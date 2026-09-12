@@ -26,6 +26,7 @@ import {
   sendPasswordChangedEmail,
 } from "./email.service";
 import { SubscriptionService } from "./subscription.service";
+import { PermissionService } from "./permission.service";
 import { posthog } from "../lib/posthog";
 import type { UserRole } from "../generated/prisma/enums";
 
@@ -242,6 +243,9 @@ export const AuthService = {
         role: user.role,
         status: user.status,
         companyId: user.companyId,
+        permissions: user.companyId
+          ? await PermissionService.grantsForRole(user.companyId, user.role)
+          : [],
       },
     };
   },
@@ -306,6 +310,9 @@ export const AuthService = {
         role: user.role,
         status: user.status,
         companyId: user.companyId,
+        permissions: user.companyId
+          ? await PermissionService.grantsForRole(user.companyId, user.role)
+          : [],
       },
     };
   },
@@ -320,6 +327,10 @@ export const AuthService = {
       trial = await SubscriptionService.getTrialStatus(user.companyId);
     }
 
+    const permissions = user.companyId
+      ? await PermissionService.grantsForRole(user.companyId, user.role)
+      : [];
+
     return {
       id: user.id,
       name: user.name,
@@ -328,6 +339,7 @@ export const AuthService = {
       status: user.status,
       companyId: user.companyId,
       trial,
+      permissions,
     };
   },
 

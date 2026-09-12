@@ -4,14 +4,14 @@
  */
 import { FastifyInstance } from "fastify";
 import { GuardingSiteController } from "../controllers/guardingSite.controller";
-import { requireRole } from "../middleware/requireRole";
+import { requirePermission } from "../middleware/requirePermission";
 
 export default async function guardingSiteRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
-  fastify.get("/guarding-sites", GuardingSiteController.list);
-  fastify.get("/guarding-sites/:id", GuardingSiteController.getById);
-  fastify.post("/guarding-sites", { preHandler: [requireRole("admin", "manager")] }, GuardingSiteController.create);
-  fastify.put("/guarding-sites/:id", { preHandler: [requireRole("admin", "manager")] }, GuardingSiteController.update);
-  fastify.delete("/guarding-sites/:id", { preHandler: [requireRole("admin")] }, GuardingSiteController.delete);
+  fastify.get("/guarding-sites", { preHandler: [requirePermission("guarding.view")] }, GuardingSiteController.list);
+  fastify.get("/guarding-sites/:id", { preHandler: [requirePermission("guarding.view")] }, GuardingSiteController.getById);
+  fastify.post("/guarding-sites", { preHandler: [requirePermission("guarding.manage")] }, GuardingSiteController.create);
+  fastify.put("/guarding-sites/:id", { preHandler: [requirePermission("guarding.manage")] }, GuardingSiteController.update);
+  fastify.delete("/guarding-sites/:id", { preHandler: [requirePermission("guarding.delete")] }, GuardingSiteController.delete);
 }

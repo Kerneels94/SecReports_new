@@ -27,6 +27,7 @@ import invoiceRoutes from "./routes/invoice.routes";
 import ledgerRoutes from "./routes/ledger.routes";
 import auditLogRoutes from "./routes/auditLog.routes";
 import subscriptionRoutes from "./routes/subscription.routes";
+import permissionRoutes from "./routes/permission.routes";
 
 /**
  * Creates and returns a fully-configured Fastify instance.
@@ -116,6 +117,7 @@ export async function buildApp() {
   await fastify.register(ledgerRoutes);
   await fastify.register(auditLogRoutes);
   await fastify.register(subscriptionRoutes);
+  await fastify.register(permissionRoutes);
 
   fastify.setErrorHandler((error: Error & { statusCode?: number; code?: string }, request, reply) => {
     if (error instanceof AppError) {
