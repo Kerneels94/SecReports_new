@@ -66,12 +66,12 @@ describe("PermissionService", () => {
     it("upserts overrides that differ from defaults", async () => {
       mockFindMany.mockResolvedValue([
         { permission: "users.manage", roles: ["admin", "manager"] },
-        { permission: "incidents.edit", roles: ["senior"] },
+        { permission: "auditLogs.view", roles: ["admin", "senior"] },
       ]);
 
       await PermissionService.updateForCompany("c1", [
         { key: "users.manage", roles: ["admin", "manager"] },
-        { key: "incidents.edit", roles: ["senior"] },
+        { key: "auditLogs.view", roles: ["admin", "senior"] },
       ]);
 
       expect(mockUpsert).toHaveBeenCalledTimes(2);

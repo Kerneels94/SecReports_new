@@ -12,7 +12,4 @@ export default async function incidentRoutes(fastify: FastifyInstance) {
   fastify.get("/incidents", { preHandler: [requirePermission("incidents.view")] }, IncidentController.list);
   fastify.get("/incidents/:id", { preHandler: [requirePermission("incidents.view")] }, IncidentController.getById);
   fastify.post("/incidents", { preHandler: [requirePermission("incidents.create")] }, IncidentController.create);
-  fastify.put("/incidents/:id", { preHandler: [requirePermission("incidents.edit")] }, IncidentController.update);
-  fastify.patch("/incidents/:id/status", { preHandler: [requirePermission("incidents.edit")] }, IncidentController.updateStatus);
-  fastify.delete("/incidents/:id", { preHandler: [requirePermission("incidents.edit")] }, IncidentController.delete);
 }

@@ -1,25 +1,10 @@
 /**
- * Business logic for API key management. Handles generation, listing, revocation,
- * and validation of API keys with last-used tracking.
+ * Business logic for API key listing and validation with last-used tracking.
  */
-import crypto from "crypto";
 import { prisma } from "../lib/db";
-import { NotFoundError, ConflictError } from "../lib/errors";
 import { hashToken } from "../lib/hash";
 
 export const ApiKeyService = {
-  /** Creates a new API key with a random `sk_`-prefixed secret. Stores only the SHA-256 hash. */
-  async generate(companyId: string, name: string) {
-    const key = `sk_${crypto.randomBytes(32).toString("hex")}`;
-    const keyHash = hashToken(key);
-
-    await prisma.apiKey.create({
-      data: { companyId, name, key: keyHash },
-    });
-
-    return { key };
-  },
-
   /** Lists all API keys for a company, ordered by creation date. The raw key is never returned. */
   async list(companyId: string) {
     return prisma.apiKey.findMany({
@@ -32,17 +17,6 @@ export const ApiKeyService = {
         active: true,
         createdAt: true,
       },
-    });
-  },
-
-  /** Soft-deactivates an API key, scoped to the owning company. */
-  async revoke(id: string, companyId: string) {
-    const key = await prisma.apiKey.findFirst({ where: { id, companyId } });
-    if (!key) throw new NotFoundError("API key");
-
-    return prisma.apiKey.update({
-      where: { id },
-      data: { active: false },
     });
   },
 

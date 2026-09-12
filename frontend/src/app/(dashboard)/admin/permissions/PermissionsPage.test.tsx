@@ -38,7 +38,7 @@ const matrix = {
   roles: ["admin", "manager", "senior"],
   permissions: [
     { key: "users.manage", label: "Manage users", description: "Create, list, and remove employee accounts", roles: ["admin"] },
-    { key: "incidents.edit", label: "Edit incidents", description: "Update, change status, and delete incidents", roles: ["admin", "manager"] },
+    { key: "auditLogs.view", label: "View audit logs", description: "See activity and change tracking logs", roles: ["admin", "manager"] },
   ],
 };
 
@@ -62,7 +62,7 @@ describe("PermissionsPage", () => {
 
     expect(await screen.findByRole("heading", { name: /permissions/i })).toBeInTheDocument();
     expect(await screen.findByText("Manage users")).toBeInTheDocument();
-    expect(await screen.findByRole("switch", { name: /edit incidents: senior/i })).toBeInTheDocument();
+    expect(await screen.findByRole("switch", { name: /view audit logs: senior/i })).toBeInTheDocument();
     expect(screen.getByRole("switch", { name: /manage users: senior/i })).toHaveAttribute("aria-checked", "false");
     expect(screen.getByRole("switch", { name: /manage users: admin/i })).toHaveAttribute("aria-checked", "true");
   });
@@ -71,7 +71,7 @@ describe("PermissionsPage", () => {
     mockUseAuth.mockReturnValue({ user: adminUser });
     render(<PermissionsPage />);
 
-    const seniorSwitch = await screen.findByRole("switch", { name: /edit incidents: senior/i });
+    const seniorSwitch = await screen.findByRole("switch", { name: /view audit logs: senior/i });
     expect(seniorSwitch).toHaveAttribute("aria-checked", "false");
     await userEvent.click(seniorSwitch);
     expect(seniorSwitch).toHaveAttribute("aria-checked", "true");
@@ -81,7 +81,7 @@ describe("PermissionsPage", () => {
     await waitFor(() => {
       expect(mockUpdate).toHaveBeenCalledWith(
         expect.arrayContaining([
-          { key: "incidents.edit", roles: ["admin", "manager", "senior"] },
+          { key: "auditLogs.view", roles: ["admin", "manager", "senior"] },
           { key: "users.manage", roles: ["admin"] },
         ]),
       );

@@ -97,7 +97,7 @@ export const authService = {
   getUserById: (id: number) => api.get<UserListItem>(`/auth/users/${id}`),
 };
 
-/** Incident CRUD and status-update endpoints. */
+/** Incident list, detail, and creation endpoints. */
 export const incidentService = {
   list: (params?: Record<string, string>) =>
     api.get<PaginatedResponse<Incident>>(
@@ -105,11 +105,6 @@ export const incidentService = {
     ),
   getById: (id: number) => api.get<Incident>(`/incidents/${id}`),
   create: (data: Partial<Incident>) => api.post<Incident>("/incidents", data),
-  update: (id: number, data: Partial<Incident>) =>
-    api.put<Incident>(`/incidents/${id}`, data),
-  updateStatus: (id: number, status: string) =>
-    api.patch<Incident>(`/incidents/${id}/status`, { status }),
-  delete: (id: number) => api.delete<void>(`/incidents/${id}`),
 };
 
 /** Dashboard report-summary endpoints. */

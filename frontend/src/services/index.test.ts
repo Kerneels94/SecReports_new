@@ -89,12 +89,6 @@ describe("incidentService", () => {
     incidentService.create(data);
     expect(mockApi.post).toHaveBeenCalledWith("/incidents", data);
   });
-
-  it("update calls api.put with correct path and data", () => {
-    const data = { title: "Updated" };
-    incidentService.update(1, data);
-    expect(mockApi.put).toHaveBeenCalledWith("/incidents/1", data);
-  });
 });
 
 describe("reportService", () => {

@@ -28,12 +28,6 @@ export const PERMISSIONS: Permission[] = [
     defaults: ["admin", "manager", "senior"],
   },
   {
-    key: "incidents.edit",
-    label: "Edit incidents",
-    description: "Update, change status, and delete incidents",
-    defaults: ["admin", "manager"],
-  },
-  {
     key: "reports.view",
     label: "View reports & analytics",
     description: "Dashboard summaries, monthly stats, and emailed reports",
@@ -49,12 +43,6 @@ export const PERMISSIONS: Permission[] = [
     key: "users.update",
     label: "Update users",
     description: "Edit employee names, emails, and roles",
-    defaults: ["admin", "manager"],
-  },
-  {
-    key: "apiKeys.manage",
-    label: "Manage API keys",
-    description: "Generate and revoke API keys",
     defaults: ["admin", "manager"],
   },
   {

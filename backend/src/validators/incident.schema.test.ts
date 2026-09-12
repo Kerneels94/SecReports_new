@@ -1,9 +1,4 @@
-import {
-  createIncidentSchema,
-  updateIncidentSchema,
-  updateStatusSchema,
-  paginationSchema,
-} from "./incident.schema";
+import { createIncidentSchema, paginationSchema } from "./incident.schema";
 
 describe("incident schemas", () => {
   const validCreate = {
@@ -24,31 +19,6 @@ describe("incident schemas", () => {
     it("fails when title is missing", () => {
       const { title, ...rest } = validCreate;
       const result = createIncidentSchema.safeParse(rest);
-      expect(result.success).toBe(false);
-    });
-
-  });
-
-  describe("updateIncidentSchema", () => {
-    it("passes for empty object (all optional)", () => {
-      const result = updateIncidentSchema.safeParse({});
-      expect(result.success).toBe(true);
-    });
-
-    it("passes with a single field", () => {
-      const result = updateIncidentSchema.safeParse({ title: "New Title" });
-      expect(result.success).toBe(true);
-    });
-  });
-
-  describe("updateStatusSchema", () => {
-    it("passes for a valid status", () => {
-      const result = updateStatusSchema.safeParse({ status: "under_review" });
-      expect(result.success).toBe(true);
-    });
-
-    it("fails for an invalid status", () => {
-      const result = updateStatusSchema.safeParse({ status: "invalid_status" });
       expect(result.success).toBe(false);
     });
   });

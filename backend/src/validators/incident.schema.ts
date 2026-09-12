@@ -27,43 +27,6 @@ export const createIncidentSchema = z.object({
 });
 
 /**
- * Validates updates to an existing incident report.
- */
-export const updateIncidentSchema = z.object({
-  title: z.string().min(1).max(255).optional(),
-  description: z.string().min(1).optional(),
-  type: z.string().min(1).max(100).optional(),
-  incidentDate: z.string().optional(),
-  location: z.string().max(255).optional(),
-  operatorName: z.string().min(1).max(255).optional(),
-  dispatcher: z.string().min(1).max(255).optional(),
-  dispatchTime: z.string().optional(),
-  arrivalTime: z.string().optional(),
-  callSign: z.string().max(100).optional(),
-  propertyAddress: z.string().max(500).optional(),
-  clientName: z.string().max(255).optional(),
-  clientCode: z.string().max(100).optional(),
-  businessOrComplex: z.string().max(255).optional(),
-  sapsReference: z.string().max(100).optional(),
-});
-
-/**
- * Validates incident status transitions.
- */
-export const updateStatusSchema = z.object({
-  status: z.enum([
-    "draft",
-    "submitted",
-    "under_review",
-    "assigned",
-    "investigating",
-    "resolved",
-    "closed",
-    "rejected",
-  ]),
-});
-
-/**
  * Validates query-string pagination and filtering parameters.
  */
 export const paginationSchema = z.object({
