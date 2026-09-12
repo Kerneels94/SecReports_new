@@ -6,7 +6,7 @@
  */
 import { FastifyInstance } from "fastify";
 import { AuthController } from "../controllers/auth.controller";
-import { requireRole } from "../middleware/requireRole";
+import { requirePermission } from "../middleware/requirePermission";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   fastify.post("/auth/login", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, AuthController.login);
@@ -39,27 +39,27 @@ export default async function authRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post("/auth/users", {
-    preHandler: [fastify.authenticate, requireRole("admin")],
+    preHandler: [fastify.authenticate, requirePermission("users.manage")],
     handler: AuthController.createUser,
   });
 
   fastify.get("/auth/users", {
-    preHandler: [fastify.authenticate, requireRole("admin")],
+    preHandler: [fastify.authenticate, requirePermission("users.manage")],
     handler: AuthController.listUsers,
   });
 
   fastify.get("/auth/users/:id", {
-    preHandler: [fastify.authenticate, requireRole("admin")],
+    preHandler: [fastify.authenticate, requirePermission("users.manage")],
     handler: AuthController.getUserById,
   });
 
   fastify.patch("/auth/users/:id", {
-    preHandler: [fastify.authenticate, requireRole("admin", "manager")],
+    preHandler: [fastify.authenticate, requirePermission("users.update")],
     handler: AuthController.updateUser,
   });
 
   fastify.delete("/auth/users/:id", {
-    preHandler: [fastify.authenticate, requireRole("admin")],
+    preHandler: [fastify.authenticate, requirePermission("users.manage")],
     handler: AuthController.deleteUser,
   });
 

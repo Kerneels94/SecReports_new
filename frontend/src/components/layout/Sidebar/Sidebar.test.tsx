@@ -10,7 +10,9 @@ jest.mock("@/hooks/useDashboardMode", () => ({
   useDashboardMode: () => ({ mode: "incidents", setMode: jest.fn() }),
 }));
 
-let mockUser = { id: 1, role: "manager", name: "Manager", email: "manager@test.com", status: "active", companyId: 1 };
+const defaultPermissions = ["incidents.view", "incidents.create"];
+
+let mockUser = { id: 1, role: "manager", name: "Manager", email: "manager@test.com", status: "active", companyId: 1, permissions: defaultPermissions };
 
 jest.mock("@/hooks/useAuth", () => ({
   useAuth: () => ({ user: mockUser }),
@@ -28,7 +30,7 @@ const mockUsePathname = usePathname as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockUser = { id: 1, role: "manager", name: "Manager", email: "manager@test.com", status: "active", companyId: 1 };
+  mockUser = { id: 1, role: "manager", name: "Manager", email: "manager@test.com", status: "active", companyId: 1, permissions: defaultPermissions };
 });
 
 function getNavLink(name: string): HTMLAnchorElement | null {

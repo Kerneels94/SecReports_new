@@ -26,7 +26,10 @@ import type {
   CompanySubscription,
   LedgerEntry,
   LedgerSummary,
+  PermissionMatrix,
 } from "@/types";
+
+export type { PermissionMatrix } from "@/types";
 
 interface TrialStatus {
   isTrial: boolean;
@@ -468,4 +471,11 @@ export const subscriptionService = {
   getSubscription: () => api.get<CompanySubscription>("/subscription"),
   changePlan: (planId: string) =>
     api.patch<CompanySubscription>("/subscription/plan", { planId }),
+};
+
+/** Role × permission matrix endpoints (company admin). */
+export const permissionsService = {
+  get: () => api.get<PermissionMatrix>("/admin/permissions"),
+  update: (permissions: { key: string; roles: string[] }[]) =>
+    api.put<PermissionMatrix>("/admin/permissions", { permissions }),
 };

@@ -13,6 +13,15 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { MobileHeader } from "@/components/layout/MobileHeader";
 import { SubscriptionStatusGate } from "@/components/subscription/SubscriptionStatusGate";
+import { NoAccess } from "@/components/access/NoAccess";
+
+/** Permission a route needs; null = no permission gate (role/admin pages only). */
+function requiredPermission(pathname: string): string | null {
+  if (pathname.startsWith("/incidents/new")) return "incidents.create";
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/incidents")) return "incidents.view";
+  if (pathname.startsWith("/guarding")) return "guarding.view";
+  return null;
+}
 
 function DashboardShell({ children }: { children: ReactNode }) {
   const { user, isLoading, logout } = useAuth();
@@ -67,7 +76,17 @@ function DashboardShell({ children }: { children: ReactNode }) {
         <MobileHeader user={user} onToggleSidebar={() => setSidebarOpen((prev) => !prev)} onLogout={logout} />
         <Header user={user} onLogout={logout} />
         <main className="flex-1 animate-fade-in p-4 pt-6 lg:p-8">
-          <SubscriptionStatusGate>{children}</SubscriptionStatusGate>
+          {(() => {
+            const permission = requiredPermission(pathname);
+            return permission && !user.permissions?.includes(permission) ? (
+              <NoAccess
+                title="No access"
+                message="Your role doesn't have permission to view this section."
+              />
+            ) : (
+              <SubscriptionStatusGate>{children}</SubscriptionStatusGate>
+            );
+          })()}
         </main>
       </div>
     </div>

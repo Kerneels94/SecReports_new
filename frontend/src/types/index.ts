@@ -15,6 +15,8 @@ export interface User {
   status: "active" | "inactive";
   companyId: number | null;
   trial?: TrialStatus | null;
+  /** Permission keys granted to this user's role for their company. */
+  permissions?: string[];
 }
 
 /** An organisation (company) that owns reports and users. */
@@ -375,4 +377,19 @@ export interface CompanySubscription {
     sites: number;
     users: number;
   };
+}
+
+/** A single permission row in the role × permission matrix. */
+export interface PermissionMatrixItem {
+  key: string;
+  label: string;
+  description: string;
+  roles: string[];
+  isDefault?: boolean;
+}
+
+/** Full role × permission matrix for a company. */
+export interface PermissionMatrix {
+  roles: string[];
+  permissions: PermissionMatrixItem[];
 }

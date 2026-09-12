@@ -4,14 +4,14 @@
  */
 import { FastifyInstance } from "fastify";
 import { GuardController } from "../controllers/guard.controller";
-import { requireRole } from "../middleware/requireRole";
+import { requirePermission } from "../middleware/requirePermission";
 
 export default async function guardRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
-  fastify.get("/guards", GuardController.list);
-  fastify.get("/guards/:id", GuardController.getById);
-  fastify.post("/guards", { preHandler: [requireRole("admin", "manager")] }, GuardController.create);
-  fastify.put("/guards/:id", { preHandler: [requireRole("admin", "manager")] }, GuardController.update);
-  fastify.delete("/guards/:id", { preHandler: [requireRole("admin")] }, GuardController.delete);
+  fastify.get("/guards", { preHandler: [requirePermission("guarding.view")] }, GuardController.list);
+  fastify.get("/guards/:id", { preHandler: [requirePermission("guarding.view")] }, GuardController.getById);
+  fastify.post("/guards", { preHandler: [requirePermission("guarding.manage")] }, GuardController.create);
+  fastify.put("/guards/:id", { preHandler: [requirePermission("guarding.manage")] }, GuardController.update);
+  fastify.delete("/guards/:id", { preHandler: [requirePermission("guarding.delete")] }, GuardController.delete);
 }

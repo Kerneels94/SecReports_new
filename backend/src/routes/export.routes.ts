@@ -5,15 +5,15 @@
 import { FastifyInstance } from "fastify";
 import { ExportController } from "../controllers/export.controller";
 import { PatrolExportController } from "../controllers/patrolExport.controller";
-import { requireRole } from "../middleware/requireRole";
+import { requirePermission } from "../middleware/requirePermission";
 
 export default async function exportRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
-  fastify.get("/export/csv", { preHandler: [requireRole("admin", "manager")] }, ExportController.csv);
-  fastify.get("/export/yearly-pdf", { preHandler: [requireRole("admin", "manager", "senior")] }, ExportController.yearlyPdf);
+  fastify.get("/export/csv", { preHandler: [requirePermission("export.csv")] }, ExportController.csv);
+  fastify.get("/export/yearly-pdf", { preHandler: [requirePermission("export.reports")] }, ExportController.yearlyPdf);
   fastify.get("/export/pdf", {
-    preHandler: [requireRole("admin", "manager")],
+    preHandler: [requirePermission("export.csv")],
     schema: {
       querystring: {
         type: "object",
@@ -25,7 +25,7 @@ export default async function exportRoutes(fastify: FastifyInstance) {
   }, ExportController.pdf);
 
   fastify.get("/export/patrol-reports/csv", {
-    preHandler: [requireRole("admin", "manager")],
+    preHandler: [requirePermission("export.csv")],
     schema: {
       querystring: {
         type: "object",
@@ -39,7 +39,7 @@ export default async function exportRoutes(fastify: FastifyInstance) {
   }, PatrolExportController.csv);
 
   fastify.get("/export/patrol-reports/pdf", {
-    preHandler: [requireRole("admin", "manager")],
+    preHandler: [requirePermission("export.csv")],
     schema: {
       querystring: {
         type: "object",
@@ -55,6 +55,6 @@ export default async function exportRoutes(fastify: FastifyInstance) {
 
   fastify.post("/reports/patrol-reports/email", {
     config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
-    preHandler: [requireRole("admin", "manager", "senior")],
+    preHandler: [requirePermission("export.reports")],
   }, PatrolExportController.email);
 }

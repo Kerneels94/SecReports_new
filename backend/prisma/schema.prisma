@@ -33,8 +33,24 @@ model Company {
   guardingSites   GuardingSite[]
   guards          Guard[]
   patrolSchedules PatrolSchedule[]
+  permissions     CompanyPermission[]
 
   @@map("companies")
+}
+
+model CompanyPermission {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  companyId  String   @map("company_id") @db.ObjectId
+  permission String
+  roles      String[] @default([])
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([companyId, permission])
+  @@index([companyId])
+  @@map("company_permissions")
 }
 
 model User {

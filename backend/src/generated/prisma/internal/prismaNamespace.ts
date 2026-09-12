@@ -391,6 +391,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Company: 'Company',
+  CompanyPermission: 'CompanyPermission',
   User: 'User',
   RefreshToken: 'RefreshToken',
   Incident: 'Incident',
@@ -426,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company" | "user" | "refreshToken" | "incident" | "passwordResetToken" | "emailVerificationToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "invoice" | "ledger" | "apiKey" | "auditLog" | "guardingSite" | "guard" | "patrolReport" | "patrolCheckpoint" | "patrolSchedule" | "patrolScheduleTimeSlot" | "patrolScheduleCheckpoint" | "entryLog"
+    modelProps: "company" | "companyPermission" | "user" | "refreshToken" | "incident" | "passwordResetToken" | "emailVerificationToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "invoice" | "ledger" | "apiKey" | "auditLog" | "guardingSite" | "guard" | "patrolReport" | "patrolCheckpoint" | "patrolSchedule" | "patrolScheduleTimeSlot" | "patrolScheduleCheckpoint" | "entryLog"
     txIsolationLevel: never
   }
   model: {
@@ -501,6 +502,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CompanyCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CompanyCountAggregateOutputType> | number
+        }
+      }
+    }
+    CompanyPermission: {
+      payload: Prisma.$CompanyPermissionPayload<ExtArgs>
+      fields: Prisma.CompanyPermissionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CompanyPermissionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPermissionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CompanyPermissionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPermissionPayload>
+        }
+        findFirst: {
+          args: Prisma.CompanyPermissionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPermissionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CompanyPermissionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPermissionPayload>
+        }
+        findMany: {
+          args: Prisma.CompanyPermissionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPermissionPayload>[]
+        }
+        create: {
+          args: Prisma.CompanyPermissionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPermissionPayload>
+        }
+        createMany: {
+          args: Prisma.CompanyPermissionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CompanyPermissionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPermissionPayload>
+        }
+        update: {
+          args: Prisma.CompanyPermissionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPermissionPayload>
+        }
+        deleteMany: {
+          args: Prisma.CompanyPermissionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CompanyPermissionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CompanyPermissionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPermissionPayload>
+        }
+        aggregate: {
+          args: Prisma.CompanyPermissionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCompanyPermission>
+        }
+        groupBy: {
+          args: Prisma.CompanyPermissionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyPermissionGroupByOutputType>[]
+        }
+        findRaw: {
+          args: Prisma.CompanyPermissionFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.CompanyPermissionAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        count: {
+          args: Prisma.CompanyPermissionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyPermissionCountAggregateOutputType> | number
         }
       }
     }
@@ -2012,6 +2087,18 @@ export const CompanyScalarFieldEnum = {
 export type CompanyScalarFieldEnum = (typeof CompanyScalarFieldEnum)[keyof typeof CompanyScalarFieldEnum]
 
 
+export const CompanyPermissionScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  permission: 'permission',
+  roles: 'roles',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CompanyPermissionScalarFieldEnum = (typeof CompanyPermissionScalarFieldEnum)[keyof typeof CompanyPermissionScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   companyId: 'companyId',
@@ -2507,6 +2594,7 @@ export interface PrismaClientOptions {
 }
 export type GlobalOmitConfig = {
   company?: Prisma.CompanyOmit
+  companyPermission?: Prisma.CompanyPermissionOmit
   user?: Prisma.UserOmit
   refreshToken?: Prisma.RefreshTokenOmit
   incident?: Prisma.IncidentOmit

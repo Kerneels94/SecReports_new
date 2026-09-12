@@ -1,19 +1,19 @@
 /**
  * Patrol Report routes — all endpoints require JWT authentication.
- * Role-restricted: create/update (admin/manager/guard), delete (admin/manager).
+ * Role-restricted: create/update/delete (admin/manager), read (guarding.view).
  */
 import { FastifyInstance } from "fastify";
 import { PatrolReportController } from "../controllers/patrolReport.controller";
-import { requireRole } from "../middleware/requireRole";
+import { requirePermission } from "../middleware/requirePermission";
 
 export default async function patrolReportRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
-  fastify.get("/sites/:siteId/patrol-reports", PatrolReportController.listBySite);
-  fastify.get("/guards/:guardId/patrol-reports", PatrolReportController.listByGuard);
-  fastify.get("/patrol-reports", PatrolReportController.listByCompany);
-  fastify.get("/patrol-reports/:id", PatrolReportController.getById);
-  fastify.post("/patrol-reports", { preHandler: [requireRole("admin", "manager")] }, PatrolReportController.create);
-  fastify.put("/patrol-reports/:id", { preHandler: [requireRole("admin", "manager")] }, PatrolReportController.update);
-  fastify.delete("/patrol-reports/:id", { preHandler: [requireRole("admin", "manager")] }, PatrolReportController.delete);
+  fastify.get("/sites/:siteId/patrol-reports", { preHandler: [requirePermission("guarding.view")] }, PatrolReportController.listBySite);
+  fastify.get("/guards/:guardId/patrol-reports", { preHandler: [requirePermission("guarding.view")] }, PatrolReportController.listByGuard);
+  fastify.get("/patrol-reports", { preHandler: [requirePermission("guarding.view")] }, PatrolReportController.listByCompany);
+  fastify.get("/patrol-reports/:id", { preHandler: [requirePermission("guarding.view")] }, PatrolReportController.getById);
+  fastify.post("/patrol-reports", { preHandler: [requirePermission("guarding.manage")] }, PatrolReportController.create);
+  fastify.put("/patrol-reports/:id", { preHandler: [requirePermission("guarding.manage")] }, PatrolReportController.update);
+  fastify.delete("/patrol-reports/:id", { preHandler: [requirePermission("guarding.manage")] }, PatrolReportController.delete);
 }

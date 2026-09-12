@@ -52,6 +52,11 @@ path.join(process.cwd(), "src/generated/prisma/libquery_engine-debian-openssl-3.
  */
 export type Company = Prisma.CompanyModel
 /**
+ * Model CompanyPermission
+ * 
+ */
+export type CompanyPermission = Prisma.CompanyPermissionModel
+/**
  * Model User
  * 
  */
