@@ -45,12 +45,17 @@ function DashboardShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isLoading) return;
 
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
     if (mode === "guarding" && !pathname.startsWith("/guarding")) {
       router.push("/guarding");
     } else if (mode === "incidents" && pathname.startsWith("/guarding")) {
       router.push("/dashboard");
     }
-  }, [mode, pathname, isLoading, router]);
+  }, [mode, pathname, isLoading, user, router]);
 
   if (isLoading) {
     return (
@@ -63,10 +68,7 @@ function DashboardShell({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!user) {
-    router.push("/login");
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <div className="flex min-h-screen">
