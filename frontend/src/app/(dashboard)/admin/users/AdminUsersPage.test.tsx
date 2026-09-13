@@ -41,6 +41,7 @@ const adminUser = {
   role: "admin" as const,
   status: "active" as const,
   companyId: 1,
+  permissions: ["users.manage", "users.update"],
 };
 
 const nonAdminUser = {

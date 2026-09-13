@@ -8,6 +8,12 @@ jest.mock("next/navigation", () => ({
   useRouter: jest.fn(() => ({ push: jest.fn() })),
 }));
 
+jest.mock("@/hooks/useAuth", () => ({
+  useAuth: () => ({
+    user: { role: "admin", permissions: ["guarding.view", "guarding.manage", "guarding.delete"] },
+  }),
+}));
+
 jest.mock("@/services", () => ({
   guardingSiteService: {
     list: jest.fn(),

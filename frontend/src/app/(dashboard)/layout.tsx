@@ -17,9 +17,12 @@ import { NoAccess } from "@/components/access/NoAccess";
 
 /** Permission a route needs; null = no permission gate (role/admin pages only). */
 function requiredPermission(pathname: string): string | null {
+  if (pathname.startsWith("/dashboard")) return "reports.view";
   if (pathname.startsWith("/incidents/new")) return "incidents.create";
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/incidents")) return "incidents.view";
+  if (pathname.startsWith("/incidents")) return "incidents.view";
   if (pathname.startsWith("/guarding")) return "guarding.view";
+  if (pathname.startsWith("/admin/audit-logs")) return "auditLogs.view";
+  if (pathname.startsWith("/settings/billing")) return "billing.manage";
   return null;
 }
 

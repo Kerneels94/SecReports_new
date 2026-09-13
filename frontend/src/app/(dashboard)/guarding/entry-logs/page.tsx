@@ -6,9 +6,13 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { entryLogService, guardingSiteService } from "@/services";
+import { useAuth } from "@/hooks/useAuth";
+import { hasPermission } from "@/lib/permissions";
 import type { EntryLog, GuardingSite } from "@/types";
 
 export default function EntryLogsPage() {
+  const { user } = useAuth();
+  const canManage = hasPermission(user, "guarding.manage");
   const [entries, setEntries] = useState<EntryLog[]>([]);
   const [sites, setSites] = useState<GuardingSite[]>([]);
   const [loading, setLoading] = useState(true);
@@ -202,12 +206,14 @@ export default function EntryLogsPage() {
           <p className="text-sm text-text-secondary mt-1">Vehicle and visitor access records across all sites</p>
         </div>
         <div className="flex items-center gap-2">
+          {canManage && (
           <button
             onClick={openAddModal}
             className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
           >
             Add Vehicle Log
           </button>
+          )}
           <button
             onClick={fetchData}
             className="rounded-lg border border-border-light px-4 py-2 text-sm text-text hover:bg-surface-elevated transition-colors"
@@ -273,7 +279,8 @@ export default function EntryLogsPage() {
                     )}
                   </td>
                   <td className="py-3 px-4">
-                    {e.flagged && !e.resolvedAt ? (
+                    {canManage && (
+                    e.flagged && !e.resolvedAt ? (
                       <button
                         onClick={() => openResolveModal(e)}
                         className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors"
@@ -287,6 +294,7 @@ export default function EntryLogsPage() {
                       >
                         Flag Vehicle
                       </button>
+                    )
                     )}
                   </td>
                 </tr>

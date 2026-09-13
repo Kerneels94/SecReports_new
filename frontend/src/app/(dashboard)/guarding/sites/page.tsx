@@ -9,6 +9,8 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { guardingSiteService, guardService } from "@/services";
+import { useAuth } from "@/hooks/useAuth";
+import { hasPermission } from "@/lib/permissions";
 import type { GuardingSite, Guard } from "@/types";
 
 interface GuardFormData {
@@ -27,6 +29,9 @@ const emptyGuard: GuardFormData = {
 
 /** Sites page component with inline creation form, guard rows, view modal, and delete confirmation. */
 export default function SitesPage() {
+  const { user } = useAuth();
+  const canManage = hasPermission(user, "guarding.manage");
+  const canDelete = hasPermission(user, "guarding.delete");
   const [sites, setSites] = useState<GuardingSite[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -273,12 +278,14 @@ export default function SitesPage() {
           <h1 className="text-2xl font-bold text-text">Guarding Sites</h1>
           <p className="text-sm text-text-secondary mt-1">Manage all your guarding locations</p>
         </div>
+        {canManage && (
         <button
           onClick={() => setShowForm(!showForm)}
           className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
         >
           {showForm ? "Cancel" : "Add Site"}
         </button>
+        )}
       </div>
 
       {error && (
@@ -436,18 +443,22 @@ export default function SitesPage() {
                   >
                     View
                   </button>
+                  {canManage && (
                   <button
                     onClick={() => openEditModal(site)}
                     className="text-xs text-primary hover:underline"
                   >
                     Edit
                   </button>
+                  )}
+                  {canDelete && (
                   <button
                     onClick={() => promptDelete(site.id)}
                     className="text-xs text-danger hover:underline ml-auto"
                   >
                     Delete
                   </button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -498,12 +509,14 @@ export default function SitesPage() {
                         <Badge variant={guard.status === "active" ? "success" : guard.status === "on_leave" ? "warning" : "default"}>
                           {guard.status}
                         </Badge>
+                        {canManage && (
                         <button
                           onClick={() => removeGuardFromSite(guard)}
                           className="text-xs text-danger hover:underline"
                         >
                           Remove
                         </button>
+                        )}
                       </div>
                     </div>
                   ))}

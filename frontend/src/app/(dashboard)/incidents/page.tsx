@@ -13,9 +13,15 @@ import { IncidentDetailModal } from "@/components/incidents/IncidentDetailModal"
 import { EmailReportModal } from "@/components/incidents/EmailReportModal";
 import { incidentService, reportService, exportService } from "@/services";
 import { incidentReportFileName } from "@/lib/reportName";
+import { useAuth } from "@/hooks/useAuth";
+import { hasPermission } from "@/lib/permissions";
 import type { Incident } from "@/types";
 
 export default function IncidentsPage() {
+  const { user } = useAuth();
+  const canViewReports = hasPermission(user, "reports.view");
+  const canExportPdf = hasPermission(user, "export.csv");
+  const canEmail = hasPermission(user, "reports.view");
   const [summary, setSummary] = useState<{
     total: number;
     attemptedCount: number;
@@ -49,15 +55,18 @@ export default function IncidentsPage() {
       if (dateTo) params.dateTo = dateTo;
       if (typeFilter) params.type = typeFilter;
 
+      const summaryTask = canViewReports ? reportService.summary() : Promise.resolve(null);
       const [summaryRes, incidentsRes] = await Promise.all([
-        reportService.summary(),
+        summaryTask,
         incidentService.list(params),
       ]);
-      setSummary({
-        total: summaryRes.data.total,
-        attemptedCount: summaryRes.data.attemptedCount,
-        positiveCount: summaryRes.data.positiveCount,
-      });
+      if (summaryRes) {
+        setSummary({
+          total: summaryRes.data.total,
+          attemptedCount: summaryRes.data.attemptedCount,
+          positiveCount: summaryRes.data.positiveCount,
+        });
+      }
       setIncidents(incidentsRes.data.data);
       setTotal(incidentsRes.data.total);
     } catch {
@@ -65,7 +74,7 @@ export default function IncidentsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, dateFrom, dateTo, typeFilter]);
+  }, [page, dateFrom, dateTo, typeFilter, canViewReports]);
 
   useEffect(() => {
     fetchData();
@@ -129,7 +138,7 @@ export default function IncidentsPage() {
         </Link>
       </div>
 
-      {summary && (
+      {canViewReports && summary && (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
           <Card className="relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
@@ -296,6 +305,7 @@ export default function IncidentsPage() {
                               <circle cx="12" cy="12" r="3" />
                             </svg>
                           </button>
+                          {canExportPdf && (
                           <button
                             type="button"
                             onClick={() => handleDownloadPdf(incident)}
@@ -309,6 +319,8 @@ export default function IncidentsPage() {
                               <line x1="12" y1="15" x2="12" y2="3" />
                             </svg>
                           </button>
+                          )}
+                          {canEmail && (
                           <button
                             type="button"
                             onClick={() => setEmailIncident({ id: incident.id, title: incident.title })}
@@ -320,6 +332,7 @@ export default function IncidentsPage() {
                               <polyline points="22,6 12,13 2,6" />
                             </svg>
                           </button>
+                          )}
                         </div>
                       </td>
                     </tr>

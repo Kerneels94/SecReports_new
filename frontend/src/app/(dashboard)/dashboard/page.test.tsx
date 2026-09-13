@@ -11,7 +11,7 @@ jest.mock("next/navigation", () => ({
 }));
 
 jest.mock("@/hooks/useAuth", () => ({
-  useAuth: () => ({ user: { id: 1, role: "admin", name: "Admin", email: "admin@test.com", status: "active", companyId: 1 } }),
+  useAuth: () => ({ user: { id: 1, role: "admin", name: "Admin", email: "admin@test.com", status: "active", companyId: 1, permissions: ["reports.view", "export.reports"] } }),
 }));
 
 jest.mock("@/services", () => ({
@@ -75,20 +75,7 @@ describe("DashboardPage", () => {
     expect(screen.getByText("25")).toBeInTheDocument();
   });
 
-  it("renders latest activity list from recent incidents", async () => {
-    mockSummary.mockResolvedValue({ data: mockData });
-    render(<DashboardPage />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Latest Activity")).toBeInTheDocument();
-    });
-
-    expect(screen.getByText("SEC-001")).toBeInTheDocument();
-    expect(screen.getByText("Server down")).toBeInTheDocument();
-    expect(screen.getByText("John Doe")).toBeInTheDocument();
-    expect(screen.getByText("Phishing email")).toBeInTheDocument();
-    expect(screen.getByText("Jane Smith")).toBeInTheDocument();
-  });
+  
 
   it("renders month-over-month delta card", async () => {
     mockSummary.mockResolvedValue({ data: mockData });

@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { guardService, guardingSiteService } from "@/services";
+import { useAuth } from "@/hooks/useAuth";
+import { hasPermission } from "@/lib/permissions";
 import type { Guard, GuardingSite } from "@/types";
 
 interface GuardFormData {
@@ -24,6 +26,8 @@ const emptyForm: GuardFormData = {
 };
 
 export default function GuardsPage() {
+  const { user } = useAuth();
+  const canManage = hasPermission(user, "guarding.manage");
   const [guards, setGuards] = useState<Guard[]>([]);
   const [sites, setSites] = useState<GuardingSite[]>([]);
   const [loading, setLoading] = useState(true);
@@ -161,6 +165,7 @@ export default function GuardsPage() {
             View and manage all security guards
           </p>
         </div>
+        {canManage && (
         <button
           onClick={() => {
             setShowAddForm(!showAddForm);
@@ -170,6 +175,7 @@ export default function GuardsPage() {
         >
           {showAddForm ? "Cancel" : "Add Guard"}
         </button>
+        )}
       </div>
 
       {error && (
@@ -377,23 +383,25 @@ export default function GuardsPage() {
             </div>
 
             <div className="border-t border-border-light pt-4">
-              <label className="block text-sm font-medium text-text mb-2">Cellphone Number</label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={cellphoneValue}
-                  onChange={(e) => setCellphoneValue(e.target.value)}
-                  className="flex-1 rounded-lg border border-border-light bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                <button
-                  onClick={handleSaveCellphone}
-                  disabled={savingCellphone || cellphoneValue === selectedGuard.cellphone}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors disabled:opacity-50"
-                >
-                  {savingCellphone ? "Saving..." : "Update"}
-                </button>
+                <label className="block text-sm font-medium text-text mb-2">Cellphone Number</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={cellphoneValue}
+                    onChange={(e) => setCellphoneValue(e.target.value)}
+                    className="flex-1 rounded-lg border border-border-light bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  {canManage && (
+                  <button
+                    onClick={handleSaveCellphone}
+                    disabled={savingCellphone || cellphoneValue === selectedGuard.cellphone}
+                    className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors disabled:opacity-50"
+                  >
+                    {savingCellphone ? "Saving..." : "Update"}
+                  </button>
+                  )}
+                </div>
               </div>
-            </div>
 
             <div className="flex justify-end pt-2">
               <button

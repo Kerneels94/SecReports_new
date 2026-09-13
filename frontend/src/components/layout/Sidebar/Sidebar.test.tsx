@@ -10,7 +10,7 @@ jest.mock("@/hooks/useDashboardMode", () => ({
   useDashboardMode: () => ({ mode: "incidents", setMode: jest.fn() }),
 }));
 
-const defaultPermissions = ["incidents.view", "incidents.create"];
+const defaultPermissions = ["incidents.view", "incidents.create", "reports.view", "users.manage", "auditLogs.view", "billing.manage", "guarding.view"];
 
 let mockUser = { id: 1, role: "manager", name: "Manager", email: "manager@test.com", status: "active", companyId: 1, permissions: defaultPermissions };
 
