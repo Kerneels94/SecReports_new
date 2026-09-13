@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { authService, userService, type UserListItem } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
+import { hasPermission } from "@/lib/permissions";
 
 const createUserSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -28,6 +29,7 @@ type CreateUserForm = z.infer<typeof createUserSchema>;
 /** Admin users page component with create form, employee list table, and inline edit modal. */
 export default function AdminUsersPage() {
   const { user } = useAuth();
+  const canManageUsers = hasPermission(user, "users.manage");
 
   const [users, setUsers] = useState<UserListItem[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
@@ -59,8 +61,8 @@ export default function AdminUsersPage() {
   }, []);
 
   useEffect(() => {
-    if (user?.role === "admin") fetchUsers();
-  }, [user, fetchUsers]);
+    if (canManageUsers) fetchUsers();
+  }, [canManageUsers, fetchUsers]);
 
   const {
     register,
@@ -72,13 +74,13 @@ export default function AdminUsersPage() {
     defaultValues: { role: "senior" },
   });
 
-  if (user?.role !== "admin") {
+if (!canManageUsers) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="flex flex-col items-center gap-3 px-6 py-8 rounded-xl bg-surface ring-1 ring-border-light">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-900/30 ring-1 ring-red-500/20">
             <svg className="h-5 w-5 text-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 9v2m0 4h.01" /><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+              <path d="M12 9v2m0 4h.01m21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
             </svg>
           </div>
           <p className="text-sm text-danger font-medium">Admin access required.</p>

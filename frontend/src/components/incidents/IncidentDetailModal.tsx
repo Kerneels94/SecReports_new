@@ -10,6 +10,8 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { incidentService, exportService } from "@/services";
 import { incidentReportFileName } from "@/lib/reportName";
+import { useAuth } from "@/hooks/useAuth";
+import { hasPermission } from "@/lib/permissions";
 import type { Incident } from "@/types";
 
 /** A single label-value row used in the detail sections. */
@@ -43,6 +45,8 @@ export function IncidentDetailModal({
   open,
   onClose,
 }: IncidentDetailModalProps) {
+  const { user } = useAuth();
+  const canExportPdf = hasPermission(user, "export.csv");
   const [incident, setIncident] = useState<Incident | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -265,6 +269,7 @@ export function IncidentDetailModal({
           </div>
 
           <div className="flex justify-end pt-2 border-t border-border-light/50">
+            {canExportPdf && (
             <Button onClick={handleDownloadPdf} variant="secondary" size="sm" disabled={downloading}>
               <svg className="h-4 w-4 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
@@ -273,6 +278,7 @@ export function IncidentDetailModal({
               </svg>
               {downloading ? "Downloading..." : "Download PDF"}
             </Button>
+          )}
           </div>
         </div>
       ) : null}

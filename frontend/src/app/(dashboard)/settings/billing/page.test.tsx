@@ -5,7 +5,7 @@ import { subscriptionService } from "@/services";
 
 jest.mock("@/hooks/useAuth", () => ({
   useAuth: () => ({
-    user: { id: "1", role: "admin", companyId: "c1", name: "Admin", email: "a@b.com", status: "active" },
+    user: { id: "1", role: "admin", companyId: "c1", name: "Admin", email: "a@b.com", status: "active", permissions: ["billing.manage"] },
   }),
 }));
 

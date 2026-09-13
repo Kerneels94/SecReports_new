@@ -57,7 +57,7 @@ function Toggle({
 }
 
 export default function PermissionsPage() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
 
   const [matrix, setMatrix] = useState<PermissionMatrix | null>(null);
   const [initial, setInitial] = useState("");
@@ -136,6 +136,7 @@ export default function PermissionsPage() {
       setMatrix(res.data);
       setInitial(snapshot(res.data));
       setSuccess("Permissions saved");
+      await refreshUser();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save permissions");
     } finally {

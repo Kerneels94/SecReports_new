@@ -10,6 +10,12 @@ jest.mock("next/navigation", () => ({
   ),
 }));
 
+jest.mock("@/hooks/useAuth", () => ({
+  useAuth: () => ({
+    user: { id: 1, role: "manager", name: "Manager", email: "m@test.com", status: "active", companyId: 1, permissions: ["incidents.view", "incidents.create", "reports.view", "export.csv"] },
+  }),
+}));
+
 jest.mock("@/services", () => ({
   incidentService: { list: jest.fn() },
   reportService: { summary: jest.fn(), batchEmail: jest.fn() },

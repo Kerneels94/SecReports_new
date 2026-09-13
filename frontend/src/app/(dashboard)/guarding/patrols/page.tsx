@@ -12,10 +12,15 @@ import { useToast } from "@/components/ui/Toast";
 import { PatrolReportExportModal } from "@/components/guarding/PatrolReportExportModal";
 import { PatrolScheduleModal } from "@/components/guarding/PatrolScheduleModal";
 import { patrolReportService, patrolScheduleService, guardingSiteService, guardService } from "@/services";
+import { useAuth } from "@/hooks/useAuth";
+import { hasPermission } from "@/lib/permissions";
 import type { PatrolReport, PatrolSchedule, GuardingSite, Guard } from "@/types";
 
 /** Patrol reports page component with filters by site/date and a paginated table of patrol records. */
 export default function PatrolsPage() {
+  const { user } = useAuth();
+  const canManage = hasPermission(user, "guarding.manage");
+  const canExport = hasPermission(user, "export.csv");
   const [patrols, setPatrols] = useState<PatrolReport[]>([]);
   const [sites, setSites] = useState<GuardingSite[]>([]);
   const [loading, setLoading] = useState(true);
@@ -281,6 +286,7 @@ export default function PatrolsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {canExport && (
           <button
             onClick={() => setExportModalOpen(true)}
             disabled={patrols.length === 0}
@@ -288,18 +294,23 @@ export default function PatrolsPage() {
           >
             Export Report
           </button>
+          )}
+          {canManage && (
           <button
             onClick={() => { setEditSchedule(null); setScheduleModalOpen(true); }}
             className="rounded-lg border border-border-light px-4 py-2 text-sm font-medium text-text hover:bg-surface-elevated transition-colors"
           >
             Patrol Schedule
           </button>
+          )}
+          {canManage && (
           <button
             onClick={openAddModal}
             className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
           >
             New Patrol Report
           </button>
+          )}
         </div>
       </div>
 
@@ -442,6 +453,7 @@ export default function PatrolsPage() {
                               </td>
                               <td className="py-2 px-4 align-top">
                                 <div className="flex items-center gap-1">
+                                  {canManage && (
                                   <button
                                     onClick={() => { setEditSchedule(s); setScheduleModalOpen(true); }}
                                     className="rounded-lg p-1.5 text-text-secondary hover:text-primary hover:bg-surface-elevated transition-colors"
@@ -452,6 +464,8 @@ export default function PatrolsPage() {
                                       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                     </svg>
                                   </button>
+                                  )}
+                                  {canManage && (
                                   <button
                                     onClick={async () => {
                                       if (!confirm("Delete this patrol schedule?")) return;
@@ -469,6 +483,7 @@ export default function PatrolsPage() {
                                       <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                     </svg>
                                   </button>
+                                  )}
                                 </div>
                               </td>
                             </tr>

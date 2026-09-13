@@ -5,13 +5,14 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { subscriptionService } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
+import { hasPermission } from "@/lib/permissions";
 import { PlanSelectCard } from "@/components/subscription/PlanSelectCard";
 import { ConfirmPlanModal } from "@/components/subscription/ConfirmPlanModal";
 import type { SubscriptionPlan, CompanySubscription } from "@/types";
 
 export default function BillingPage() {
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
+  const canManageBilling = hasPermission(user, "billing.manage");
 
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [subscription, setSubscription] = useState<CompanySubscription | null>(null);
@@ -76,7 +77,7 @@ export default function BillingPage() {
         <h1 className="text-2xl font-bold text-text">Billing & Plan</h1>
         <p className="text-sm text-text-secondary mt-1">
           View your current plan and usage.{" "}
-          {isAdmin
+          {canManageBilling
             ? "Select a plan below to update your subscription."
             : "Contact your administrator to change your plan."}
         </p>
@@ -110,7 +111,7 @@ export default function BillingPage() {
                   <PlanSelectCard
                     plan={plan}
                     isCurrent={subscription?.planId === plan.id}
-                    disabled={!isAdmin || changing}
+                    disabled={!canManageBilling || changing}
                     onSelect={() => setConfirming(plan)}
                   />
                 </div>

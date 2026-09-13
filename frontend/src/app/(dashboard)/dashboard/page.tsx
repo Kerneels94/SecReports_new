@@ -4,14 +4,34 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { reportService, exportService } from "@/services";
-import { IncidentPieChart, ResponseTimeChart, YearlyTrendChart } from "./components/DashboardCharts";
+import {
+  IncidentPieChart,
+  ResponseTimeChart,
+  YearlyTrendChart,
+} from "./components/DashboardCharts";
 import type { AreaResponseStat, MonthlyResponseStat } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
+import { hasPermission } from "@/lib/permissions";
 import type { Incident, TrialStatus } from "@/types";
 
-const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const monthNames = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
-export function aggregateYearly(data: { month: string; count: number }[]): { month: string; count: number }[] {
+export function aggregateYearly(
+  data: { month: string; count: number }[],
+): { month: string; count: number }[] {
   const totals = new Array(12).fill(0);
   for (const d of data) {
     const i = Number(d.month.slice(5, 7)) - 1;
@@ -22,12 +42,14 @@ export function aggregateYearly(data: { month: string; count: number }[]): { mon
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const canExportReports = hasPermission(user, "export.reports");
   const [total, setTotal] = useState(0);
   const [attemptedCount, setAttemptedCount] = useState(0);
   const [positiveCount, setPositiveCount] = useState(0);
-  const [recent, setRecent] = useState<Incident[]>([]);
   const [trial, setTrial] = useState<TrialStatus | null>(null);
-  const [monthlyData, setMonthlyData] = useState<{ month: string; count: number }[]>([]);
+  const [monthlyData, setMonthlyData] = useState<
+    { month: string; count: number }[]
+  >([]);
   const [responseData, setResponseData] = useState<MonthlyResponseStat[]>([]);
   const [areaData, setAreaData] = useState<AreaResponseStat[]>([]);
   const [chartMode, setChartMode] = useState<"monthly" | "yearly">("monthly");
@@ -47,7 +69,6 @@ export default function DashboardPage() {
       setTotal(summaryRes.data.total);
       setAttemptedCount(summaryRes.data.attemptedCount);
       setPositiveCount(summaryRes.data.positiveCount);
-      setRecent(summaryRes.data.recent ?? []);
       setTrial(summaryRes.data.trial);
       setMonthlyData(monthlyRes.data);
     } catch {
@@ -136,10 +157,35 @@ export default function DashboardPage() {
     );
   }
 
-  const statCards: { label: string; value: number; color: string; gradient: string; icon: string; delta?: number | null }[] = [
-    { label: "Total incidents", value: total, color: "text-text", gradient: "from-primary/10 to-primary/5", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
-    { label: "Attempted incidents", value: attemptedCount, color: "text-warning", gradient: "from-amber-500/10 to-amber-500/5", icon: "M12 9v2m0 4h.01m21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
-    { label: "Positive incidents", value: positiveCount, color: "text-success", gradient: "from-emerald-500/10 to-emerald-500/5", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
+  const statCards: {
+    label: string;
+    value: number;
+    color: string;
+    gradient: string;
+    icon: string;
+    delta?: number | null;
+  }[] = [
+    {
+      label: "Total incidents",
+      value: total,
+      color: "text-text",
+      gradient: "from-primary/10 to-primary/5",
+      icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+    },
+    {
+      label: "Attempted incidents",
+      value: attemptedCount,
+      color: "text-warning",
+      gradient: "from-amber-500/10 to-amber-500/5",
+      icon: "M12 9v2m0 4h.01m21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+    },
+    {
+      label: "Positive incidents",
+      value: positiveCount,
+      color: "text-success",
+      gradient: "from-emerald-500/10 to-emerald-500/5",
+      icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+    },
   ];
   if (latestMonth) {
     statCards.unshift({
@@ -156,24 +202,56 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-8">
       {trial?.isTrial && trial.daysRemaining <= 2 && !trial.isExpired && (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 flex items-center gap-3">
-          <svg className="h-5 w-5 shrink-0 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            className="h-5 w-5 shrink-0 text-amber-400"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div className="text-sm text-amber-200">
-            Your free trial ends in <strong>{trial.daysRemaining} day{trial.daysRemaining === 1 ? "" : "s"}</strong>.{" "}
-            <a href="/settings/billing" className="underline font-medium hover:text-amber-100">Upgrade now</a> to keep full access.
+            Your free trial ends in{" "}
+            <strong>
+              {trial.daysRemaining} day{trial.daysRemaining === 1 ? "" : "s"}
+            </strong>
+            .{" "}
+            <a
+              href="/settings/billing"
+              className="underline font-medium hover:text-amber-100"
+            >
+              Upgrade now
+            </a>{" "}
+            to keep full access.
           </div>
         </div>
       )}
 
       {trial?.isExpired && (
         <div className="rounded-xl border border-danger/30 bg-danger/10 p-4 flex items-center gap-3">
-          <svg className="h-5 w-5 shrink-0 text-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            className="h-5 w-5 shrink-0 text-danger"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div className="text-sm text-red-200">
             Your free trial has ended. Some features may be limited.{" "}
-            <a href="/settings/billing" className="underline font-medium hover:text-red-100">Upgrade now</a> to restore full access.
+            <a
+              href="/settings/billing"
+              className="underline font-medium hover:text-red-100"
+            >
+              Upgrade now
+            </a>{" "}
+            to restore full access.
           </div>
         </div>
       )}
@@ -181,11 +259,22 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">Dashboard</h1>
-          <p className="text-sm text-text-secondary mt-1">Overview of incident reports</p>
+          <p className="text-sm text-text-secondary mt-1">
+            Overview of incident reports
+          </p>
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-elevated/40 text-xs text-text-secondary ring-1 ring-border-light">
-          <svg className="h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+          <svg
+            className="h-3.5 w-3.5 text-primary"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
           </svg>
           Live
         </div>
@@ -194,20 +283,39 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {statCards.map((stat) => (
           <Card key={stat.label} className="relative overflow-hidden">
-            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient}`} />
+            <div
+              className={`absolute inset-0 bg-gradient-to-br ${stat.gradient}`}
+            />
             <CardContent className="relative">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-text-secondary">{stat.label}</p>
-                <div className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient}`}>
-                  <svg className={`h-5 w-5 ${stat.color}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient}`}
+                >
+                  <svg
+                    className={`h-5 w-5 ${stat.color}`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d={stat.icon} />
                   </svg>
                 </div>
               </div>
-              <p className={`mt-3 text-3xl font-bold tracking-tight ${stat.color}`}>{stat.value}</p>
+              <p
+                className={`mt-3 text-3xl font-bold tracking-tight ${stat.color}`}
+              >
+                {stat.value}
+              </p>
               {stat.delta !== undefined && stat.delta !== null && (
-                <p className={`mt-1 text-xs font-medium ${stat.delta >= 0 ? "text-danger" : "text-success"}`}>
-                  {stat.delta >= 0 ? "▲" : "▼"} {Math.abs(stat.delta)} vs previous month
+                <p
+                  className={`mt-1 text-xs font-medium ${stat.delta >= 0 ? "text-danger" : "text-success"}`}
+                >
+                  {stat.delta >= 0 ? "▲" : "▼"} {Math.abs(stat.delta)} vs
+                  previous month
                 </p>
               )}
             </CardContent>
@@ -237,18 +345,37 @@ export default function DashboardPage() {
                     </button>
                   ))}
                 </div>
-                <Button variant="secondary" size="sm" onClick={handleDownloadPdf} loading={downloading}>
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                  PDF
-                </Button>
+                {canExportReports && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleDownloadPdf}
+                    loading={downloading}
+                  >
+                    <svg
+                      className="h-4 w-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    PDF
+                  </Button>
+                )}
               </div>
             </div>
           </CardHeader>
           <CardContent>
             {monthlyData.length === 0 ? (
-              <p className="text-sm text-text-secondary">No incident data yet.</p>
+              <p className="text-sm text-text-secondary">
+                No incident data yet.
+              </p>
             ) : (
               <YearlyTrendChart data={chartData} />
             )}
@@ -261,9 +388,14 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {total === 0 ? (
-              <p className="text-sm text-text-secondary">No incidents reported yet.</p>
+              <p className="text-sm text-text-secondary">
+                No incidents reported yet.
+              </p>
             ) : (
-              <IncidentPieChart attempted={attemptedCount} positive={positiveCount} />
+              <IncidentPieChart
+                attempted={attemptedCount}
+                positive={positiveCount}
+              />
             )}
           </CardContent>
         </Card>
@@ -277,11 +409,21 @@ export default function DashboardPage() {
           <CardContent>
             {responseError ? (
               <div className="flex flex-col items-center gap-3 py-8">
-                <p className="text-sm text-danger">Failed to load response time data</p>
-                <Button variant="secondary" size="sm" onClick={fetchResponseMetrics}>Retry</Button>
+                <p className="text-sm text-danger">
+                  Failed to load response time data
+                </p>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={fetchResponseMetrics}
+                >
+                  Retry
+                </Button>
               </div>
             ) : responseData.length === 0 ? (
-              <p className="text-sm text-text-secondary">No response time data yet (dispatch/arrival times not recorded).</p>
+              <p className="text-sm text-text-secondary">
+                No response time data yet (dispatch/arrival times not recorded).
+              </p>
             ) : (
               <ResponseTimeChart data={responseData} />
             )}
@@ -295,17 +437,26 @@ export default function DashboardPage() {
           <CardContent>
             {responseError ? (
               <div className="flex h-full items-center justify-center py-8">
-                <p className="text-sm text-danger">Failed to load response time data</p>
+                <p className="text-sm text-danger">
+                  Failed to load response time data
+                </p>
               </div>
             ) : areaData.length === 0 ? (
-              <p className="text-sm text-text-secondary">No area response data yet.</p>
+              <p className="text-sm text-text-secondary">
+                No area response data yet.
+              </p>
             ) : (
               <div className="flex h-full flex-col justify-center divide-y divide-border-light/50">
                 {areaData.map((area) => {
                   const max = areaData[0]?.avgMinutes || 1;
                   return (
-                    <div key={area.area} className="flex items-center gap-4 py-2.5">
-                      <span className="w-32 shrink-0 truncate text-sm text-text-secondary">{area.area}</span>
+                    <div
+                      key={area.area}
+                      className="flex items-center gap-4 py-2.5"
+                    >
+                      <span className="w-32 shrink-0 truncate text-sm text-text-secondary">
+                        {area.area}
+                      </span>
                       <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-secondary">
                         <div
                           className="h-full rounded-full bg-warning/80"
@@ -315,7 +466,9 @@ export default function DashboardPage() {
                       <span className="w-14 shrink-0 text-right text-sm font-medium text-text">
                         {area.avgMinutes}m
                       </span>
-                      <span className="w-16 shrink-0 text-right text-xs text-text-secondary">{area.count} incidents</span>
+                      <span className="w-16 shrink-0 text-right text-xs text-text-secondary">
+                        {area.count} incidents
+                      </span>
                     </div>
                   );
                 })}
@@ -324,32 +477,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Latest Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {recent.length === 0 ? (
-            <p className="text-sm text-text-secondary">No incidents reported yet.</p>
-          ) : (
-            <div className="divide-y divide-border-light/50">
-              {recent.map((incident) => (
-                <div key={incident.id} className="flex items-center justify-between gap-4 py-3">
-                  <div className="flex items-center gap-4 min-w-0">
-                    <span className="font-mono text-xs text-primary shrink-0">{incident.referenceNumber}</span>
-                    <span className="font-medium text-text truncate">{incident.title}</span>
-                  </div>
-                  <div className="flex items-center gap-4 shrink-0">
-                    <span className="text-sm text-text-secondary hidden sm:inline">{incident.reporter?.name || "-"}</span>
-                    <span className="text-sm text-text-secondary">{new Date(incident.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }

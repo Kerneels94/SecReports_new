@@ -25,6 +25,10 @@ jest.mock("@/components/ui/Badge", () => ({
   ),
 }));
 
+jest.mock("@/hooks/useAuth", () => ({
+  useAuth: () => ({ user: { id: 1, role: "manager", permissions: ["incidents.view", "export.csv"] } }),
+}));
+
 const mockGetById = incidentService.getById as jest.Mock;
 
 const mockIncident = {
