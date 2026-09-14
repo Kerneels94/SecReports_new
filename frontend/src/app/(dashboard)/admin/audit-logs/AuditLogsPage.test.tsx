@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import AuditLogsPage from "./page";
 import { adminAuditService } from "@/services";
@@ -39,5 +39,26 @@ describe("AuditLogsPage", () => {
         expect.objectContaining({ action: "login", page: 1 }),
       );
     });
+  });
+
+  it("debounces search input into a single request", async () => {
+    jest.useFakeTimers();
+    render(<AuditLogsPage />);
+    mockList.mockClear();
+
+    const input = screen.getByPlaceholderText("Search by user, email, or action...");
+    fireEvent.change(input, { target: { value: "l" } });
+    fireEvent.change(input, { target: { value: "lo" } });
+    fireEvent.change(input, { target: { value: "log" } });
+
+    jest.advanceTimersByTime(1000);
+
+    await waitFor(() => {
+      expect(mockList).toHaveBeenCalledTimes(1);
+      expect(mockList).toHaveBeenCalledWith(
+        expect.objectContaining({ search: "log", page: 1 }),
+      );
+    });
+    jest.useRealTimers();
   });
 });
