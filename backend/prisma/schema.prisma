@@ -281,6 +281,8 @@ model AuditLog {
   entityType   String   @map("entity_type")
   entityId     String   @map("entity_id")
   action       String
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
   oldValues    String?  @map("old_values")
   newValues    String?  @map("new_values")
   performedBy  String   @map("performed_by") @db.ObjectId

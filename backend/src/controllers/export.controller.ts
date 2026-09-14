@@ -5,6 +5,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import PDFDocument from "pdfkit";
 import { prisma } from "../lib/db";
+import { AuditLogService } from "../services/auditLog.service";
 import { SubscriptionService } from "../services/subscription.service";
 import { sendMail } from "../services/email.service";
 
@@ -520,15 +521,13 @@ export const ExportController = {
         return;
       }
 
-      await prisma.auditLog.create({
-        data: {
+      await AuditLogService.create({
           entityType: "incident",
           entityId: "batch",
           action: "report_batch_email_sent",
           newValues: JSON.stringify({ recipient: email, type, format, count: incidents.length }),
           performedBy: request.user!.userId,
-        },
-      });
+        });
 
       reply.code(200).send({ success: true, data: { message: `Report for ${incidents.length} ${type} incidents sent successfully` } });
     } else {
@@ -563,15 +562,13 @@ export const ExportController = {
         return;
       }
 
-      await prisma.auditLog.create({
-        data: {
+      await AuditLogService.create({
           entityType: "incident",
           entityId: "batch",
           action: "report_batch_email_sent",
           newValues: JSON.stringify({ recipient: email, type, format, count: incidents.length }),
           performedBy: request.user!.userId,
-        },
-      });
+        });
 
       reply.code(200).send({ success: true, data: { message: `Report for ${incidents.length} ${type} incidents sent successfully` } });
     }
@@ -626,15 +623,13 @@ export const ExportController = {
         return;
       }
 
-      await prisma.auditLog.create({
-        data: {
+      await AuditLogService.create({
           entityType: "incident",
           entityId: incidentId,
           action: "report_email_sent",
           newValues: JSON.stringify({ recipient: email, format }),
           performedBy: request.user!.userId,
-        },
-      });
+        });
 
       reply.code(200).send({ success: true, data: { message: "Report sent successfully" } });
     } else {
@@ -669,15 +664,13 @@ export const ExportController = {
         return;
       }
 
-      await prisma.auditLog.create({
-        data: {
+      await AuditLogService.create({
           entityType: "incident",
           entityId: incidentId,
           action: "report_email_sent",
           newValues: JSON.stringify({ recipient: email, format }),
           performedBy: request.user!.userId,
-        },
-      });
+        });
 
       reply.code(200).send({ success: true, data: { message: "Report sent successfully" } });
     }

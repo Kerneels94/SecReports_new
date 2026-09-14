@@ -1,4 +1,5 @@
 import { prisma } from "../lib/db";
+import { AuditLogService } from "./auditLog.service";
 import {
   NotFoundError,
   ValidationError,
@@ -91,8 +92,7 @@ export const LedgerService = {
     });
 
     if (actor) {
-      await prisma.auditLog.create({
-        data: {
+      await AuditLogService.create({
           entityType: "ledger_entry",
           entityId: entry.id,
           action: "ledger_entry_posted",
@@ -104,8 +104,7 @@ export const LedgerService = {
             reference: entry.reference,
           }),
           performedBy: actor.userId,
-        },
-      });
+        });
     }
 
     return entry;
@@ -170,16 +169,14 @@ export const LedgerService = {
     }
 
     if (actor) {
-      await prisma.auditLog.create({
-        data: {
+      await AuditLogService.create({
           entityType: "ledger_entry",
           entityId: id,
           action: "ledger_entry_voided",
           oldValues: JSON.stringify({ status: "posted" }),
           newValues: JSON.stringify({ status: "void" }),
           performedBy: actor.userId,
-        },
-      });
+        });
     }
 
     return prisma.ledger.findUnique({

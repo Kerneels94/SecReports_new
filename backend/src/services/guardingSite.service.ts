@@ -3,6 +3,7 @@
  * during site setup and cascading cleanup on deletion.
  */
 import { prisma } from "../lib/db";
+import { AuditLogService } from "./auditLog.service";
 import { NotFoundError, ConflictError } from "../lib/errors";
 
 /** Input for creating a guard inline during site creation. */
@@ -63,14 +64,12 @@ export const GuardingSiteService = {
     });
 
     if (params.performedBy) {
-      await prisma.auditLog.create({
-        data: {
-          entityType: "guarding_site",
-          entityId: site.id,
-          action: "site_created",
-          newValues: JSON.stringify({ name: params.name }),
-          performedBy: params.performedBy,
-        },
+      await AuditLogService.create({
+        entityType: "guarding_site",
+        entityId: site.id,
+        action: "site_created",
+        newValues: JSON.stringify({ name: params.name }),
+        performedBy: params.performedBy,
       });
     }
 

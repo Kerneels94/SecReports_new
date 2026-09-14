@@ -4,6 +4,7 @@
  * scoped to a specific company.
  */
 import { prisma } from "../lib/db";
+import { auditContext } from "../lib/auditContext";
 
 interface ListAuditLogsParams {
   page: number;
@@ -17,6 +18,20 @@ interface ListAuditLogsParams {
 }
 
 export const AuditLogService = {
+  /** Creates an audit log entry, stamping it with the request context (IP + user agent). */
+  async create(params: {
+    entityType: string;
+    entityId: string;
+    action: string;
+    performedBy: string;
+    oldValues?: string;
+    newValues?: string;
+  }) {
+    await prisma.auditLog.create({
+      data: { ...params, ...auditContext() },
+    });
+  },
+
   /** Paginated listing of audit logs for a company with performer info and optional filters. */
   async list(params: ListAuditLogsParams) {
     const where: any = {
