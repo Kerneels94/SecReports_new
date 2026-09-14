@@ -33,13 +33,12 @@ export const AuditLogService = {
     }
 
     if (params.search) {
-      where.performedByUser = {
-        companyId: params.companyId,
-        OR: [
-          { name: { contains: params.search, mode: "insensitive" } },
-          { email: { contains: params.search, mode: "insensitive" } },
-        ],
-      };
+      where.performedByUser = { companyId: params.companyId };
+      where.OR = [
+        { action: { contains: params.search, mode: "insensitive" } },
+        { performedByUser: { name: { contains: params.search, mode: "insensitive" } } },
+        { performedByUser: { email: { contains: params.search, mode: "insensitive" } } },
+      ];
     }
 
     const [data, total] = await Promise.all([

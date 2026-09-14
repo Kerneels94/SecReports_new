@@ -95,11 +95,13 @@ export default function AuditLogsPage() {
     fetchData();
   }, [page, entityType, action, search]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-    setSearch(searchInput);
-  };
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
   const totalPages = data ? Math.ceil(data.total / data.perPage) : 0;
 
@@ -146,15 +148,14 @@ export default function AuditLogsPage() {
                 ))}
               </select>
             </div>
-            <form onSubmit={handleSearch} className="flex gap-2 sm:ml-auto">
+            <div className="sm:ml-auto">
               <Input
-                placeholder="Search by user name or email..."
+                placeholder="Search by user, email, or action..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="w-64"
               />
-              <Button type="submit" variant="secondary" size="sm">Search</Button>
-            </form>
+            </div>
           </div>
         </CardContent>
       </Card>
