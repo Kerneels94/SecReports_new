@@ -3,6 +3,7 @@
  * for guarding site patrols.
  */
 import { prisma } from "../lib/db";
+import { AuditLogService } from "./auditLog.service";
 import { NotFoundError } from "../lib/errors";
 
 /** Parameters for creating a patrol report with optional checkpoint entries. */
@@ -115,14 +116,12 @@ export const PatrolReportService = {
     });
 
     if (params.performedBy) {
-      await prisma.auditLog.create({
-        data: {
-          entityType: "patrol_report",
-          entityId: report.id,
-          action: "patrol_created",
-          newValues: JSON.stringify({ siteId: params.siteId, guardId: params.guardId }),
-          performedBy: params.performedBy,
-        },
+      await AuditLogService.create({
+        entityType: "patrol_report",
+        entityId: report.id,
+        action: "patrol_created",
+        newValues: JSON.stringify({ siteId: params.siteId, guardId: params.guardId }),
+        performedBy: params.performedBy,
       });
     }
 

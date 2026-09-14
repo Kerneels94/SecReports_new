@@ -12,7 +12,7 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p className="mt-2 text-sm text-text-secondary">
-          Last updated: 29 July 2026
+          Last updated: 14 September 2026
         </p>
 
         <div className="mt-10 space-y-6 text-sm text-text-secondary leading-relaxed">
@@ -23,6 +23,21 @@ export default function PrivacyPage() {
             We collect information you provide directly to us, including your
             name, email address, company details, and billing information when
             you register for an account or use our services.
+          </p>
+          <p>
+            When you use our services, we automatically record technical
+            information for security and audit purposes, including your IP
+            address and the browser type and version you are using. This data
+            is captured in our activity (audit) logs and is only visible to
+            administrators of your own company. This processing is based on our
+            legitimate interest in protecting our services and accounts from
+            misuse, aligned with the Protection of Personal Information Act
+            (POPIA).
+          </p>
+          <p>
+            We may also use service cookies and analytics (such as PostHog) to
+            understand how visitors use our website. You can control or decline
+            non-essential cookies using the cookie banner shown on our site.
           </p>
 
           <h2 className="text-lg font-semibold text-text">

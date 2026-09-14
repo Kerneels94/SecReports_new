@@ -13,6 +13,21 @@ jest.mock("@/components/ui/Badge", () => ({
 
 const mockList = adminAuditService.list as jest.Mock;
 
+const makeEntry = (overrides: Record<string, unknown> = {}) => ({
+  id: "entry-1",
+  entityType: "user",
+  entityId: "u1",
+  action: "login",
+  oldValues: null,
+  newValues: null,
+  performedBy: "u1",
+  createdAt: "2026-09-14T12:00:00Z",
+  performedByUser: { id: "u1", name: "Test User", email: "test@example.com", company: { id: "c1", name: "Co" } },
+  ipAddress: "1.2.3.4",
+  userAgent: "Mozilla/5.0 (Windows NT 10.0) Chrome/126.0",
+  ...overrides,
+});
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockList.mockResolvedValue({
@@ -60,5 +75,21 @@ describe("AuditLogsPage", () => {
       );
     });
     jest.useRealTimers();
+  });
+
+  it("expands a row on click and shows IP address and browser", async () => {
+    mockList.mockResolvedValue({
+      data: { data: [makeEntry()], total: 1, page: 1, perPage: 20 },
+    });
+    render(<AuditLogsPage />);
+
+    await waitFor(() => expect(screen.getByText("Test User")).toBeInTheDocument());
+
+    expect(screen.queryByText("1.2.3.4")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Test User"));
+
+    expect(screen.getByText("1.2.3.4")).toBeInTheDocument();
+    expect(screen.getByText("Chrome")).toBeInTheDocument();
   });
 });

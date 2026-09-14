@@ -5,6 +5,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import PDFDocument from "pdfkit";
 import { prisma } from "../lib/db";
+import { AuditLogService } from "../services/auditLog.service";
 import { sendMail } from "../services/email.service";
 
 interface PatrolForExport {
@@ -276,15 +277,13 @@ export const PatrolExportController = {
         return;
       }
 
-      await prisma.auditLog.create({
-        data: {
+      await AuditLogService.create({
           entityType: "patrol_report",
           entityId: siteId || "all-sites",
           action: "patrol_report_email_sent",
           newValues: JSON.stringify({ recipient: email, format, siteName: siteName || null }),
           performedBy: request.user!.userId,
-        },
-      });
+        });
 
       reply.code(200).send({ success: true, data: { message: `Patrol report for ${reportLabel} sent successfully` } });
     } else {
@@ -327,15 +326,13 @@ export const PatrolExportController = {
         return;
       }
 
-      await prisma.auditLog.create({
-        data: {
+      await AuditLogService.create({
           entityType: "patrol_report",
           entityId: siteId || "all-sites",
           action: "patrol_report_email_sent",
           newValues: JSON.stringify({ recipient: email, format, siteName: siteName || null }),
           performedBy: request.user!.userId,
-        },
-      });
+        });
 
       reply.code(200).send({ success: true, data: { message: `Patrol report for ${reportLabel} sent successfully` } });
     }

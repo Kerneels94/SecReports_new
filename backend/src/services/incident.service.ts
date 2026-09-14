@@ -3,6 +3,7 @@
  * permission checks for reporters, and natural language date parsing for searches.
  */
 import { prisma } from "../lib/db";
+import { AuditLogService } from "./auditLog.service";
 import { NotFoundError } from "../lib/errors";
 import { generateReferenceNumber } from "../lib/utils";
 
@@ -215,14 +216,12 @@ export const IncidentService = {
       },
     });
 
-    await prisma.auditLog.create({
-      data: {
-        entityType: "incident",
-        entityId: incident.id,
-        action: "create",
-        newValues: JSON.stringify({ title: params.title }),
-        performedBy: params.reporterId,
-      },
+await AuditLogService.create({
+      entityType: "incident",
+      entityId: incident.id,
+      action: "create",
+      newValues: JSON.stringify({ title: params.title }),
+      performedBy: params.reporterId,
     });
 
     return incident;

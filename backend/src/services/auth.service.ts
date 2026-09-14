@@ -5,6 +5,7 @@
  */
 import crypto from "crypto";
 import { prisma } from "../lib/db";
+import { AuditLogService } from "./auditLog.service";
 import { hashPassword, comparePassword, hashToken } from "../lib/hash";
 import {
   signAccessToken,
@@ -72,7 +73,7 @@ async function createAuditLog(params: {
   oldValues?: string;
   newValues?: string;
 }): Promise<void> {
-  await prisma.auditLog.create({ data: params });
+  await AuditLogService.create(params);
 }
 
 /** Sleep for a given number of milliseconds. */

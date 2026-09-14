@@ -12,6 +12,7 @@ import { verifyAccessToken } from "./lib/jwt";
 import { UnauthorizedError, AppError } from "./lib/errors";
 import { posthog } from "./lib/posthog";
 import { SubscriptionService } from "./services/subscription.service";
+import { runWithAuditContext } from "./lib/auditContext";
 import authRoutes from "./routes/auth.routes";
 import incidentRoutes from "./routes/incident.routes";
 import reportRoutes from "./routes/report.routes";
@@ -71,6 +72,13 @@ export async function buildApp() {
   });
 
   await fastify.register(cookie);
+
+  fastify.addHook("onRequest", (request, _reply, done) => {
+    runWithAuditContext(
+      { ipAddress: request.ip, userAgent: request.headers["user-agent"] as string },
+      done,
+    );
+  });
 
   fastify.decorateRequest("user", undefined);
 

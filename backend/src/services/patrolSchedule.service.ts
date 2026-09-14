@@ -3,6 +3,7 @@
  * checkpoint management for recurring patrol route templates.
  */
 import { prisma } from "../lib/db";
+import { AuditLogService } from "./auditLog.service";
 import { NotFoundError } from "../lib/errors";
 
 /** Parameters for creating a patrol schedule. */
@@ -91,15 +92,13 @@ export const PatrolScheduleService = {
     });
 
     if (params.performedBy) {
-      await prisma.auditLog.create({
-        data: {
+      await AuditLogService.create({
           entityType: "patrol_schedule",
           entityId: schedule.id,
           action: "schedule_created",
           newValues: JSON.stringify({ siteId: params.siteId, day: params.day, slotCount: params.timeSlots.length }),
           performedBy: params.performedBy,
-        },
-      });
+        });
     }
 
     return schedule;
@@ -166,15 +165,13 @@ export const PatrolScheduleService = {
     });
 
     if (params.performedBy) {
-      await prisma.auditLog.create({
-        data: {
+      await AuditLogService.create({
           entityType: "patrol_schedule",
           entityId: id,
           action: "schedule_updated",
           newValues: JSON.stringify({ siteId: data.siteId, day: data.day }),
           performedBy: params.performedBy,
-        },
-      });
+        });
     }
 
     return updated;
@@ -188,15 +185,13 @@ export const PatrolScheduleService = {
     await prisma.patrolSchedule.delete({ where: { id } });
 
     if (performedBy) {
-      await prisma.auditLog.create({
-        data: {
+      await AuditLogService.create({
           entityType: "patrol_schedule",
           entityId: id,
           action: "schedule_deleted",
           oldValues: JSON.stringify({ siteId: schedule.siteId, day: schedule.day }),
           performedBy,
-        },
-      });
+        });
     }
   },
 };

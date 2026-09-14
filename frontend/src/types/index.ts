@@ -79,6 +79,8 @@ export interface AuditLogEntry {
   newValues: string | null;
   performedBy: string;
   createdAt: string;
+  ipAddress: string | null;
+  userAgent: string | null;
   performedByUser: {
     id: string;
     name: string;

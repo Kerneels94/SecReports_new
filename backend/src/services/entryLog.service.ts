@@ -3,6 +3,7 @@
  * Handles CRUD with inline flag/unflag support.
  */
 import { prisma } from "../lib/db";
+import { AuditLogService } from "./auditLog.service";
 import { NotFoundError, ConflictError } from "../lib/errors";
 
 interface CreateEntryLogParams {
@@ -99,14 +100,12 @@ export const EntryLogService = {
         include: ENTRY_INCLUDE,
       }).then(async (entry) => {
         if (params.flaggedById) {
-          await prisma.auditLog.create({
-            data: {
-              entityType: "entry_log",
-              entityId: entry.id,
-              action: "entry_flagged",
-              newValues: JSON.stringify({ vehicleReg: params.vehicleReg, flagReason: params.flagReason }),
-              performedBy: params.flaggedById,
-            },
+          await AuditLogService.create({
+            entityType: "entry_log",
+            entityId: entry.id,
+            action: "entry_flagged",
+            newValues: JSON.stringify({ vehicleReg: params.vehicleReg, flagReason: params.flagReason }),
+            performedBy: params.flaggedById,
           });
         }
         return entry;
@@ -174,14 +173,12 @@ export const EntryLogService = {
       },
       include: ENTRY_INCLUDE,
     }).then(async (entry) => {
-      await prisma.auditLog.create({
-        data: {
-          entityType: "entry_log",
-          entityId: entry.id,
-          action: "entry_flagged",
-          newValues: JSON.stringify({ vehicleReg: log.vehicleReg, flagReason: reason }),
-          performedBy: userId,
-        },
+      await AuditLogService.create({
+        entityType: "entry_log",
+        entityId: entry.id,
+        action: "entry_flagged",
+        newValues: JSON.stringify({ vehicleReg: log.vehicleReg, flagReason: reason }),
+        performedBy: userId,
       });
       return entry;
     });

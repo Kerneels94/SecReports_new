@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -61,6 +61,17 @@ function formatDateTime(dateStr: string): string {
   });
 }
 
+function parseBrowser(ua: string | null): string {
+  if (!ua) return "Unknown";
+  if (ua.includes("Edg/")) return "Microsoft Edge";
+  if (ua.includes("OPR/")) return "Opera";
+  if (ua.includes("Firefox/")) return "Firefox";
+  if (ua.includes("SamsungBrowser/")) return "Samsung Internet";
+  if (ua.includes("Chrome/")) return "Chrome";
+  if (ua.includes("Safari/")) return "Safari";
+  return "Other";
+}
+
 export default function AuditLogsPage() {
   const [data, setData] = useState<PaginatedResponse<AuditLogEntry> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,6 +82,7 @@ export default function AuditLogsPage() {
   const [action, setAction] = useState("");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -142,9 +154,9 @@ export default function AuditLogsPage() {
                 onChange={(e) => { setAction(e.target.value); setPage(1); }}
                 className="rounded-lg border border-border-light bg-surface-elevated/50 px-3 py-1.5 text-xs font-medium text-text-secondary"
               >
-                <option value="">All Actions</option>
+                <option value="" className="bg-surface-elevated text-text-secondary">All Actions</option>
                 {Object.entries(ACTION_LABELS).map(([val, label]) => (
-                  <option key={val} value={val}>{label}</option>
+                  <option key={val} value={val} className="bg-surface-elevated text-text-secondary">{label}</option>
                 ))}
               </select>
             </div>
@@ -207,7 +219,8 @@ export default function AuditLogsPage() {
                     }
 
                     return (
-                      <tr key={entry.id} className={`border-b border-border-light/50 hover:bg-surface-elevated/20 transition-colors ${idx % 2 === 0 ? "bg-surface-elevated/10" : ""}`}>
+                      <Fragment key={entry.id}>
+                      <tr className={`border-b border-border-light/50 hover:bg-surface-elevated/20 transition-colors cursor-pointer select-none ${idx % 2 === 0 ? "bg-surface-elevated/10" : ""}`} onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}>
                         <td className="px-4 py-3 text-text-secondary whitespace-nowrap" style={{ fontSize: "16px" }}>{formatDateTime(entry.createdAt)}</td>
                         <td className="px-4 py-3" style={{ fontSize: "16px" }}>
                           <div>
@@ -219,7 +232,28 @@ export default function AuditLogsPage() {
                         <td className="px-4 py-3 text-text-secondary capitalize" style={{ fontSize: "16px" }}>{entry.entityType.replace(/_/g, " ")}</td>
                         <td className="px-4 py-3 text-text-secondary/70 max-w-[200px] truncate" style={{ fontSize: "16px" }}>{details || "—"}</td>
                       </tr>
-                    );
+                      {expandedId === entry.id && (
+                        <tr className="border-b border-border-light/50 bg-surface-elevated/5">
+                          <td colSpan={5} className="px-4 py-4">
+                            <div className="flex flex-wrap gap-6 text-sm">
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary/70">IP Address</p>
+                                <p className="mt-1 font-mono text-text">{entry.ipAddress || "—"}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary/70">Browser</p>
+                                <p className="mt-1 text-text">{parseBrowser(entry.userAgent)}</p>
+                              </div>
+                              <div className="min-w-[200px] flex-1">
+                                <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary/70">User Agent</p>
+                                <p className="mt-1 break-all text-text-secondary">{entry.userAgent || "—"}</p>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
                   })}
                 </tbody>
               </table>
