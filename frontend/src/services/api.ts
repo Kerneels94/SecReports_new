@@ -119,30 +119,6 @@ class ApiClient {
     return this.request<T>(path, { method: "DELETE" });
   }
 
-  async upload<T>(path: string, formData: FormData): Promise<ApiResponse<T>> {
-    const token = this.getToken();
-    const headers: HeadersInit = {};
-    if (token) {
-      (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
-    }
-
-    const res = await fetch(`${this.baseUrl}${path}`, {
-      method: "POST",
-      headers,
-      body: formData,
-      credentials: "include",
-    });
-
-    const json = await res.json();
-
-    if (!res.ok) {
-      const error = json as ApiError;
-      throw new Error(error.error?.message || error.message || "Upload failed");
-    }
-
-    return json as ApiResponse<T>;
-  }
-
   async downloadBlob(path: string): Promise<Blob & { filename?: string }> {
     const token = this.getToken();
     const headers: HeadersInit = {};

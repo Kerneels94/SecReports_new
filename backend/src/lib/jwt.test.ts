@@ -30,10 +30,14 @@ describe("signRefreshToken", () => {
 describe("verifyAccessToken", () => {
   beforeEach(() => { jest.clearAllMocks(); });
 
-  it("calls jwt.verify with token and JWT_SECRET, returns payload", () => {
+  it("calls jwt.verify with token, JWT_SECRET, issuer and audience, returns payload", () => {
     (jwt.verify as jest.Mock).mockReturnValue(payload);
     const result = verifyAccessToken("some-token");
-    expect(jwt.verify).toHaveBeenCalledWith("some-token", expect.any(String));
+    expect(jwt.verify).toHaveBeenCalledWith(
+      "some-token",
+      expect.any(String),
+      expect.objectContaining({ issuer: "secreports-api", audience: "secreports-client" }),
+    );
     expect(result).toEqual(payload);
   });
 
@@ -46,10 +50,14 @@ describe("verifyAccessToken", () => {
 describe("verifyRefreshToken", () => {
   beforeEach(() => { jest.clearAllMocks(); });
 
-  it("calls jwt.verify with token and JWT_REFRESH_SECRET, returns payload", () => {
+  it("calls jwt.verify with token, JWT_REFRESH_SECRET, issuer and audience, returns payload", () => {
     (jwt.verify as jest.Mock).mockReturnValue(payload);
     const result = verifyRefreshToken("some-token");
-    expect(jwt.verify).toHaveBeenCalledWith("some-token", expect.any(String));
+    expect(jwt.verify).toHaveBeenCalledWith(
+      "some-token",
+      expect.any(String),
+      expect.objectContaining({ issuer: "secreports-api", audience: "secreports-client" }),
+    );
     expect(result).toEqual(payload);
   });
 });

@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Audit dependencies
+        run: npm audit --audit-level=critical
+
       - name: Generate Prisma client
         run: npx prisma generate
 
@@ -36,8 +39,8 @@ jobs:
       - name: Run tests
         run: npm test
         env:
-          JWT_SECRET: test-jwt-secret
-          JWT_REFRESH_SECRET: test-jwt-refresh-secret
+          JWT_SECRET: test-jwt-secret-that-is-long-enough-32ch
+          JWT_REFRESH_SECRET: test-jwt-refresh-secret-that-is-32ch
           ENVIRONMENT: staging
           RESEND_API_KEY: re_placeholder
 
@@ -60,6 +63,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=critical
 
       - name: Run tests
         run: npm test

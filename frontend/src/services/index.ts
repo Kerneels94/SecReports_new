@@ -91,8 +91,11 @@ export const authService = {
     api.post<{ message: string }>("/auth/forgot-password", { email }),
   resetPassword: (token: string, password: string) =>
     api.post<{ message: string }>("/auth/reset-password", { token, password }),
-  changePassword: (newPassword: string) =>
-    api.patch<{ message: string }>("/auth/me/password", { newPassword }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    api.patch<{ message: string }>("/auth/me/password", {
+      currentPassword,
+      newPassword,
+    }),
   listUsers: () => api.get<UserListItem[]>("/auth/users"),
   getUserById: (id: number) => api.get<UserListItem>(`/auth/users/${id}`),
 };

@@ -14,7 +14,6 @@ jest.mock("./api", () => ({
     put: jest.fn(),
     patch: jest.fn(),
     delete: jest.fn(),
-    upload: jest.fn(),
   },
 }));
 
@@ -53,8 +52,11 @@ describe("authService", () => {
   });
 
   it("changePassword calls api.patch with correct path and data", () => {
-    authService.changePassword("newpw");
-    expect(mockApi.patch).toHaveBeenCalledWith("/auth/me/password", { newPassword: "newpw" });
+    authService.changePassword("oldpw", "newpw");
+    expect(mockApi.patch).toHaveBeenCalledWith("/auth/me/password", {
+      currentPassword: "oldpw",
+      newPassword: "newpw",
+    });
   });
 
   it("listUsers calls api.get with correct path", () => {

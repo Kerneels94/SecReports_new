@@ -52,7 +52,10 @@ export function signRefreshToken(payload: TokenPayload): string {
  * @throws {JsonWebTokenError} If the token is invalid or expired.
  */
 export function verifyAccessToken(token: string): TokenPayload {
-  return jwt.verify(token, JWT_SECRET!) as TokenPayload;
+  return jwt.verify(token, JWT_SECRET!, {
+    issuer: "secreports-api",
+    audience: "secreports-client",
+  }) as TokenPayload;
 }
 
 /**
@@ -62,5 +65,8 @@ export function verifyAccessToken(token: string): TokenPayload {
  * @throws {JsonWebTokenError} If the token is invalid or expired.
  */
 export function verifyRefreshToken(token: string): TokenPayload {
-  return jwt.verify(token, JWT_REFRESH_SECRET!) as TokenPayload;
+  return jwt.verify(token, JWT_REFRESH_SECRET!, {
+    issuer: "secreports-api",
+    audience: "secreports-client",
+  }) as TokenPayload;
 }
