@@ -122,6 +122,7 @@ describe("ProfilePage", () => {
       render(<ProfilePage />);
 
       await userEvent.click(screen.getByText("Edit Profile"));
+      await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
       await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "short");
       await userEvent.click(screen.getByText("Update Password"));
 
@@ -133,6 +134,7 @@ describe("ProfilePage", () => {
       render(<ProfilePage />);
 
       await userEvent.click(screen.getByText("Edit Profile"));
+      await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
       await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "newpassword123");
       await userEvent.type(screen.getByPlaceholderText("Re-enter new password"), "different");
       await userEvent.click(screen.getByText("Update Password"));
@@ -147,12 +149,13 @@ describe("ProfilePage", () => {
       render(<ProfilePage />);
 
       await userEvent.click(screen.getByText("Edit Profile"));
+      await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
       await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "newpassword123");
       await userEvent.type(screen.getByPlaceholderText("Re-enter new password"), "newpassword123");
       await userEvent.click(screen.getByText("Update Password"));
 
       await waitFor(() => {
-        expect(authService.changePassword).toHaveBeenCalledWith("newpassword123");
+        expect(authService.changePassword).toHaveBeenCalledWith("oldpass123", "newpassword123");
       });
 
       expect(screen.getByText("Password changed successfully")).toBeInTheDocument();
@@ -165,6 +168,7 @@ describe("ProfilePage", () => {
       render(<ProfilePage />);
 
       await userEvent.click(screen.getByText("Edit Profile"));
+      await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
       await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "newpassword123");
       await userEvent.type(screen.getByPlaceholderText("Re-enter new password"), "newpassword123");
       await userEvent.click(screen.getByText("Update Password"));

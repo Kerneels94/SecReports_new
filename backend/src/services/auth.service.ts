@@ -35,6 +35,10 @@ const MAX_LOGIN_ATTEMPTS = 3;
 const BASE_LOCKOUT_MS = 15 * 60 * 1000;
 const MAX_LOCKOUT_MS = 4 * 60 * 60 * 1000;
 
+/** A real bcrypt hash of a throwaway string — used to equalise login timing on the unknown-email path. */
+const DUMMY_BCRYPT_HASH =
+  "$2b$12$fVfsKL1jvOfJcoa0CWRsyeXCpyak/CPQ4/pVgSUIbz/CTvKLsNG.m";
+
 /** Calculate lockout duration with exponential backoff (15min → 30min → 1hr → 2hr → 4hr cap). */
 function lockoutDuration(lockoutCount: number): number {
   return Math.min(BASE_LOCKOUT_MS * Math.pow(2, lockoutCount), MAX_LOCKOUT_MS);
@@ -169,7 +173,10 @@ export const AuthService = {
     const user = await prisma.user.findUnique({
       where: { email: params.email },
     });
-    if (!user) throwGenericAuthError();
+    if (!user) {
+      await comparePassword(params.password, DUMMY_BCRYPT_HASH);
+      throwGenericAuthError();
+    }
     if (
       user.role !== "admin" &&
       user.role !== "manager" &&
@@ -356,12 +363,22 @@ export const AuthService = {
     const existingUser = await prisma.user.findUnique({
       where: { email: params.email },
     });
-    if (existingUser) throw new ConflictError("Email already in use");
+    if (existingUser) {
+      return {
+        message:
+          "Account created. Please check your email to verify your account.",
+      };
+    }
 
     const existingCompany = await prisma.company.findUnique({
       where: { email: params.email },
     });
-    if (existingCompany) throw new ConflictError("Email already in use");
+    if (existingCompany) {
+      return {
+        message:
+          "Account created. Please check your email to verify your account.",
+      };
+    }
 
     const passwordHash = await hashPassword(params.password);
 
@@ -572,10 +589,19 @@ export const AuthService = {
     );
   },
 
-  /** Updates the user's password to a new hash. Invalidates all sessions and sends a notification email. */
-  async changePassword(userId: string, newPassword: string) {
+  /** Updates the user's password to a new hash after verifying the current one. Invalidates all sessions and sends a notification email. */
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new UnauthorizedError("User not found");
+
+    const valid = await comparePassword(currentPassword, user.passwordHash);
+    if (!valid) {
+      throw new UnauthorizedError("Current password is incorrect");
+    }
 
     const passwordHash = await hashPassword(newPassword);
     await prisma.user.update({
@@ -715,15 +741,23 @@ export const AuthService = {
         oldValues: JSON.stringify({ name: user.name }),
         newValues: JSON.stringify({ name: data.name }),
       });
-    } else if (data.email !== undefined && data.email !== user.email) {
-      await createAuditLog({
-        entityType: "user",
-        entityId: userId,
-        action: "user_updated",
-        performedBy: performedBy || userId,
-        oldValues: JSON.stringify({ email: user.email }),
-        newValues: JSON.stringify({ email: data.email }),
-      });
+    }
+
+    // Email is handled independently of the role branch so a combined
+    // role+email update always re-verifies the new address (golden rule #6).
+    const emailChanged = data.email !== undefined && data.email !== user.email;
+    if (emailChanged) {
+      const roleChanged = data.role !== undefined && data.role !== user.role;
+      if (!roleChanged) {
+        await createAuditLog({
+          entityType: "user",
+          entityId: userId,
+          action: "user_updated",
+          performedBy: performedBy || userId,
+          oldValues: JSON.stringify({ email: user.email }),
+          newValues: JSON.stringify({ email: data.email }),
+        });
+      }
 
       const rawToken = crypto.randomBytes(32).toString("hex");
       await prisma.emailVerificationToken.create({
@@ -735,7 +769,7 @@ export const AuthService = {
       });
 
       const verifyLink = `${getAppUrl()}/verify-email?token=${rawToken}`;
-      sendVerificationEmail(data.email, updated.name, verifyLink).catch((err) =>
+      sendVerificationEmail(data.email!, updated.name, verifyLink).catch((err) =>
         console.error("[AuthService] Verification email failed:", err),
       );
     }

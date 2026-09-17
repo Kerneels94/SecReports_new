@@ -216,16 +216,16 @@ describe("AuthController", () => {
 
   describe("changePassword", () => {
     it("valid input: calls AuthService.changePassword and responds 200", async () => {
-      mockRequest.body = { newPassword: "newpassword123" };
+      mockRequest.body = { currentPassword: "oldpw", newPassword: "newpassword123" };
       (changePasswordSchema.safeParse as jest.Mock).mockReturnValue({
         success: true,
-        data: { newPassword: "newpassword123" },
+        data: { currentPassword: "oldpw", newPassword: "newpassword123" },
       });
       (AuthService.changePassword as jest.Mock).mockResolvedValue(undefined);
 
       await AuthController.changePassword(mockRequest, mockReply);
 
-      expect(AuthService.changePassword).toHaveBeenCalledWith("1", "newpassword123");
+      expect(AuthService.changePassword).toHaveBeenCalledWith("1", "oldpw", "newpassword123");
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { adminCompanyService } from "@/services";
@@ -59,6 +59,7 @@ export default function AdminCompaniesPage() {
                 <thead>
                   <tr className="border-b border-border-light bg-surface-elevated/20">
                     <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Company</th>
+                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Email</th>
                     <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Plan</th>
                     <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Price</th>
                     <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Users</th>
@@ -70,12 +71,8 @@ export default function AdminCompaniesPage() {
                 <tbody>
                   {companies.map((c, idx) => (
                     <tr key={c.id} className={`border-b border-border-light/50 hover:bg-surface-elevated/20 transition-colors ${idx % 2 === 0 ? 'bg-surface-elevated/10' : ''}`}>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-text">{c.name}</span>
-                          <span className="text-xs text-text-secondary/60">{c.email}</span>
-                        </div>
-                      </td>
+                      <td className="px-4 py-3 font-medium text-text">{c.name}</td>
+                      <td className="px-4 py-3 text-text-secondary">{c.email}</td>
                       <td className="px-4 py-3 text-text-secondary">{c.subscription?.plan?.name || "Free"}</td>
                       <td className="px-4 py-3 text-text font-medium">{c.subscription?.plan ? formatCurrency(c.subscription.plan.price) : "—"}</td>
                       <td className="px-4 py-3 text-text-secondary">{c._count?.users || 0}</td>

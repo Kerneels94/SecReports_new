@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 const prisma = new PrismaClient();
 
@@ -62,7 +63,11 @@ async function main() {
     },
   });
 
-  const passwordHash = await bcrypt.hash("password123", 12);
+  // Demo credentials come from env (optionally) or are randomly generated and
+  // printed once — never a hardcoded default password (golden rule #30).
+  const demoPassword =
+    process.env.DEMO_PASSWORD || crypto.randomBytes(16).toString("base64url");
+  const passwordHash = await bcrypt.hash(demoPassword, 12);
 
   const company = await prisma.company.create({
     data: {
@@ -241,9 +246,9 @@ async function main() {
 
   console.log("Seed completed successfully");
   console.log(`Company: Demo Security Inc.`);
-  console.log(`Admin: admin@example.com / password123`);
-  console.log(`Manager: manager@example.com / password123`);
-  console.log(`Senior: senior@example.com / password123`);
+  console.log(`Admin: admin@example.com / ${demoPassword}`);
+  console.log(`Manager: manager@example.com / ${demoPassword}`);
+  console.log(`Senior: senior@example.com / ${demoPassword}`);
 
   console.log(`Super Admin: ${superAdminEmail} / ${superAdminPassword}`);
 }

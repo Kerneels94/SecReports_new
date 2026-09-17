@@ -22,13 +22,6 @@ export const loginSchema = z.object({
 });
 
 /**
- * Validates refresh-token rotation requests.
- */
-export const refreshSchema = z.object({
-  refreshToken: z.string().min(1),
-});
-
-/**
  * Validates new company registration payloads.
  */
 export const registerSchema = z.object({
@@ -67,6 +60,7 @@ export const resetPasswordSchema = z.object({
  * Validates authenticated password-change requests.
  */
 export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
   newPassword: strongPassword,
 });
 
@@ -77,11 +71,4 @@ export const updateUserSchema = z.object({
   name: z.string().min(1).max(255).optional(),
   email: z.string().email().optional(),
   role: z.enum(["admin", "manager", "senior"]).optional(),
-});
-
-/**
- * Validates logout requests — requires the refresh token to delete.
- */
-export const logoutSchema = z.object({
-  refreshToken: z.string().min(1),
 });

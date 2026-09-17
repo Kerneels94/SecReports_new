@@ -18,6 +18,7 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
 
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -74,6 +75,10 @@ export default function ProfilePage() {
   const handlePasswordChange = async () => {
     setPasswordError(null);
     setPasswordSuccess(null);
+    if (!currentPassword) {
+      setPasswordError("Current password is required");
+      return;
+    }
     if (!newPassword || newPassword.length < 8) {
       setPasswordError("New password must be at least 8 characters");
       return;
@@ -84,8 +89,9 @@ export default function ProfilePage() {
     }
     setPasswordLoading(true);
     try {
-      await authService.changePassword(newPassword);
+      await authService.changePassword(currentPassword, newPassword);
       setPasswordSuccess("Password changed successfully");
+      setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
@@ -161,6 +167,14 @@ export default function ProfilePage() {
                     {passwordSuccess}
                   </div>
                 )}
+                <Input
+                  label="Current Password"
+                  labelClassName="text-base"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Enter current password"
+                />
                 <Input
                   label="New Password"
                   labelClassName="text-base"

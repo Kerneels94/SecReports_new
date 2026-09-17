@@ -218,17 +218,18 @@ describe("AuthService", () => {
       });
     });
 
-    it("throws ConflictError for duplicate user email", async () => {
+    it("returns a generic success message for a duplicate email", async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
-      await expect(
-        AuthService.register({
-          companyName: "Test Company",
-          name: "Test User",
-          email: "test@example.com",
-          password: "password123",
-        }),
-      ).rejects.toThrow(ConflictError);
+      const result = await AuthService.register({
+        companyName: "Test Company",
+        name: "Test User",
+        email: "test@example.com",
+        password: "password123",
+      });
+
+      expect(result.message).toContain("Account created");
+      expect(prisma.user.create).not.toHaveBeenCalled();
     });
 
     it("throws ValidationError when email domain has no MX records", async () => {
@@ -385,9 +386,10 @@ describe("AuthService", () => {
 describe("changePassword", () => {
   it("changes password and sends notification email", async () => {
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+    (hash.comparePassword as jest.Mock).mockResolvedValue(true);
     (hash.hashPassword as jest.Mock).mockResolvedValue("$2b$12$newhash");
 
-    await AuthService.changePassword("1", "new-password");
+    await AuthService.changePassword("1", "current-password", "new-password");
 
     expect(prisma.user.update).toHaveBeenCalledWith({
       where: { id: "1" },
@@ -395,10 +397,22 @@ describe("changePassword", () => {
     });
   });
 
+  it("throws UnauthorizedError when the current password is wrong", async () => {
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+    (hash.comparePassword as jest.Mock).mockResolvedValue(false);
+
+    await expect(
+      AuthService.changePassword("1", "wrong-password", "new-password"),
+    ).rejects.toThrow(UnauthorizedError);
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
   it("throws UnauthorizedError when user not found", async () => {
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-    await expect(AuthService.changePassword("1", "new")).rejects.toThrow(UnauthorizedError);
+    await expect(
+      AuthService.changePassword("1", "current-password", "new"),
+    ).rejects.toThrow(UnauthorizedError);
   });
 });
 

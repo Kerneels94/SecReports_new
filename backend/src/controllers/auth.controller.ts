@@ -135,6 +135,7 @@ export const AuthController = {
 
     await AuthService.changePassword(
       request.user!.userId,
+      parsed.data.currentPassword,
       parsed.data.newPassword,
     );
     clearRefreshCookie(reply);

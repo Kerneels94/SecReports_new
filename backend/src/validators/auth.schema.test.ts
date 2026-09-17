@@ -1,6 +1,5 @@
 import {
   loginSchema,
-  refreshSchema,
   registerSchema,
   createUserSchema,
   forgotPasswordSchema,
@@ -26,18 +25,6 @@ describe("auth schemas", () => {
 
     it("fails for empty password", () => {
       const result = loginSchema.safeParse({ email: "test@test.com", password: "" });
-      expect(result.success).toBe(false);
-    });
-  });
-
-  describe("refreshSchema", () => {
-    it("passes for non-empty token", () => {
-      const result = refreshSchema.safeParse({ refreshToken: "some-token" });
-      expect(result.success).toBe(true);
-    });
-
-    it("fails for empty token", () => {
-      const result = refreshSchema.safeParse({ refreshToken: "" });
       expect(result.success).toBe(false);
     });
   });
