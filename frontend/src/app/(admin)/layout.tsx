@@ -101,9 +101,14 @@ function AdminShell({ children }: { children: ReactNode }) {
         </div>
         <nav className="flex flex-col gap-0.5 p-3 flex-1 overflow-y-auto">
           {adminNavItems.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/portal" && pathname.startsWith(item.href));
+            const activeHref = adminNavItems
+              .filter(
+                (i) =>
+                  pathname === i.href ||
+                  (i.href !== "/portal" && pathname.startsWith(i.href)),
+              )
+              .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+            const isActive = item.href === activeHref;
             return (
               <Link
                 key={item.href}
