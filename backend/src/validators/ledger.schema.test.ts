@@ -96,6 +96,11 @@ describe("ledger schemas", () => {
       expect(result.success).toBe(false);
     });
 
+    it("passes for the paid status filter", () => {
+      const result = ledgerListQuerySchema.safeParse({ status: "paid" });
+      expect(result.success).toBe(true);
+    });
+
     it("fails for an invalid status filter", () => {
       const result = ledgerListQuerySchema.safeParse({ status: "archived" });
       expect(result.success).toBe(false);

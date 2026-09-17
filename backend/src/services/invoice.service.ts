@@ -1,7 +1,6 @@
 import { prisma } from "../lib/db";
 import { NotFoundError, ConflictError } from "../lib/errors";
 import { sendMail } from "./email.service";
-import { LedgerService } from "./ledger.service";
 
 export const InvoiceService = {
   async generateInvoiceNumber(): Promise<string> {
@@ -41,15 +40,6 @@ export const InvoiceService = {
         description: data.description,
       },
       include: { company: true },
-    });
-
-    await LedgerService.postEntry({
-      companyId: invoice.companyId,
-      entryType: "invoice",
-      amount: invoice.amount,
-      currency: invoice.currency,
-      reference: invoice.invoiceNumber,
-      description: `Invoice ${invoice.invoiceNumber} issued`,
     });
 
     return invoice;
@@ -154,7 +144,7 @@ export const InvoiceService = {
           currency: invoice.currency,
           reference: `PAY-${invoice.invoiceNumber}`,
           description: `Payment received for ${invoice.invoiceNumber}`,
-          status: "posted",
+          status: "paid",
           postedAt: new Date(),
         },
       }),

@@ -234,7 +234,7 @@ export default function AdminLedgerPage() {
             value={formatCurrency(-summary.totalOut)}
             accent="danger"
           />
-          <SummaryCard label="Posted Entries" value={String(summary.entryCount)} />
+          <SummaryCard label="Entries" value={String(summary.entryCount)} />
         </div>
       )}
 
@@ -266,6 +266,7 @@ export default function AdminLedgerPage() {
         >
           <option value="all">All statuses</option>
           <option value="posted">Posted</option>
+          <option value="paid">Paid</option>
           <option value="void">Void</option>
         </select>
         <select
@@ -368,7 +369,7 @@ export default function AdminLedgerPage() {
                         </Badge>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        {entry.status === "posted" ? (
+                        {entry.status !== "void" ? (
                           <Button
                             variant="ghost"
                             size="sm"

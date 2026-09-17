@@ -161,7 +161,7 @@ export const LedgerService = {
     }
 
     const result = await prisma.ledger.updateMany({
-      where: { id, status: "posted" },
+      where: { id, status: { not: "void" } },
       data: { status: "void" },
     });
     if (result.count === 0) {
@@ -173,7 +173,7 @@ export const LedgerService = {
           entityType: "ledger_entry",
           entityId: id,
           action: "ledger_entry_voided",
-          oldValues: JSON.stringify({ status: "posted" }),
+          oldValues: JSON.stringify({ status: entry.status }),
           newValues: JSON.stringify({ status: "void" }),
           performedBy: actor.userId,
         });
@@ -189,12 +189,12 @@ export const LedgerService = {
     assertSuperadmin(actor);
     const [posted, byType] = await Promise.all([
       prisma.ledger.findMany({
-        where: { status: "posted" },
+        where: { status: { not: "void" } },
         select: { amount: true, entryType: true },
       }),
       prisma.ledger.groupBy({
         by: ["entryType"],
-        where: { status: "posted" },
+        where: { status: { not: "void" } },
         _sum: { amount: true },
         _count: true,
       }),
