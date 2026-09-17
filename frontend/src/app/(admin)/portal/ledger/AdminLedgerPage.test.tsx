@@ -149,6 +149,15 @@ describe("AdminLedgerPage", () => {
     });
   });
 
+  it("shows a paid entry and allows voiding it", async () => {
+    mockList.mockResolvedValue({ data: [{ ...entry, status: "paid" }] });
+
+    render(<AdminLedgerPage />);
+
+    expect(await screen.findByText("paid")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /void/i })).toBeInTheDocument();
+  });
+
   it("voids an entry after confirmation", async () => {
     mockVoid.mockResolvedValue({ success: true, data: { ...entry, status: "void" } });
     render(<AdminLedgerPage />);

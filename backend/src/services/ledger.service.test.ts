@@ -231,7 +231,7 @@ describe("LedgerService.voidEntry", () => {
     const result = await LedgerService.voidEntry("entry1");
 
     expect(prisma.ledger.updateMany).toHaveBeenCalledWith({
-      where: { id: "entry1", status: "posted" },
+      where: { id: "entry1", status: { not: "void" } },
       data: { status: "void" },
     });
     expect(result?.status).toBe("void");
@@ -310,14 +310,14 @@ describe("LedgerService.getSummary", () => {
     ]);
   });
 
-  it("only considers posted entries", async () => {
+  it("only considers non-void entries", async () => {
     await LedgerService.getSummary();
 
     expect(prisma.ledger.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { status: "posted" } }),
+      expect.objectContaining({ where: { status: { not: "void" } } }),
     );
     expect(prisma.ledger.groupBy).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { status: "posted" } }),
+      expect.objectContaining({ where: { status: { not: "void" } } }),
     );
   });
 

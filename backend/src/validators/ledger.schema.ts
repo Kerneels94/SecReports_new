@@ -36,7 +36,7 @@ export const createLedgerEntrySchema = z.object({
 export const ledgerListQuerySchema = z.object({
   companyId: z.string().min(1).max(255).optional(),
   entryType: z.enum(LEDGER_ENTRY_TYPES).optional(),
-  status: z.enum(["posted", "void"]).optional(),
+  status: z.enum(["posted", "paid", "void"]).optional(),
   dateFrom: isoDate.optional(),
   dateTo: isoDate.optional(),
 });
