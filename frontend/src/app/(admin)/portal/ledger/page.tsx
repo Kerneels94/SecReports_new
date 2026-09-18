@@ -89,8 +89,6 @@ export default function AdminLedgerPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
   const [showModal, setShowModal] = useState(false);
-  const [voidTarget, setVoidTarget] = useState<LedgerEntry | null>(null);
-  const [voiding, setVoiding] = useState(false);
 
   const buildParams = useCallback((): {
     entryType?: string;
@@ -170,21 +168,6 @@ export default function AdminLedgerPage() {
       await fetchData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create entry");
-    }
-  };
-
-  const handleVoid = async (id: string) => {
-    setVoiding(true);
-    setError(null);
-    try {
-      await adminLedgerService.voidEntry(id);
-      setSuccess("Ledger entry voided");
-      setVoidTarget(null);
-      await fetchData();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to void entry");
-    } finally {
-      setVoiding(false);
     }
   };
 
@@ -323,9 +306,6 @@ export default function AdminLedgerPage() {
                     <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-right font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">
-                      Actions
-                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -367,19 +347,6 @@ export default function AdminLedgerPage() {
                         >
                           {entry.status}
                         </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        {entry.status !== "void" ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setVoidTarget(entry)}
-                          >
-                            Void
-                          </Button>
-                        ) : (
-                          <span className="text-xs text-text-secondary/50">—</span>
-                        )}
                       </td>
                     </tr>
                   ))}
@@ -477,33 +444,6 @@ export default function AdminLedgerPage() {
         </form>
       </Modal>
 
-      <Modal
-        open={!!voidTarget}
-        onClose={() => setVoidTarget(null)}
-        title="Void Ledger Entry"
-      >
-        <div className="flex flex-col gap-4">
-          <p className="text-sm text-text-secondary">
-            Void{" "}
-            {voidTarget
-              ? `${voidTarget.entryType} entry for ${voidTarget.company?.name || "this company"} (${formatCurrency(Math.abs(voidTarget.amount))})`
-              : ""}
-            ? The entry will be excluded from totals. This cannot be undone.
-          </p>
-          <div className="flex justify-end gap-2">
-            <Button variant="secondary" onClick={() => setVoidTarget(null)}>
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              loading={voiding}
-              onClick={() => voidTarget && handleVoid(voidTarget.id)}
-            >
-              Void Entry
-            </Button>
-          </div>
-        </div>
-      </Modal>
-    </div>
+      </div>
   );
 }

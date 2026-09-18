@@ -37,7 +37,6 @@ jest.mock("@/components/ui/Badge", () => ({
 
 const mockList = adminLedgerService.list as jest.Mock;
 const mockSummary = adminLedgerService.summary as jest.Mock;
-const mockVoid = adminLedgerService.voidEntry as jest.Mock;
 const mockCreate = adminLedgerService.create as jest.Mock;
 const mockCompanies = adminCompanyService.list as jest.Mock;
 
@@ -149,32 +148,11 @@ describe("AdminLedgerPage", () => {
     });
   });
 
-  it("shows a paid entry and allows voiding it", async () => {
+  it("shows an entry status", async () => {
     mockList.mockResolvedValue({ data: [{ ...entry, status: "paid" }] });
 
     render(<AdminLedgerPage />);
 
     expect(await screen.findByText("paid")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /void/i })).toBeInTheDocument();
-  });
-
-  it("voids an entry after confirmation", async () => {
-    mockVoid.mockResolvedValue({ success: true, data: { ...entry, status: "void" } });
-    render(<AdminLedgerPage />);
-    const user = userEvent.setup();
-
-    await screen.findAllByText("Acme Security");
-    await user.click(screen.getByRole("button", { name: /void/i }));
-
-    expect(
-      screen.getByText(/Void payment entry for Acme Security/),
-    ).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: /^void entry$/i }));
-
-    await waitFor(() => {
-      expect(mockVoid).toHaveBeenCalledWith("e1");
-    });
-    expect(await screen.findByText("Ledger entry voided")).toBeInTheDocument();
   });
 });
