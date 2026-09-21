@@ -196,6 +196,56 @@ describe("AuthService", () => {
 
       await expect(AuthService.refresh("token-for-deleted-user")).rejects.toThrow(UnauthorizedError);
     });
+
+    it("revokes the token and rejects a locked-out user", async () => {
+      (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: "1", role: "admin", companyId: "1" });
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        ...mockUser,
+        lockedUntil: new Date(Date.now() + 60_000),
+      });
+
+      await expect(AuthService.refresh("locked-token")).rejects.toThrow(UnauthorizedError);
+      expect(prisma.refreshToken.delete).toHaveBeenCalledWith({ where: { id: "rt1" } });
+    });
+
+    it("revokes the token and rejects an unverified user", async () => {
+      (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: "1", role: "admin", companyId: "1" });
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        ...mockUser,
+        emailVerified: false,
+      });
+
+      await expect(AuthService.refresh("unverified-token")).rejects.toThrow(UnauthorizedError);
+      expect(prisma.refreshToken.delete).toHaveBeenCalledWith({ where: { id: "rt1" } });
+    });
+
+    it("revokes the token and rejects a manager when the company trial has expired", async () => {
+      const { SubscriptionService } = require("./subscription.service");
+      const spy = jest.spyOn(SubscriptionService, "isTrialExpired").mockResolvedValue(true);
+      (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: "1", role: "manager", companyId: "1" });
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        ...mockUser,
+        role: "manager",
+      });
+
+      await expect(AuthService.refresh("expired-trial-token")).rejects.toThrow(ForbiddenError);
+      expect(prisma.refreshToken.delete).toHaveBeenCalledWith({ where: { id: "rt1" } });
+      spy.mockRestore();
+    });
+
+    it("still rotates for an admin even when the company trial has expired", async () => {
+      const { SubscriptionService } = require("./subscription.service");
+      const spy = jest.spyOn(SubscriptionService, "isTrialExpired").mockResolvedValue(true);
+      (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: "1", role: "admin", companyId: "1" });
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+      (jwt.signAccessToken as jest.Mock).mockReturnValue("new-access-token");
+      (jwt.signRefreshToken as jest.Mock).mockReturnValue("new-refresh-token");
+
+      const result = await AuthService.refresh("admin-token");
+
+      expect(result.accessToken).toBe("new-access-token");
+      spy.mockRestore();
+    });
   });
 
   describe("register", () => {
