@@ -11,7 +11,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 import { cn } from "@/lib/cn";
 import { incidentService } from "@/services";
 
@@ -34,12 +34,11 @@ const createIncidentSchema = z.object({
 
 type CreateIncidentForm = z.infer<typeof createIncidentSchema>;
 
-/** New incident page component with Zod-validated form and type prefix + custom input. */
+/** New incident page component with Zod-validated form. */
 export default function NewIncidentPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [typePrefix, setTypePrefix] = useState("");
-  const [typeCustom, setTypeCustom] = useState("");
 
   const {
     register,
@@ -57,11 +56,11 @@ export default function NewIncidentPage() {
   const currentType = watch("type");
 
   useEffect(() => {
-    const combined = [typePrefix, typeCustom].filter(Boolean).join(" ").trim();
+    const combined = [typePrefix].filter(Boolean).join(" ").trim();
     if (combined !== currentType) {
       setValue("type", combined, { shouldValidate: combined.length > 0 });
     }
-  }, [typePrefix, typeCustom, setValue, currentType]);
+  }, [typePrefix, setValue, currentType]);
 
   const onSubmit = async (data: CreateIncidentForm) => {
     try {
@@ -76,7 +75,7 @@ export default function NewIncidentPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[70%] min-w-[640px]">
+    <div className="mx-auto w-full max-w-[70%] min-w-160">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-text">Report Incident</h1>
         <p className="text-sm text-text-secondary mt-1">
@@ -120,12 +119,14 @@ export default function NewIncidentPage() {
 
             <div className="grid grid-cols-2 gap-6">
               <Input
+                className="scheme-dark"
                 label="Dispatch Time"
                 type="datetime-local"
                 error={errors.dispatchTime?.message}
                 {...register("dispatchTime")}
               />
               <Input
+                className="scheme-dark"
                 label="Arrival Time"
                 type="datetime-local"
                 error={errors.arrivalTime?.message}
@@ -184,13 +185,57 @@ export default function NewIncidentPage() {
             <h3 className="text-sm font-semibold text-text-secondary/80 uppercase tracking-wider pt-2">
               Incident
             </h3>
+            <div className="grid grid-cols-3 gap-6 items-start">
+              {/* Column 1: Type Field */}
+              <div className="flex flex-col gap-1.5">
+                {/* Label container with min-height or fixed h-5 ensures matching top spacing */}
+                <label className="text-sm font-medium text-text/90 h-5 flex items-center">
+                  Type
+                </label>
 
-            <Input
-              label="Title"
-              placeholder="Brief title of the incident"
-              error={errors.title?.message}
-              {...register("title")}
-            />
+                <select
+                  aria-label="Type"
+                  value={typePrefix}
+                  onChange={(e) => setTypePrefix(e.target.value)}
+                  className={cn(
+                    "h-11 w-full rounded-xl border bg-surface/60 backdrop-blur-sm px-3.5 py-2.5 text-sm text-text transition-all duration-150 focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15",
+                    typePrefix ? "border-primary/20" : "border-border-light",
+                  )}
+                >
+                  <option value="">Select type</option>
+                  <option value="Attempted">Attempted</option>
+                  <option value="Positive">Positive</option>
+                </select>
+
+                {/* Error sits strictly BELOW the input without shifting the input's top position */}
+                {errors.type && (
+                  <p className="text-sm text-danger mt-1" role="alert">
+                    {errors.type.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Column 2: Title Field */}
+              <div className="flex flex-col gap-1.5">
+                {/* If using the custom Input component, wrap or ensure label height matches */}
+                <Input
+                  label="Title"
+                  placeholder="Brief title of the incident"
+                  error={errors.title?.message}
+                  {...register("title")}
+                />
+              </div>
+
+              {/* Column 3: Incident Date Field */}
+              <div className="flex flex-col gap-1.5">
+                <Input
+                  label="Incident Date"
+                  type="date"
+                  error={errors.incidentDate?.message}
+                  {...register("incidentDate")}
+                />
+              </div>
+            </div>
 
             <div className="flex flex-col gap-1.5">
               <label
@@ -212,49 +257,6 @@ export default function NewIncidentPage() {
                   {errors.description.message}
                 </p>
               )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-text/90">Type</label>
-              <div className="flex gap-2">
-                <select
-                  aria-label="Type"
-                  value={typePrefix}
-                  onChange={(e) => setTypePrefix(e.target.value)}
-                  className={cn(
-                    "h-11 shrink-0 rounded-xl border bg-surface/60 backdrop-blur-sm px-3.5 py-2.5 text-sm text-text transition-all duration-150 focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15",
-                    typePrefix ? "border-primary/20" : "border-border-light",
-                  )}
-                >
-                  <option value="">Select type</option>
-                  <option value="Attempted">Attempted</option>
-                  <option value="Positive">Positive</option>
-                </select>
-                <input
-                  type="text"
-                  value={typeCustom}
-                  onChange={(e) => setTypeCustom(e.target.value)}
-                  placeholder="Describe the type..."
-                  className={cn(
-                    "flex-1 rounded-xl border bg-surface/60 backdrop-blur-sm px-3.5 py-2.5 text-sm text-text placeholder:text-text-secondary/60 transition-all duration-150 focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15",
-                    typeCustom ? "border-primary/20" : "border-border-light",
-                  )}
-                />
-              </div>
-              {errors.type && (
-                <p className="text-sm text-danger" role="alert">
-                  {errors.type.message}
-                </p>
-              )}
-            </div>
-
-              <Input
-                label="Incident Date"
-                type="date"
-                error={errors.incidentDate?.message}
-                {...register("incidentDate")}
-              />
             </div>
 
             <div className="flex gap-3 pt-2">

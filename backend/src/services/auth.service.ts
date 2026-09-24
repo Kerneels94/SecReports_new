@@ -149,6 +149,40 @@ function throwGenericAuthError(): never {
   throw new UnauthorizedError("Invalid email or password");
 }
 
+/** True when the account must be denied authentication — shared by `login()` and `refresh()`
+ *  so session rotation can never outrun the login gates. */
+function authDenied(user: {
+  role: string;
+  emailVerified: boolean;
+  lockedUntil: Date | null;
+}): boolean {
+  const roleAllowed =
+    user.role === "admin" ||
+    user.role === "manager" ||
+    user.role === "senior" ||
+    user.role === "superadmin";
+  return (
+    !roleAllowed ||
+    !user.emailVerified ||
+    (!!user.lockedUntil && user.lockedUntil > new Date())
+  );
+}
+
+/** Throws ForbiddenError when a manager/senior's company free trial has expired. */
+async function assertTrialNotExpired(user: {
+  role: string;
+  companyId: string | null;
+}): Promise<void> {
+  if (
+    (user.role === "manager" || user.role === "senior") &&
+    (await SubscriptionService.isTrialExpired(user.companyId))
+  ) {
+    throw new ForbiddenError(
+      "Your organisation's free trial has ended. Please ask your administrator to upgrade the subscription before logging in.",
+    );
+  }
+}
+
 /** Resets the login counter on successful authentication and decays lockout count. */
 async function resetLoginAttempts(userId: string): Promise<void> {
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -177,16 +211,7 @@ export const AuthService = {
       await comparePassword(params.password, DUMMY_BCRYPT_HASH);
       throwGenericAuthError();
     }
-    if (
-      user.role !== "admin" &&
-      user.role !== "manager" &&
-      user.role !== "senior" &&
-      user.role !== "superadmin"
-    )
-      throwGenericAuthError();
-    if (!user.emailVerified) throwGenericAuthError();
-    if (user.lockedUntil && user.lockedUntil > new Date())
-      throwGenericAuthError();
+    if (authDenied(user)) throwGenericAuthError();
 
     const valid = await comparePassword(params.password, user.passwordHash);
     if (!valid) {
@@ -195,14 +220,7 @@ export const AuthService = {
 
     await resetLoginAttempts(user.id);
 
-    if (
-      (user.role === "manager" || user.role === "senior") &&
-      (await SubscriptionService.isTrialExpired(user.companyId))
-    ) {
-      throw new ForbiddenError(
-        "Your organisation's free trial has ended. Please ask your administrator to upgrade the subscription before logging in.",
-      );
-    }
+    await assertTrialNotExpired(user);
 
     SubscriptionService.checkAndNotifyTrialEnding(user.companyId!).catch(
       (err) => console.error("[AuthService] Trial notification failed:", err),
@@ -294,6 +312,19 @@ export const AuthService = {
 
     const user = await prisma.user.findUnique({ where: { id: stored.userId } });
     if (!user) throw new UnauthorizedError("User not found");
+
+    // Re-run the same gates as login() so a locked, unverified, or
+    // trial-expired account cannot keep rotating its refresh token.
+    if (authDenied(user)) {
+      await prisma.refreshToken.delete({ where: { id: stored.id } });
+      throwGenericAuthError();
+    }
+    try {
+      await assertTrialNotExpired(user);
+    } catch (err) {
+      await prisma.refreshToken.delete({ where: { id: stored.id } });
+      throw err;
+    }
 
     await prisma.refreshToken.delete({ where: { id: stored.id } });
 
