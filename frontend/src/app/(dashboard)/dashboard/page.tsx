@@ -263,21 +263,6 @@ export default function DashboardPage() {
             Overview of incident reports
           </p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-elevated/40 text-xs text-text-secondary ring-1 ring-border-light">
-          <svg
-            className="h-3.5 w-3.5 text-primary"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
-          Live
-        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">

@@ -114,6 +114,8 @@ model Incident {
   dispatchTime      DateTime? @map("dispatch_time")
   arrivalTime       DateTime? @map("arrival_time")
   callSign          String?  @map("call_sign")
+  suburb            String?
+  city              String?
   propertyAddress   String?  @map("property_address")
   clientName        String?  @map("client_name")
   clientCode        String?  @map("client_code")

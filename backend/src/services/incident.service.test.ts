@@ -31,6 +31,8 @@ const baseIncident = {
   dispatchTime: null,
   arrivalTime: null,
   callSign: null,
+  suburb: "Rivonia",
+  city: "Johannesburg",
   propertyAddress: null,
   clientName: null,
   clientCode: null,
@@ -232,6 +234,8 @@ describe("IncidentService", () => {
       type: "equipment_failure",
       incidentDate: new Date().toISOString(),
       location: "Office",
+      suburb: "Rivonia",
+      city: "Johannesburg",
       operatorName: "John Operator",
       dispatcher: "Jane Dispatcher",
       reporterId: "1",
@@ -247,6 +251,11 @@ describe("IncidentService", () => {
 
       expect(result.title).toBe("Test Incident");
       expect(result.referenceNumber).toMatch(/^INC-/);
+      expect(prisma.incident.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ suburb: "Rivonia", city: "Johannesburg" }),
+        }),
+      );
       expect(prisma.auditLog.create).toHaveBeenCalledWith({
         data: {
           entityType: "incident",

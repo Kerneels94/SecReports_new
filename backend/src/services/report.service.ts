@@ -90,23 +90,24 @@ export const ReportService = {
       }));
   },
 
-  /** Average response time (dispatch→arrival, minutes) per area, for incidents with both times and a location set. */
+  /** Average response time (dispatch→arrival, minutes) per area, for incidents with both times and a suburb/city/location set. */
   async responseByArea(companyId: string) {
     const incidents = await prisma.incident.findMany({
       where: {
         companyId,
         dispatchTime: { not: null },
         arrivalTime: { not: null },
-        location: { not: null },
       },
-      select: { location: true, dispatchTime: true, arrivalTime: true },
+      select: { suburb: true, city: true, location: true, dispatchTime: true, arrivalTime: true },
     });
 
     const byArea: Record<string, number[]> = {};
     for (const inc of incidents) {
+      const area = [inc.suburb, inc.city].filter(Boolean).join(", ") || inc.location;
+      if (!area) continue;
       const mins = (inc.arrivalTime!.getTime() - inc.dispatchTime!.getTime()) / 60000;
       if (mins < 0) continue;
-      (byArea[inc.location!] ||= []).push(mins);
+      (byArea[area] ||= []).push(mins);
     }
 
     return Object.entries(byArea)

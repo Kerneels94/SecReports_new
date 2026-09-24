@@ -44,6 +44,8 @@ export interface Incident {
   dispatchTime: string | null;
   arrivalTime: string | null;
   callSign: string | null;
+  suburb: string | null;
+  city: string | null;
   propertyAddress: string | null;
   clientName: string | null;
   clientCode: string | null;

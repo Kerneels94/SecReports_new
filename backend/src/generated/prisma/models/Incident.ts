@@ -39,6 +39,8 @@ export type IncidentMinAggregateOutputType = {
   dispatchTime: Date | null
   arrivalTime: Date | null
   callSign: string | null
+  suburb: string | null
+  city: string | null
   propertyAddress: string | null
   clientName: string | null
   clientCode: string | null
@@ -65,6 +67,8 @@ export type IncidentMaxAggregateOutputType = {
   dispatchTime: Date | null
   arrivalTime: Date | null
   callSign: string | null
+  suburb: string | null
+  city: string | null
   propertyAddress: string | null
   clientName: string | null
   clientCode: string | null
@@ -91,6 +95,8 @@ export type IncidentCountAggregateOutputType = {
   dispatchTime: number
   arrivalTime: number
   callSign: number
+  suburb: number
+  city: number
   propertyAddress: number
   clientName: number
   clientCode: number
@@ -119,6 +125,8 @@ export type IncidentMinAggregateInputType = {
   dispatchTime?: true
   arrivalTime?: true
   callSign?: true
+  suburb?: true
+  city?: true
   propertyAddress?: true
   clientName?: true
   clientCode?: true
@@ -145,6 +153,8 @@ export type IncidentMaxAggregateInputType = {
   dispatchTime?: true
   arrivalTime?: true
   callSign?: true
+  suburb?: true
+  city?: true
   propertyAddress?: true
   clientName?: true
   clientCode?: true
@@ -171,6 +181,8 @@ export type IncidentCountAggregateInputType = {
   dispatchTime?: true
   arrivalTime?: true
   callSign?: true
+  suburb?: true
+  city?: true
   propertyAddress?: true
   clientName?: true
   clientCode?: true
@@ -270,6 +282,8 @@ export type IncidentGroupByOutputType = {
   dispatchTime: Date | null
   arrivalTime: Date | null
   callSign: string | null
+  suburb: string | null
+  city: string | null
   propertyAddress: string | null
   clientName: string | null
   clientCode: string | null
@@ -317,6 +331,8 @@ export type IncidentWhereInput = {
   dispatchTime?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
   arrivalTime?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
   callSign?: Prisma.StringNullableFilter<"Incident"> | string | null
+  suburb?: Prisma.StringNullableFilter<"Incident"> | string | null
+  city?: Prisma.StringNullableFilter<"Incident"> | string | null
   propertyAddress?: Prisma.StringNullableFilter<"Incident"> | string | null
   clientName?: Prisma.StringNullableFilter<"Incident"> | string | null
   clientCode?: Prisma.StringNullableFilter<"Incident"> | string | null
@@ -346,6 +362,8 @@ export type IncidentOrderByWithRelationInput = {
   dispatchTime?: Prisma.SortOrder
   arrivalTime?: Prisma.SortOrder
   callSign?: Prisma.SortOrder
+  suburb?: Prisma.SortOrder
+  city?: Prisma.SortOrder
   propertyAddress?: Prisma.SortOrder
   clientName?: Prisma.SortOrder
   clientCode?: Prisma.SortOrder
@@ -378,6 +396,8 @@ export type IncidentWhereUniqueInput = Prisma.AtLeast<{
   dispatchTime?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
   arrivalTime?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
   callSign?: Prisma.StringNullableFilter<"Incident"> | string | null
+  suburb?: Prisma.StringNullableFilter<"Incident"> | string | null
+  city?: Prisma.StringNullableFilter<"Incident"> | string | null
   propertyAddress?: Prisma.StringNullableFilter<"Incident"> | string | null
   clientName?: Prisma.StringNullableFilter<"Incident"> | string | null
   clientCode?: Prisma.StringNullableFilter<"Incident"> | string | null
@@ -407,6 +427,8 @@ export type IncidentOrderByWithAggregationInput = {
   dispatchTime?: Prisma.SortOrder
   arrivalTime?: Prisma.SortOrder
   callSign?: Prisma.SortOrder
+  suburb?: Prisma.SortOrder
+  city?: Prisma.SortOrder
   propertyAddress?: Prisma.SortOrder
   clientName?: Prisma.SortOrder
   clientCode?: Prisma.SortOrder
@@ -439,6 +461,8 @@ export type IncidentScalarWhereWithAggregatesInput = {
   dispatchTime?: Prisma.DateTimeNullableWithAggregatesFilter<"Incident"> | Date | string | null
   arrivalTime?: Prisma.DateTimeNullableWithAggregatesFilter<"Incident"> | Date | string | null
   callSign?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
+  suburb?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
+  city?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
   propertyAddress?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
   clientName?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
   clientCode?: Prisma.StringNullableWithAggregatesFilter<"Incident"> | string | null
@@ -464,6 +488,8 @@ export type IncidentCreateInput = {
   dispatchTime?: Date | string | null
   arrivalTime?: Date | string | null
   callSign?: string | null
+  suburb?: string | null
+  city?: string | null
   propertyAddress?: string | null
   clientName?: string | null
   clientCode?: string | null
@@ -491,6 +517,8 @@ export type IncidentUncheckedCreateInput = {
   dispatchTime?: Date | string | null
   arrivalTime?: Date | string | null
   callSign?: string | null
+  suburb?: string | null
+  city?: string | null
   propertyAddress?: string | null
   clientName?: string | null
   clientCode?: string | null
@@ -515,6 +543,8 @@ export type IncidentUpdateInput = {
   dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -541,6 +571,8 @@ export type IncidentUncheckedUpdateInput = {
   dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -567,6 +599,8 @@ export type IncidentCreateManyInput = {
   dispatchTime?: Date | string | null
   arrivalTime?: Date | string | null
   callSign?: string | null
+  suburb?: string | null
+  city?: string | null
   propertyAddress?: string | null
   clientName?: string | null
   clientCode?: string | null
@@ -591,6 +625,8 @@ export type IncidentUpdateManyMutationInput = {
   dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -614,6 +650,8 @@ export type IncidentUncheckedUpdateManyInput = {
   dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -650,6 +688,8 @@ export type IncidentCountOrderByAggregateInput = {
   dispatchTime?: Prisma.SortOrder
   arrivalTime?: Prisma.SortOrder
   callSign?: Prisma.SortOrder
+  suburb?: Prisma.SortOrder
+  city?: Prisma.SortOrder
   propertyAddress?: Prisma.SortOrder
   clientName?: Prisma.SortOrder
   clientCode?: Prisma.SortOrder
@@ -676,6 +716,8 @@ export type IncidentMaxOrderByAggregateInput = {
   dispatchTime?: Prisma.SortOrder
   arrivalTime?: Prisma.SortOrder
   callSign?: Prisma.SortOrder
+  suburb?: Prisma.SortOrder
+  city?: Prisma.SortOrder
   propertyAddress?: Prisma.SortOrder
   clientName?: Prisma.SortOrder
   clientCode?: Prisma.SortOrder
@@ -702,6 +744,8 @@ export type IncidentMinOrderByAggregateInput = {
   dispatchTime?: Prisma.SortOrder
   arrivalTime?: Prisma.SortOrder
   callSign?: Prisma.SortOrder
+  suburb?: Prisma.SortOrder
+  city?: Prisma.SortOrder
   propertyAddress?: Prisma.SortOrder
   clientName?: Prisma.SortOrder
   clientCode?: Prisma.SortOrder
@@ -853,6 +897,8 @@ export type IncidentCreateWithoutCompanyInput = {
   dispatchTime?: Date | string | null
   arrivalTime?: Date | string | null
   callSign?: string | null
+  suburb?: string | null
+  city?: string | null
   propertyAddress?: string | null
   clientName?: string | null
   clientCode?: string | null
@@ -878,6 +924,8 @@ export type IncidentUncheckedCreateWithoutCompanyInput = {
   dispatchTime?: Date | string | null
   arrivalTime?: Date | string | null
   callSign?: string | null
+  suburb?: string | null
+  city?: string | null
   propertyAddress?: string | null
   clientName?: string | null
   clientCode?: string | null
@@ -932,6 +980,8 @@ export type IncidentScalarWhereInput = {
   dispatchTime?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
   arrivalTime?: Prisma.DateTimeNullableFilter<"Incident"> | Date | string | null
   callSign?: Prisma.StringNullableFilter<"Incident"> | string | null
+  suburb?: Prisma.StringNullableFilter<"Incident"> | string | null
+  city?: Prisma.StringNullableFilter<"Incident"> | string | null
   propertyAddress?: Prisma.StringNullableFilter<"Incident"> | string | null
   clientName?: Prisma.StringNullableFilter<"Incident"> | string | null
   clientCode?: Prisma.StringNullableFilter<"Incident"> | string | null
@@ -957,6 +1007,8 @@ export type IncidentCreateWithoutReporterInput = {
   dispatchTime?: Date | string | null
   arrivalTime?: Date | string | null
   callSign?: string | null
+  suburb?: string | null
+  city?: string | null
   propertyAddress?: string | null
   clientName?: string | null
   clientCode?: string | null
@@ -983,6 +1035,8 @@ export type IncidentUncheckedCreateWithoutReporterInput = {
   dispatchTime?: Date | string | null
   arrivalTime?: Date | string | null
   callSign?: string | null
+  suburb?: string | null
+  city?: string | null
   propertyAddress?: string | null
   clientName?: string | null
   clientCode?: string | null
@@ -1016,6 +1070,8 @@ export type IncidentCreateWithoutAssignedInvestigatorInput = {
   dispatchTime?: Date | string | null
   arrivalTime?: Date | string | null
   callSign?: string | null
+  suburb?: string | null
+  city?: string | null
   propertyAddress?: string | null
   clientName?: string | null
   clientCode?: string | null
@@ -1042,6 +1098,8 @@ export type IncidentUncheckedCreateWithoutAssignedInvestigatorInput = {
   dispatchTime?: Date | string | null
   arrivalTime?: Date | string | null
   callSign?: string | null
+  suburb?: string | null
+  city?: string | null
   propertyAddress?: string | null
   clientName?: string | null
   clientCode?: string | null
@@ -1107,6 +1165,8 @@ export type IncidentCreateManyCompanyInput = {
   dispatchTime?: Date | string | null
   arrivalTime?: Date | string | null
   callSign?: string | null
+  suburb?: string | null
+  city?: string | null
   propertyAddress?: string | null
   clientName?: string | null
   clientCode?: string | null
@@ -1131,6 +1191,8 @@ export type IncidentUpdateWithoutCompanyInput = {
   dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1155,6 +1217,8 @@ export type IncidentUncheckedUpdateWithoutCompanyInput = {
   dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1179,6 +1243,8 @@ export type IncidentUncheckedUpdateManyWithoutCompanyInput = {
   dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1205,6 +1271,8 @@ export type IncidentCreateManyReporterInput = {
   dispatchTime?: Date | string | null
   arrivalTime?: Date | string | null
   callSign?: string | null
+  suburb?: string | null
+  city?: string | null
   propertyAddress?: string | null
   clientName?: string | null
   clientCode?: string | null
@@ -1230,6 +1298,8 @@ export type IncidentCreateManyAssignedInvestigatorInput = {
   dispatchTime?: Date | string | null
   arrivalTime?: Date | string | null
   callSign?: string | null
+  suburb?: string | null
+  city?: string | null
   propertyAddress?: string | null
   clientName?: string | null
   clientCode?: string | null
@@ -1253,6 +1323,8 @@ export type IncidentUpdateWithoutReporterInput = {
   dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1278,6 +1350,8 @@ export type IncidentUncheckedUpdateWithoutReporterInput = {
   dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1302,6 +1376,8 @@ export type IncidentUncheckedUpdateManyWithoutReporterInput = {
   dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1325,6 +1401,8 @@ export type IncidentUpdateWithoutAssignedInvestigatorInput = {
   dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1350,6 +1428,8 @@ export type IncidentUncheckedUpdateWithoutAssignedInvestigatorInput = {
   dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1374,6 +1454,8 @@ export type IncidentUncheckedUpdateManyWithoutAssignedInvestigatorInput = {
   dispatchTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   arrivalTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   callSign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suburb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   propertyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1401,6 +1483,8 @@ export type IncidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   dispatchTime?: boolean
   arrivalTime?: boolean
   callSign?: boolean
+  suburb?: boolean
+  city?: boolean
   propertyAddress?: boolean
   clientName?: boolean
   clientCode?: boolean
@@ -1432,6 +1516,8 @@ export type IncidentSelectScalar = {
   dispatchTime?: boolean
   arrivalTime?: boolean
   callSign?: boolean
+  suburb?: boolean
+  city?: boolean
   propertyAddress?: boolean
   clientName?: boolean
   clientCode?: boolean
@@ -1443,7 +1529,7 @@ export type IncidentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type IncidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "referenceNumber" | "title" | "description" | "type" | "status" | "incidentDate" | "location" | "operatorName" | "dispatcher" | "dispatchTime" | "arrivalTime" | "callSign" | "propertyAddress" | "clientName" | "clientCode" | "businessOrComplex" | "sapsReference" | "reporterId" | "assignedTo" | "createdAt" | "updatedAt", ExtArgs["result"]["incident"]>
+export type IncidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "referenceNumber" | "title" | "description" | "type" | "status" | "incidentDate" | "location" | "operatorName" | "dispatcher" | "dispatchTime" | "arrivalTime" | "callSign" | "suburb" | "city" | "propertyAddress" | "clientName" | "clientCode" | "businessOrComplex" | "sapsReference" | "reporterId" | "assignedTo" | "createdAt" | "updatedAt", ExtArgs["result"]["incident"]>
 export type IncidentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   reporter?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1472,6 +1558,8 @@ export type $IncidentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     dispatchTime: Date | null
     arrivalTime: Date | null
     callSign: string | null
+    suburb: string | null
+    city: string | null
     propertyAddress: string | null
     clientName: string | null
     clientCode: string | null
@@ -1890,6 +1978,8 @@ export interface IncidentFieldRefs {
   readonly dispatchTime: Prisma.FieldRef<"Incident", 'DateTime'>
   readonly arrivalTime: Prisma.FieldRef<"Incident", 'DateTime'>
   readonly callSign: Prisma.FieldRef<"Incident", 'String'>
+  readonly suburb: Prisma.FieldRef<"Incident", 'String'>
+  readonly city: Prisma.FieldRef<"Incident", 'String'>
   readonly propertyAddress: Prisma.FieldRef<"Incident", 'String'>
   readonly clientName: Prisma.FieldRef<"Incident", 'String'>
   readonly clientCode: Prisma.FieldRef<"Incident", 'String'>

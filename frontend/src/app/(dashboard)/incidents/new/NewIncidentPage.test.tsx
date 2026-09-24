@@ -39,6 +39,8 @@ describe("NewIncidentPage", () => {
     expect(screen.getByLabelText("Arrival Time")).toBeInTheDocument();
     expect(screen.getByLabelText("Call Sign")).toBeInTheDocument();
     expect(screen.getByLabelText("Property Address")).toBeInTheDocument();
+    expect(screen.getByLabelText("Suburb")).toBeInTheDocument();
+    expect(screen.getByLabelText("City")).toBeInTheDocument();
     expect(screen.getByLabelText("Client Name and Surname")).toBeInTheDocument();
     expect(screen.getByLabelText("Client Code")).toBeInTheDocument();
     expect(screen.getByLabelText("Business or Complex Name")).toBeInTheDocument();
@@ -74,6 +76,8 @@ describe("NewIncidentPage", () => {
     await user.type(screen.getByLabelText("Dispatcher"), "Jane Disp");
     await user.type(screen.getByLabelText("Call Sign"), "AR-42");
     await user.type(screen.getByLabelText("Property Address"), "123 Main St");
+    await user.type(screen.getByLabelText("Suburb"), "Rivonia");
+    await user.type(screen.getByLabelText("City"), "Johannesburg");
     await user.type(screen.getByLabelText("Client Name and Surname"), "Bob Client");
     await user.type(screen.getByLabelText("Client Code"), "C-001");
     await user.type(screen.getByLabelText("Business or Complex Name"), "Biz Hub");
@@ -92,6 +96,8 @@ describe("NewIncidentPage", () => {
         arrivalTime: "",
         callSign: "AR-42",
         propertyAddress: "123 Main St",
+        suburb: "Rivonia",
+        city: "Johannesburg",
         clientName: "Bob Client",
         clientCode: "C-001",
         businessOrComplex: "Biz Hub",
