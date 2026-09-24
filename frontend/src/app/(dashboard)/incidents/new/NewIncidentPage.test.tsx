@@ -47,7 +47,6 @@ describe("NewIncidentPage", () => {
     expect(screen.getByLabelText("Report")).toBeInTheDocument();
     expect(screen.getByText("Type")).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Type" })).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Describe the type...")).toBeInTheDocument();
     expect(screen.getByLabelText("Incident Date")).toBeInTheDocument();
   });
 
@@ -82,7 +81,6 @@ describe("NewIncidentPage", () => {
     await user.type(screen.getByLabelText("Title"), "Server Down");
     await user.type(screen.getByLabelText("Report"), "Server is down");
     await user.selectOptions(screen.getByRole("combobox", { name: "Type" }), "Attempted");
-    await user.type(screen.getByPlaceholderText("Describe the type..."), "house break in");
 
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
@@ -100,7 +98,7 @@ describe("NewIncidentPage", () => {
         sapsReference: "SAPS-123",
         title: "Server Down",
         description: "Server is down",
-        type: "Attempted house break in",
+        type: "Attempted",
         incidentDate: expect.any(String),
       });
       expect(mockRouter.push).toHaveBeenCalledWith("/incidents");
@@ -117,7 +115,6 @@ describe("NewIncidentPage", () => {
     await user.type(screen.getByLabelText("Title"), "Server Down");
     await user.type(screen.getByLabelText("Report"), "Server is down");
     await user.selectOptions(screen.getByRole("combobox", { name: "Type" }), "Attempted");
-    await user.type(screen.getByPlaceholderText("Describe the type..."), "fire");
 
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
