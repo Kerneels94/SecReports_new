@@ -150,6 +150,8 @@ export const IncidentScalarFieldEnum = {
   dispatchTime: 'dispatchTime',
   arrivalTime: 'arrivalTime',
   callSign: 'callSign',
+  suburb: 'suburb',
+  city: 'city',
   propertyAddress: 'propertyAddress',
   clientName: 'clientName',
   clientCode: 'clientCode',

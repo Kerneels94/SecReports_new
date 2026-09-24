@@ -25,6 +25,8 @@ const createIncidentSchema = z.object({
   dispatchTime: z.string().optional(),
   arrivalTime: z.string().optional(),
   callSign: z.string().max(100).optional(),
+  suburb: z.string().max(255).optional(),
+  city: z.string().max(255).optional(),
   propertyAddress: z.string().max(500).optional(),
   clientName: z.string().max(255).optional(),
   clientCode: z.string().max(100).optional(),
@@ -151,6 +153,21 @@ export default function NewIncidentPage() {
               error={errors.propertyAddress?.message}
               {...register("propertyAddress")}
             />
+
+            <div className="grid grid-cols-2 gap-6">
+              <Input
+                label="Suburb"
+                placeholder="Suburb of the incident"
+                error={errors.suburb?.message}
+                {...register("suburb")}
+              />
+              <Input
+                label="City"
+                placeholder="City of the incident"
+                error={errors.city?.message}
+                {...register("city")}
+              />
+            </div>
 
             <div className="grid grid-cols-2 gap-6">
               <Input

@@ -110,6 +110,8 @@ interface CreateIncidentParams {
   dispatchTime?: string;
   arrivalTime?: string;
   callSign?: string;
+  suburb?: string;
+  city?: string;
   propertyAddress?: string;
   clientName?: string;
   clientCode?: string;
@@ -204,6 +206,8 @@ export const IncidentService = {
         dispatchTime: params.dispatchTime ? new Date(params.dispatchTime) : undefined,
         arrivalTime: params.arrivalTime ? new Date(params.arrivalTime) : undefined,
         callSign: params.callSign,
+        suburb: params.suburb,
+        city: params.city,
         propertyAddress: params.propertyAddress,
         clientName: params.clientName,
         clientCode: params.clientCode,

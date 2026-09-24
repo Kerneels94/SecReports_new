@@ -8,6 +8,8 @@ describe("incident schemas", () => {
     incidentDate: "2026-05-23",
     operatorName: "John Operator",
     dispatcher: "Jane Dispatcher",
+    suburb: "Rivonia",
+    city: "Johannesburg",
   };
 
   describe("createIncidentSchema", () => {

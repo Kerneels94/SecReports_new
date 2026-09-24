@@ -19,6 +19,8 @@ export const createIncidentSchema = z.object({
   dispatchTime: z.string().optional(),
   arrivalTime: z.string().optional(),
   callSign: z.string().max(100).optional(),
+  suburb: z.string().max(255).optional(),
+  city: z.string().max(255).optional(),
   propertyAddress: z.string().max(500).optional(),
   clientName: z.string().max(255).optional(),
   clientCode: z.string().max(100).optional(),

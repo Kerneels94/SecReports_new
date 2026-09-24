@@ -126,6 +126,8 @@ async function main() {
       status: "investigating",
       incidentDate: new Date("2026-05-20"),
       location: "Server Room A-12",
+      suburb: "Umhlanga",
+      city: "Durban",
       operatorName: "Admin User",
       dispatcher: "Manager User",
       reporterId: admin.id,
