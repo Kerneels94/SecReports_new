@@ -229,6 +229,7 @@ export default function NewIncidentPage() {
               {/* Column 3: Incident Date Field */}
               <div className="flex flex-col gap-1.5">
                 <Input
+                  className="scheme-dark"
                   label="Incident Date"
                   type="date"
                   error={errors.incidentDate?.message}
