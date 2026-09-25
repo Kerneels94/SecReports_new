@@ -15,13 +15,14 @@ import {
   updateUserSchema,
 } from "../validators/auth.schema";
 import { ValidationError } from "../lib/errors";
+import { REFRESH_TOKEN_TTL_MS } from "../lib/jwt";
 
 const COOKIE_OPTIONS = {
   path: "/",
   httpOnly: true,
   sameSite: "strict" as const,
   secure: process.env.NODE_ENV === "production",
-  maxAge: 7 * 24 * 60 * 60,
+  maxAge: REFRESH_TOKEN_TTL_MS / 1000,
 };
 
 function setRefreshCookie(reply: FastifyReply, token: string) {

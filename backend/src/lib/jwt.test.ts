@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken } from "./jwt";
+import { signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken, REFRESH_TOKEN_TTL_MS } from "./jwt";
 
 jest.mock("jsonwebtoken");
 
@@ -19,10 +19,10 @@ describe("signAccessToken", () => {
 describe("signRefreshToken", () => {
   beforeEach(() => { jest.clearAllMocks(); });
 
-  it("calls jwt.sign with payload, JWT_REFRESH_SECRET, and expiresIn 7d", () => {
+  it("calls jwt.sign with payload, JWT_REFRESH_SECRET, and a 12-hour expiry", () => {
     (jwt.sign as jest.Mock).mockReturnValue("refresh-token");
     const token = signRefreshToken(payload);
-    expect(jwt.sign).toHaveBeenCalledWith(payload, expect.any(String), expect.objectContaining({ expiresIn: "7d" }));
+    expect(jwt.sign).toHaveBeenCalledWith(payload, expect.any(String), expect.objectContaining({ expiresIn: REFRESH_TOKEN_TTL_MS / 1000 }));
     expect(token).toBe("refresh-token");
   });
 });

@@ -11,6 +11,7 @@ import {
   signAccessToken,
   signRefreshToken,
   verifyRefreshToken,
+  REFRESH_TOKEN_TTL_MS,
 } from "../lib/jwt";
 import {
   UnauthorizedError,
@@ -103,7 +104,7 @@ async function persistRefreshToken(
       tokenHash: hashToken(raw),
       familyId,
       deviceInfo: deviceInfo || null,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
     },
   });
   return raw;
