@@ -18,6 +18,7 @@ jest.mock("../lib/db", () => ({
     },
     user: {
       findFirst: jest.fn(),
+      count: jest.fn(),
     },
   },
 }));
@@ -265,6 +266,26 @@ describe("SubscriptionService expired-trial feature blocking", () => {
     (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
       sub({ trialStartedAt: past, trialEndsAt: past }),
     );
+
+    await expect(SubscriptionService.canAddUser("company1")).rejects.toThrow(
+      ForbiddenError,
+    );
+  });
+
+  it("canAddUser allows creating users while the trial is active and under the 3-user cap", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ trialStartedAt: past, trialEndsAt: future }),
+    );
+    (prisma.user.count as jest.Mock).mockResolvedValue(2);
+
+    await expect(SubscriptionService.canAddUser("company1")).resolves.toBeUndefined();
+  });
+
+  it("canAddUser blocks a fourth user during the active trial", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ trialStartedAt: past, trialEndsAt: future }),
+    );
+    (prisma.user.count as jest.Mock).mockResolvedValue(3);
 
     await expect(SubscriptionService.canAddUser("company1")).rejects.toThrow(
       ForbiddenError,

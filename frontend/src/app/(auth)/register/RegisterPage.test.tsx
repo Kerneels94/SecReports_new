@@ -135,6 +135,12 @@ describe("RegisterPage", () => {
     expect(link).toHaveAttribute("href", "/login");
   });
 
+  it("references the password policy on the privacy page", () => {
+    render(<RegisterPage />);
+    const link = screen.getByRole("link", { name: /password policy/i });
+    expect(link).toHaveAttribute("href", "/privacy#password-policy");
+  });
+
   it("calls register with fallback error message", async () => {
     mockRegister.mockRejectedValue("string error");
     render(<RegisterPage />);

@@ -189,6 +189,16 @@ export default function RegisterPage() {
               error={errors.password?.message}
               {...register("password")}
             />
+            <p className="-mt-1 text-xs text-text-secondary">
+              Passwords must meet our{" "}
+              <Link
+                href="/privacy#password-policy"
+                className="text-primary hover:underline transition-colors"
+              >
+                Password Policy
+              </Link>
+              .
+            </p>
             <Input
               label="Confirm Password"
               type="password"
