@@ -1,5 +1,5 @@
 /**
- * JWT token helpers — sign and verify access (15m) and refresh (7d) tokens
+ * JWT token helpers — sign and verify access (15m) and refresh (12h) tokens
  * using secrets from environment variables.
  * NOTE: JWT_SECRET and JWT_REFRESH_SECRET must be set in production.
  * The server will refuse to start if either is missing.
@@ -9,6 +9,13 @@ import crypto from "crypto";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+/**
+ * A session (refresh token) is valid for 12 hours — matching a 12-hour
+ * control-room shift. Active use keeps sliding the window forward via
+ * rotation; after 12 hours of inactivity the session expires.
+ */
+export const REFRESH_TOKEN_TTL_MS = 12 * 60 * 60 * 1000;
 
 /** Shape of the JWT payload embedded in both access and refresh tokens. */
 interface TokenPayload {
@@ -32,13 +39,13 @@ export function signAccessToken(payload: TokenPayload): string {
 }
 
 /**
- * Sign a long-lived refresh token (7-day expiry).
+ * Sign a refresh token (12-hour expiry).
  * @param payload - The user identity to embed in the token.
  * @returns A signed JWT string.
  */
 export function signRefreshToken(payload: TokenPayload): string {
   return jwt.sign(payload, JWT_REFRESH_SECRET!, {
-    expiresIn: "7d",
+    expiresIn: REFRESH_TOKEN_TTL_MS / 1000,
     jwtid: crypto.randomUUID(),
     issuer: "secreports-api",
     audience: "secreports-client",

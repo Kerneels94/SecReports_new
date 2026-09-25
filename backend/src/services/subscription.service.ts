@@ -5,6 +5,9 @@ import { sendMail } from "./email.service";
 /** Billing day of the month on which monthly payments are due. */
 export const BILLING_DAY = 25;
 
+/** During the active free trial, users are capped at this many accounts. */
+export const TRIAL_USER_LIMIT = 3;
+
 /** Returns the Date of the next billing day (the 25th of the current or next month). */
 export function getNextBillingDate(from: Date = new Date()): Date {
   const base = new Date(from);
@@ -236,7 +239,7 @@ export const SubscriptionService = {
     }
   },
 
-  /** Checks if company can add more users. During active trial, limit is bypassed. */
+  /** Checks if company can add more users. During active trial, capped at TRIAL_USER_LIMIT. */
   async canAddUser(companyId: string): Promise<void> {
     const sub = await prisma.companySubscription.findUnique({
       where: { companyId },
@@ -250,7 +253,15 @@ export const SubscriptionService = {
         "Your organisation's free trial has ended. Please upgrade your subscription to continue.",
       );
     }
-    if (trial?.isTrial && !trial.isExpired) return;
+    if (trial?.isTrial && !trial.isExpired) {
+      const count = await prisma.user.count({ where: { companyId } });
+      if (count >= TRIAL_USER_LIMIT) {
+        throw new ForbiddenError(
+          `Free trial is limited to ${TRIAL_USER_LIMIT} users. Upgrade to continue.`,
+        );
+      }
+      return;
+    }
 
     if (sub.plan.userLimit > 0) {
       const count = await prisma.user.count({ where: { companyId } });

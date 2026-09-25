@@ -33,6 +33,12 @@ export function Header() {
               Pricing
             </a>
             <Link
+              href="/how-to"
+              className="text-sm text-text-secondary hover:text-text transition-colors"
+            >
+              How To
+            </Link>
+            <Link
               href="/login"
               className="text-sm font-medium text-primary hover:text-primary-hover transition-colors"
             >
@@ -94,6 +100,13 @@ export function Header() {
               >
                 Pricing
               </a>
+              <Link
+                href="/how-to"
+                onClick={() => setMobileOpen(false)}
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors"
+              >
+                How To
+              </Link>
               <hr className="my-1 border-border-light" />
               <Link
                 href="/login"

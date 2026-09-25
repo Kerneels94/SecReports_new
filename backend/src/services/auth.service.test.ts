@@ -2,6 +2,7 @@ import { AuthService } from "./auth.service";
 import { prisma } from "../lib/db";
 import * as hash from "../lib/hash";
 import * as jwt from "../lib/jwt";
+import { REFRESH_TOKEN_TTL_MS } from "../lib/jwt";
 import { UnauthorizedError, ConflictError, NotFoundError, ForbiddenError } from "../lib/errors";
 
 jest.mock("../lib/db", () => ({
@@ -111,6 +112,21 @@ describe("AuthService", () => {
         refreshToken: expect.any(String),
         user: expect.objectContaining({ email: "test@example.com" }),
       });
+    });
+
+    it("persists a refresh token that expires 12 hours from login", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+      (hash.comparePassword as jest.Mock).mockResolvedValue(true);
+      (jwt.signAccessToken as jest.Mock).mockReturnValue("access-token");
+      (jwt.signRefreshToken as jest.Mock).mockReturnValue("refresh-token");
+      const now = Date.now();
+
+      await AuthService.login({ email: "test@example.com", password: "secret" });
+
+      const record = (prisma.refreshToken.create as jest.Mock).mock.calls[0][0].data;
+      const elapsed = (record.expiresAt as Date).getTime() - now;
+      expect(elapsed).toBeGreaterThan(REFRESH_TOKEN_TTL_MS - 1000);
+      expect(elapsed).toBeLessThan(REFRESH_TOKEN_TTL_MS + 1000);
     });
 
     it("throws UnauthorizedError for unknown email", async () => {

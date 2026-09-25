@@ -56,7 +56,22 @@ export default function PrivacyPage() {
             security audits to protect your data.
           </p>
 
-          <h2 className="text-lg font-semibold text-text">4. Data Retention</h2>
+          <h2 id="password-policy" className="text-lg font-semibold text-text">
+            4. Password Policy
+          </h2>
+          <p>
+            To protect your account and your organisation&apos;s data, all passwords
+            must be strong. A strong password contains:
+          </p>
+          <ul className="list-disc pl-5">
+            <li>At least 8 characters</li>
+            <li>At least one lowercase letter</li>
+            <li>At least one uppercase letter</li>
+            <li>At least one digit</li>
+            <li>At least one special character</li>
+          </ul>
+
+          <h2 className="text-lg font-semibold text-text">5. Data Retention</h2>
           <p>
             We retain your data for as long as your account is active or as
             needed to provide you services. You may request deletion of your
@@ -64,7 +79,7 @@ export default function PrivacyPage() {
           </p>
 
           <h2 className="text-lg font-semibold text-text">
-            5. Third-Party Services
+            6. Third-Party Services
           </h2>
           <p>
             We may share data with third-party service providers who perform
@@ -73,14 +88,14 @@ export default function PrivacyPage() {
             your data.
           </p>
 
-          <h2 className="text-lg font-semibold text-text">6. Your Rights</h2>
+          <h2 className="text-lg font-semibold text-text">7. Your Rights</h2>
           <p>
             You have the right to access, correct, or delete your personal data.
             You may also object to or restrict certain processing of your data.
             To exercise these rights, contact us at support@secreports.co.za.
           </p>
 
-          <h2 className="text-lg font-semibold text-text">7. Contact</h2>
+          <h2 className="text-lg font-semibold text-text">8. Contact</h2>
           <p>
             If you have questions about this Privacy Policy, please contact us
             at support@secreports.co.za.
