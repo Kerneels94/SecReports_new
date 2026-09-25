@@ -170,7 +170,7 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
           </button>
           <div className="rounded-lg bg-gradient-to-r from-primary/[0.04] to-transparent px-3 py-2.5">
             <p className="text-[10px] text-text-secondary/50 tracking-wider uppercase">Version</p>
-            <p className="text-xs text-text-secondary">2.0.0</p>
+            <p className="text-xs text-text-secondary">1.0.0</p>
           </div>
         </div>
       </aside>
