@@ -10,13 +10,32 @@ jest.mock("next/navigation", () => ({
   ),
 }));
 
-jest.mock("@/hooks/useAuth", () => ({
-  useAuth: () => ({ user: { id: 1, role: "admin", name: "Admin", email: "admin@test.com", status: "active", companyId: 1, permissions: ["reports.view", "export.reports"] } }),
-}));
+jest.mock("@/hooks/useAuth", () => {
+  const authState: { permissions: string[] } = {
+    permissions: ["reports.view", "export.reports"],
+  };
+  return {
+    __authState: authState,
+    useAuth: () => ({
+      user: {
+        id: 1,
+        role: "admin",
+        name: "Admin",
+        email: "admin@test.com",
+        status: "active",
+        companyId: 1,
+        permissions: authState.permissions,
+      },
+    }),
+  };
+});
+
+const { __authState: authState } = jest.requireMock("@/hooks/useAuth");
 
 jest.mock("@/services", () => ({
+  ...jest.requireActual("@/services"),
   reportService: { summary: jest.fn(), monthlyStats: jest.fn(), monthlyResponse: jest.fn(), responseByArea: jest.fn() },
-  exportService: { downloadYearlyPdf: jest.fn() },
+  exportService: { downloadYearlyPdf: jest.fn(), downloadResponseTimePdf: jest.fn() },
 }));
 
 const mockSummary = reportService.summary as jest.Mock;
@@ -24,6 +43,7 @@ const mockMonthly = reportService.monthlyStats as jest.Mock;
 const mockMonthlyResponse = reportService.monthlyResponse as jest.Mock;
 const mockResponseByArea = reportService.responseByArea as jest.Mock;
 const mockDownloadPdf = exportService.downloadYearlyPdf as jest.Mock;
+const mockDownloadResponseTime = exportService.downloadResponseTimePdf as jest.Mock;
 
 const mockData = {
   total: 25,
@@ -99,8 +119,8 @@ describe("DashboardPage", () => {
     mockSummary.mockResolvedValue({ data: mockData });
     mockMonthlyResponse.mockResolvedValue({
       data: [
-        { month: "2026-01", avgMinutes: 30 },
-        { month: "2026-02", avgMinutes: 22 },
+        { month: "2026-01", avgMs: 1800000 },
+        { month: "2026-02", avgMs: 1320000 },
       ],
     });
     render(<DashboardPage />);
@@ -114,8 +134,8 @@ describe("DashboardPage", () => {
     mockSummary.mockResolvedValue({ data: mockData });
     mockResponseByArea.mockResolvedValue({
       data: [
-        { area: "North CBD", avgMinutes: 30, count: 2 },
-        { area: "South Gate", avgMinutes: 10, count: 1 },
+        { area: "North CBD", avgMs: 1800000, count: 2 },
+        { area: "South Gate", avgMs: 600000, count: 1 },
       ],
     });
     render(<DashboardPage />);
@@ -125,8 +145,20 @@ describe("DashboardPage", () => {
     });
 
     expect(screen.getByText("North CBD")).toBeInTheDocument();
-    expect(screen.getByText("30m")).toBeInTheDocument();
+    expect(screen.getByText("30m 0s")).toBeInTheDocument();
     expect(screen.getByText("2 incidents")).toBeInTheDocument();
+  });
+
+  it("shows a sub-minute area average as seconds rather than zero", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockResponseByArea.mockResolvedValue({
+      data: [{ area: "North CBD", avgMs: 24000, count: 1 }],
+    });
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("0m 24s")).toBeInTheDocument();
+    });
   });
 
   it("keeps dashboard rendering when response metrics fail", async () => {
@@ -215,6 +247,108 @@ describe("DashboardPage", () => {
     await userEvent.click(screen.getByRole("button", { name: /pdf/i }));
 
     expect(mockDownloadPdf).toHaveBeenCalledTimes(1);
+  });
+
+  describe("average response time report downloads", () => {
+    beforeEach(() => {
+      authState.permissions = ["reports.view", "export.reports"];
+      URL.createObjectURL = jest.fn(() => "blob:mock-url");
+      URL.revokeObjectURL = jest.fn();
+      mockSummary.mockResolvedValue({ data: mockData });
+      mockDownloadResponseTime.mockResolvedValue(new Blob(["%PDF"], { type: "application/pdf" }));
+    });
+
+    it("offers a download button for each 3/6/9/12-month period", async () => {
+      render(<DashboardPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Avg Response Time")).toBeInTheDocument();
+      });
+
+      for (const months of [3, 6, 9, 12]) {
+        expect(
+          screen.getByRole("button", {
+            name: `Download ${months}-month average response time report`,
+          }),
+        ).toBeInTheDocument();
+      }
+    });
+
+    it("downloads the period matching the button clicked", async () => {
+      render(<DashboardPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Avg Response Time")).toBeInTheDocument();
+      });
+
+      await userEvent.click(
+        screen.getByRole("button", {
+          name: "Download 12-month average response time report",
+        }),
+      );
+
+      expect(mockDownloadResponseTime).toHaveBeenCalledWith(12);
+    });
+
+    it("hides the buttons from users without the export.reports permission", async () => {
+      authState.permissions = ["reports.view"];
+      render(<DashboardPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Avg Response Time")).toBeInTheDocument();
+      });
+
+      expect(
+        screen.queryByRole("button", {
+          name: "Download 12-month average response time report",
+        }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("surfaces a download failure", async () => {
+      mockDownloadResponseTime.mockRejectedValue(new Error("nope"));
+      render(<DashboardPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Avg Response Time")).toBeInTheDocument();
+      });
+
+      await userEvent.click(
+        screen.getByRole("button", {
+          name: "Download 3-month average response time report",
+        }),
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("Failed to download 3-month response time report"),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("keeps the dashboard rendered when a download fails", async () => {
+      mockDownloadResponseTime.mockRejectedValue(new Error("nope"));
+      render(<DashboardPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Avg Response Time")).toBeInTheDocument();
+      });
+
+      await userEvent.click(
+        screen.getByRole("button", {
+          name: "Download 3-month average response time report",
+        }),
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("Failed to download 3-month response time report"),
+        ).toBeInTheDocument();
+      });
+      // a 404 or expired trial must not replace every chart with a Retry button
+      expect(screen.queryByRole("button", { name: "Retry" })).not.toBeInTheDocument();
+      expect(screen.getByText("Response Time by Area")).toBeInTheDocument();
+    });
   });
 });
 

@@ -45,16 +45,16 @@ export interface MonthlyStat {
   count: number;
 }
 
-/** Average response time in minutes for a month. */
+/** Average response time in milliseconds for a month. */
 export interface MonthlyResponseStat {
   month: string;
-  avgMinutes: number;
+  avgMs: number;
 }
 
-/** Average response time in minutes per area, with incident count. */
+/** Average response time in milliseconds per area, with incident count. */
 export interface AreaResponseStat {
   area: string;
-  avgMinutes: number;
+  avgMs: number;
   count: number;
 }
 
@@ -124,6 +124,17 @@ export const reportService = {
     }),
 };
 
+/** Reporting periods the average response time report can be exported over. */
+export type ResponsePeriod = 3 | 6 | 9 | 12;
+
+export function formatDurationMs(ms: number): string {
+  if (ms < 0 || Number.isNaN(ms)) return "0m 0s";
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}m ${seconds}s`;
+}
+
 /** Export/download endpoints. */
 export const exportService = {
   downloadPdf: (incidentId?: number) => {
@@ -132,6 +143,8 @@ export const exportService = {
   },
   downloadCsv: () => api.downloadBlob("/export/csv"),
   downloadYearlyPdf: () => api.downloadBlob("/export/yearly-pdf"),
+  downloadResponseTimePdf: (months: ResponsePeriod) =>
+    api.downloadBlob(`/export/response-time-pdf?months=${months}`),
   emailReport: (incidentId: number, email: string, format: "csv" | "pdf") =>
     api.post<{ message: string }>("/reports/email", {
       incidentId,

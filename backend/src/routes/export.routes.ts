@@ -12,6 +12,20 @@ export default async function exportRoutes(fastify: FastifyInstance) {
 
   fastify.get("/export/csv", { preHandler: [requirePermission("export.csv")] }, ExportController.csv);
   fastify.get("/export/yearly-pdf", { preHandler: [requirePermission("export.reports")] }, ExportController.yearlyPdf);
+  fastify.get("/export/response-time-pdf", {
+    // Same ceiling as the other generated-document routes: each hit loads up to 12 months of
+    // incidents and renders a PDF, so the global 100/min is too generous for a download button.
+    config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
+    preHandler: [requirePermission("export.reports")],
+    schema: {
+      querystring: {
+        type: "object",
+        properties: {
+          months: { type: "integer", enum: [3, 6, 9, 12] },
+        },
+      },
+    },
+  }, ExportController.responseTimePdf);
   fastify.get("/export/pdf", {
     preHandler: [requirePermission("export.csv")],
     schema: {

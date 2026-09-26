@@ -6,8 +6,10 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import PDFDocument from "pdfkit";
 import { prisma } from "../lib/db";
 import { AuditLogService } from "../services/auditLog.service";
+import { ReportService } from "../services/report.service";
 import { SubscriptionService } from "../services/subscription.service";
 import { sendMail } from "../services/email.service";
+import { BRAND } from "../templates/layout";
 
 interface IncidentForExport {
   referenceNumber: string;
@@ -33,12 +35,14 @@ interface IncidentForExport {
 }
 
 const COLORS = {
-  primary: "#0b1e33",
-  gray: "#475569",
-  dark: "#1e293b",
-  light: "#f8fafc",
-  border: "#e2e8f0",
-  white: "#FFFFFF",
+  primary: BRAND.navy,
+  gray: BRAND.label,
+  dark: BRAND.heading,
+  light: BRAND.background,
+  border: BRAND.border,
+  muted: BRAND.muted,
+  faint: BRAND.faint,
+  white: BRAND.surface,
 };
 
 const INCIDENT_CSV_HEADERS = [
@@ -51,12 +55,26 @@ function sanitizeCsv(val: string): string {
   return `"${val.replace(/"/g, '""')}"`;
 }
 
-function drawHeader(doc: typeof PDFDocument.prototype) {
-  doc.rect(50, 40, 495, 50).fill(COLORS.primary);
-  doc.fillColor(COLORS.white).fontSize(18).font("Helvetica-Bold").text("Incident Report", 60, 52);
-  doc.fillColor(COLORS.white).fontSize(9).font("Helvetica").text("Incident Management Platform", 60, 74);
-  doc.moveTo(50, 90).lineTo(545, 90).lineWidth(4).strokeColor(COLORS.border).stroke();
+/** Brand header mirroring emailLayout: navy block, wordmark, uppercase tagline, 4px rule. */
+function drawHeader(doc: typeof PDFDocument.prototype): number {
+  doc.rect(50, 40, 495, 64).fill(COLORS.primary);
+  doc.fillColor(COLORS.white).fontSize(22).font("Helvetica-Bold")
+    .text("SecReports", 50, 54, { width: 495, align: "center" });
+  doc.fillColor(COLORS.muted).fontSize(9).font("Helvetica")
+    .text("INCIDENT MANAGEMENT PLATFORM", 50, 82, { width: 495, align: "center", characterSpacing: 1.2 });
+  doc.rect(50, 104, 495, 4).fill(COLORS.border);
   doc.fillColor(COLORS.dark);
+  return 130;
+}
+
+/** Brand footer mirroring emailLayout: hairline rule, copyright, automated-notice line. */
+function drawFooter(doc: typeof PDFDocument.prototype) {
+  const y = doc.page.height - 85;
+  doc.rect(50, y, 495, 0.8).fill(COLORS.border);
+  doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
+    .text(`© ${new Date().getFullYear()} SecReports. All rights reserved.`, 50, y + 10, { width: 495, align: "center" })
+    .fillColor(COLORS.faint)
+    .text("This is an automated notification. Please do not reply directly.", 50, y + 22, { width: 495, align: "center" });
 }
 
 function drawSection(doc: typeof PDFDocument.prototype, title: string, y: number): number {
@@ -84,9 +102,7 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
       const inc = incidents[i];
       if (i > 0) doc.addPage();
 
-      drawHeader(doc);
-
-      let y = 110;
+      let y = drawHeader(doc) + 10;
 
       doc.fontSize(16).font("Helvetica-Bold").fillColor(COLORS.dark).text(inc.title, 50, y);
       y += 22;
@@ -126,7 +142,7 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
       y = drawField(doc, "Created", new Date(inc.createdAt).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }), y);
       y = drawField(doc, "Updated", new Date(inc.updatedAt).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }), y);
 
-      doc.fontSize(7).font("Helvetica").fillColor(COLORS.gray).text(`Generated on ${new Date().toLocaleString("en-US")}`, 50, 750, { align: "center" });
+      drawFooter(doc);
     }
 
     doc.end();
@@ -179,8 +195,10 @@ function drawBarChart(
 }
 
 function formatDuration(ms: number | null): string {
-  if (ms == null) return "-";
-  const totalSec = Math.round(ms / 1000);
+  if (ms == null || !Number.isFinite(ms)) return "-";
+  // floor, not round, so this agrees with the dashboard's formatDurationMs — otherwise the
+  // same 23.999s incident renders as two different durations in the PDF and the UI.
+  const totalSec = Math.floor(ms / 1000);
   return `${Math.floor(totalSec / 60)}m ${totalSec % 60}s`;
 }
 
@@ -242,11 +260,12 @@ function generateYearlyPdf(data: {
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    doc.rect(50, 40, 495, 50).fill(COLORS.primary);
-    doc.fillColor(COLORS.white).fontSize(18).font("Helvetica-Bold").text("Crime Statistics Report", 60, 52);
-    doc.fillColor(COLORS.white).fontSize(9).font("Helvetica").text("Incident Management Platform", 60, 74);
-    doc.moveTo(50, 90).lineTo(545, 90).lineWidth(4).strokeColor(COLORS.border).stroke();
-    doc.fillColor(COLORS.dark);
+    const y0 = drawHeader(doc);
+
+    doc.fillColor(COLORS.dark).fontSize(18).font("Helvetica-Bold")
+      .text("Crime Statistics Report", 50, y0, { width: 495, align: "center" });
+    doc.fillColor(COLORS.muted).fontSize(9).font("Helvetica")
+      .text(`Generated on ${new Date().toLocaleString("en-US")}`, 50, y0 + 24, { width: 495, align: "center" });
 
     const summary = [
       { label: "Total Incidents", value: data.total, color: COLORS.primary },
@@ -256,18 +275,19 @@ function generateYearlyPdf(data: {
     const boxWidth = 150;
     const boxGap = 22;
     let boxX = 50;
+    const boxY = y0 + 48;
     summary.forEach((s, i) => {
-      doc.roundedRect(boxX, 110, boxWidth, 52, 6).fill(COLORS.light);
-      doc.rect(boxX, 110, boxWidth, 4).fill(s.color);
-      doc.fillColor(COLORS.gray).fontSize(8).text(s.label.toUpperCase(), boxX + 10, 122, { width: boxWidth - 20 });
-      doc.fillColor(COLORS.dark).fontSize(20).font("Helvetica-Bold").text(String(s.value), boxX + 10, 134);
+      doc.roundedRect(boxX, boxY, boxWidth, 52, 6).fillAndStroke(COLORS.light, COLORS.border);
+      doc.rect(boxX, boxY, boxWidth, 4).fill(s.color);
+      doc.fillColor(COLORS.gray).fontSize(8).text(s.label.toUpperCase(), boxX + 10, boxY + 12, { width: boxWidth - 20 });
+      doc.fillColor(COLORS.dark).fontSize(20).font("Helvetica-Bold").text(String(s.value), boxX + 10, boxY + 24);
       boxX += boxWidth + boxGap;
       if (i === 0) boxX += 10;
     });
 
     doc.font("Helvetica");
 
-    let y = drawSection(doc, "Incidents by Year", 185);
+    let y = drawSection(doc, "Incidents by Year", boxY + 75);
     if (data.byYear.length === 0) {
       doc.fontSize(9).fillColor(COLORS.gray).text("No incident data available.", 60, y);
     } else {
@@ -311,7 +331,92 @@ function generateYearlyPdf(data: {
       y,
     );
 
-    doc.fontSize(7).font("Helvetica").fillColor(COLORS.gray).text(`Generated on ${new Date().toLocaleString("en-US")}`, 50, 750, { align: "center" });
+    drawFooter(doc);
+
+    doc.end();
+  });
+}
+
+/** Average response time report over a 3/6/9/12-month window: headline boxes, monthly bar chart, per-month table. */
+function generateResponseTimePdf(data: {
+  months: number;
+  from: Date;
+  perMonth: { month: string; count: number; avgMs: number; medianMs: number; p90Ms: number }[];
+  overall: { count: number; avgMs: number; medianMs: number; p90Ms: number };
+}): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    const chunks: Buffer[] = [];
+
+    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    const y0 = drawHeader(doc);
+    const longDate = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+
+    doc.fillColor(COLORS.dark).fontSize(18).font("Helvetica-Bold")
+      .text("Average Response Time Report", 50, y0, { width: 495, align: "center" });
+    doc.fillColor(COLORS.muted).fontSize(9).font("Helvetica")
+      .text(`Last ${data.months} months (${longDate(data.from)} - ${longDate(new Date())})`, 50, y0 + 24, { width: 495, align: "center" });
+
+    const summary = [
+      { label: "Avg Response", value: formatDuration(data.overall.avgMs), color: COLORS.primary },
+      { label: "Median Response", value: formatDuration(data.overall.medianMs), color: "#10b981" },
+      { label: "90th Percentile", value: formatDuration(data.overall.p90Ms), color: "#f59e0b" },
+    ];
+    const boxWidth = 150;
+    const boxGap = 22;
+    let boxX = 50;
+    const boxY = y0 + 48;
+    summary.forEach((s, i) => {
+      doc.roundedRect(boxX, boxY, boxWidth, 52, 6).fillAndStroke(COLORS.light, COLORS.border);
+      doc.rect(boxX, boxY, boxWidth, 4).fill(s.color);
+      doc.fillColor(COLORS.gray).fontSize(8).text(s.label.toUpperCase(), boxX + 10, boxY + 12, { width: boxWidth - 20 });
+      doc.fillColor(COLORS.dark).fontSize(20).font("Helvetica-Bold").text(s.value, boxX + 10, boxY + 24);
+      boxX += boxWidth + boxGap;
+      if (i === 0) boxX += 10;
+    });
+
+    doc.font("Helvetica");
+
+    let y = drawSection(doc, "Average Response Time by Month", boxY + 75);
+    drawBarChart(
+      doc,
+      // "26-07" rather than "2026-07": a 12-bar chart leaves ~24px per slot, and the full
+      // year wraps across two lines. The exact range is spelled out under the title.
+      // Bar heights use minutes to one decimal so a sub-minute month still shows a bar;
+      // the table below carries the exact seconds.
+      data.perMonth.map((m) => ({ label: m.month.slice(2), value: Math.round((m.avgMs / 60000) * 10) / 10 })),
+      60,
+      y + 10,
+      480,
+      120,
+    );
+    y += 150;
+
+    const monthRows = [
+      ...data.perMonth.map((m) => [m.month, String(m.count), formatDuration(m.avgMs), formatDuration(m.medianMs), formatDuration(m.p90Ms)]),
+      // Trailing total so the headline figures are checkable against the month rows.
+      ["All months", String(data.overall.count), formatDuration(data.overall.avgMs), formatDuration(data.overall.medianMs), formatDuration(data.overall.p90Ms)],
+    ];
+    y = pageSpace(doc, y + 20, 40 + monthRows.length * 18);
+    y = drawSection(doc, "Monthly Breakdown", y + 20);
+    drawTable(
+      doc,
+      [
+        { label: "Month", width: 120 },
+        { label: "Incidents", width: 80 },
+        { label: "Avg Response", width: 100 },
+        { label: "Median", width: 90 },
+        { label: "90th Percentile", width: 110 },
+      ],
+      monthRows,
+      60,
+      y,
+    );
+
+    drawFooter(doc);
 
     doc.end();
   });
@@ -348,6 +453,54 @@ export const ExportController = {
     reply.header("Content-Type", "text/csv");
     reply.header("Content-Disposition", "attachment; filename=incidents.csv");
     reply.code(200).send(csv);
+  },
+
+  /** Export the last 3/6/9/12-month average response time report as a PDF download. */
+  async responseTimePdf(request: FastifyRequest, reply: FastifyReply) {
+    const companyId = request.user!.companyId;
+    await SubscriptionService.requireFeature(companyId, "export_csv_pdf");
+
+    const months = Number((request.query as { months?: string | number }).months) || 12;
+    const report = await ReportService.responseTimeReport(companyId, months);
+
+    // Guard on overall, not perMonth: overall is what the PDF dereferences, so checking it
+    // directly removes the need for a non-null assertion on the line below.
+    if (report.perMonth.length === 0 || !report.overall) {
+      reply.code(404).send({
+        success: false,
+        error: { code: "NOT_FOUND", message: "No response time data for the selected period" },
+      });
+      return;
+    }
+
+    const company = await prisma.company.findUnique({ where: { id: companyId } });
+    const companySlug = (company?.name || "SecReports").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const date = new Date().toISOString().split("T")[0];
+
+    let pdfBuffer: Buffer;
+    try {
+      pdfBuffer = await generateResponseTimePdf({
+        months: report.months,
+        from: report.from,
+        perMonth: report.perMonth,
+        overall: report.overall,
+      });
+    } catch {
+      reply.code(500).send({ success: false, error: { code: "PDF_FAILED", message: "Failed to generate PDF" } });
+      return;
+    }
+
+    // Data egress: a report leaving the system is worth an audit trail (golden rule #35/#36).
+    await AuditLogService.create({
+      entityType: "report",
+      entityId: `response-time-${months}m`,
+      action: "report_response_time_exported",
+      performedBy: request.user!.userId,
+    });
+
+    reply.header("Content-Type", "application/pdf");
+    reply.header("Content-Disposition", `attachment; filename=avg-response-time-${months}m-${companySlug}-${date}.pdf`);
+    reply.code(200).send(pdfBuffer);
   },
 
   /** Export a visual yearly crime statistics report as a PDF download. */

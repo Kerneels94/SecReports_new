@@ -3,16 +3,19 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { reportService, exportService } from "@/services";
+import { reportService, exportService, formatDurationMs } from "@/services";
 import {
   IncidentPieChart,
   ResponseTimeChart,
   YearlyTrendChart,
 } from "./components/DashboardCharts";
-import type { AreaResponseStat, MonthlyResponseStat } from "@/services";
+import type { AreaResponseStat, MonthlyResponseStat, ResponsePeriod } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 import { hasPermission } from "@/lib/permissions";
 import type { Incident, TrialStatus } from "@/types";
+
+/** Periods the avg response time report can be downloaded over. */
+const RESPONSE_PERIODS: ResponsePeriod[] = [3, 6, 9, 12];
 
 const monthNames = [
   "Jan",
@@ -57,6 +60,10 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [responseError, setResponseError] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [downloadingPeriod, setDownloadingPeriod] = useState<ResponsePeriod | null>(null);
+  // Download failures are reported next to the buttons, not via `error`: that one replaces the
+  // whole dashboard with a Retry button, so a 404 or expired trial would blank every chart.
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -113,22 +120,40 @@ export default function DashboardPage() {
     };
   }, [monthlyData]);
 
+  const saveBlob = (blob: Blob & { filename?: string }, fallback: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = blob.filename || fallback;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handleDownloadPdf = async () => {
     setDownloading(true);
     try {
-      const result = await exportService.downloadYearlyPdf();
-      const url = URL.createObjectURL(result);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = result.filename || "yearly-crime-stats.pdf";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      saveBlob(await exportService.downloadYearlyPdf(), "yearly-crime-stats.pdf");
     } catch {
       setError("Failed to download PDF");
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const handleDownloadResponseTime = async (months: ResponsePeriod) => {
+    setDownloadingPeriod(months);
+    setDownloadError(null);
+    try {
+      saveBlob(
+        await exportService.downloadResponseTimePdf(months),
+        `avg-response-time-${months}m.pdf`,
+      );
+    } catch {
+      setDownloadError(`Failed to download ${months}-month response time report`);
+    } finally {
+      setDownloadingPeriod(null);
     }
   };
 
@@ -389,7 +414,31 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Avg Response Time</CardTitle>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <CardTitle>Avg Response Time</CardTitle>
+              {canExportReports && (
+                <div className="flex items-center gap-1">
+                  {RESPONSE_PERIODS.map((months) => (
+                    <Button
+                      key={months}
+                      variant="secondary"
+                      size="sm"
+                      className="px-2.5"
+                      loading={downloadingPeriod === months}
+                      aria-label={`Download ${months}-month average response time report`}
+                      onClick={() => handleDownloadResponseTime(months)}
+                    >
+                      {months}M
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {downloadError && (
+              <p role="alert" className="text-sm text-danger">
+                {downloadError}
+              </p>
+            )}
           </CardHeader>
           <CardContent>
             {responseError ? (
@@ -433,7 +482,7 @@ export default function DashboardPage() {
             ) : (
               <div className="flex h-full flex-col justify-center divide-y divide-border-light/50">
                 {areaData.map((area) => {
-                  const max = areaData[0]?.avgMinutes || 1;
+                  const max = areaData[0]?.avgMs || 1;
                   return (
                     <div
                       key={area.area}
@@ -445,11 +494,11 @@ export default function DashboardPage() {
                       <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-secondary">
                         <div
                           className="h-full rounded-full bg-warning/80"
-                          style={{ width: `${(area.avgMinutes / max) * 100}%` }}
+                          style={{ width: `${(area.avgMs / max) * 100}%` }}
                         />
                       </div>
-                      <span className="w-14 shrink-0 text-right text-sm font-medium text-text">
-                        {area.avgMinutes}m
+                      <span className="w-16 shrink-0 text-right text-sm font-medium text-text">
+                        {formatDurationMs(area.avgMs)}
                       </span>
                       <span className="w-16 shrink-0 text-right text-xs text-text-secondary">
                         {area.count} incidents

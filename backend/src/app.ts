@@ -127,7 +127,7 @@ export async function buildApp() {
   await fastify.register(subscriptionRoutes);
   await fastify.register(permissionRoutes);
 
-  fastify.setErrorHandler((error: Error & { statusCode?: number; code?: string }, request, reply) => {
+  fastify.setErrorHandler((error: Error & { statusCode?: number; code?: string; validation?: unknown }, request, reply) => {
     if (error instanceof AppError) {
       reply.code(error.statusCode).send({
         success: false,
@@ -135,6 +135,19 @@ export async function buildApp() {
           code: error.code,
           message: error.message,
           details: error.details,
+        },
+      });
+      return;
+    }
+
+    if (error.validation) {
+      // Schema rejection is bad input, not a server fault: without this it falls through to
+      // the generic 500 and pollutes 5xx monitoring on every hand-typed ?months=7.
+      reply.code(400).send({
+        success: false,
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Invalid request parameters",
         },
       });
       return;
