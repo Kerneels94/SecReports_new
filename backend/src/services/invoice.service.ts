@@ -1,5 +1,5 @@
 import { prisma } from "../lib/db";
-import { NotFoundError, ConflictError } from "../lib/errors";
+import { NotFoundError, ConflictError, AppError } from "../lib/errors";
 import { sendMail } from "./email.service";
 
 export const InvoiceService = {
@@ -87,11 +87,6 @@ export const InvoiceService = {
     if (!invoice) throw new NotFoundError("Invoice");
     if (invoice.status !== "draft") throw new ConflictError("Invoice already sent");
 
-    await prisma.invoice.update({
-      where: { id },
-      data: { status: "sent" },
-    });
-
     await sendMail({
       to: invoice.company.email,
       subject: "invoice",
@@ -102,6 +97,18 @@ export const InvoiceService = {
         invoiceNumber: invoice.invoiceNumber,
         dueDate: invoice.dueDate.toISOString(),
       },
+    }).then(({ error }) => {
+      if (error)
+        throw new AppError(
+          502,
+          "EMAIL_SEND_FAILED",
+          "Invoice email could not be sent",
+        );
+    });
+
+    await prisma.invoice.update({
+      where: { id },
+      data: { status: "sent" },
     });
 
     return prisma.invoice.findUnique({
@@ -211,14 +218,22 @@ export const InvoiceService = {
         description: `Monthly subscription - ${company.subscription!.plan.name} plan`,
       });
 
-      await this.sendInvoice(invoice.id);
-
-      results.push({
-        companyId: company.id,
-        companyName: company.name,
-        invoiceNumber: invoice.invoiceNumber,
-        status: "sent",
-      });
+      try {
+        await this.sendInvoice(invoice.id);
+        results.push({
+          companyId: company.id,
+          companyName: company.name,
+          invoiceNumber: invoice.invoiceNumber,
+          status: "sent",
+        });
+      } catch (err) {
+        results.push({
+          companyId: company.id,
+          companyName: company.name,
+          invoiceNumber: invoice.invoiceNumber,
+          status: `failed (${err instanceof Error ? err.message : "unknown error"})`,
+        });
+      }
     }
 
     return results;
