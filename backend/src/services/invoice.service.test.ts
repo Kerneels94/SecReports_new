@@ -1,5 +1,6 @@
 import { InvoiceService } from "./invoice.service";
 import { prisma } from "../lib/db";
+import { sendMail } from "./email.service";
 
 jest.mock("../lib/db", () => ({
   prisma: {
@@ -14,6 +15,8 @@ jest.mock("../lib/db", () => ({
     $transaction: jest.fn(),
   },
 }));
+
+jest.mock("./email.service", () => ({ sendMail: jest.fn() }));
 
 const company = { id: "company1", name: "Acme", email: "acme@example.com" };
 
@@ -50,6 +53,40 @@ describe("InvoiceService.createInvoice", () => {
     );
     expect(prisma.ledger.create).not.toHaveBeenCalled();
     expect(result).toBe(invoice);
+  });
+});
+
+describe("InvoiceService.sendInvoice", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue(invoice);
+    (prisma.invoice.update as jest.Mock).mockResolvedValue({
+      ...invoice,
+      status: "sent",
+    });
+  });
+
+  it("marks the invoice sent only after the email succeeds", async () => {
+    (sendMail as jest.Mock).mockResolvedValue({ data: { id: "msg1" } });
+
+    await InvoiceService.sendInvoice("inv1");
+
+    expect(sendMail).toHaveBeenCalled();
+    expect(prisma.invoice.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { status: "sent" } }),
+    );
+    expect(
+      (sendMail as jest.Mock).mock.invocationCallOrder[0],
+    ).toBeLessThan((prisma.invoice.update as jest.Mock).mock.invocationCallOrder[0]);
+  });
+
+  it("leaves the invoice as draft when the email fails", async () => {
+    (sendMail as jest.Mock).mockResolvedValue({ error: new Error("smtp down") });
+
+    await expect(InvoiceService.sendInvoice("inv1")).rejects.toThrow(
+      "Invoice email could not be sent",
+    );
+    expect(prisma.invoice.update).not.toHaveBeenCalled();
   });
 });
 

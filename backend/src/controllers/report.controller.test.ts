@@ -47,8 +47,8 @@ describe("ReportController", () => {
   describe("monthlyResponse", () => {
     it("calls ReportService.monthlyResponse with companyId and sends result", async () => {
       const mockData = [
-        { month: "2026-01", avgMinutes: 30 },
-        { month: "2026-02", avgMinutes: 22 },
+        { month: "2026-01", avgMs: 1800000 },
+        { month: "2026-02", avgMs: 1320000 },
       ];
       (ReportService.monthlyResponse as jest.Mock).mockResolvedValue(mockData);
 
@@ -63,8 +63,8 @@ describe("ReportController", () => {
   describe("responseByArea", () => {
     it("calls ReportService.responseByArea with companyId and sends result", async () => {
       const mockData = [
-        { area: "North CBD", avgMinutes: 30, count: 2 },
-        { area: "South Gate", avgMinutes: 10, count: 1 },
+        { area: "North CBD", avgMs: 1800000, count: 2 },
+        { area: "South Gate", avgMs: 600000, count: 1 },
       ];
       (ReportService.responseByArea as jest.Mock).mockResolvedValue(mockData);
 

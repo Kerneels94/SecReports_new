@@ -1,10 +1,12 @@
 import { api } from "./api";
 import {
   authService,
+  exportService,
   incidentService,
   reportService,
   userService,
   adminLedgerService,
+  formatDurationMs,
 } from "./index";
 
 jest.mock("./api", () => ({
@@ -14,6 +16,7 @@ jest.mock("./api", () => ({
     put: jest.fn(),
     patch: jest.fn(),
     delete: jest.fn(),
+    downloadBlob: jest.fn(),
   },
 }));
 
@@ -110,6 +113,15 @@ describe("reportService", () => {
   });
 });
 
+describe("exportService", () => {
+  it.each([3, 6, 9, 12])("downloadResponseTimePdf requests the %i-month period", (months) => {
+    exportService.downloadResponseTimePdf(months as 3 | 6 | 9 | 12);
+    expect(mockApi.downloadBlob).toHaveBeenCalledWith(
+      `/export/response-time-pdf?months=${months}`,
+    );
+  });
+});
+
 describe("userService", () => {
   it("create calls api.post with correct path and data", () => {
     const data = { name: "Alice", email: "a@b.com", password: "pw", role: "reporter", department: "IT" };
@@ -125,6 +137,20 @@ describe("userService", () => {
   it("remove calls api.delete with correct path", () => {
     userService.remove(1);
     expect(mockApi.delete).toHaveBeenCalledWith("/auth/users/1");
+  });
+});
+
+describe("formatDurationMs", () => {
+  it("formats milliseconds into minutes and seconds", () => {
+    expect(formatDurationMs(0)).toBe("0m 0s");
+    expect(formatDurationMs(24000)).toBe("0m 24s");
+    expect(formatDurationMs(1500000)).toBe("25m 0s");
+    expect(formatDurationMs(1420000)).toBe("23m 40s");
+  });
+
+  it("clamps negative and non-finite input instead of rendering nonsense", () => {
+    expect(formatDurationMs(-5000)).toBe("0m 0s");
+    expect(formatDurationMs(Number.NaN)).toBe("0m 0s");
   });
 });
 
