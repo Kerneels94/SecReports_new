@@ -5,8 +5,8 @@ function TestConsumer() {
   const { addToast } = useToast();
   return (
     <div>
-      <button onClick={() => addToast("Patrol started", "success")}>Success</button>
-      <button onClick={() => addToast("Patrol failed", "danger")}>Danger</button>
+      <button onClick={() => addToast("Report saved", "success")}>Success</button>
+      <button onClick={() => addToast("Save failed", "danger")}>Danger</button>
       <button onClick={() => addToast("Info message", "info", 0)}>Persistent</button>
     </div>
   );
@@ -33,7 +33,7 @@ describe("Toast", () => {
       screen.getByText("Success").click();
     });
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Patrol started");
+    expect(screen.getByRole("alert")).toHaveTextContent("Report saved");
   });
 
   it("auto-dismisses toast after duration", () => {
@@ -64,7 +64,7 @@ describe("Toast", () => {
     act(() => {
       screen.getByText("Danger").click();
     });
-    expect(screen.getByRole("alert")).toHaveTextContent("Patrol failed");
+    expect(screen.getByRole("alert")).toHaveTextContent("Save failed");
 
     act(() => {
       screen.getByRole("button", { name: /dismiss notification/i }).click();

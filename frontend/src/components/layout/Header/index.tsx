@@ -2,13 +2,11 @@
 
 /**
  * Header - The top navigation bar for desktop viewports.
- * Displays dashboard mode toggles (Incidents / Guarding), a user profile dropdown, and logout.
+ * Displays a user profile dropdown and logout.
  */
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { cn } from "@/lib/cn";
-import { useDashboardMode } from "@/hooks/useDashboardMode";
 
 /** Props for the Header component */
 interface HeaderProps {
@@ -16,9 +14,8 @@ interface HeaderProps {
   onLogout?: () => void;
 }
 
-/** Desktop header bar with mode toggle and user dropdown. Hidden on mobile (< lg). */
+/** Desktop header bar with the user dropdown. Hidden on mobile (< lg). */
 export function Header({ user, onLogout }: HeaderProps) {
-  const { mode, setMode } = useDashboardMode();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -31,32 +28,7 @@ export function Header({ user, onLogout }: HeaderProps) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 hidden h-16 items-center justify-between border-b border-border-light bg-surface/80 backdrop-blur-md px-8 lg:flex">
-      <div className="flex items-center gap-1 rounded-lg bg-surface-elevated/50 p-0.5 ring-1 ring-border-light">
-        <button
-          onClick={() => setMode("incidents")}
-          className={cn(
-            "rounded-md px-4 py-1.5 text-sm font-medium transition-all",
-            mode === "incidents"
-              ? "bg-surface text-text shadow-sm"
-              : "text-text-secondary hover:text-text",
-          )}
-        >
-          Incident Reports
-        </button>
-        <button
-          onClick={() => setMode("guarding")}
-          className={cn(
-            "rounded-md px-4 py-1.5 text-sm font-medium transition-all",
-            mode === "guarding"
-              ? "bg-surface text-text shadow-sm"
-              : "text-text-secondary hover:text-text",
-          )}
-        >
-          Guarding
-        </button>
-      </div>
-
+    <header className="sticky top-0 z-30 hidden h-16 items-center justify-end border-b border-border-light bg-surface/80 backdrop-blur-md px-8 lg:flex">
       {user && (
         <div ref={ref} className="relative">
           <button

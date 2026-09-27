@@ -6,19 +6,10 @@ import crypto from "crypto";
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.patrolScheduleCheckpoint.deleteMany();
-  await prisma.patrolScheduleTimeSlot.deleteMany();
-  await prisma.patrolSchedule.deleteMany();
-  await prisma.patrolCheckpoint.deleteMany();
-  await prisma.patrolReport.deleteMany();
-  await prisma.entryLog.deleteMany();
-  await prisma.guard.deleteMany();
-  await prisma.guardingSite.deleteMany();
   await prisma.paymentHistory.deleteMany();
   await prisma.invoice.deleteMany();
   await prisma.companySubscription.deleteMany();
   await prisma.subscriptionPlan.deleteMany();
-  await prisma.apiKey.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.incident.deleteMany();
   await prisma.user.updateMany({ where: { createdBy: { not: null } }, data: { createdBy: null } });
@@ -35,7 +26,6 @@ async function main() {
     data: {
       name: "Free",
       price: 0,
-      siteLimit: 0,
       userLimit: 0,
       trialPeriodDays: 14,
       features: allFeatures,
@@ -46,7 +36,6 @@ async function main() {
     data: {
       name: "Professional",
       price: 150000,
-      siteLimit: 15,
       userLimit: 5,
       features: allFeatures,
       highlighted: true,
@@ -142,86 +131,6 @@ async function main() {
       action: "create",
       newValues: JSON.stringify({ title: incident.title }),
       performedBy: admin.id,
-    },
-  });
-
-  // Guarding seed data
-  const site1 = await prisma.guardingSite.create({
-    data: { companyId: company.id, name: "Riverside Industrial Park", address: "42 Riverside Rd, Industria" },
-  });
-
-  const site2 = await prisma.guardingSite.create({
-    data: { companyId: company.id, name: "Sunset Mall", address: "100 Sunset Blvd, Central" },
-  });
-
-  const guard1 = await prisma.guard.create({
-    data: {
-      companyId: company.id,
-      siteId: site1.id,
-      name: "Thabo",
-      surname: "Molefe",
-      cellphone: "0821234567",
-      employeeId: "GRD-001",
-    },
-  });
-
-  const guard2 = await prisma.guard.create({
-    data: {
-      companyId: company.id,
-      siteId: site2.id,
-      name: "Lerato",
-      surname: "Ndlovu",
-      cellphone: "0839876543",
-      employeeId: "GRD-002",
-    },
-  });
-
-  await prisma.patrolReport.create({
-    data: {
-      siteId: site1.id,
-      guardId: guard1.id,
-      startedAt: new Date("2026-06-12T22:00:00Z"),
-      completedAt: new Date("2026-06-13T06:00:00Z"),
-      status: "completed",
-      notes: "All clear. No incidents.",
-      checkpoints: {
-        create: [
-          { name: "Main Gate", scannedAt: new Date("2026-06-12T22:15:00Z"), status: "ok" },
-          { name: "Warehouse A", scannedAt: new Date("2026-06-12T23:00:00Z"), status: "ok" },
-          { name: "Parking Lot", scannedAt: new Date("2026-06-13T00:30:00Z"), status: "ok" },
-          { name: "Back Fence", scannedAt: new Date("2026-06-13T02:00:00Z"), status: "ok" },
-          { name: "Main Gate", scannedAt: new Date("2026-06-13T05:45:00Z"), status: "ok" },
-        ],
-      },
-    },
-  });
-
-  await prisma.entryLog.create({
-    data: {
-      siteId: site1.id,
-      guardId: guard1.id,
-      driverName: "James Delivery",
-      driverContact: "0725551234",
-      vehicleReg: "CF 123-456 GP",
-      vehicleDesc: "White Toyota Hino truck",
-      entryTime: new Date("2026-06-13T08:30:00Z"),
-      purpose: "Goods delivery",
-    },
-  });
-
-  await prisma.entryLog.create({
-    data: {
-      siteId: site2.id,
-      guardId: guard2.id,
-      driverName: "Unknown",
-      vehicleReg: "BK 789-012 GP",
-      vehicleDesc: "Silver Volkswagen Golf",
-      entryTime: new Date("2026-06-13T14:00:00Z"),
-      purpose: "Unverified",
-      flagged: true,
-      flagReason: "Suspicious activity reported at Riverside site",
-      flaggedById: guard1.id,
-      flaggedAt: new Date("2026-06-13T14:05:00Z"),
     },
   });
 

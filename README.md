@@ -78,12 +78,6 @@ Auth uses **JWT access + refresh token** flow:
 
 All authenticated endpoints require `Authorization: Bearer <token>` header.
 
-### API Key Authentication
-
-Alternatively, endpoints can be accessed via API key using the `x-api-key` header. API-key-authenticated requests receive a synthetic `"api"` role that is **not** included in any route's `requireRole()` allow-list. This means API key access is effectively **read-only** — only endpoints that use `authenticate` without `requireRole()` are accessible (e.g., GET list/detail routes).
-
-API keys are scoped to a single company and can be generated/revoked by admins and managers via `/api-keys`.
-
 ### Incidents
 
 | Method | Path                    | Description                            |

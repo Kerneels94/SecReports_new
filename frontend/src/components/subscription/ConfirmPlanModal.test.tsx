@@ -7,7 +7,6 @@ const plan: SubscriptionPlan = {
   id: "pro",
   name: "Professional",
   price: 150000,
-  siteLimit: 15,
   userLimit: 5,
   trialPeriodDays: null,
   features: "[\"15 sites\",\"5 users\"]",

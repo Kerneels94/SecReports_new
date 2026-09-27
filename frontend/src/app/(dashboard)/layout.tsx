@@ -1,5 +1,5 @@
 /**
- * Dashboard layout — wraps all (dashboard) routes with AuthProvider, DashboardModeProvider, Sidebar, and Header.
+ * Dashboard layout — wraps all (dashboard) routes with AuthProvider, Sidebar, and Header.
  * Redirects unauthenticated users to /login.
  * @route /dashboard/*
  */
@@ -8,7 +8,6 @@
 import { useState, useEffect, type ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import { DashboardModeProvider, useDashboardMode } from "@/hooks/useDashboardMode";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { MobileHeader } from "@/components/layout/MobileHeader";
@@ -20,7 +19,6 @@ function requiredPermission(pathname: string): string | null {
   if (pathname.startsWith("/dashboard")) return "reports.view";
   if (pathname.startsWith("/incidents/new")) return "incidents.create";
   if (pathname.startsWith("/incidents")) return "incidents.view";
-  if (pathname.startsWith("/guarding")) return "guarding.view";
   if (pathname.startsWith("/admin/audit-logs")) return "auditLogs.view";
   if (pathname.startsWith("/settings/billing")) return "billing.manage";
   return null;
@@ -28,37 +26,14 @@ function requiredPermission(pathname: string): string | null {
 
 function DashboardShell({ children }: { children: ReactNode }) {
   const { user, isLoading, logout } = useAuth();
-  const { mode, setMode } = useDashboardMode();
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Sync mode to pathname on first load (handles direct URL nav / refresh / bookmarks)
-  useEffect(() => {
-    if (!isLoading) {
-      if (pathname.startsWith("/guarding") && mode !== "guarding") {
-        setMode("guarding");
-      } else if (!pathname.startsWith("/guarding") && mode !== "incidents") {
-        setMode("incidents");
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
-
   useEffect(() => {
     if (isLoading) return;
-
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
-    if (mode === "guarding" && !pathname.startsWith("/guarding")) {
-      router.push("/guarding");
-    } else if (mode === "incidents" && pathname.startsWith("/guarding")) {
-      router.push("/dashboard");
-    }
-  }, [mode, pathname, isLoading, user, router]);
+    if (!user) router.push("/login");
+  }, [isLoading, user, router]);
 
   if (isLoading) {
     return (
@@ -102,9 +77,7 @@ function DashboardShell({ children }: { children: ReactNode }) {
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <AuthProvider>
-      <DashboardModeProvider>
-        <DashboardShell>{children}</DashboardShell>
-      </DashboardModeProvider>
+      <DashboardShell>{children}</DashboardShell>
     </AuthProvider>
   );
 }

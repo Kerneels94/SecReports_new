@@ -30,7 +30,7 @@ jest.mock("../lib/db", () => ({
       findUnique: jest.fn(),
     },
     subscriptionPlan: {
-      findFirst: jest.fn().mockResolvedValue({ id: "1", name: "Free", price: 0, siteLimit: 5, userLimit: 1, trialPeriodDays: 14, features: "[]" }),
+      findFirst: jest.fn().mockResolvedValue({ id: "1", name: "Free", price: 0, userLimit: 1, trialPeriodDays: 14, features: "[]" }),
     },
     companySubscription: {
       findUnique: jest.fn().mockResolvedValue(null),

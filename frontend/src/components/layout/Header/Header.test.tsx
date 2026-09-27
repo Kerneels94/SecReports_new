@@ -8,10 +8,6 @@ jest.mock("next/link", () => {
   );
 });
 
-jest.mock("@/hooks/useDashboardMode", () => ({
-  useDashboardMode: () => ({ mode: "incidents", setMode: jest.fn() }),
-}));
-
 describe("Header", () => {
   it("renders nothing when user is null", () => {
     const { container } = render(<Header user={null} />);
@@ -67,12 +63,6 @@ describe("Header", () => {
   it("does not show dropdown initially", () => {
     render(<Header user={{ name: "Alice", email: "a@example.com", role: "admin" }} />);
     expect(screen.queryByText("View Profile")).not.toBeInTheDocument();
-  });
-
-  it("renders mode toggle buttons (Incident Reports / Guarding)", () => {
-    render(<Header user={{ name: "Alice", email: "a@example.com", role: "admin" }} />);
-    expect(screen.getByText("Incident Reports")).toBeInTheDocument();
-    expect(screen.getByText("Guarding")).toBeInTheDocument();
   });
 
   it("profile link points to /profile", async () => {

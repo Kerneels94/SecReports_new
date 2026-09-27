@@ -64,17 +64,11 @@ export const SubscriptionService = {
     });
     if (!sub) throw new NotFoundError("Subscription");
 
-    const [siteCount, userCount] = await Promise.all([
-      prisma.guardingSite.count({ where: { companyId } }),
-      prisma.user.count({ where: { companyId } }),
-    ]);
+    const userCount = await prisma.user.count({ where: { companyId } });
 
     return {
       ...sub,
-      usage: {
-        sites: siteCount,
-        users: userCount,
-      },
+      usage: { users: userCount },
     };
   },
 
@@ -213,30 +207,6 @@ export const SubscriptionService = {
       where: { companyId },
       orderBy: { createdAt: "desc" },
     });
-  },
-
-  /** Checks if company can add more sites. During active trial, limit is bypassed. */
-  async canAddSite(companyId: string): Promise<void> {
-    const sub = await prisma.companySubscription.findUnique({
-      where: { companyId },
-      include: { plan: true },
-    });
-    if (!sub || sub.status === "cancelled") return;
-
-    const trial = await this.getTrialStatus(companyId);
-    if (trial?.isTrial && trial.isExpired) {
-      throw new ForbiddenError(
-        "Your organisation's free trial has ended. Please upgrade your subscription to continue.",
-      );
-    }
-    if (trial?.isTrial && !trial.isExpired) return;
-
-    if (sub.plan.siteLimit > 0) {
-      const count = await prisma.guardingSite.count({ where: { companyId } });
-      if (count >= sub.plan.siteLimit) {
-        throw new ForbiddenError("Site limit reached. Upgrade to continue.");
-      }
-    }
   },
 
   /** Checks if company can add more users. During active trial, capped at TRIAL_USER_LIMIT. */

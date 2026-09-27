@@ -23,10 +23,6 @@ describe("HowToPage", () => {
     expect(screen.getByRole("heading", { name: /understand the dashboard/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /report an incident/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /manage incidents/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /guarding mode/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /create sites and assign guards/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /log vehicle access and flag vehicles/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /manage patrol reports and schedules/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /admin tools and billing/i })).toBeInTheDocument();
   });
 
@@ -34,11 +30,11 @@ describe("HowToPage", () => {
     render(<HowToPage />);
     expect(screen.getByText(/open the verification email/i)).toBeInTheDocument();
     expect(screen.getByText(/auto-generated reference number/i)).toBeInTheDocument();
-    expect(screen.getByText(/click Flag Vehicle and give a reason/i)).toBeInTheDocument();
+    expect(screen.getByText(/Audit Logs records every change/i)).toBeInTheDocument();
   });
 
   it("renders image placeholder slots for each step", () => {
     render(<HowToPage />);
-    expect(screen.getAllByLabelText(/screenshot placeholder/i)).toHaveLength(10);
+    expect(screen.getAllByLabelText(/screenshot placeholder/i)).toHaveLength(6);
   });
 });

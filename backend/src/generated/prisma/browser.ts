@@ -78,52 +78,7 @@ export type Invoice = Prisma.InvoiceModel
  */
 export type Ledger = Prisma.LedgerModel
 /**
- * Model ApiKey
- * 
- */
-export type ApiKey = Prisma.ApiKeyModel
-/**
  * Model AuditLog
  * 
  */
 export type AuditLog = Prisma.AuditLogModel
-/**
- * Model GuardingSite
- * 
- */
-export type GuardingSite = Prisma.GuardingSiteModel
-/**
- * Model Guard
- * 
- */
-export type Guard = Prisma.GuardModel
-/**
- * Model PatrolReport
- * 
- */
-export type PatrolReport = Prisma.PatrolReportModel
-/**
- * Model PatrolCheckpoint
- * 
- */
-export type PatrolCheckpoint = Prisma.PatrolCheckpointModel
-/**
- * Model PatrolSchedule
- * 
- */
-export type PatrolSchedule = Prisma.PatrolScheduleModel
-/**
- * Model PatrolScheduleTimeSlot
- * 
- */
-export type PatrolScheduleTimeSlot = Prisma.PatrolScheduleTimeSlotModel
-/**
- * Model PatrolScheduleCheckpoint
- * 
- */
-export type PatrolScheduleCheckpoint = Prisma.PatrolScheduleCheckpointModel
-/**
- * Model EntryLog
- * 
- */
-export type EntryLog = Prisma.EntryLogModel

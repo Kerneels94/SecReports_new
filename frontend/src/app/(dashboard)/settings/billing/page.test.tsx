@@ -22,7 +22,6 @@ const plans = [
     id: "free",
     name: "Free",
     price: 0,
-    siteLimit: 0,
     userLimit: 0,
     trialPeriodDays: 14,
     features: "[]",
@@ -32,7 +31,6 @@ const plans = [
     id: "pro",
     name: "Professional",
     price: 150000,
-    siteLimit: 15,
     userLimit: 5,
     trialPeriodDays: null,
     features: "[\"15 sites\"]",
@@ -51,7 +49,7 @@ const currentSub = {
   createdAt: "",
   updatedAt: "",
   plan: plans[0],
-  usage: { sites: 0, users: 3 },
+  usage: { users: 3 },
 };
 
 const listPlans = subscriptionService.listPlans as jest.Mock;

@@ -17,7 +17,6 @@ const tiers = [
     limit: "14-day trial",
     description: "Full access to all features — with a 3-user limit during your trial.",
     features: [
-      "Unlimited guarding sites",
       "Up to 3 users",
       "All features included",
       "14-day free trial, no credit card",
@@ -30,10 +29,9 @@ const tiers = [
     name: "Professional",
     price: "R 1,500",
     period: "/month",
-    limit: "Up to 15 sites",
-    description: "For growing security teams managing multiple sites.",
+    limit: "Up to 5 users",
+    description: "For growing security teams that need more seats.",
     features: [
-      "Up to 15 guarding sites",
       "Up to 5 user accounts",
       "100 incident reports",
       "CSV & PDF export",
@@ -47,10 +45,9 @@ const tiers = [
     name: "Enterprise",
     price: "R 4,500",
     period: "/month",
-    limit: "Unlimited sites",
-    description: "For large security operations with unlimited site coverage.",
+    limit: "Unlimited users",
+    description: "For large security operations with unlimited seats.",
     features: [
-      "Unlimited guarding sites",
       "Unlimited users",
       "Unlimited reports",
       "CSV & PDF export",
@@ -72,11 +69,6 @@ const features = [
     title: "Crime statistics",
     description:
       "Generate reports detailing a monhtly or yearly crime analaysis which aids in visibility.",
-  },
-  {
-    title: "Patrol Management",
-    description:
-      "Create patrol reports and upload patrol schedules accros all guarding sites.",
   },
   {
     title: "Audit Trail",
@@ -115,9 +107,8 @@ export default function LandingPage() {
             </h1>
             <p className="mt-6 text-lg leading-8 text-text-secondary">
               SecReports helps private security companies log, track, and
-              resolve incidents efficiently. From access control breaches to
-              patrol findings — keep your sites secure with a dedicated
-              reporting platform.
+              resolve incidents efficiently — from access control breaches to
+              response times, with a dedicated reporting platform.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
               <Link
