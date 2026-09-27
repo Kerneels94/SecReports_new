@@ -227,7 +227,7 @@ File was removed.
 | K    | Cookie `sameSite` set to `"strict"` always, not just in production.                                                                                                                                                                    | `backend/src/controllers/auth.controller.ts`                                                                                                                                                                                                                               | TBD                               |
 | L    | Removed dead `changes` array in `updateUser`.                                                                                                                                                                                          | `backend/src/services/auth.service.ts`                                                                                                                                                                                                                                     | TBD                               |
 | N    | Replaced real `.env` credentials with placeholders.                                                                                                                                                                                    | `backend/.env`                                                                                                                                                                                                                                                             | TBD                               |
-| O    | Added `companyId` scoping to all IDOR-vulnerable services (GuardingSite, Guard, FlaggedVehicle, PatrolReport, EntryLog, Incident, Investigation).                                                                                      | Multiple controllers/services                                                                                                                                                                                                                                              | TBD                               |
+| O    | Added `companyId` scoping to all IDOR-vulnerable services (Incident, Investigation).                                                                                      | Multiple controllers/services                                                                                                                                                                                                                                              | TBD                               |
 | P    | Added `escapeHtml()` helper and applied to all 8 email templates.                                                                                                                                                                      | `backend/src/templates/*.ts`                                                                                                                                                                                                                                               | TBD                               |
 | Q    | Added `jti`, `aud`, `iss` claims to JWT signing.                                                                                                                                                                                       | `backend/src/lib/jwt.ts`                                                                                                                                                                                                                                                   | TBD                               |
 | R    | API key stored as SHA-256 hash; raw key returned only once.                                                                                                                                                                            | `backend/src/services/apiKey.service.ts`                                                                                                                                                                                                                                   | TBD                               |
@@ -426,9 +426,9 @@ Live production credentials were committed to git: MongoDB Atlas string, SMTP cr
 **Status:** FIXED ✅
 **Rule:** Golden Rule #18
 
-`getById`, `update`, and `delete` on incidents, guarding-sites, guards, patrol reports, entry logs, flagged vehicles, and investigations never scoped queries by `companyId`.
+`getById`, `update`, and `delete` on incidents and investigations never scoped queries by `companyId`.
 
-**Fix:** Added `companyId` parameter to all vulnerable service methods. Use `findFirst({ where: { id, companyId } })` or scope through relations (`site: { companyId }`). Updated all controllers to pass `request.user!.companyId`. Files fixed: GuardingSiteService, GuardService, FlaggedVehicleService, PatrolReportService, EntryLogService, IncidentService, InvestigationController.
+**Fix:** Added `companyId` parameter to all vulnerable service methods. Use `findFirst({ where: { id, companyId } })`. Updated all controllers to pass `request.user!.companyId`. Files fixed: IncidentService, InvestigationController.
 
 ---
 
@@ -532,18 +532,6 @@ The fallback password was weak and predictable.
 The following issues were discovered in the 2026-06-19 full-codebase security audit. **All 7 resolved.**
 
 ### 🔴 CRITICAL
-
-#### W. IDOR — EntryLog Endpoints Missing companyId Scoping
-
-**File:** `backend/src/controllers/entryLog.controller.ts:28,44,72`, `backend/src/services/entryLog.service.ts:29,55,105,128`
-**Status:** FIXED ✅
-**Rule:** Golden Rule #18
-
-`EntryLogService.getById()`, `update()`, and `delete()` use `prisma.entryLog.findUnique({ where: { id } })` without any `companyId` scope. `listBySite()` also lacks a companyId check. Any authenticated user from Company A can read, modify, or delete any entry log from Company B by guessing/iterating IDs. Despite being listed in finding O, EntryLogService was never actually scoped.
-
-**Fix:** Added `companyId` parameter to all four methods. `listBySite()` scopes via `site: { companyId }`. `getById()`, `update()`, and `delete()` use `findFirst({ where: { id, site: { companyId } } })`. All controllers pass `request.user!.companyId`.
-
----
 
 #### X. Login / EmployeeLogin / Token Reuse Audit Logs Not Awaited
 

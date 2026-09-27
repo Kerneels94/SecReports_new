@@ -142,120 +142,6 @@ export interface LoginResponse {
   user: User;
 }
 
-/** A physical site/location that is guarded. */
-export interface GuardingSite {
-  id: string;
-  companyId: string;
-  name: string;
-  address: string | null;
-  status: "active" | "inactive";
-  createdAt: string;
-  updatedAt: string;
-  _count?: { guards: number; patrolReports: number; entryLogs: number };
-  guards?: Guard[];
-  patrolReports?: PatrolReport[];
-  entryLogs?: EntryLog[];
-}
-
-/** A security guard assigned to a site. */
-export interface Guard {
-  id: string;
-  companyId: string;
-  siteId: string | null;
-  name: string;
-  surname: string;
-  cellphone: string;
-  employeeId: string;
-  status: "active" | "inactive" | "on_leave";
-  createdAt: string;
-  updatedAt: string;
-  site?: { id: string; name: string };
-  patrolReports?: PatrolReport[];
-}
-
-/** A patrol route report completed by a guard. */
-export interface PatrolReport {
-  id: string;
-  siteId: string;
-  guardId: string;
-  startedAt: string;
-  completedAt: string | null;
-  status: "in_progress" | "completed" | "cancelled";
-  notes: string | null;
-  createdAt: string;
-  updatedAt: string;
-  site?: { id: string; name: string };
-  guard?: { id: string; name: string; surname: string };
-  checkpoints?: PatrolCheckpoint[];
-  _count?: { checkpoints: number };
-}
-
-/** A scanned checkpoint within a patrol report. */
-export interface PatrolCheckpoint {
-  id: string;
-  patrolReportId: string;
-  name: string;
-  scannedAt: string;
-  status: "ok" | "missed" | "late";
-  createdAt: string;
-}
-
-/** A patrol schedule template defining a recurring route for a specific day. */
-export interface PatrolSchedule {
-  id: string;
-  companyId: string;
-  siteId: string;
-  day: string;
-  createdAt: string;
-  updatedAt: string;
-  site?: { id: string; name: string };
-  timeSlots?: PatrolScheduleTimeSlot[];
-}
-
-/** A time slot within a patrol schedule (e.g., 08:00–09:00 on Monday). */
-export interface PatrolScheduleTimeSlot {
-  id: string;
-  patrolScheduleId: string;
-  startTime: string;
-  endTime: string;
-  order: number;
-  createdAt: string;
-  checkpoints?: PatrolScheduleCheckpoint[];
-}
-
-/** A checkpoint within a patrol schedule time slot. */
-export interface PatrolScheduleCheckpoint {
-  id: string;
-  patrolTimeSlotId: string;
-  name: string;
-  order: number;
-  createdAt: string;
-}
-
-/** A vehicle/person entry/exit log at a guarded site. */
-export interface EntryLog {
-  id: string;
-  siteId: string;
-  guardId: string | null;
-  driverName: string;
-  driverContact: string | null;
-  vehicleReg: string;
-  vehicleDesc: string | null;
-  entryTime: string;
-  exitTime: string | null;
-  purpose: string | null;
-  flagged: boolean;
-  flagReason: string | null;
-  flaggedById: string | null;
-  flaggedAt: string | null;
-  resolvedAt: string | null;
-  resolveReason: string | null;
-  createdAt: string;
-  updatedAt: string;
-  site?: { id: string; name: string };
-  guard?: { id: string; name: string; surname: string };
-}
-
 /** An invoice sent to a company. */
 export interface Invoice {
   id: string;
@@ -358,7 +244,6 @@ export interface SubscriptionPlan {
   id: string;
   name: string;
   price: number;
-  siteLimit: number;
   userLimit: number;
   trialPeriodDays: number | null;
   features: string;
@@ -378,7 +263,6 @@ export interface CompanySubscription {
   updatedAt: string;
   plan: SubscriptionPlan;
   usage?: {
-    sites: number;
     users: number;
   };
 }

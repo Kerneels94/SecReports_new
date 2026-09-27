@@ -54,7 +54,7 @@ export const PERMISSIONS: Permission[] = [
   {
     key: "export.csv",
     label: "CSV / PDF exports",
-    description: "Download incident and patrol exports",
+    description: "Download incident exports",
     defaults: ["admin", "manager"],
   },
   {
@@ -67,24 +67,6 @@ export const PERMISSIONS: Permission[] = [
     key: "billing.manage",
     label: "Manage billing",
     description: "Change subscription plan",
-    defaults: ["admin"],
-  },
-  {
-    key: "guarding.view",
-    label: "View guarding data",
-    description: "See sites, guards, patrols, and entry logs",
-    defaults: ["admin", "manager", "senior"],
-  },
-  {
-    key: "guarding.manage",
-    label: "Manage guarding",
-    description: "Create and update sites, guards, patrols, and entry logs",
-    defaults: ["admin", "manager"],
-  },
-  {
-    key: "guarding.delete",
-    label: "Delete sites & guards",
-    description: "Permanently remove guarding sites and guards",
     defaults: ["admin"],
   },
 ];

@@ -126,7 +126,7 @@ export default function BillingPage() {
             <CardTitle>Current Subscription</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <p className="text-sm text-text-secondary">Plan</p>
                 <p className="font-medium text-text">{subscription.plan.name}</p>
@@ -136,14 +136,6 @@ export default function BillingPage() {
                 <Badge variant={subscription.status === "active" ? "success" : "default"}>
                   {subscription.status}
                 </Badge>
-              </div>
-              <div>
-                <p className="text-sm text-text-secondary">Sites Used</p>
-                <p className="font-medium text-text">
-                  {subscription.usage?.sites ?? 0}
-                  {subscription.plan.siteLimit > 0 && ` / ${subscription.plan.siteLimit}`}
-                  {subscription.plan.siteLimit === 0 && " (unlimited)"}
-                </p>
               </div>
               <div>
                 <p className="text-sm text-text-secondary">Users Used</p>

@@ -23,8 +23,8 @@ jest.mock("../lib/db", () => ({
   },
 }));
 
-const freePlan = { id: "free", name: "Free", price: 0, siteLimit: 0, userLimit: 0, trialPeriodDays: 14 };
-const paidPlan = { id: "pro", name: "Professional", price: 150000, siteLimit: 15, userLimit: 5 };
+const freePlan = { id: "free", name: "Free", price: 0, userLimit: 0, trialPeriodDays: 14 };
+const paidPlan = { id: "pro", name: "Professional", price: 150000, userLimit: 5 };
 
 const past = new Date(Date.now() - 24 * 60 * 60 * 1000);
 const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -250,16 +250,6 @@ describe("SubscriptionService.assertActive", () => {
 describe("SubscriptionService expired-trial feature blocking", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-
-  it("canAddSite throws when the trial has ended", async () => {
-    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
-      sub({ trialStartedAt: past, trialEndsAt: past }),
-    );
-
-    await expect(SubscriptionService.canAddSite("company1")).rejects.toThrow(
-      ForbiddenError,
-    );
   });
 
   it("canAddUser throws when the trial has ended", async () => {

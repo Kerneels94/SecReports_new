@@ -18,12 +18,6 @@ import incidentRoutes from "./routes/incident.routes";
 import reportRoutes from "./routes/report.routes";
 import exportRoutes from "./routes/export.routes";
 
-import apiKeyRoutes from "./routes/apiKey.routes";
-import guardingSiteRoutes from "./routes/guardingSite.routes";
-import guardRoutes from "./routes/guard.routes";
-import patrolReportRoutes from "./routes/patrolReport.routes";
-import patrolScheduleRoutes from "./routes/patrolSchedule.routes";
-import entryLogRoutes from "./routes/entryLog.routes";
 import invoiceRoutes from "./routes/invoice.routes";
 import ledgerRoutes from "./routes/ledger.routes";
 import auditLogRoutes from "./routes/auditLog.routes";
@@ -115,12 +109,6 @@ export async function buildApp() {
 
   await fastify.register(exportRoutes);
 
-  await fastify.register(apiKeyRoutes);
-  await fastify.register(guardingSiteRoutes);
-  await fastify.register(guardRoutes);
-  await fastify.register(patrolReportRoutes);
-  await fastify.register(patrolScheduleRoutes);
-  await fastify.register(entryLogRoutes);
   await fastify.register(invoiceRoutes);
   await fastify.register(ledgerRoutes);
   await fastify.register(auditLogRoutes);

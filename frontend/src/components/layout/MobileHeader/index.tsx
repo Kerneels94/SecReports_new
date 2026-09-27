@@ -2,13 +2,11 @@
 
 /**
  * MobileHeader - The top navigation bar for mobile viewports.
- * Provides a sidebar toggle, compact mode switcher, and user avatar dropdown.
+ * Provides a sidebar toggle and user avatar dropdown.
  */
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { cn } from "@/lib/cn";
-import { useDashboardMode } from "@/hooks/useDashboardMode";
 
 /** Props for the MobileHeader component */
 interface MobileHeaderProps {
@@ -17,9 +15,8 @@ interface MobileHeaderProps {
   onLogout?: () => void;
 }
 
-/** Mobile header bar with sidebar toggle and mode switcher. Visible only on small screens (< lg). */
+/** Mobile header bar with sidebar toggle. Visible only on small screens (< lg). */
 export function MobileHeader({ user, onToggleSidebar, onLogout }: MobileHeaderProps) {
-  const { mode, setMode } = useDashboardMode();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -42,31 +39,6 @@ export function MobileHeader({ user, onToggleSidebar, onLogout }: MobileHeaderPr
           <path d="M3 12h18M3 6h18M3 18h18" />
         </svg>
       </button>
-
-      <div className="flex items-center gap-1 rounded-lg bg-surface-elevated/50 p-0.5 ring-1 ring-border-light">
-        <button
-          onClick={() => setMode("incidents")}
-          className={cn(
-            "rounded-md px-2.5 py-1 text-xs font-medium transition-all",
-            mode === "incidents"
-              ? "bg-surface text-text shadow-sm"
-              : "text-text-secondary hover:text-text",
-          )}
-        >
-          Incidents
-        </button>
-        <button
-          onClick={() => setMode("guarding")}
-          className={cn(
-            "rounded-md px-2.5 py-1 text-xs font-medium transition-all",
-            mode === "guarding"
-              ? "bg-surface text-text shadow-sm"
-              : "text-text-secondary hover:text-text",
-          )}
-        >
-          Guarding
-        </button>
-      </div>
 
       <div ref={ref} className="relative">
         {user && (

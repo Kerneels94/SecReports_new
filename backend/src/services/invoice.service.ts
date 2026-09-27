@@ -328,7 +328,7 @@ export const InvoiceService = {
         subscription: { include: { plan: true } },
         users: { select: { id: true, name: true, email: true, role: true, status: true } },
         invoices: { orderBy: { createdAt: "desc" } },
-        _count: { select: { incidents: true, guardingSites: true } },
+        _count: { select: { incidents: true } },
       },
     });
     if (!company) throw new NotFoundError("Company");

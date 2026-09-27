@@ -46,7 +46,7 @@ describe("billing helpers", () => {
 
   describe("planWording", () => {
     it("returns the landing page wording for the Free plan", () => {
-      const wording = planWording({ name: "Free", siteLimit: 0, userLimit: 0, features: "[]" });
+      const wording = planWording({ name: "Free", userLimit: 0, features: "[]" });
       expect(wording.description).toBe(
         "Full access to all features — with a 3-user limit during your trial.",
       );
@@ -55,31 +55,31 @@ describe("billing helpers", () => {
     });
 
     it("returns the landing page wording for the Professional plan", () => {
-      const wording = planWording({ name: "Professional", siteLimit: 15, userLimit: 5, features: "[\"basic_crud\"]" });
-      expect(wording.description).toBe("For growing security teams managing multiple sites.");
-      expect(wording.limit).toBe("Up to 15 sites");
+      const wording = planWording({ name: "Professional", userLimit: 5, features: "[\"basic_crud\"]" });
+      expect(wording.description).toBe("For growing security teams that need more seats.");
+      expect(wording.limit).toBe("Up to 5 users");
       expect(wording.features).toContain("CSV & PDF export");
       expect(wording.features).toContain("Priority support");
     });
 
     it("returns the landing page wording for the Enterprise plan", () => {
-      const wording = planWording({ name: "Enterprise", siteLimit: 0, userLimit: 0, features: "[]" });
+      const wording = planWording({ name: "Enterprise", userLimit: 0, features: "[]" });
       expect(wording.description).toBe(
-        "For large security operations with unlimited site coverage.",
+        "For large security operations with unlimited seats.",
       );
-      expect(wording.limit).toBe("Unlimited sites");
+      expect(wording.limit).toBe("Unlimited users");
       expect(wording.features).toEqual(PLAN_WORDING.Enterprise.features);
     });
 
     it("falls back to plan limits for unknown plans", () => {
-      const limited = planWording({ name: "Bespoke", siteLimit: 3, userLimit: 2, features: "[\"extra\"]" });
-      expect(limited.description).toBe("For teams managing up to 3 sites.");
-      expect(limited.limit).toBe("Up to 3 sites");
+      const limited = planWording({ name: "Bespoke", userLimit: 2, features: "[\"extra\"]" });
+      expect(limited.description).toBe("For teams of up to 2 users.");
+      expect(limited.limit).toBe("Up to 2 users");
       expect(limited.features).toEqual(["extra"]);
 
-      const unlimited = planWording({ name: "Bespoke", siteLimit: 0, userLimit: 0, features: "[]" });
-      expect(unlimited.description).toBe("For organisations with unlimited site coverage.");
-      expect(unlimited.limit).toBe("Unlimited sites");
+      const unlimited = planWording({ name: "Bespoke", userLimit: 0, features: "[]" });
+      expect(unlimited.description).toBe("For organisations with unlimited seats.");
+      expect(unlimited.limit).toBe("Unlimited users");
     });
   });
 });

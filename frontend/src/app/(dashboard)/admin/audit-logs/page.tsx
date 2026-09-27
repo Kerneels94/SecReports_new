@@ -12,9 +12,6 @@ const ENTITY_TYPES = [
   { value: "", label: "All Types" },
   { value: "user", label: "User" },
   { value: "incident", label: "Incident" },
-  { value: "guarding_site", label: "Guarding Site" },
-  { value: "patrol_report", label: "Patrol Report" },
-  { value: "entry_log", label: "Entry Log" },
 ];
 
 const ACTION_LABELS: Record<string, string> = {
@@ -32,16 +29,13 @@ const ACTION_LABELS: Record<string, string> = {
   update: "Updated",
   delete: "Deleted",
   status_change: "Status Changed",
-  site_created: "Site Created",
-  patrol_created: "Patrol Created",
-  entry_flagged: "Entry Flagged",
 };
 
 function ActionBadge({ action }: { action: string }) {
   const variant =
     action.includes("failed") || action.includes("reuse_detected")
       ? "danger"
-      : action.includes("created") || action.includes("login") || action.includes("patrol_created") || action.includes("site_created")
+      : action.includes("created") || action.includes("login")
         ? "success"
         : action.includes("flagged")
           ? "warning"

@@ -38,7 +38,7 @@ const steps = [
     title: "4. Report an incident",
     imageAlt: "Report incident form screenshot placeholder",
     items: [
-      "In Incident mode (left sidebar), click Report Incident.",
+      "From the sidebar, click Report Incident.",
       "Select the incident Type - Attempted or Positive.",
       "Enter the operator name and dispatcher for the response, plus dispatch and arrival times if available.",
       "Enter the call sign, property address, suburb, city, and client details.",
@@ -59,47 +59,7 @@ const steps = [
     ],
   },
   {
-    title: "6. Guarding mode",
-    imageAlt: "Guarding dashboard screenshot placeholder",
-    items: [
-      "Switch to the Guarding tab in the top-right of the dashboard to manage sites, guards, patrols, and access control.",
-      "The guarding dashboard shows your sites, total guards, patrols, and any flagged vehicles at a glance.",
-    ],
-  },
-  {
-    title: "7. Create sites and assign guards",
-    imageAlt: "Guarding sites screenshot placeholder",
-    items: [
-      "Open Sites and click Add Site.",
-      "Give the site a name and an optional address.",
-      "Add guards directly while creating the site (first name, surname, cellphone, and employee ID), or add them later.",
-      "Click Create Site. You can View, Edit, or Delete a site from its card at any time.",
-      "Deleting a site permanently removes its patrol reports and access logs - make sure you intend to delete it.",
-    ],
-  },
-  {
-    title: "8. Log vehicle access and flag vehicles",
-    imageAlt: "Vehicle access logs screenshot placeholder",
-    items: [
-      "Open Vehicle Access Logs and click Add Vehicle Log.",
-      "Choose the site, enter the vehicle registration, driver details, entry time, and purpose.",
-      "Click Add Entry Log to record the access.",
-      "If a vehicle is suspicious, click Flag Vehicle and give a reason. It becomes visible to your whole company.",
-      "When the concern is handled, click Unflag and add a resolution reason.",
-    ],
-  },
-  {
-    title: "9. Manage patrol reports and schedules",
-    imageAlt: "Patrols screenshot placeholder",
-    items: [
-      "Open Patrols to see all patrol reports, filtered by site or date.",
-      "Add a patrol by choosing the site, the guard on duty, the start time, and notes.",
-      "Upload patrol schedules so recurring patrols are tracked automatically.",
-      "Export patrol reports when you need records for clients or compliance.",
-    ],
-  },
-  {
-    title: "10. Admin tools and billing",
+    title: "6. Admin tools and billing",
     imageAlt: "Admin tools screenshot placeholder",
     items: [
       "Admins see an Admin Tools section in the sidebar: Permissions, Users, Audit Logs, and Billing.",
@@ -123,8 +83,8 @@ export default function HowToPage() {
         </h1>
         <p className="mt-3 text-text-secondary">
           A step-by-step guide to getting the most out of the platform, from
-          your first login to reporting incidents and managing guarding
-          operations.
+          your first login to reporting incidents and managing your
+          account.
         </p>
 
         <div className="mt-12 space-y-6">

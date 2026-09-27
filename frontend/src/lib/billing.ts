@@ -40,17 +40,15 @@ export const PLAN_WORDING: Record<string, PlanWording> = {
     description: "Full access to all features — with a 3-user limit during your trial.",
     limit: "14-day trial",
     features: [
-      "Unlimited guarding sites",
       "Up to 3 users",
       "All features included",
       "14-day free trial, no credit card",
     ],
   },
   Professional: {
-    description: "For growing security teams managing multiple sites.",
-    limit: "Up to 15 sites",
+    description: "For growing security teams that need more seats.",
+    limit: "Up to 5 users",
     features: [
-      "Up to 15 guarding sites",
       "Up to 5 user accounts",
       "100 incident reports",
       "CSV & PDF export",
@@ -58,10 +56,9 @@ export const PLAN_WORDING: Record<string, PlanWording> = {
     ],
   },
   Enterprise: {
-    description: "For large security operations with unlimited site coverage.",
-    limit: "Unlimited sites",
+    description: "For large security operations with unlimited seats.",
+    limit: "Unlimited users",
     features: [
-      "Unlimited guarding sites",
       "Unlimited users",
       "Unlimited reports",
       "CSV & PDF export",
@@ -80,17 +77,16 @@ function parseFeatures(features: string): string[] {
 
 /** Returns the plan wording matching the landing page, falling back to plan limits. */
 export function planWording(
-  plan: Pick<SubscriptionPlan, "name" | "siteLimit" | "userLimit" | "features">,
+  plan: Pick<SubscriptionPlan, "name" | "userLimit" | "features">,
 ): PlanWording {
   const known = PLAN_WORDING[plan.name];
   if (known) return known;
   return {
     description:
-      plan.siteLimit === 0
-        ? "For organisations with unlimited site coverage."
-        : `For teams managing up to ${plan.siteLimit} sites.`,
-    limit:
-      plan.siteLimit === 0 ? "Unlimited sites" : `Up to ${plan.siteLimit} sites`,
+      plan.userLimit === 0
+        ? "For organisations with unlimited seats."
+        : `For teams of up to ${plan.userLimit} users.`,
+    limit: plan.userLimit === 0 ? "Unlimited users" : `Up to ${plan.userLimit} users`,
     features: parseFeatures(plan.features),
   };
 }

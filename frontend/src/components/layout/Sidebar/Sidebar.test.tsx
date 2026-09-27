@@ -6,11 +6,7 @@ jest.mock("next/navigation", () => ({
   usePathname: jest.fn(),
 }));
 
-jest.mock("@/hooks/useDashboardMode", () => ({
-  useDashboardMode: () => ({ mode: "incidents", setMode: jest.fn() }),
-}));
-
-const defaultPermissions = ["incidents.view", "incidents.create", "reports.view", "users.manage", "auditLogs.view", "billing.manage", "guarding.view"];
+const defaultPermissions = ["incidents.view", "incidents.create", "reports.view", "users.manage", "auditLogs.view", "billing.manage"];
 
 let mockUser = { id: 1, role: "manager", name: "Manager", email: "manager@test.com", status: "active", companyId: 1, permissions: defaultPermissions };
 
@@ -106,7 +102,7 @@ describe("Sidebar", () => {
     expect(reportLink).toHaveClass("text-primary");
   });
 
-  it("shows app title and mode subtitle", () => {
+  it("shows app title and system subtitle", () => {
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar />);
     expect(screen.getByText("SecReports")).toBeInTheDocument();

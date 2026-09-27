@@ -8,7 +8,7 @@ import crypto from "crypto";
 
 const SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || "12", 10);
 
-/** SHA-256 hex digest — used to hash tokens/API keys so raw values never hit the DB. */
+/** SHA-256 hex digest — used to hash tokens so raw values never hit the DB. */
 export function hashToken(raw: string): string {
   return crypto.createHash("sha256").update(raw).digest("hex");
 }

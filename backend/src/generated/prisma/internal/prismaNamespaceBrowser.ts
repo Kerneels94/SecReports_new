@@ -61,16 +61,7 @@ export const ModelName = {
   PaymentHistory: 'PaymentHistory',
   Invoice: 'Invoice',
   Ledger: 'Ledger',
-  ApiKey: 'ApiKey',
-  AuditLog: 'AuditLog',
-  GuardingSite: 'GuardingSite',
-  Guard: 'Guard',
-  PatrolReport: 'PatrolReport',
-  PatrolCheckpoint: 'PatrolCheckpoint',
-  PatrolSchedule: 'PatrolSchedule',
-  PatrolScheduleTimeSlot: 'PatrolScheduleTimeSlot',
-  PatrolScheduleCheckpoint: 'PatrolScheduleCheckpoint',
-  EntryLog: 'EntryLog'
+  AuditLog: 'AuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -194,7 +185,6 @@ export const SubscriptionPlanScalarFieldEnum = {
   id: 'id',
   name: 'name',
   price: 'price',
-  siteLimit: 'siteLimit',
   userLimit: 'userLimit',
   trialPeriodDays: 'trialPeriodDays',
   features: 'features',
@@ -272,19 +262,6 @@ export const LedgerScalarFieldEnum = {
 export type LedgerScalarFieldEnum = (typeof LedgerScalarFieldEnum)[keyof typeof LedgerScalarFieldEnum]
 
 
-export const ApiKeyScalarFieldEnum = {
-  id: 'id',
-  companyId: 'companyId',
-  name: 'name',
-  key: 'key',
-  lastUsedAt: 'lastUsedAt',
-  active: 'active',
-  createdAt: 'createdAt'
-} as const
-
-export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
-
-
 export const AuditLogScalarFieldEnum = {
   id: 'id',
   entityType: 'entityType',
@@ -299,121 +276,6 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
-
-
-export const GuardingSiteScalarFieldEnum = {
-  id: 'id',
-  companyId: 'companyId',
-  name: 'name',
-  address: 'address',
-  status: 'status',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type GuardingSiteScalarFieldEnum = (typeof GuardingSiteScalarFieldEnum)[keyof typeof GuardingSiteScalarFieldEnum]
-
-
-export const GuardScalarFieldEnum = {
-  id: 'id',
-  companyId: 'companyId',
-  siteId: 'siteId',
-  name: 'name',
-  surname: 'surname',
-  cellphone: 'cellphone',
-  employeeId: 'employeeId',
-  status: 'status',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type GuardScalarFieldEnum = (typeof GuardScalarFieldEnum)[keyof typeof GuardScalarFieldEnum]
-
-
-export const PatrolReportScalarFieldEnum = {
-  id: 'id',
-  siteId: 'siteId',
-  guardId: 'guardId',
-  startedAt: 'startedAt',
-  completedAt: 'completedAt',
-  status: 'status',
-  notes: 'notes',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type PatrolReportScalarFieldEnum = (typeof PatrolReportScalarFieldEnum)[keyof typeof PatrolReportScalarFieldEnum]
-
-
-export const PatrolCheckpointScalarFieldEnum = {
-  id: 'id',
-  patrolReportId: 'patrolReportId',
-  name: 'name',
-  scannedAt: 'scannedAt',
-  status: 'status',
-  createdAt: 'createdAt'
-} as const
-
-export type PatrolCheckpointScalarFieldEnum = (typeof PatrolCheckpointScalarFieldEnum)[keyof typeof PatrolCheckpointScalarFieldEnum]
-
-
-export const PatrolScheduleScalarFieldEnum = {
-  id: 'id',
-  companyId: 'companyId',
-  siteId: 'siteId',
-  day: 'day',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type PatrolScheduleScalarFieldEnum = (typeof PatrolScheduleScalarFieldEnum)[keyof typeof PatrolScheduleScalarFieldEnum]
-
-
-export const PatrolScheduleTimeSlotScalarFieldEnum = {
-  id: 'id',
-  patrolScheduleId: 'patrolScheduleId',
-  startTime: 'startTime',
-  endTime: 'endTime',
-  order: 'order',
-  createdAt: 'createdAt'
-} as const
-
-export type PatrolScheduleTimeSlotScalarFieldEnum = (typeof PatrolScheduleTimeSlotScalarFieldEnum)[keyof typeof PatrolScheduleTimeSlotScalarFieldEnum]
-
-
-export const PatrolScheduleCheckpointScalarFieldEnum = {
-  id: 'id',
-  patrolTimeSlotId: 'patrolTimeSlotId',
-  name: 'name',
-  order: 'order',
-  createdAt: 'createdAt'
-} as const
-
-export type PatrolScheduleCheckpointScalarFieldEnum = (typeof PatrolScheduleCheckpointScalarFieldEnum)[keyof typeof PatrolScheduleCheckpointScalarFieldEnum]
-
-
-export const EntryLogScalarFieldEnum = {
-  id: 'id',
-  siteId: 'siteId',
-  guardId: 'guardId',
-  driverName: 'driverName',
-  driverContact: 'driverContact',
-  vehicleReg: 'vehicleReg',
-  vehicleDesc: 'vehicleDesc',
-  entryTime: 'entryTime',
-  exitTime: 'exitTime',
-  purpose: 'purpose',
-  flagged: 'flagged',
-  flagReason: 'flagReason',
-  flaggedById: 'flaggedById',
-  flaggedAt: 'flaggedAt',
-  resolvedAt: 'resolvedAt',
-  resolveReason: 'resolveReason',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type EntryLogScalarFieldEnum = (typeof EntryLogScalarFieldEnum)[keyof typeof EntryLogScalarFieldEnum]
 
 
 export const SortOrder = {

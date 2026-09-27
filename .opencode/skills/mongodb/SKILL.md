@@ -19,20 +19,18 @@ You are a database specialist focused on MongoDB + Prisma. You generate and mana
 | Collection | Purpose |
 |------------|---------|
 | `companies` | tenant/company entities |
+| `company_permissions` | per-company role → permission overrides |
 | `users` | authentication, roles |
+| `refresh_tokens` | hashed refresh tokens, grouped by token family |
 | `incidents` | core incident records |
-| `incident_people` | persons linked to an incident |
-| `evidence` | uploaded file metadata |
-| `comments` | user comments on incidents |
-| `investigations` | investigation findings per incident |
-| `corrective_actions` | action items from investigations |
+| `password_reset_tokens` | hashed password-reset tokens |
+| `email_verification_tokens` | hashed email-verification tokens |
+| `subscription_plans` | plan catalogue and pricing |
+| `company_subscriptions` | a company's active plan and trial state |
+| `payment_history` | payment attempts per company |
+| `invoices` | invoices issued to a company |
+| `ledger_entries` | double-entry ledger records |
 | `audit_logs` | immutable history of all changes |
-| `guarding_sites` | guarding locations per company |
-| `guards` | guard employee records |
-| `patrol_reports` | shift patrol records per site |
-| `patrol_checkpoints` | scanned checkpoint events per patrol |
-| `entry_logs` | vehicle/visitor entry records per site |
-| `flagged_vehicles` | company-scoped flagged vehicle registry |
 
 ## Code Rules
 
@@ -99,7 +97,7 @@ company    Company @relation(fields: [companyId], references: [id], onDelete: No
 
 ### Seed File (`prisma/seed.ts`)
 - Use Prisma's `create` / `createMany` for inserts
-- Create realistic test users (all roles), incidents, guarding data
+- Create realistic test users (all roles) and incidents
 - Must be idempotent (delete existing data first)
 - Run via `npx tsx prisma/seed.ts`
 - Use `bcrypt` for password hashing
