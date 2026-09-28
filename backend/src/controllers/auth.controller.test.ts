@@ -84,6 +84,23 @@ describe("AuthController", () => {
 
       await expect(AuthController.login(mockRequest, mockReply)).rejects.toThrow(ValidationError);
     });
+
+    // The SPA and API sit on different sites, so a SameSite=Strict cookie is
+    // never sent cross-origin and every refresh/logout 400s in production.
+    it("sets the refresh cookie as SameSite=None; Secure so it survives cross-site", async () => {
+      const body = { email: "test@test.com", password: "secret" };
+      mockRequest.body = body;
+      (loginSchema.safeParse as jest.Mock).mockReturnValue({ success: true, data: body });
+      (AuthService.login as jest.Mock).mockResolvedValue({ accessToken: "at", refreshToken: "rt", user: { id: "1" } });
+
+      await AuthController.login(mockRequest, mockReply);
+
+      expect(mockReply.setCookie).toHaveBeenCalledWith(
+        "refreshToken",
+        "rt",
+        expect.objectContaining({ sameSite: "none", secure: true, httpOnly: true, path: "/" }),
+      );
+    });
   });
 
   describe("refresh", () => {
