@@ -65,6 +65,7 @@ jest.mock("./email.service", () => ({
   sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
   sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
   sendPasswordChangedEmail: jest.fn().mockResolvedValue(undefined),
+  sendNewCompanyAlert: jest.fn().mockResolvedValue(undefined),
 }));
 
 const mockUser = {
@@ -282,6 +283,13 @@ describe("AuthService", () => {
       expect(result).toEqual({
         message: expect.stringContaining("Account created"),
       });
+
+      const { sendNewCompanyAlert } = require("./email.service");
+      expect(sendNewCompanyAlert).toHaveBeenCalledWith(
+        "Test Company",
+        "Test User",
+        "test@example.com",
+      );
     });
 
     it("returns a generic success message for a duplicate email", async () => {
