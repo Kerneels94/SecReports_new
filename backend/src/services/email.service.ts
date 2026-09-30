@@ -8,9 +8,8 @@ import nodemailer from "nodemailer";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const useResend = RESEND_API_KEY && RESEND_API_KEY !== "<your-resend-api-key>";
-const FROM_EMAIL = process.env.FROM_EMAIL || "secreports@secreports.co.za";
-const OWNER_NOTIFY_EMAIL =
-  process.env.OWNER_NOTIFY_EMAIL || "corriebotha64@gmail.com";
+const FROM_EMAIL = process.env.FROM_EMAIL;
+const OWNER_NOTIFY_EMAIL = process.env.OWNER_NOTIFY_EMAIL;
 
 let resend: Resend | null = null;
 let transporter: nodemailer.Transporter | null = null;
