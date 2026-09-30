@@ -26,6 +26,7 @@ import {
   sendVerificationEmail,
   sendPasswordResetEmail,
   sendPasswordChangedEmail,
+  sendNewCompanyAlert,
 } from "./email.service";
 import { SubscriptionService } from "./subscription.service";
 import { PermissionService } from "./permission.service";
@@ -450,6 +451,14 @@ export const AuthService = {
       verifyLink,
     ).catch((err) =>
       console.error("[AuthService] Verification email failed:", err),
+    );
+
+    sendNewCompanyAlert(
+      result.company.name,
+      result.user.name,
+      result.user.email,
+    ).catch((err) =>
+      console.error("[AuthService] New company alert failed:", err),
     );
 
     return {

@@ -8,7 +8,9 @@ import nodemailer from "nodemailer";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const useResend = RESEND_API_KEY && RESEND_API_KEY !== "<your-resend-api-key>";
-const FROM_EMAIL = process.env.FROM_EMAIL || "onboarding@resend.dev";
+const FROM_EMAIL = process.env.FROM_EMAIL || "secreports@secreports.co.za";
+const OWNER_NOTIFY_EMAIL =
+  process.env.OWNER_NOTIFY_EMAIL || "corriebotha64@gmail.com";
 
 let resend: Resend | null = null;
 let transporter: nodemailer.Transporter | null = null;
@@ -230,6 +232,30 @@ export async function sendPasswordChangedEmail(to: string, name: string) {
     from: FROM_EMAIL,
     to: [to],
     subject: "Your SecReports Password Has Been Changed",
+    html,
+  });
+
+  if (error) {
+    console.error({ error });
+    return { error };
+  }
+
+  return { data };
+}
+
+/** Notifies the application owner when a new company self-registers. */
+export async function sendNewCompanyAlert(
+  companyName: string,
+  adminName: string,
+  adminEmail: string,
+) {
+  const { default: template } = await import("../templates/new-company");
+  const html = template(companyName, adminName, adminEmail);
+
+  const { data, error } = await sendEmail({
+    from: FROM_EMAIL,
+    to: [OWNER_NOTIFY_EMAIL],
+    subject: `New Company Registered: ${companyName}`,
     html,
   });
 
