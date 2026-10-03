@@ -71,8 +71,10 @@ export default function ContactSection() {
 
         <div className="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-8 lg:grid-cols-2">
           <div className="flex flex-col gap-6 justify-center">
-            <p>Contact: 0626496474</p>
-            <p>Address: 48B Rhyolite, Zwartkop</p>
+            <p className="text-sm text-text-secondary">Contact: 0626496474</p>
+            <p className="text-sm text-text-secondary">
+              Address: 48B Rhyolite, Zwartkop
+            </p>
             <p className="text-sm text-text-secondary">
               Prefer email?{" "}
               <a
