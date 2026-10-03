@@ -95,6 +95,16 @@ export const authService = {
   getUserById: (id: number) => api.get<UserListItem>(`/auth/users/${id}`),
 };
 
+/** Public landing-page contact form endpoint. */
+export const contactService = {
+  send: (data: {
+    name: string;
+    email: string;
+    company?: string;
+    message: string;
+  }) => api.post<{ message: string }>("/contact", data),
+};
+
 /** Incident list, detail, and creation endpoints. */
 export const incidentService = {
   list: (params?: Record<string, string>) =>

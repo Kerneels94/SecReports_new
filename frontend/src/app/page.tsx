@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Header } from "@/components/header/Header";
 import { Footer } from "@/components/footer/Footer";
 import CookieConsent from "@/components/layout/CookieConsent";
+import ContactSection from "@/components/contact/ContactSection";
 
 const tiers = [
   {
@@ -54,7 +55,7 @@ const tiers = [
       "24/7 priority support",
     ],
     cta: "Contact Sales",
-    href: "/contact",
+    href: "#contact",
     highlighted: false,
   },
 ];
@@ -248,6 +249,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      <ContactSection />
       <Footer />
     </div>
   );
