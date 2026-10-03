@@ -3,3 +3,9 @@
 .env
 frontend/.env
 backend/.env
+.next
+.turbo
+out
+frontend/.next
+frontend/out
+frontend/.turbo
