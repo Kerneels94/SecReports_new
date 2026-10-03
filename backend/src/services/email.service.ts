@@ -32,15 +32,19 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASS || "",
   },
   // Crucial for serverless functions to prevent premature socket drops
-  connectionTimeout: 60000,
-  socketTimeout: 60000,
-  greetingTimeout: 60000,
-  dnsTimeout: 60000,
+  connectionTimeout: 120000,
+  socketTimeout: 120000,
+  greetingTimeout: 120000,
+  dnsTimeout: 120000,
+  pool: false,
+  maxConnections: 1,
   // Some hosts require STARTTLS; avoid cert issues only if needed
   tls: {
     rejectUnauthorized: false,
+    minVersion: "TLSv1.2",
   },
-});
+  family: 4,
+} as any);
 
 async function sendEmail({
   from,
