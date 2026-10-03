@@ -39,7 +39,7 @@
 
 ### A02 — Security Misconfiguration
 
-11. **ALWAYS read `FROM_EMAIL` from env** (fallback `"onboarding@resend.dev"`) — never hardcode email sender.
+11. **ALWAYS read the sender from env** — `FROM_EMAIL` for app mail, `ADMIN_FROM_EMAIL` for superadmin mail — never hardcode an email sender.
 14. **ALWAYS keep a single source of truth for auth logic** — single `authenticate` decorator in `app.ts` includes `companyId`. No `plugins/auth.ts`.
 28. **ALWAYS use `"strict"` sameSite for cookies regardless of environment** — never use `"lax"` in development (inconsistent, weakens CSRF protection).
 29. **NEVER commit live secrets, API keys, or production credentials to the repository** — use `.env` files (gitignored) or a secrets manager. Rotate any leaked credentials immediately.

@@ -42,7 +42,6 @@ jobs:
           JWT_SECRET: test-jwt-secret-that-is-long-enough-32ch
           JWT_REFRESH_SECRET: test-jwt-refresh-secret-that-is-32ch
           ENVIRONMENT: staging
-          RESEND_API_KEY: re_placeholder
 
   test-frontend:
     name: Frontend Tests
