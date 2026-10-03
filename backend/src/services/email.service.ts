@@ -14,18 +14,26 @@ export const ADMIN_FROM_EMAIL =
 const OWNER_NOTIFY_EMAIL = process.env.OWNER_NOTIFY_EMAIL;
 
 const port = parseInt(process.env.SMTP_PORT || "587", 10);
+const secureEnv = process.env.SMTP_SECURE;
+const secure =
+  secureEnv === "true"
+    ? true
+    : secureEnv === "false"
+      ? false
+      : port === 465;
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port,
   // If port is 465, secure must be true. If port is 587, secure must be false (STARTTLS).
-  secure: port === 465,
+  // Explicit SMTP_SECURE overrides port-based default when set.
+  secure,
   auth: {
     user: process.env.SMTP_USER || "",
     pass: process.env.SMTP_PASS || "",
   },
   // Crucial for serverless functions to prevent premature socket drops
-  connectionTimeout: 10000,
-  socketTimeout: 10000,
+  connectionTimeout: 30000,
+  socketTimeout: 30000,
 });
 
 async function sendEmail({
