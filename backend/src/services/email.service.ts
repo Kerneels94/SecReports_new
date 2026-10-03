@@ -13,7 +13,7 @@ export const ADMIN_FROM_EMAIL =
   process.env.ADMIN_FROM_EMAIL || "accounts@secreports.co.za";
 const OWNER_NOTIFY_EMAIL = process.env.OWNER_NOTIFY_EMAIL;
 
-const port = parseInt(process.env.SMTP_PORT || "587", 10);
+const port = parseInt(process.env.SMTP_PORT || "465", 10);
 const secureEnv = process.env.SMTP_SECURE;
 const secure =
   secureEnv === "true"
