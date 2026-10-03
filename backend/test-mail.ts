@@ -42,6 +42,29 @@ async function main() {
   await run("accounts@ -> new company", () =>
     sendNewCompanyAlert("Mail Test Co", "Test Admin", "test@example.com"),
   );
+
+  // Exercises the real contact route: validator -> contact template -> SMTP.
+  await run("contact form -> support inbox", async () => {
+    const { submitContact } = await import("./src/routes/contact.routes");
+    const req = {
+      body: {
+        name: "Mail Test",
+        email: "test@example.com",
+        company: "Test Co",
+        message: "Contact form delivery test.",
+      },
+      log: { error: (...a: unknown[]) => console.error(...a) },
+    } as never;
+    let payload: { success?: boolean } = {};
+    const reply = {
+      code: () => reply,
+      send: (r: { success?: boolean }) => {
+        payload = r;
+      },
+    } as never;
+    await submitContact(req, reply);
+    return payload.success ? {} : { error: new Error(JSON.stringify(payload)) };
+  });
 }
 
 main().then(() => process.exit(0));
