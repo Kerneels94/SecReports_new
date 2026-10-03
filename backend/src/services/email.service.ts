@@ -13,14 +13,19 @@ export const ADMIN_FROM_EMAIL =
   process.env.ADMIN_FROM_EMAIL || "accounts@secreports.co.za";
 const OWNER_NOTIFY_EMAIL = process.env.OWNER_NOTIFY_EMAIL;
 
+const port = parseInt(process.env.SMTP_PORT || "587", 10);
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || "587", 10),
-  secure: process.env.SMTP_SECURE === "true",
+  port,
+  // If port is 465, secure must be true. If port is 587, secure must be false (STARTTLS).
+  secure: port === 465,
   auth: {
     user: process.env.SMTP_USER || "",
     pass: process.env.SMTP_PASS || "",
   },
+  // Crucial for serverless functions to prevent premature socket drops
+  connectionTimeout: 10000,
+  socketTimeout: 10000,
 });
 
 async function sendEmail({
@@ -279,4 +284,37 @@ export async function sendNewCompanyAlert(
   }
 
   return { data };
+}
+
+export default async function handler(req: any, res: any) {
+  try {
+    const result = await sendMail({
+      to: process.env.SMTP_USER, // Send it to your own inbox
+      subject: "register",
+      data: { name: "Test User" },
+    });
+
+    if (result.error) {
+      return new Response(
+        JSON.stringify({ success: false, error: result.error }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    return new Response(JSON.stringify({ success: true, data: result.data }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err) {
+    return new Response(
+      JSON.stringify({ success: false, error: err.message }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+  }
 }
