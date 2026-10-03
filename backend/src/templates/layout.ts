@@ -22,10 +22,16 @@ export const BRAND = {
 interface EmailLayoutOptions {
   title?: string;
   body: string;
+  /** Overrides the footer note for emails that are not automated (e.g. contact form). */
+  footerNote?: string;
 }
 
 /** Full HTML document shell with the shared brand header and footer. */
-export function emailLayout({ title = "SecReports", body }: EmailLayoutOptions): string {
+export function emailLayout({
+  title = "SecReports",
+  body,
+  footerNote = "This is an automated notification. Please do not reply directly.",
+}: EmailLayoutOptions): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -56,7 +62,7 @@ export function emailLayout({ title = "SecReports", body }: EmailLayoutOptions):
         <p style="margin: 0; font-size: 13px; color: ${BRAND.muted};">
           &copy; ${new Date().getFullYear()} SecReports. All rights reserved.
           <br />
-          <span style="color: ${BRAND.faint};">This is an automated notification. Please do not reply directly.</span>
+          <span style="color: ${BRAND.faint};">${escapeHtml(footerNote)}</span>
         </p>
       </td>
     </tr>

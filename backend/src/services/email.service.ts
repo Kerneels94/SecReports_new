@@ -29,12 +29,14 @@ async function sendEmail({
   subject,
   html,
   attachments,
+  replyTo,
 }: {
   from: string;
   to: string[];
   subject: string;
   html: string;
   attachments?: { filename: string; content: string | Buffer }[];
+  replyTo?: string;
 }) {
   try {
     const info = await transporter.sendMail({
@@ -43,6 +45,7 @@ async function sendEmail({
       subject,
       html,
       attachments,
+      replyTo,
     });
     return { data: info };
   } catch (error) {
@@ -65,9 +68,12 @@ interface SendMailParams {
     | "cancellation"
     | "suspention"
     | "report"
-    | "trial_ending";
+    | "trial_ending"
+    | "contact";
   data?: Record<string, unknown>;
   from?: string;
+  /** Set for enquiries so a direct reply reaches the original sender. */
+  replyTo?: string;
   attachments?: Attachment[];
 }
 
@@ -78,6 +84,7 @@ const subjectLabels: Record<string, string> = {
   suspention: "Account Suspended",
   report: "New Incident Report",
   trial_ending: "Your SecReports Free Trial Is Ending Soon",
+  contact: "New SecReports Website Enquiry",
 };
 
 /** Builds HTML from lazy-loaded templates by subject type and sends via SMTP. */
@@ -86,6 +93,7 @@ export async function sendMail({
   subject,
   data = {},
   from,
+  replyTo,
   attachments,
 }: SendMailParams) {
   try {
@@ -141,6 +149,16 @@ export async function sendMail({
         });
         break;
       }
+      case "contact": {
+        const { default: template } = await import("../templates/contact");
+        html = template({
+          name: (data.name as string) || "there",
+          email: (data.email as string) || "",
+          company: data.company as string | undefined,
+          message: (data.message as string) || "",
+        });
+        break;
+      }
       default:
         html = "<p>No content available.</p>";
     }
@@ -150,6 +168,7 @@ export async function sendMail({
       to: [to],
       subject: subjectLabels[subject] || subject,
       html,
+      replyTo,
       attachments,
     });
 

@@ -14,6 +14,7 @@ import { posthog } from "./lib/posthog";
 import { SubscriptionService } from "./services/subscription.service";
 import { runWithAuditContext } from "./lib/auditContext";
 import authRoutes from "./routes/auth.routes";
+import contactRoutes from "./routes/contact.routes";
 import incidentRoutes from "./routes/incident.routes";
 import reportRoutes from "./routes/report.routes";
 import exportRoutes from "./routes/export.routes";
@@ -104,6 +105,7 @@ export async function buildApp() {
   });
 
   await fastify.register(authRoutes);
+  await fastify.register(contactRoutes);
   await fastify.register(incidentRoutes);
   await fastify.register(reportRoutes);
 
