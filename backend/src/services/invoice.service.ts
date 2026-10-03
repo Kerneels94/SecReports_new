@@ -1,6 +1,6 @@
 import { prisma } from "../lib/db";
 import { NotFoundError, ConflictError, AppError } from "../lib/errors";
-import { sendMail } from "./email.service";
+import { ADMIN_FROM_EMAIL, sendMail } from "./email.service";
 
 export const InvoiceService = {
   async generateInvoiceNumber(): Promise<string> {
@@ -89,6 +89,7 @@ export const InvoiceService = {
 
     await sendMail({
       to: invoice.company.email,
+      from: ADMIN_FROM_EMAIL,
       subject: "invoice",
       data: {
         companyName: invoice.company.name,

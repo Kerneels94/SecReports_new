@@ -22,7 +22,7 @@ A web-based incident reporting platform for workplace safety, security, IT incid
 - **ORM:** Prisma 7 (with MongoDB adapter)
 - **Auth:** JWT (access + refresh tokens), bcrypt (12 rounds)
 - **Validation:** Zod
-- **Email:** Resend (transactional emails with dynamic HTML templates)
+- **Email:** Nodemailer over self-hosted SMTP (transactional emails with dynamic HTML templates)
 - **Testing:** Jest + ts-jest
 
 ### Database

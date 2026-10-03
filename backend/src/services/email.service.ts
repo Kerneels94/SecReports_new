@@ -1,32 +1,27 @@
 /**
- * Email sending service using Resend or SMTP (nodemailer) as a fallback.
+ * Email sending service using SMTP (nodemailer) via the host's own mail server.
  * Handles transactional emails for registration, invoices, cancellations,
  * suspensions, and reports using dynamic template imports.
+ *
+ * FROM_EMAIL     - app-facing sender (support@secreports.co.za)
+ * ADMIN_FROM_EMAIL - superadmin/accounts sender (accounts@secreports.co.za)
  */
-import { Resend } from "resend";
 import nodemailer from "nodemailer";
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const useResend = RESEND_API_KEY && RESEND_API_KEY !== "<your-resend-api-key>";
-const FROM_EMAIL = process.env.FROM_EMAIL;
+const FROM_EMAIL = process.env.FROM_EMAIL || "support@secreports.co.za";
+export const ADMIN_FROM_EMAIL =
+  process.env.ADMIN_FROM_EMAIL || "accounts@secreports.co.za";
 const OWNER_NOTIFY_EMAIL = process.env.OWNER_NOTIFY_EMAIL;
 
-let resend: Resend | null = null;
-let transporter: nodemailer.Transporter | null = null;
-
-if (useResend) {
-  resend = new Resend(RESEND_API_KEY);
-} else {
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.ethereal.email",
-    port: parseInt(process.env.SMTP_PORT || "587", 10),
-    secure: process.env.SMTP_SECURE === "true",
-    auth: {
-      user: process.env.SMTP_USER || "",
-      pass: process.env.SMTP_PASS || "",
-    },
-  });
-}
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT || "587", 10),
+  secure: process.env.SMTP_SECURE === "true",
+  auth: {
+    user: process.env.SMTP_USER || "",
+    pass: process.env.SMTP_PASS || "",
+  },
+});
 
 async function sendEmail({
   from,
@@ -41,12 +36,8 @@ async function sendEmail({
   html: string;
   attachments?: { filename: string; content: string | Buffer }[];
 }) {
-  if (resend) {
-    return resend.emails.send({ from, to, subject, html, attachments });
-  }
-
   try {
-    const info = await transporter!.sendMail({
+    const info = await transporter.sendMail({
       from,
       to,
       subject,
@@ -89,7 +80,7 @@ const subjectLabels: Record<string, string> = {
   trial_ending: "Your SecReports Free Trial Is Ending Soon",
 };
 
-/** Builds HTML from lazy-loaded templates by subject type and sends via Resend. */
+/** Builds HTML from lazy-loaded templates by subject type and sends via SMTP. */
 export async function sendMail({
   to,
   subject,
@@ -251,8 +242,13 @@ export async function sendNewCompanyAlert(
   const { default: template } = await import("../templates/new-company");
   const html = template(companyName, adminName, adminEmail);
 
+  if (!OWNER_NOTIFY_EMAIL) {
+    console.error("OWNER_NOTIFY_EMAIL not set, skipping new company alert");
+    return {};
+  }
+
   const { data, error } = await sendEmail({
-    from: FROM_EMAIL,
+    from: ADMIN_FROM_EMAIL,
     to: [OWNER_NOTIFY_EMAIL],
     subject: `New Company Registered: ${companyName}`,
     html,

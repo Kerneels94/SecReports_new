@@ -16,7 +16,10 @@ jest.mock("../lib/db", () => ({
   },
 }));
 
-jest.mock("./email.service", () => ({ sendMail: jest.fn() }));
+jest.mock("./email.service", () => ({
+  sendMail: jest.fn(),
+  ADMIN_FROM_EMAIL: "accounts@secreports.co.za",
+}));
 
 const company = { id: "company1", name: "Acme", email: "acme@example.com" };
 
@@ -72,6 +75,9 @@ describe("InvoiceService.sendInvoice", () => {
     await InvoiceService.sendInvoice("inv1");
 
     expect(sendMail).toHaveBeenCalled();
+    expect(sendMail).toHaveBeenCalledWith(
+      expect.objectContaining({ from: "accounts@secreports.co.za" }),
+    );
     expect(prisma.invoice.update).toHaveBeenCalledWith(
       expect.objectContaining({ data: { status: "sent" } }),
     );
