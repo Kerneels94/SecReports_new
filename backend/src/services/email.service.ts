@@ -286,10 +286,12 @@ export async function sendNewCompanyAlert(
   return { data };
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler() {
   try {
+    const to = process.env.SMTP_USER;
+    if (!to) throw new Error("SMTP_USER not set");
     const result = await sendMail({
-      to: process.env.SMTP_USER, // Send it to your own inbox
+      to,
       subject: "register",
       data: { name: "Test User" },
     });
@@ -309,8 +311,9 @@ export default async function handler(req: any, res: any) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
+    const error = err instanceof Error ? err.message : err;
     return new Response(
-      JSON.stringify({ success: false, error: err.message }),
+      JSON.stringify({ success: false, error }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
