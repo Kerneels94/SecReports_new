@@ -34,6 +34,12 @@ const transporter = nodemailer.createTransport({
   // Crucial for serverless functions to prevent premature socket drops
   connectionTimeout: 30000,
   socketTimeout: 30000,
+  greetingTimeout: 30000,
+  dnsTimeout: 30000,
+  // Some hosts require STARTTLS; avoid cert issues only if needed
+  tls: {
+    rejectUnauthorized: false,
+  },
 });
 
 async function sendEmail({
