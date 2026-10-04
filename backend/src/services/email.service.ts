@@ -1,46 +1,24 @@
 /**
- * Email sending service using SMTP (nodemailer) via the host's own mail server.
+ * Email sending service using the Resend HTTP API.
  * Handles transactional emails for registration, invoices, cancellations,
  * suspensions, and reports using dynamic template imports.
  *
- * FROM_EMAIL     - app-facing sender (support@secreports.co.za)
+ * Deliberately no SMTP transport: Resend is reached over HTTPS (443), so the
+ * process opens no outbound port 25 socket and cannot be turned into an open
+ * relay by injected content. Send over API, not SMTP.
+ *
+ * RESEND_API_KEY  - Resend API key (required to send)
+ * FROM_EMAIL      - app-facing sender (support@secreports.co.za)
  * ADMIN_FROM_EMAIL - superadmin/accounts sender (accounts@secreports.co.za)
  */
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 const FROM_EMAIL = process.env.FROM_EMAIL || "support@secreports.co.za";
 export const ADMIN_FROM_EMAIL =
   process.env.ADMIN_FROM_EMAIL || "accounts@secreports.co.za";
 const OWNER_NOTIFY_EMAIL = process.env.OWNER_NOTIFY_EMAIL;
 
-const port = parseInt(process.env.SMTP_PORT || "587", 10);
-const secureEnv = process.env.SMTP_SECURE;
-const secure =
-  secureEnv === "true"
-    ? true
-    : secureEnv === "false"
-      ? false
-      : port === 465;
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port,
-  // If port is 465, secure must be true. If port is 587, secure must be false (STARTTLS).
-  // Explicit SMTP_SECURE overrides port-based default when set.
-  secure,
-  auth: {
-    user: process.env.SMTP_USER || "",
-    pass: process.env.SMTP_PASS || "",
-  },
-  // Crucial for serverless functions to prevent premature socket drops
-  connectionTimeout: 30000,
-  socketTimeout: 30000,
-  greetingTimeout: 30000,
-  dnsTimeout: 30000,
-  // Some hosts require STARTTLS; avoid cert issues only if needed
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function sendEmail({
   from,
@@ -58,15 +36,25 @@ async function sendEmail({
   replyTo?: string;
 }) {
   try {
-    const info = await transporter.sendMail({
+    const { data, error } = await resend.emails.send({
       from,
       to,
       subject,
       html,
-      attachments,
       replyTo,
+      // Resend takes base64 content only; Buffer attachments must be encoded.
+      attachments: attachments?.map(({ filename, content }) => ({
+        filename,
+        content: Buffer.isBuffer(content) ? content.toString("base64") : content,
+      })),
     });
-    return { data: info };
+
+    // Resend resolves with { error } rather than throwing on API errors.
+    if (error) {
+      console.error(error);
+      return { error };
+    }
+    return { data };
   } catch (error) {
     console.error(error);
     return { error };
@@ -106,7 +94,7 @@ const subjectLabels: Record<string, string> = {
   contact: "New SecReports Website Enquiry",
 };
 
-/** Builds HTML from lazy-loaded templates by subject type and sends via SMTP. */
+/** Builds HTML from lazy-loaded templates by subject type and sends via Resend. */
 export async function sendMail({
   to,
   subject,
@@ -302,8 +290,8 @@ export async function sendNewCompanyAlert(
 
 export default async function handler() {
   try {
-    const to = process.env.SMTP_USER;
-    if (!to) throw new Error("SMTP_USER not set");
+    const to = process.env.OWNER_NOTIFY_EMAIL;
+    if (!to) throw new Error("OWNER_NOTIFY_EMAIL not set");
     const result = await sendMail({
       to,
       subject: "register",

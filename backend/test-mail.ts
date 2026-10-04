@@ -7,14 +7,14 @@ async function main() {
   const { sendVerificationEmail, sendPasswordResetEmail, sendMail, sendNewCompanyAlert, ADMIN_FROM_EMAIL } =
     await import("./src/services/email.service");
 
-  console.log("smtp host :", process.env.SMTP_HOST, process.env.SMTP_PORT);
+  console.log("resend key :", process.env.RESEND_API_KEY ? "set" : "MISSING");
   console.log("admin from:", ADMIN_FROM_EMAIL);
   console.log("sending to:", to, "\n");
 
-  const run = async (label: string, fn: () => Promise<{ error?: unknown }>) => {
-    const r = await fn().catch((e) => ({ error: e }));
+  const run = async (label: string, fn: () => Promise<unknown>) => {
+    const r = (await fn().catch((e) => ({ error: e }))) as { error?: unknown } | undefined;
     console.log(
-      r.error
+      r?.error
         ? `FAIL  ${label}: ${(r.error as Error).message ?? r.error}`
         : `OK    ${label}`,
     );
@@ -43,7 +43,7 @@ async function main() {
     sendNewCompanyAlert("Mail Test Co", "Test Admin", "test@example.com"),
   );
 
-  // Exercises the real contact route: validator -> contact template -> SMTP.
+  // Exercises the real contact route: validator -> contact template -> Resend.
   await run("contact form -> support inbox", async () => {
     const { submitContact } = await import("./src/routes/contact.routes");
     const req = {
