@@ -87,14 +87,14 @@ export function Header() {
           <div className="border-t border-border-light bg-surface md:hidden animate-slide-up">
             <div className="flex flex-col gap-1 px-6 py-4">
               <a
-                href="#features"
+                href="/#features"
                 onClick={() => setMobileOpen(false)}
                 className="rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors"
               >
                 Features
               </a>
               <a
-                href="#pricing"
+                href="/#Pricing"
                 onClick={() => setMobileOpen(false)}
                 className="rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors"
               >
