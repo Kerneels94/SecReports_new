@@ -21,13 +21,13 @@ export function Header() {
           </div>
           <nav className="hidden items-center gap-6 md:flex">
             <a
-              href="#features"
+              href="/#features"
               className="text-sm text-text-secondary hover:text-text transition-colors"
             >
               Features
             </a>
             <a
-              href="#pricing"
+              href="/#pricing"
               className="text-sm text-text-secondary hover:text-text transition-colors"
             >
               Pricing
@@ -94,7 +94,7 @@ export function Header() {
                 Features
               </a>
               <a
-                href="/#Pricing"
+                href="/#pricing"
                 onClick={() => setMobileOpen(false)}
                 className="rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors"
               >
