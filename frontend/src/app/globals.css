@@ -12,8 +12,8 @@
   --color-surface-elevated: #3f3f46;
   --color-border: #3f3f46;
   --color-border-light: rgba(134, 239, 172, 0.1);
-  --color-text: #d4d4d8;
-  --color-text-secondary: #a1a1aa;
+  --color-text: #e8e8ec;
+  --color-text-secondary: #bcbcc4;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
