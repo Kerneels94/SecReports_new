@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const CONSENT_KEY = "cookieConsent";
 
-/** Fixed bottom cookie-consent banner. Renders once until the visitor accepts. */
+/** Fixed bottom cookie-consent banner. Renders until visitor accepts or rejects. */
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
@@ -17,6 +17,21 @@ export default function CookieConsent() {
 
   const accept = () => {
     localStorage.setItem(CONSENT_KEY, "accepted");
+    setVisible(false);
+  };
+
+  const reject = () => {
+    localStorage.setItem(CONSENT_KEY, "rejected");
+    // Clear any non-essential storage on reject
+    try {
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith("ph_") || key.startsWith("_posthog")) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch (e) {
+      // ignore
+    }
     setVisible(false);
   };
 
@@ -35,12 +50,20 @@ export default function CookieConsent() {
           </Link>{" "}
           for details.
         </p>
-        <button
-          onClick={accept}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-gray-900 transition-colors hover:bg-primary-hover"
-        >
-          Accept
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={reject}
+            className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-text-secondary transition-colors hover:bg-surface-secondary"
+          >
+            Reject
+          </button>
+          <button
+            onClick={accept}
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-gray-900 transition-colors hover:bg-primary-hover"
+          >
+            Accept
+          </button>
+        </div>
       </div>
     </div>
   );

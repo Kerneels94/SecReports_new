@@ -18,7 +18,7 @@ export const ADMIN_FROM_EMAIL =
   process.env.ADMIN_FROM_EMAIL || "accounts@secreports.co.za";
 const OWNER_NOTIFY_EMAIL = process.env.OWNER_NOTIFY_EMAIL;
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || "Key not found");
 
 async function sendEmail({
   from,
@@ -45,7 +45,9 @@ async function sendEmail({
       // Resend takes base64 content only; Buffer attachments must be encoded.
       attachments: attachments?.map(({ filename, content }) => ({
         filename,
-        content: Buffer.isBuffer(content) ? content.toString("base64") : content,
+        content: Buffer.isBuffer(content)
+          ? content.toString("base64")
+          : content,
       })),
     });
 
@@ -314,12 +316,9 @@ export default async function handler() {
     });
   } catch (err) {
     const error = err instanceof Error ? err.message : err;
-    return new Response(
-      JSON.stringify({ success: false, error }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    return new Response(JSON.stringify({ success: false, error }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

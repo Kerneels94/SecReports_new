@@ -16,7 +16,8 @@ const tiers = [
     price: "Free",
     period: "",
     limit: "14-day trial",
-    description: "Full access to all features — with a 3-user limit during your trial.",
+    description:
+      "Full access to all features — with a 3-user limit during your trial.",
     features: [
       "Up to 3 users",
       "All features included",
