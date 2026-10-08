@@ -107,6 +107,17 @@ describe("IncidentsPage", () => {
     });
   });
 
+  it("uses 18px table text inside a horizontally scrollable wrapper", async () => {
+    mockList.mockResolvedValue({ data: mockPaginated });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
+    render(<IncidentsPage />);
+
+    const table = await screen.findByRole("table");
+    expect(table.className).toContain("text-lg");
+    expect(table.parentElement?.className).toContain("overflow-x-auto");
+    expect(table.querySelector("th")?.className).toContain("whitespace-nowrap");
+  });
+
   it("shows total count", async () => {
     mockList.mockResolvedValue({ data: mockPaginated });
     mockSummary.mockResolvedValue({ data: mockSummaryData });

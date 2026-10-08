@@ -9,16 +9,10 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-border-light bg-surface/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-2.5">
-            <a
-              href="/"
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-primary to-primary-hover text-gray-900 text-sm font-bold shadow-lg shadow-primary"
-            >
-              S
-            </a>
-            <span className="text-lg font-bold text-text">SecReports</span>
-          </div>
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+          <a href="/" className="flex items-center">
+            <img src="/logo.svg" alt="SecReports" className="h-16 w-auto" />
+          </a>
           <nav className="hidden items-center gap-6 md:flex">
             <a
               href="/#features"

@@ -107,6 +107,12 @@ function ResetPasswordForm() {
   return (
     <Card variant="elevated" className="w-full max-w-sm animate-slide-up">
       <CardHeader className="text-center">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
+          <svg className="h-6 w-6 text-gray-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+          </svg>
+        </div>
         <CardTitle>Set New Password</CardTitle>
         <p className="mt-1 text-sm text-text-secondary">
           Enter your new password below
