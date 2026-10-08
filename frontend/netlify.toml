@@ -1,5 +1,5 @@
 [build]
   command = "npm install && npm run build"
-  publish = ".next"
+  publish = "out"
 [build.environment]
   SECRETS_SCAN_ENABLED = "false"
