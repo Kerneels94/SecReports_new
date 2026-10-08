@@ -83,6 +83,17 @@ describe("DashboardPage", () => {
     expect(screen.getByText("Total incidents")).toBeInTheDocument();
   });
 
+  it("renders stat labels at 18px and lets the trend card header wrap", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    render(<DashboardPage />);
+
+    const label = await screen.findByText("Total incidents");
+    expect(label.className).toContain("text-lg");
+
+    const trendHeader = screen.getByText("Incident Trends").parentElement;
+    expect(trendHeader?.className).toContain("flex-wrap");
+  });
+
   it("renders stat card values", async () => {
     mockSummary.mockResolvedValue({ data: mockData });
     render(<DashboardPage />);
