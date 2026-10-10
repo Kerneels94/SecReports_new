@@ -1,14 +1,13 @@
 /**
  * Shared layout and styling helpers for every SecReports email template.
- * Keeps a single source of truth for the brand look (dark navy + slate palette)
- * so all transactional emails and report notifications stay consistent.
+ * Mirrors the yearly crime statistics PDF (export.controller.ts): zinc-800
+ * background, zinc-900 surfaces, green footer strip, blue accent.
  *
  * @module layout
  */
 import { escapeHtml } from "./escape";
 
 export const BRAND = {
-  navy: "#0b1e33",
   // Dark theme: zinc-800 page/body background, light grey text throughout.
   background: "#27272a", // zinc-800
   surface: "#18181b", // zinc-900
@@ -18,6 +17,8 @@ export const BRAND = {
   heading: "#f4f4f5", // zinc-100
   body: "#d4d4d8", // zinc-300
   label: "#a1a1aa", // zinc-400
+  accent: "#3b82f6", // blue accent, same as the yearly crime PDF counter cards
+  success: "#4ade80", // app-green footer strip
 } as const;
 
 interface EmailLayoutOptions {
@@ -46,7 +47,7 @@ export function emailLayout({
   <table align="center" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 600px; margin: 40px auto; background-color: ${BRAND.surface}; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.02);">
 
     <tr>
-      <td style="background: ${BRAND.navy}; padding: 32px 24px; text-align: center; border-bottom: 4px solid ${BRAND.border};">
+      <td style="background: ${BRAND.background}; padding: 32px 24px; text-align: center; border-bottom: 4px solid ${BRAND.border};">
         <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">SecReports</h1>
         <p style="margin: 8px 0 0 0; color: ${BRAND.muted}; font-size: 14px; font-weight: 400; letter-spacing: 0.3px; text-transform: uppercase;">Incident Management Platform</p>
       </td>
@@ -59,7 +60,7 @@ export function emailLayout({
     </tr>
 
     <tr>
-      <td style="background: ${BRAND.background}; padding: 20px 24px; text-align: center; border-top: 1px solid ${BRAND.border};">
+      <td style="background: ${BRAND.background}; padding: 20px 24px; text-align: center; border-top: 4px solid ${BRAND.success};">
         <p style="margin: 0; font-size: 13px; color: ${BRAND.muted};">
           &copy; ${new Date().getFullYear()} SecReports. All rights reserved.
           <br />
@@ -104,7 +105,7 @@ export function ctaButton(href: string, label: string): string {
   return `
   <div style="text-align: center; margin: 32px 0;">
     <a href="${href}"
-       style="background: ${BRAND.navy}; color: #ffffff; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: 600; display: inline-block;">
+       style="background: ${BRAND.accent}; color: #ffffff; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: 600; display: inline-block;">
       ${label}
     </a>
   </div>`;

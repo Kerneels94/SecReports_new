@@ -72,7 +72,7 @@ export default function invoiceTemplate(data: InvoiceData): string {
         ${detailRow("Invoice", `#${invoiceNumber}`)}
         ${detailRow("Item", "Standard Package payment")}
         <tr>
-          <td colspan="2" style="padding: 18px 24px; background: ${BRAND.navy};">
+          <td colspan="2" style="padding: 18px 24px; background: ${BRAND.surface}; border-top: 4px solid ${BRAND.success};">
             <div style="font-size: 12px; color: ${BRAND.muted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Amount Due</div>
             <div style="font-size: 22px; font-weight: 700; color: #ffffff;">${formattedAmount}</div>
           </td>

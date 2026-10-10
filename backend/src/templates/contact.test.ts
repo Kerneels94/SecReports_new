@@ -21,7 +21,7 @@ describe("contactTemplate", () => {
     const html = contactTemplate(base);
     expect(html).toContain("SecReports");
     expect(html).toContain("Incident Management Platform");
-    expect(html).toContain("#0b1e33");
+    expect(html).toContain("#27272a"); // zinc-800 header, same as the yearly crime PDF
   });
 
   it("preserves line breaks in the message", () => {

@@ -410,3 +410,70 @@ describe("ExportController.responseTimePdf", () => {
     expect(reply.send).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
   });
 });
+
+describe("ExportController.pdf", () => {
+  const reply = {
+    header: jest.fn(),
+    code: jest.fn().mockReturnThis(),
+    send: jest.fn(),
+  };
+  const request = {
+    user: { companyId: "company1", userId: "user1" },
+    query: {},
+  } as any;
+
+  const incident = {
+    referenceNumber: "INC-1",
+    title: "Break-in",
+    description: "Forced entry at the rear gate",
+    type: "positive",
+    status: "open",
+    incidentDate: new Date("2026-05-01"),
+    location: null,
+    operatorName: null,
+    dispatcher: null,
+    dispatchTime: null,
+    arrivalTime: null,
+    callSign: null,
+    propertyAddress: null,
+    clientName: null,
+    clientCode: null,
+    businessOrComplex: null,
+    sapsReference: null,
+    reporter: null,
+    createdAt: new Date("2026-05-01"),
+    updatedAt: new Date("2026-05-01"),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("matches the yearly crime PDF chrome: zinc page, green footer strip", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([incident]);
+
+    await ExportController.pdf(request, reply as any);
+
+    const content = pdfStreams(reply.send.mock.calls[0][0]).join("\n");
+    expect(content).toContain(fillOp("#27272a")); // shared zinc header/page
+    expect(content).toContain(fillOp("#4ade80")); // shared green footer strip
+    expect(content).not.toContain(fillOp("#0b1e33")); // no navy
+  });
+
+  it("centres the incident title to mirror the yearly report", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([incident]);
+
+    await ExportController.pdf(request, reply as any);
+
+    const buf = reply.send.mock.calls[0][0];
+    const text = pdfText(buf).replace(/\s+/g, "");
+    expect(text).toContain("Break-in");
+    expect(text).toContain("Ref:INC-1");
+
+    // Font size 18 is unique to the centred title; a left-aligned title would start at x=50.
+    const content = pdfStreams(buf).join("\n");
+    const titleX = [...content.matchAll(/1 0 0 1 ([\d.]+) [\d.]+ Tm\s*\/F\d+ 18 Tf/g)].map((m) => parseFloat(m[1]));
+    expect(titleX.length).toBeGreaterThanOrEqual(1);
+    for (const x of titleX) expect(x).toBeGreaterThan(60);
+  });
+});

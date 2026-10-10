@@ -43,8 +43,8 @@ const COLORS = {
   faint: BRAND.faint,
   white: "#ffffff",
   page: BRAND.background,
-  accent: "#3b82f6",
-  success: "#4ade80",
+  accent: BRAND.accent,
+  success: BRAND.success,
 };
 
 /** Corner radius for counter cards and table panels. */
@@ -117,9 +117,9 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
 
       let y = drawHeader(doc) + 10;
 
-      doc.fontSize(16).font("Helvetica-Bold").fillColor(COLORS.dark).text(inc.title, 50, y);
-      y += 22;
-      doc.fontSize(8).font("Helvetica").fillColor(COLORS.gray).text(`Ref: ${inc.referenceNumber}`, 50, y);
+      doc.fontSize(18).font("Helvetica-Bold").fillColor(COLORS.dark).text(inc.title, 50, y, { width: 495, align: "center" });
+      y += 24;
+      doc.fontSize(9).font("Helvetica").fillColor(COLORS.muted).text(`Ref: ${inc.referenceNumber}`, 50, y, { width: 495, align: "center" });
       y += 20;
 
       y = drawSection(doc, "Description", y);

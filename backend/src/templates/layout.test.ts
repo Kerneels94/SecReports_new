@@ -1,4 +1,4 @@
-import { BRAND, alertParagraph, detailCard, emailLayout, greeting, paragraph, signOff } from "./layout";
+import { BRAND, alertParagraph, ctaButton, detailCard, emailLayout, greeting, paragraph, signOff } from "./layout";
 
 describe("dark brand palette", () => {
   it("uses a zinc-800 background with light grey surfaces", () => {
@@ -7,6 +7,14 @@ describe("dark brand palette", () => {
     const html = emailLayout({ body: paragraph("Hello") });
     expect(html).toContain("background-color: #27272a");
     expect(html).toContain("background-color: #18181b");
+  });
+
+  it("mirrors the yearly crime PDF chrome: zinc header, green footer strip, blue accent", () => {
+    const html = emailLayout({ body: paragraph("Hello") });
+    expect(html).toContain(`background: #27272a`); // header banner, same as the PDF
+    expect(html).toContain(`border-top: 4px solid #4ade80`); // green footer strip
+    expect(html).not.toContain("#0b1e33"); // navy removed everywhere
+    expect(ctaButton("https://example.com", "Go")).toContain("background: #3b82f6"); // accent
   });
 
   it("keeps all body text light enough to read on dark surfaces", () => {
