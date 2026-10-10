@@ -182,6 +182,21 @@ describe("ExportController.yearlyPdf", () => {
     }
   });
 
+  it("renders the incidents-by-year section as a two-column table", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      { incidentDate: new Date("2024-05-01"), type: "attempted", propertyAddress: "123 Main St" },
+      { incidentDate: new Date("2025-05-01"), type: "attempted", propertyAddress: "123 Main St" },
+      { incidentDate: new Date("2026-05-01"), type: "attempted", propertyAddress: "123 Main St" },
+      { incidentDate: new Date("2026-06-01"), type: "attempted", propertyAddress: "123 Main St" },
+    ]);
+
+    await ExportController.yearlyPdf(request, reply as any);
+
+    const text = pdfText(reply.send.mock.calls[0][0]).replace(/\s+/g, "");
+    expect(text).toContain("Year"); // two-column table header
+    for (const y of ["2024", "2025", "2026"]) expect(text).toContain(y);
+  });
+
   it("keeps every drawn block inside the 50-545 content grid", async () => {
     (prisma.incident.findMany as jest.Mock).mockResolvedValue([
       {
@@ -202,14 +217,48 @@ describe("ExportController.yearlyPdf", () => {
 
     const content = pdfStreams(reply.send.mock.calls[0][0]).join("\n");
     const rects = [...content.matchAll(/([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+) re/g)];
-    expect(rects.length).toBeGreaterThan(10);
+    expect(rects.length).toBeGreaterThan(6);
     for (const m of rects) {
       const x = parseFloat(m[1]);
       const w = parseFloat(m[3]);
       if (w > 590) continue; // full-page background
       expect(x).toBeGreaterThanOrEqual(49.9);
-      expect(x + w).toBeLessThanOrEqual(545.1);
+      expect(x + w).toBeLessThanOrEqual(548.1); // 545 grid + 3px card shadow
     }
+  });
+
+  it("rounds the counter cards and table panels via clipped rounded outlines", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      {
+        incidentDate: new Date("2026-05-01"),
+        type: "attempted",
+        propertyAddress: "123 Main St",
+        dispatchTime: new Date("2026-05-01T10:00:00Z"),
+        arrivalTime: new Date("2026-05-01T10:12:00Z"),
+      },
+    ]);
+
+    await ExportController.yearlyPdf(request, reply as any);
+
+    const content = pdfStreams(reply.send.mock.calls[0][0]).join("\n");
+    // one clip per counter card (strip) plus one per table panel = 5
+    expect((content.match(/W n/g) || []).length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("shadows each counter card with its strip colour at 50% opacity", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      {
+        incidentDate: new Date("2026-05-01"),
+        type: "attempted",
+        propertyAddress: "123 Main St",
+      },
+    ]);
+
+    await ExportController.yearlyPdf(request, reply as any);
+
+    const pdf = reply.send.mock.calls[0][0];
+    expect(pdf.toString("latin1")).toContain("/ca 0.5"); // 50% fill-opacity gstate
+    expect(pdfStreams(pdf).join("\n")).toMatch(/\/Gs\d+ gs/); // gstate applied in content
   });
 
   it("returns 404 when no incidents exist", async () => {

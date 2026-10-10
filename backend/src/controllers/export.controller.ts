@@ -47,6 +47,9 @@ const COLORS = {
   success: "#4ade80",
 };
 
+/** Corner radius for counter cards and table panels. */
+const RADIUS = 8;
+
 /** Zinc-800 page background on the first page and every page added later. */
 function newDoc(): typeof PDFDocument.prototype {
   const doc = new PDFDocument({ margin: 50, size: "A4" });
@@ -89,7 +92,6 @@ function drawFooter(doc: typeof PDFDocument.prototype) {
 }
 
 function drawSection(doc: typeof PDFDocument.prototype, title: string, y: number): number {
-  doc.rect(50, y, 495, 22).fillAndStroke(COLORS.light, COLORS.border);
   doc.fillColor(COLORS.dark).fontSize(11).font("Helvetica-Bold").text(title, 50, y + 5, { width: 495, align: "center" });
   return y + 30;
 }
@@ -163,8 +165,6 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
 interface YearBreakdown {
   year: number;
   count: number;
-  attempted: number;
-  positive: number;
 }
 
 interface TypeBreakdown {
@@ -232,18 +232,29 @@ function drawTable(
   const totalWidth = cols.reduce((s, c) => s + c.width, 0);
   const headerH = 20;
   const rowH = 18;
-  let y = startY;
+  const tableH = headerH + rows.length * rowH;
 
+  // Panel-style table: fills are clipped to a rounded table outline so the whole
+  // table (not just the header) carries the corner radius.
+  doc.save();
+  doc.roundedRect(x, startY, totalWidth, tableH, RADIUS).clip();
   doc.rect(x, startY, totalWidth, headerH).fill(COLORS.border);
+  let y = startY + headerH;
+  rows.forEach((r, i) => {
+    if (i % 2 === 1) doc.rect(x, y, totalWidth, rowH).fill(COLORS.light);
+    y += rowH;
+  });
+  doc.restore();
+  doc.roundedRect(x, startY, totalWidth, tableH, RADIUS).stroke(COLORS.border);
+
   let cx = x;
   cols.forEach((c) => {
     doc.fillColor(COLORS.white).fontSize(9).font("Helvetica-Bold").text(c.label, cx + 6, startY + 5, { width: c.width - 12 });
     cx += c.width;
   });
-  y += headerH;
+  y = startY + headerH;
 
   rows.forEach((r, i) => {
-    if (i % 2 === 1) doc.rect(x, y, totalWidth, rowH).fill(COLORS.light);
     cx = x;
     r.forEach((cell, j) => {
       doc.fillColor(COLORS.dark).fontSize(9).font("Helvetica").text(cell, cx + 6, y + 4, { width: cols[j].width - 12 });
@@ -288,8 +299,17 @@ function generateYearlyPdf(data: {
     let boxX = 50;
     const boxY = y0 + 48;
     summary.forEach((s) => {
-      doc.roundedRect(boxX, boxY, boxWidth, 52, 6).fillAndStroke(COLORS.light, COLORS.border);
+      // Shadow: this card's strip colour at 50%, offset behind it. The page-colour
+      // fill on the card itself masks the overlap so only the outer band shows.
+      doc.fillColor(s.color, 0.5);
+      doc.roundedRect(boxX + 3, boxY + 3, boxWidth, 52, RADIUS).fill();
+      // Strip clipped to the card so its corners follow the card radius, not stick out square.
+      doc.save();
+      doc.roundedRect(boxX, boxY, boxWidth, 52, RADIUS).clip();
       doc.rect(boxX, boxY, boxWidth, 4).fill(s.color);
+      doc.restore();
+      doc.fillColor(COLORS.page, 1);
+      doc.roundedRect(boxX, boxY, boxWidth, 52, RADIUS).fillAndStroke(COLORS.page, COLORS.border);
       doc.fillColor(COLORS.gray).fontSize(8).text(s.label.toUpperCase(), boxX + 10, boxY + 12, { width: boxWidth - 20 });
       doc.fillColor(COLORS.dark).fontSize(20).font("Helvetica-Bold").text(String(s.value), boxX + 10, boxY + 24);
       boxX += boxWidth + boxGap;
@@ -297,14 +317,19 @@ function generateYearlyPdf(data: {
 
     doc.font("Helvetica");
 
-    let y = drawSection(doc, "Incidents by Year", boxY + 75);
-    if (data.byYear.length === 0) {
-      doc.fontSize(9).fillColor(COLORS.gray).text("No incident data available.", 60, y);
-    } else {
-      const yearData = data.byYear.map((b) => ({ label: String(b.year), value: b.count }));
-      drawBarChart(doc, yearData, 50, y + 10, 495, 120);
-      y += 150;
-    }
+    const yearRows = data.byYear.map((b) => [String(b.year), String(b.count)]);
+    let y = pageSpace(doc, boxY + 95, 40 + yearRows.length * 18);
+    y = drawSection(doc, "Incidents by Year", y);
+    y = drawTable(
+      doc,
+      [
+        { label: "Year", width: 375 },
+        { label: "Incidents", width: 120 },
+      ],
+      yearRows,
+      50,
+      y,
+    );
 
     const typeRows = data.byType.map((t) => [t.type, String(t.count)]);
     y = pageSpace(doc, y + 20, 40 + typeRows.length * 18);
@@ -380,8 +405,17 @@ function generateResponseTimePdf(data: {
     let boxX = 50;
     const boxY = y0 + 48;
     summary.forEach((s) => {
-      doc.roundedRect(boxX, boxY, boxWidth, 52, 6).fillAndStroke(COLORS.light, COLORS.border);
+      // Shadow: this card's strip colour at 50%, offset behind it. The page-colour
+      // fill on the card itself masks the overlap so only the outer band shows.
+      doc.fillColor(s.color, 0.5);
+      doc.roundedRect(boxX + 3, boxY + 3, boxWidth, 52, RADIUS).fill();
+      // Strip clipped to the card so its corners follow the card radius, not stick out square.
+      doc.save();
+      doc.roundedRect(boxX, boxY, boxWidth, 52, RADIUS).clip();
       doc.rect(boxX, boxY, boxWidth, 4).fill(s.color);
+      doc.restore();
+      doc.fillColor(COLORS.page, 1);
+      doc.roundedRect(boxX, boxY, boxWidth, 52, RADIUS).fillAndStroke(COLORS.page, COLORS.border);
       doc.fillColor(COLORS.gray).fontSize(8).text(s.label.toUpperCase(), boxX + 10, boxY + 12, { width: boxWidth - 20 });
       doc.fillColor(COLORS.dark).fontSize(20).font("Helvetica-Bold").text(s.value, boxX + 10, boxY + 24);
       boxX += boxWidth + boxGap;
@@ -526,7 +560,7 @@ export const ExportController = {
       return;
     }
 
-    const byYearMap: Record<string, YearBreakdown> = {};
+    const byYearMap: Record<number, number> = {};
     const byTypeMap: Record<string, number> = {};
     const byAreaMap: Record<string, { count: number; responded: number; totalMs: number; maxMs: number }> = {};
     let attempted = 0;
@@ -539,10 +573,7 @@ export const ExportController = {
       if (isAttempted) attempted++;
       if (isPositive) positive++;
 
-      byYearMap[year] = byYearMap[year] || { year, count: 0, attempted: 0, positive: 0 };
-      byYearMap[year].count++;
-      if (isAttempted) byYearMap[year].attempted++;
-      if (isPositive) byYearMap[year].positive++;
+      byYearMap[year] = (byYearMap[year] || 0) + 1;
 
       byTypeMap[inc.type] = (byTypeMap[inc.type] || 0) + 1;
 
@@ -560,7 +591,9 @@ export const ExportController = {
       byAreaMap[area] = entry;
     }
 
-    const byYear = Object.values(byYearMap).sort((a, b) => b.year - a.year);
+    const byYear = Object.entries(byYearMap)
+      .sort((a, b) => Number(a[0]) - Number(b[0]))
+      .map(([year, count]) => ({ year: Number(year), count }));
     const byType = Object.entries(byTypeMap)
       .sort((a, b) => b[1] - a[1])
       .map(([type, count]) => ({ type, count }));
