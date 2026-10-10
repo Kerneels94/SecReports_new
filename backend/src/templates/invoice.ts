@@ -57,14 +57,14 @@ export default function invoiceTemplate(data: InvoiceData): string {
         <tr>
           <td colspan="2" style="padding: 20px 24px; border-bottom: 1px solid ${BRAND.border};">
             <div style="font-size: 12px; color: ${BRAND.muted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">From Company</div>
-            <div style="font-size: 18px; font-weight: 700; color: ${BRAND.navy}; margin-bottom: 4px;">SecReports</div>
+            <div style="font-size: 18px; font-weight: 700; color: ${BRAND.heading}; margin-bottom: 4px;">SecReports</div>
             <div style="font-size: 14px; color: ${BRAND.body};">support@secreports.co.za</div>
           </td>
         </tr>
         <tr>
           <td colspan="2" style="padding: 20px 24px; border-bottom: 1px solid ${BRAND.border};">
             <div style="font-size: 12px; color: ${BRAND.muted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">To Company</div>
-            <div style="font-size: 18px; font-weight: 700; color: ${BRAND.navy}; margin-bottom: 4px;">${companyName}</div>
+            <div style="font-size: 18px; font-weight: 700; color: ${BRAND.heading}; margin-bottom: 4px;">${companyName}</div>
           </td>
         </tr>
         ${detailRow("Invoice Date", invoiceDate)}
@@ -72,7 +72,7 @@ export default function invoiceTemplate(data: InvoiceData): string {
         ${detailRow("Invoice", `#${invoiceNumber}`)}
         ${detailRow("Item", "Standard Package payment")}
         <tr>
-          <td colspan="2" style="padding: 18px 24px; background: ${BRAND.navy};">
+          <td colspan="2" style="padding: 18px 24px; background: ${BRAND.surface}; border-top: 4px solid ${BRAND.success};">
             <div style="font-size: 12px; color: ${BRAND.muted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Amount Due</div>
             <div style="font-size: 22px; font-weight: 700; color: #ffffff;">${formattedAmount}</div>
           </td>

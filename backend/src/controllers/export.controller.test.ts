@@ -5,20 +5,26 @@ import { SubscriptionService } from "../services/subscription.service";
 import { AuditLogService } from "../services/auditLog.service";
 import zlib from "zlib";
 
-/** Inflates a PDF's Flate content streams and pulls out the drawn text runs. */
-function pdfText(buf: Buffer): string {
+/** Inflates a PDF's Flate content streams and returns the raw operators. */
+function pdfStreams(buf: Buffer): string[] {
   const raw = buf.toString("latin1");
   const out: string[] = [];
   const re = /stream\r?\n([\s\S]*?)endstream/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(raw))) {
-    let stream: string;
     try {
-      stream = zlib.inflateSync(Buffer.from(m[1], "latin1")).toString("latin1");
+      out.push(zlib.inflateSync(Buffer.from(m[1], "latin1")).toString("latin1"));
     } catch {
       continue; // not a Flate stream (e.g. embedded font data)
     }
-    out.push(
+  }
+  return out;
+}
+
+/** Pulls out the drawn text runs from a PDF's content streams. */
+function pdfText(buf: Buffer): string {
+  return pdfStreams(buf)
+    .map((stream) =>
       stream
         // A TJ array is [<hex text> <kern> <hex text> ...]. Only the bare numbers are kern
         // offsets, so skip the hex operands (whose digits are text) when stripping them.
@@ -30,9 +36,14 @@ function pdfText(buf: Buffer): string {
         .replace(/<([0-9a-fA-F\s]+)>/g, (_, hex: string) =>
           Buffer.from(hex.replace(/\s/g, ""), "hex").toString("latin1"),
         ),
-    );
-  }
-  return out.join("\n");
+    )
+    .join("\n");
+}
+
+/** pdfkit emits fills as `<r/255> <g/255> <b/255> scn` with full float precision. */
+function fillOp(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  return `${((n >> 16) & 255) / 255} ${((n >> 8) & 255) / 255} ${(n & 255) / 255} scn`;
 }
 
 jest.mock("../lib/db", () => ({
@@ -129,6 +140,125 @@ describe("ExportController.yearlyPdf", () => {
     ]) {
       expect(text).toContain(expected.replace(/\s+/g, ""));
     }
+  });
+
+  it("paints the page and banner zinc-800, the footer strip green, and no navy anywhere", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      {
+        incidentDate: new Date("2026-05-01"),
+        type: "attempted",
+        propertyAddress: "123 Main St",
+        dispatchTime: new Date("2026-05-01T10:00:00Z"),
+        arrivalTime: new Date("2026-05-01T10:12:00Z"),
+      },
+    ]);
+
+    await ExportController.yearlyPdf(request, reply as any);
+
+    const content = pdfStreams(reply.send.mock.calls[0][0]).join("\n");
+    expect(content).toContain(fillOp("#27272a")); // zinc-800 page + banner
+    expect(content).toContain(fillOp("#4ade80")); // app-green footer strip
+    expect(content).not.toContain(fillOp("#0b1e33")); // dark blue removed
+  });
+
+  it("centers section headings in their strips", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      {
+        incidentDate: new Date("2026-05-01"),
+        type: "attempted",
+        propertyAddress: "123 Main St",
+      },
+    ]);
+
+    await ExportController.yearlyPdf(request, reply as any);
+
+    const content = pdfStreams(reply.send.mock.calls[0][0]).join("\n");
+    // Font size 11 is unique to drawSection, so every match is a section heading.
+    // A left-aligned heading would start at x=60; centered ones start well past it.
+    const starts = [...content.matchAll(/1 0 0 1 ([\d.]+) [\d.]+ Tm\s*\/F\d+ 11 Tf/g)].map((m) => parseFloat(m[1]));
+    expect(starts.length).toBeGreaterThanOrEqual(3); // by year, type, area
+    for (const x of starts) {
+      expect(x).toBeGreaterThan(60);
+    }
+  });
+
+  it("renders the incidents-by-year section as a two-column table", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      { incidentDate: new Date("2024-05-01"), type: "attempted", propertyAddress: "123 Main St" },
+      { incidentDate: new Date("2025-05-01"), type: "attempted", propertyAddress: "123 Main St" },
+      { incidentDate: new Date("2026-05-01"), type: "attempted", propertyAddress: "123 Main St" },
+      { incidentDate: new Date("2026-06-01"), type: "attempted", propertyAddress: "123 Main St" },
+    ]);
+
+    await ExportController.yearlyPdf(request, reply as any);
+
+    const text = pdfText(reply.send.mock.calls[0][0]).replace(/\s+/g, "");
+    expect(text).toContain("Year"); // two-column table header
+    for (const y of ["2024", "2025", "2026"]) expect(text).toContain(y);
+  });
+
+  it("keeps every drawn block inside the 50-545 content grid", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      {
+        incidentDate: new Date("2026-05-01"),
+        type: "attempted",
+        propertyAddress: "123 Main St",
+        dispatchTime: new Date("2026-05-01T10:00:00Z"),
+        arrivalTime: new Date("2026-05-01T10:12:00Z"),
+      },
+      {
+        incidentDate: new Date("2025-12-20"),
+        type: "attempted",
+        propertyAddress: "456 Oak Ave",
+      },
+    ]);
+
+    await ExportController.yearlyPdf(request, reply as any);
+
+    const content = pdfStreams(reply.send.mock.calls[0][0]).join("\n");
+    const rects = [...content.matchAll(/([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+) re/g)];
+    expect(rects.length).toBeGreaterThan(6);
+    for (const m of rects) {
+      const x = parseFloat(m[1]);
+      const w = parseFloat(m[3]);
+      if (w > 590) continue; // full-page background
+      expect(x).toBeGreaterThanOrEqual(49.9);
+      expect(x + w).toBeLessThanOrEqual(548.1); // 545 grid + 3px card shadow
+    }
+  });
+
+  it("rounds the counter cards and table panels via clipped rounded outlines", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      {
+        incidentDate: new Date("2026-05-01"),
+        type: "attempted",
+        propertyAddress: "123 Main St",
+        dispatchTime: new Date("2026-05-01T10:00:00Z"),
+        arrivalTime: new Date("2026-05-01T10:12:00Z"),
+      },
+    ]);
+
+    await ExportController.yearlyPdf(request, reply as any);
+
+    const content = pdfStreams(reply.send.mock.calls[0][0]).join("\n");
+    // one clip per counter card (strip) plus one per table panel = 5
+    expect((content.match(/W n/g) || []).length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("shadows each counter card with its strip colour at 50% opacity", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      {
+        incidentDate: new Date("2026-05-01"),
+        type: "attempted",
+        propertyAddress: "123 Main St",
+      },
+    ]);
+
+    await ExportController.yearlyPdf(request, reply as any);
+
+    const pdf = reply.send.mock.calls[0][0];
+    expect(pdf.toString("latin1")).toContain("/ca 0.5"); // 50% fill-opacity gstate
+    expect(pdfStreams(pdf).join("\n")).toMatch(/\/Gs\d+ gs/); // gstate applied in content
   });
 
   it("returns 404 when no incidents exist", async () => {
@@ -278,5 +408,72 @@ describe("ExportController.responseTimePdf", () => {
     expect(reply.code).toHaveBeenCalledWith(404);
     expect(reply.header).not.toHaveBeenCalledWith("Content-Type", "application/pdf");
     expect(reply.send).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
+  });
+});
+
+describe("ExportController.pdf", () => {
+  const reply = {
+    header: jest.fn(),
+    code: jest.fn().mockReturnThis(),
+    send: jest.fn(),
+  };
+  const request = {
+    user: { companyId: "company1", userId: "user1" },
+    query: {},
+  } as any;
+
+  const incident = {
+    referenceNumber: "INC-1",
+    title: "Break-in",
+    description: "Forced entry at the rear gate",
+    type: "positive",
+    status: "open",
+    incidentDate: new Date("2026-05-01"),
+    location: null,
+    operatorName: null,
+    dispatcher: null,
+    dispatchTime: null,
+    arrivalTime: null,
+    callSign: null,
+    propertyAddress: null,
+    clientName: null,
+    clientCode: null,
+    businessOrComplex: null,
+    sapsReference: null,
+    reporter: null,
+    createdAt: new Date("2026-05-01"),
+    updatedAt: new Date("2026-05-01"),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("matches the yearly crime PDF chrome: zinc page, green footer strip", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([incident]);
+
+    await ExportController.pdf(request, reply as any);
+
+    const content = pdfStreams(reply.send.mock.calls[0][0]).join("\n");
+    expect(content).toContain(fillOp("#27272a")); // shared zinc header/page
+    expect(content).toContain(fillOp("#4ade80")); // shared green footer strip
+    expect(content).not.toContain(fillOp("#0b1e33")); // no navy
+  });
+
+  it("centres the incident title to mirror the yearly report", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([incident]);
+
+    await ExportController.pdf(request, reply as any);
+
+    const buf = reply.send.mock.calls[0][0];
+    const text = pdfText(buf).replace(/\s+/g, "");
+    expect(text).toContain("Break-in");
+    expect(text).toContain("Ref:INC-1");
+
+    // Font size 18 is unique to the centred title; a left-aligned title would start at x=50.
+    const content = pdfStreams(buf).join("\n");
+    const titleX = [...content.matchAll(/1 0 0 1 ([\d.]+) [\d.]+ Tm\s*\/F\d+ 18 Tf/g)].map((m) => parseFloat(m[1]));
+    expect(titleX.length).toBeGreaterThanOrEqual(1);
+    for (const x of titleX) expect(x).toBeGreaterThan(60);
   });
 });
