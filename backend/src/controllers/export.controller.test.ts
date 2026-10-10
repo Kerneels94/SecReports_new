@@ -161,6 +161,27 @@ describe("ExportController.yearlyPdf", () => {
     expect(content).not.toContain(fillOp("#0b1e33")); // dark blue removed
   });
 
+  it("centers section headings in their strips", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      {
+        incidentDate: new Date("2026-05-01"),
+        type: "attempted",
+        propertyAddress: "123 Main St",
+      },
+    ]);
+
+    await ExportController.yearlyPdf(request, reply as any);
+
+    const content = pdfStreams(reply.send.mock.calls[0][0]).join("\n");
+    // Font size 11 is unique to drawSection, so every match is a section heading.
+    // A left-aligned heading would start at x=60; centered ones start well past it.
+    const starts = [...content.matchAll(/1 0 0 1 ([\d.]+) [\d.]+ Tm\s*\/F\d+ 11 Tf/g)].map((m) => parseFloat(m[1]));
+    expect(starts.length).toBeGreaterThanOrEqual(3); // by year, type, area
+    for (const x of starts) {
+      expect(x).toBeGreaterThan(60);
+    }
+  });
+
   it("keeps every drawn block inside the 50-545 content grid", async () => {
     (prisma.incident.findMany as jest.Mock).mockResolvedValue([
       {

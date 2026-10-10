@@ -90,7 +90,7 @@ function drawFooter(doc: typeof PDFDocument.prototype) {
 
 function drawSection(doc: typeof PDFDocument.prototype, title: string, y: number): number {
   doc.rect(50, y, 495, 22).fillAndStroke(COLORS.light, COLORS.border);
-  doc.fillColor(COLORS.dark).fontSize(11).font("Helvetica-Bold").text(title, 60, y + 5);
+  doc.fillColor(COLORS.dark).fontSize(11).font("Helvetica-Bold").text(title, 50, y + 5, { width: 495, align: "center" });
   return y + 30;
 }
 
