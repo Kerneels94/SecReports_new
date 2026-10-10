@@ -9,14 +9,15 @@ import { escapeHtml } from "./escape";
 
 export const BRAND = {
   navy: "#0b1e33",
-  background: "#f8fafc",
-  surface: "#ffffff",
-  border: "#e2e8f0",
-  muted: "#94a3b8",
-  faint: "#cbd5e1",
-  heading: "#1e293b",
-  body: "#334155",
-  label: "#475569",
+  // Dark theme: zinc-800 page/body background, light grey text throughout.
+  background: "#27272a", // zinc-800
+  surface: "#18181b", // zinc-900
+  border: "#3f3f46", // zinc-700
+  muted: "#d4d4d8", // zinc-300
+  faint: "#a1a1aa", // zinc-400
+  heading: "#f4f4f5", // zinc-100
+  body: "#d4d4d8", // zinc-300
+  label: "#a1a1aa", // zinc-400
 } as const;
 
 interface EmailLayoutOptions {
@@ -75,7 +76,7 @@ export function emailLayout({
 /** Salutation at the top of the email body. */
 export function greeting(name: string): string {
   const safeName = escapeHtml(name);
-  return `<p style="margin: 0 0 8px 0; font-size: 16px; color: ${BRAND.heading}; font-weight: 500;">Dear <strong style="color: ${BRAND.navy};">${safeName}</strong>,</p>`;
+  return `<p style="margin: 0 0 8px 0; font-size: 16px; color: ${BRAND.heading}; font-weight: 500;">Dear <strong style="color: #ffffff;">${safeName}</strong>,</p>`;
 }
 
 /** Standard body paragraph. */
@@ -85,7 +86,7 @@ export function paragraph(text: string): string {
 
 /** Alert-style paragraph (used for security warnings). */
 export function alertParagraph(text: string): string {
-  return `<p style="margin: 0 0 16px 0; font-size: 16px; color: #b91c1c; font-weight: 600; line-height: 1.6;">${text}</p>`;
+  return `<p style="margin: 0 0 16px 0; font-size: 16px; color: #f87171; font-weight: 600; line-height: 1.6;">${text}</p>`;
 }
 
 /** Small muted footnote. */
@@ -122,7 +123,7 @@ export function detailCard(rows: DetailRow[]): string {
       (row) => `
       <tr>
         <td style="padding: 6px 0; font-size: 15px; color: ${BRAND.label};">
-          <span style="font-weight: 600; color: ${BRAND.navy};">${row.icon ? `${row.icon} ` : ""}${row.label}:</span> ${row.value}
+          <span style="font-weight: 600; color: ${BRAND.heading};">${row.icon ? `${row.icon} ` : ""}${row.label}:</span> ${row.value}
         </td>
       </tr>`,
     )

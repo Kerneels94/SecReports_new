@@ -38,12 +38,23 @@ const COLORS = {
   primary: BRAND.navy,
   gray: BRAND.label,
   dark: BRAND.heading,
-  light: BRAND.background,
+  light: BRAND.surface,
   border: BRAND.border,
   muted: BRAND.muted,
   faint: BRAND.faint,
-  white: BRAND.surface,
+  white: "#ffffff",
+  page: BRAND.background,
+  accent: "#3b82f6",
 };
+
+/** Zinc-800 page background on the first page and every page added later. */
+function newDoc(): typeof PDFDocument.prototype {
+  const doc = new PDFDocument({ margin: 50, size: "A4" });
+  const paint = () => doc.rect(0, 0, doc.page.width, doc.page.height).fill(COLORS.page);
+  paint();
+  doc.on("pageAdded", paint);
+  return doc;
+}
 
 const INCIDENT_CSV_HEADERS = [
   "Reference", "Title", "Type", "Report",
@@ -91,7 +102,7 @@ function drawField(doc: typeof PDFDocument.prototype, label: string, value: stri
 
 async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    const doc = newDoc();
     const chunks: Buffer[] = [];
 
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -188,7 +199,7 @@ function drawBarChart(
     const barHeight = Math.max((d.value / maxValue) * height, d.value > 0 ? 6 : 0);
     const barX = x + slot * i + (slot - barWidth) / 2;
 
-    doc.rect(barX, baseY - barHeight, barWidth, barHeight).fill(d.color || COLORS.primary);
+    doc.rect(barX, baseY - barHeight, barWidth, barHeight).fill(d.color || COLORS.accent);
     doc.fillColor(COLORS.gray).fontSize(8).text(String(d.value), barX, baseY - barHeight - 12, { width: barWidth, align: "center" });
     doc.fillColor(COLORS.dark).fontSize(8).text(d.label, barX, baseY + 4, { width: barWidth, align: "center" });
   });
@@ -253,7 +264,7 @@ function generateYearlyPdf(data: {
   byArea: AreaBreakdown[];
 }): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    const doc = newDoc();
     const chunks: Buffer[] = [];
 
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -268,7 +279,7 @@ function generateYearlyPdf(data: {
       .text(`Generated on ${new Date().toLocaleString("en-US")}`, 50, y0 + 24, { width: 495, align: "center" });
 
     const summary = [
-      { label: "Total Incidents", value: data.total, color: COLORS.primary },
+      { label: "Total Incidents", value: data.total, color: COLORS.accent },
       { label: "Attempted", value: data.attempted, color: "#f59e0b" },
       { label: "Positive", value: data.positive, color: "#10b981" },
     ];
@@ -345,7 +356,7 @@ function generateResponseTimePdf(data: {
   overall: { count: number; avgMs: number; medianMs: number; p90Ms: number };
 }): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    const doc = newDoc();
     const chunks: Buffer[] = [];
 
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -361,7 +372,7 @@ function generateResponseTimePdf(data: {
       .text(`Last ${data.months} months (${longDate(data.from)} - ${longDate(new Date())})`, 50, y0 + 24, { width: 495, align: "center" });
 
     const summary = [
-      { label: "Avg Response", value: formatDuration(data.overall.avgMs), color: COLORS.primary },
+      { label: "Avg Response", value: formatDuration(data.overall.avgMs), color: COLORS.accent },
       { label: "Median Response", value: formatDuration(data.overall.medianMs), color: "#10b981" },
       { label: "90th Percentile", value: formatDuration(data.overall.p90Ms), color: "#f59e0b" },
     ];
