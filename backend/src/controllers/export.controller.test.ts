@@ -5,20 +5,26 @@ import { SubscriptionService } from "../services/subscription.service";
 import { AuditLogService } from "../services/auditLog.service";
 import zlib from "zlib";
 
-/** Inflates a PDF's Flate content streams and pulls out the drawn text runs. */
-function pdfText(buf: Buffer): string {
+/** Inflates a PDF's Flate content streams and returns the raw operators. */
+function pdfStreams(buf: Buffer): string[] {
   const raw = buf.toString("latin1");
   const out: string[] = [];
   const re = /stream\r?\n([\s\S]*?)endstream/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(raw))) {
-    let stream: string;
     try {
-      stream = zlib.inflateSync(Buffer.from(m[1], "latin1")).toString("latin1");
+      out.push(zlib.inflateSync(Buffer.from(m[1], "latin1")).toString("latin1"));
     } catch {
       continue; // not a Flate stream (e.g. embedded font data)
     }
-    out.push(
+  }
+  return out;
+}
+
+/** Pulls out the drawn text runs from a PDF's content streams. */
+function pdfText(buf: Buffer): string {
+  return pdfStreams(buf)
+    .map((stream) =>
       stream
         // A TJ array is [<hex text> <kern> <hex text> ...]. Only the bare numbers are kern
         // offsets, so skip the hex operands (whose digits are text) when stripping them.
@@ -30,9 +36,14 @@ function pdfText(buf: Buffer): string {
         .replace(/<([0-9a-fA-F\s]+)>/g, (_, hex: string) =>
           Buffer.from(hex.replace(/\s/g, ""), "hex").toString("latin1"),
         ),
-    );
-  }
-  return out.join("\n");
+    )
+    .join("\n");
+}
+
+/** pdfkit emits fills as `<r/255> <g/255> <b/255> scn` with full float precision. */
+function fillOp(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  return `${((n >> 16) & 255) / 255} ${((n >> 8) & 255) / 255} ${(n & 255) / 255} scn`;
 }
 
 jest.mock("../lib/db", () => ({
@@ -128,6 +139,55 @@ describe("ExportController.yearlyPdf", () => {
       "automated notification",
     ]) {
       expect(text).toContain(expected.replace(/\s+/g, ""));
+    }
+  });
+
+  it("paints the page and banner zinc-800, the footer strip green, and no navy anywhere", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      {
+        incidentDate: new Date("2026-05-01"),
+        type: "attempted",
+        propertyAddress: "123 Main St",
+        dispatchTime: new Date("2026-05-01T10:00:00Z"),
+        arrivalTime: new Date("2026-05-01T10:12:00Z"),
+      },
+    ]);
+
+    await ExportController.yearlyPdf(request, reply as any);
+
+    const content = pdfStreams(reply.send.mock.calls[0][0]).join("\n");
+    expect(content).toContain(fillOp("#27272a")); // zinc-800 page + banner
+    expect(content).toContain(fillOp("#4ade80")); // app-green footer strip
+    expect(content).not.toContain(fillOp("#0b1e33")); // dark blue removed
+  });
+
+  it("keeps every drawn block inside the 50-545 content grid", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      {
+        incidentDate: new Date("2026-05-01"),
+        type: "attempted",
+        propertyAddress: "123 Main St",
+        dispatchTime: new Date("2026-05-01T10:00:00Z"),
+        arrivalTime: new Date("2026-05-01T10:12:00Z"),
+      },
+      {
+        incidentDate: new Date("2025-12-20"),
+        type: "attempted",
+        propertyAddress: "456 Oak Ave",
+      },
+    ]);
+
+    await ExportController.yearlyPdf(request, reply as any);
+
+    const content = pdfStreams(reply.send.mock.calls[0][0]).join("\n");
+    const rects = [...content.matchAll(/([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+) re/g)];
+    expect(rects.length).toBeGreaterThan(10);
+    for (const m of rects) {
+      const x = parseFloat(m[1]);
+      const w = parseFloat(m[3]);
+      if (w > 590) continue; // full-page background
+      expect(x).toBeGreaterThanOrEqual(49.9);
+      expect(x + w).toBeLessThanOrEqual(545.1);
     }
   });
 

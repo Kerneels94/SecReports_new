@@ -35,7 +35,6 @@ interface IncidentForExport {
 }
 
 const COLORS = {
-  primary: BRAND.navy,
   gray: BRAND.label,
   dark: BRAND.heading,
   light: BRAND.surface,
@@ -45,6 +44,7 @@ const COLORS = {
   white: "#ffffff",
   page: BRAND.background,
   accent: "#3b82f6",
+  success: "#4ade80",
 };
 
 /** Zinc-800 page background on the first page and every page added later. */
@@ -66,9 +66,9 @@ function sanitizeCsv(val: string): string {
   return `"${val.replace(/"/g, '""')}"`;
 }
 
-/** Brand header mirroring emailLayout: navy block, wordmark, uppercase tagline, 4px rule. */
+/** Brand header: zinc block, wordmark, uppercase tagline, 4px rule. */
 function drawHeader(doc: typeof PDFDocument.prototype): number {
-  doc.rect(50, 40, 495, 64).fill(COLORS.primary);
+  doc.rect(50, 40, 495, 64).fill(COLORS.page);
   doc.fillColor(COLORS.white).fontSize(22).font("Helvetica-Bold")
     .text("SecReports", 50, 54, { width: 495, align: "center" });
   doc.fillColor(COLORS.muted).fontSize(9).font("Helvetica")
@@ -78,10 +78,10 @@ function drawHeader(doc: typeof PDFDocument.prototype): number {
   return 130;
 }
 
-/** Brand footer mirroring emailLayout: hairline rule, copyright, automated-notice line. */
+/** Brand footer: green strip, copyright, automated-notice line. */
 function drawFooter(doc: typeof PDFDocument.prototype) {
   const y = doc.page.height - 85;
-  doc.rect(50, y, 495, 0.8).fill(COLORS.border);
+  doc.rect(50, y, 495, 3).fill(COLORS.success);
   doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
     .text(`© ${new Date().getFullYear()} SecReports. All rights reserved.`, 50, y + 10, { width: 495, align: "center" })
     .fillColor(COLORS.faint)
@@ -234,7 +234,7 @@ function drawTable(
   const rowH = 18;
   let y = startY;
 
-  doc.rect(x, startY, totalWidth, headerH).fill(COLORS.primary);
+  doc.rect(x, startY, totalWidth, headerH).fill(COLORS.border);
   let cx = x;
   cols.forEach((c) => {
     doc.fillColor(COLORS.white).fontSize(9).font("Helvetica-Bold").text(c.label, cx + 6, startY + 5, { width: c.width - 12 });
@@ -284,16 +284,15 @@ function generateYearlyPdf(data: {
       { label: "Positive", value: data.positive, color: "#10b981" },
     ];
     const boxWidth = 150;
-    const boxGap = 22;
+    const boxGap = 22.5;
     let boxX = 50;
     const boxY = y0 + 48;
-    summary.forEach((s, i) => {
+    summary.forEach((s) => {
       doc.roundedRect(boxX, boxY, boxWidth, 52, 6).fillAndStroke(COLORS.light, COLORS.border);
       doc.rect(boxX, boxY, boxWidth, 4).fill(s.color);
       doc.fillColor(COLORS.gray).fontSize(8).text(s.label.toUpperCase(), boxX + 10, boxY + 12, { width: boxWidth - 20 });
       doc.fillColor(COLORS.dark).fontSize(20).font("Helvetica-Bold").text(String(s.value), boxX + 10, boxY + 24);
       boxX += boxWidth + boxGap;
-      if (i === 0) boxX += 10;
     });
 
     doc.font("Helvetica");
@@ -303,7 +302,7 @@ function generateYearlyPdf(data: {
       doc.fontSize(9).fillColor(COLORS.gray).text("No incident data available.", 60, y);
     } else {
       const yearData = data.byYear.map((b) => ({ label: String(b.year), value: b.count }));
-      drawBarChart(doc, yearData, 60, y + 10, 480, 120);
+      drawBarChart(doc, yearData, 50, y + 10, 495, 120);
       y += 150;
     }
 
@@ -313,11 +312,11 @@ function generateYearlyPdf(data: {
     y = drawTable(
       doc,
       [
-        { label: "Type", width: 380 },
+        { label: "Type", width: 375 },
         { label: "Incidents", width: 120 },
       ],
       typeRows,
-      60,
+      50,
       y,
     );
 
@@ -332,13 +331,13 @@ function generateYearlyPdf(data: {
     y = drawTable(
       doc,
       [
-        { label: "Area", width: 170 },
+        { label: "Area", width: 165 },
         { label: "Incidents", width: 70 },
         { label: "Avg Response", width: 130 },
         { label: "Longest Response", width: 130 },
       ],
       areaRows,
-      60,
+      50,
       y,
     );
 
@@ -377,16 +376,15 @@ function generateResponseTimePdf(data: {
       { label: "90th Percentile", value: formatDuration(data.overall.p90Ms), color: "#f59e0b" },
     ];
     const boxWidth = 150;
-    const boxGap = 22;
+    const boxGap = 22.5;
     let boxX = 50;
     const boxY = y0 + 48;
-    summary.forEach((s, i) => {
+    summary.forEach((s) => {
       doc.roundedRect(boxX, boxY, boxWidth, 52, 6).fillAndStroke(COLORS.light, COLORS.border);
       doc.rect(boxX, boxY, boxWidth, 4).fill(s.color);
       doc.fillColor(COLORS.gray).fontSize(8).text(s.label.toUpperCase(), boxX + 10, boxY + 12, { width: boxWidth - 20 });
       doc.fillColor(COLORS.dark).fontSize(20).font("Helvetica-Bold").text(s.value, boxX + 10, boxY + 24);
       boxX += boxWidth + boxGap;
-      if (i === 0) boxX += 10;
     });
 
     doc.font("Helvetica");
@@ -399,9 +397,9 @@ function generateResponseTimePdf(data: {
       // Bar heights use minutes to one decimal so a sub-minute month still shows a bar;
       // the table below carries the exact seconds.
       data.perMonth.map((m) => ({ label: m.month.slice(2), value: Math.round((m.avgMs / 60000) * 10) / 10 })),
-      60,
+      50,
       y + 10,
-      480,
+      495,
       120,
     );
     y += 150;
@@ -420,10 +418,10 @@ function generateResponseTimePdf(data: {
         { label: "Incidents", width: 80 },
         { label: "Avg Response", width: 100 },
         { label: "Median", width: 90 },
-        { label: "90th Percentile", width: 110 },
+        { label: "90th Percentile", width: 105 },
       ],
       monthRows,
-      60,
+      50,
       y,
     );
 
