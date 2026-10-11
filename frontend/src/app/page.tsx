@@ -70,7 +70,7 @@ const features = [
   {
     title: "Crime statistics",
     description:
-      "Generate reports detailing a monhtly or yearly crime analaysis which aids in visibility.",
+      "Generate monthly or yearly crime analysis reports for better visibility across sites and clients.",
   },
   {
     title: "Audit Trail",
@@ -80,12 +80,12 @@ const features = [
   {
     title: "Reports & Exporting",
     description:
-      "Generate PDF and CSV reports management, clients, or regulators with batch email support.",
+      "Generate PDF and CSV reports for management, clients, or regulators, with batch email support.",
   },
   {
     title: "Analytics",
     description:
-      "Dashboard analytics to keep track of attemped and positive events.",
+      "Dashboard analytics to keep track of attempted and positive events.",
   },
 ];
 
