@@ -65,12 +65,12 @@ const features = [
   {
     title: "Incident Reporting",
     description:
-      "Full lifecycle management — log, automatic categorisation, and resolve security incidents with auto-generated reference numbers.",
+      "Log and store security incidents with automatic categorisation and auto-generated reference numbers, kept searchable for quick reference.",
   },
   {
     title: "Crime statistics",
     description:
-      "Generate reports detailing a monhtly or yearly crime analaysis which aids in visibility.",
+      "Generate monthly or yearly crime analysis reports for better visibility across sites and clients.",
   },
   {
     title: "Audit Trail",
@@ -80,12 +80,12 @@ const features = [
   {
     title: "Reports & Exporting",
     description:
-      "Generate PDF and CSV reports management, clients, or regulators with batch email support.",
+      "Generate PDF and CSV reports for management, clients, or regulators, with batch email support.",
   },
   {
     title: "Analytics",
     description:
-      "Dashboard analytics to keep track of attemped and positive events.",
+      "Dashboard analytics to keep track of attempted and positive events.",
   },
 ];
 
@@ -108,9 +108,10 @@ export default function LandingPage() {
               <span className="text-primary">Security Professionals</span>
             </h1>
             <p className="mt-6 text-lg leading-8 text-text-secondary">
-              SecReports helps private security companies log, track, and
-              resolve incidents efficiently — from access control breaches to
-              response times, with a dedicated reporting platform.
+              SecReports is an incident reporting platform where security teams
+              capture and store incident reports in one place — each with a
+              reference number, category, and full details, kept searchable for
+              quick reference and reporting.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
               <Link
