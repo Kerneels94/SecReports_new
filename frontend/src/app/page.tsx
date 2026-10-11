@@ -108,9 +108,10 @@ export default function LandingPage() {
               <span className="text-primary">Security Professionals</span>
             </h1>
             <p className="mt-6 text-lg leading-8 text-text-secondary">
-              SecReports helps private security companies log, track, and
-              resolve incidents efficiently — from access control breaches to
-              response times, with a dedicated reporting platform.
+              SecReports is an incident reporting platform where security teams
+              capture and store incident reports in one place — each with a
+              reference number, category, and full details, kept searchable for
+              quick reference and reporting.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
               <Link
