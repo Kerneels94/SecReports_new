@@ -65,7 +65,7 @@ const features = [
   {
     title: "Incident Reporting",
     description:
-      "Full lifecycle management — log, automatic categorisation, and resolve security incidents with auto-generated reference numbers.",
+      "Log and store security incidents with automatic categorisation and auto-generated reference numbers, kept searchable for quick reference.",
   },
   {
     title: "Crime statistics",
