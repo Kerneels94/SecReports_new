@@ -168,7 +168,7 @@ export async function buildApp() {
     request.log.error(error);
 
     posthog?.capture({
-      distinctId: (request.user as any)?.userId ?? "anonymous",
+      distinctId: request.user?.userId ?? "anonymous",
       event: "backend_error",
       properties: {
         code: error.code ?? "UNKNOWN",

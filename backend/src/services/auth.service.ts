@@ -87,21 +87,20 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** Generates a cryptographically random refresh token string. */
-function generateRawToken(): string {
-  return crypto.randomBytes(64).toString("hex");
-}
-
-/** Stores a new refresh token record for a user and returns the raw token. */
+/** Stores a new refresh token record for a user and returns the signed JWT. */
 async function persistRefreshToken(
-  userId: string,
+  user: { id: string; role: string; companyId: string | null },
   familyId: string,
   deviceInfo?: string,
 ): Promise<string> {
-  const raw = generateRawToken();
+  const raw = signRefreshToken({
+    userId: user.id,
+    role: user.role,
+    companyId: user.companyId,
+  });
   await prisma.refreshToken.create({
     data: {
-      userId,
+      userId: user.id,
       tokenHash: hashToken(raw),
       familyId,
       deviceInfo: deviceInfo || null,
@@ -235,7 +234,7 @@ export const AuthService = {
       companyId: user.companyId,
     };
     const refreshToken = await persistRefreshToken(
-      user.id,
+      user,
       familyId,
       params.deviceInfo,
     );
@@ -331,7 +330,7 @@ export const AuthService = {
     await prisma.refreshToken.delete({ where: { id: stored.id } });
 
     const newRaw = await persistRefreshToken(
-      user.id,
+      user,
       stored.familyId,
       deviceInfo,
     );
@@ -718,6 +717,17 @@ export const AuthService = {
       if (performedBy === userId) {
         throw new ValidationError("You cannot change your own role");
       }
+    }
+
+    // Changing another user's email lets the actor receive the verification
+    // link and reset flow, so it is admin-only (prevents manager→admin takeover).
+    if (
+      data.email !== undefined &&
+      data.email !== user.email &&
+      performedBy !== userId &&
+      actorRole !== "admin"
+    ) {
+      throw new ForbiddenError("Only an admin can change another user's email");
     }
 
     if (data.email && data.email !== user.email) {

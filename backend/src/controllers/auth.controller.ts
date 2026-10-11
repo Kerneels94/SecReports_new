@@ -20,7 +20,7 @@ import { REFRESH_TOKEN_TTL_MS } from "../lib/jwt";
 const COOKIE_OPTIONS = {
   path: "/",
   httpOnly: true,
-  sameSite: "none" as const,
+  sameSite: "strict" as const,
   secure: true,
   maxAge: REFRESH_TOKEN_TTL_MS / 1000,
 };
