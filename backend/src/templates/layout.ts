@@ -1,7 +1,7 @@
 /**
  * Shared layout and styling helpers for every SecReports email template.
  * Mirrors the yearly crime statistics PDF (export.controller.ts): zinc-800
- * background, zinc-900 surfaces, green footer strip, blue accent.
+ * background and surfaces, green footer strip, blue accent.
  *
  * @module layout
  */
@@ -10,7 +10,7 @@ import { escapeHtml } from "./escape";
 export const BRAND = {
   // Dark theme: zinc-800 page/body background, light grey text throughout.
   background: "#27272a", // zinc-800
-  surface: "#18181b", // zinc-900
+  surface: "#27272a", // zinc-800
   border: "#3f3f46", // zinc-700
   muted: "#d4d4d8", // zinc-300
   faint: "#a1a1aa", // zinc-400
