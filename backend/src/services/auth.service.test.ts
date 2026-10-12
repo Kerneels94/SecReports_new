@@ -130,6 +130,22 @@ describe("AuthService", () => {
       expect(elapsed).toBeLessThan(REFRESH_TOKEN_TTL_MS + 1000);
     });
 
+    it("stores a hash of the signed refresh JWT", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+      (hash.comparePassword as jest.Mock).mockResolvedValue(true);
+      (jwt.signRefreshToken as jest.Mock).mockReturnValue("refresh-jwt");
+
+      await AuthService.login({ email: "test@example.com", password: "secret" });
+
+      expect(jwt.signRefreshToken).toHaveBeenCalledWith({
+        userId: "1",
+        role: "admin",
+        companyId: "1",
+      });
+      const record = (prisma.refreshToken.create as jest.Mock).mock.calls[0][0].data;
+      expect(record.tokenHash).toBe("hash-refresh-jwt");
+    });
+
     it("throws UnauthorizedError for unknown email", async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
@@ -551,7 +567,7 @@ describe("updateUser", () => {
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({ ...mockUser, id: "2", email: "other@test.com" });
 
-    await expect(AuthService.updateUser("1", "1", { email: "other@test.com" })).rejects.toThrow(ConflictError);
+    await expect(AuthService.updateUser("1", "1", { email: "other@test.com" }, "2", "admin")).rejects.toThrow(ConflictError);
   });
 
   it("throws ValidationError when new email domain has no MX records", async () => {
@@ -559,7 +575,16 @@ describe("updateUser", () => {
     (hasMxRecord as jest.Mock).mockResolvedValue(false);
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
 
-    await expect(AuthService.updateUser("1", "1", { email: "bad@nonexistent-domain-xyz.com" })).rejects.toThrow("Email domain does not accept mail");
+    await expect(AuthService.updateUser("1", "1", { email: "bad@nonexistent-domain-xyz.com" }, "2", "admin")).rejects.toThrow("Email domain does not accept mail");
+  });
+
+  it("throws ForbiddenError when a non-admin changes another user's email", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
+
+    await expect(
+      AuthService.updateUser("1", "1", { email: "attacker@test.com" }, "2", "manager"),
+    ).rejects.toThrow(ForbiddenError);
+    expect(prisma.user.update).not.toHaveBeenCalled();
   });
 
   it("resets emailVerified and sends a verification email when email changes", async () => {

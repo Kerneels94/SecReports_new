@@ -161,7 +161,7 @@ async function main() {
   console.log(`Manager: manager@example.com / ${demoPassword}`);
   console.log(`Senior: senior@example.com / ${demoPassword}`);
 
-  console.log(`Super Admin: ${superAdminEmail} / ${superAdminPassword}`);
+  console.log(`Super Admin: ${superAdminEmail}`);
 }
 
 main()

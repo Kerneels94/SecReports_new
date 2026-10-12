@@ -85,9 +85,9 @@ describe("AuthController", () => {
       await expect(AuthController.login(mockRequest, mockReply)).rejects.toThrow(ValidationError);
     });
 
-    // The SPA and API sit on different sites, so a SameSite=Strict cookie is
-    // never sent cross-origin and every refresh/logout 400s in production.
-    it("sets the refresh cookie as SameSite=None; Secure so it survives cross-site", async () => {
+    // Golden rule #28: the refresh cookie must be SameSite=Strict regardless
+    // of environment to prevent CSRF on /auth/refresh and /auth/logout.
+    it("sets the refresh cookie as SameSite=Strict, Secure, and HttpOnly", async () => {
       const body = { email: "test@test.com", password: "secret" };
       mockRequest.body = body;
       (loginSchema.safeParse as jest.Mock).mockReturnValue({ success: true, data: body });
@@ -98,7 +98,7 @@ describe("AuthController", () => {
       expect(mockReply.setCookie).toHaveBeenCalledWith(
         "refreshToken",
         "rt",
-        expect.objectContaining({ sameSite: "none", secure: true, httpOnly: true, path: "/" }),
+        expect.objectContaining({ sameSite: "strict", secure: true, httpOnly: true, path: "/" }),
       );
     });
   });
