@@ -1,12 +1,12 @@
 import { BRAND, alertParagraph, ctaButton, detailCard, emailLayout, greeting, paragraph, signOff } from "./layout";
 
 describe("dark brand palette", () => {
-  it("uses a zinc-800 background with light grey surfaces", () => {
+  it("uses a zinc-800 background and surfaces", () => {
     expect(BRAND.background).toBe("#27272a");
-    expect(BRAND.surface).toBe("#18181b");
+    expect(BRAND.surface).toBe("#27272a");
     const html = emailLayout({ body: paragraph("Hello") });
     expect(html).toContain("background-color: #27272a");
-    expect(html).toContain("background-color: #18181b");
+    expect(html).not.toContain("#18181b");
   });
 
   it("mirrors the yearly crime PDF chrome: zinc header, green footer strip, blue accent", () => {
