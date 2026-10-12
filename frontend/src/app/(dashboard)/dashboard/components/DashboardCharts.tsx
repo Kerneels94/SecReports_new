@@ -20,8 +20,14 @@ const PIE_COLORS = ["#fbbf24", "#4ade80"];
 const CURSOR = { stroke: "#71717a", strokeWidth: 1, strokeDasharray: "4 4" };
 
 /** Chart tooltip label for a value plotted in minutes. */
-const minutesLabel = (value: number | string | undefined) =>
-  formatDurationMs(Number(value) * 60000);
+const minutesLabel = (value: number | string | undefined) => {
+  const ms = Number(value) * 60000;
+  if (ms < 0 || Number.isNaN(ms)) return "0 minutes 0 seconds";
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes} minutes ${seconds} seconds`;
+};
 
 function ChartTooltip({ active, payload, label, format }: {
   active?: boolean;
@@ -95,7 +101,7 @@ export function ResponseTimeChart({ data }: { data: { month: string; avgMs: numb
           <Line
             type="monotone"
             dataKey="avgMinutes"
-            name="Avg response"
+            name="Avg response time (minutes)"
             stroke="#fbbf24"
             strokeWidth={2.5}
             dot={{ fill: "#fbbf24", r: 3, strokeWidth: 0 }}
