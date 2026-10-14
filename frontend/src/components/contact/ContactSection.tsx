@@ -64,8 +64,8 @@ export default function ContactSection() {
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold text-text">Talk to our team</h2>
           <p className="mt-4 text-text-secondary">
-            Tell us about your sites and headcount and we will come back with a
-            recommendation within one business day.
+            Tell us a bit about your team and reporting needs and we will come
+            back with a recommendation within one business day.
           </p>
         </div>
 

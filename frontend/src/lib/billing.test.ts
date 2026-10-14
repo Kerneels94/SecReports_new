@@ -56,7 +56,7 @@ describe("billing helpers", () => {
 
     it("returns the landing page wording for the Professional plan", () => {
       const wording = planWording({ name: "Professional", userLimit: 5, features: "[\"basic_crud\"]" });
-      expect(wording.description).toBe("For growing security teams that need more seats.");
+      expect(wording.description).toBe("For growing teams that need more seats.");
       expect(wording.limit).toBe("Up to 5 users");
       expect(wording.features).toContain("CSV & PDF export");
       expect(wording.features).toContain("Priority support");
@@ -65,7 +65,7 @@ describe("billing helpers", () => {
     it("returns the landing page wording for the Enterprise plan", () => {
       const wording = planWording({ name: "Enterprise", userLimit: 0, features: "[]" });
       expect(wording.description).toBe(
-        "For large security operations with unlimited seats.",
+        "For larger teams that need unlimited seats.",
       );
       expect(wording.limit).toBe("Unlimited users");
       expect(wording.features).toEqual(PLAN_WORDING.Enterprise.features);

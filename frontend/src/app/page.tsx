@@ -32,7 +32,7 @@ const tiers = [
     price: "R 1,500",
     period: "/month",
     limit: "Up to 5 users",
-    description: "For growing security teams that need more seats.",
+    description: "For growing teams that need more seats.",
     features: [
       "Up to 5 user accounts",
       "100 incident reports",
@@ -48,7 +48,7 @@ const tiers = [
     price: "R 4,500",
     period: "/month",
     limit: "Unlimited users",
-    description: "For large security operations with unlimited seats.",
+    description: "For larger teams that need unlimited seats.",
     features: [
       "Unlimited users",
       "Unlimited reports",
@@ -70,7 +70,7 @@ const features = [
   {
     title: "Crime statistics",
     description:
-      "Generate monthly or yearly crime analysis reports for better visibility across sites and clients.",
+      "Generate monthly or yearly analysis reports to spot incident trends over time.",
   },
   {
     title: "Audit Trail",
@@ -89,6 +89,24 @@ const features = [
   },
 ];
 
+const howItWorks = [
+  {
+    title: "1. Log the incident",
+    description:
+      "Capture the type, times, location, client, and a full description. Every report gets an auto-generated reference number.",
+  },
+  {
+    title: "2. Track and search",
+    description:
+      "Filter reports by date or type, and open any incident at any time for the full detail.",
+  },
+  {
+    title: "3. Export and share",
+    description:
+      "Download a PDF or CSV, or email a report straight to your client.",
+  },
+];
+
 /** Landing page component displaying hero, features, pricing, and footer. */
 export default function LandingPage() {
   return (
@@ -98,20 +116,22 @@ export default function LandingPage() {
       <CookieConsent />
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
+          <div className="mx-auto max-w-5xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/8 px-4 py-1.5 text-lg text-primary ring-1 ring-primary/20">
               <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-              Incident Management Platform
+              Incident Reporting Platform
             </div>
-            <h1 className="text-4xl font-bold tracking-tight text-text sm:text-6xl">
-              Incident Reporting for{" "}
-              <span className="text-primary">Security Professionals</span>
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-text-secondary">
-              SecReports is an incident reporting platform where security teams
-              capture and store incident reports in one place — each with a
-              reference number, category, and full details, kept searchable for
-              quick reference and reporting.
+            <div className="flex justify-center">
+              <h1 className="whitespace-nowrap text-4xl font-bold tracking-tight text-text sm:text-5xl lg:text-6xl">
+                Every incident,{" "}
+                <span className="text-primary">captured and searchable</span>
+              </h1>
+            </div>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-text-secondary">
+              SecReports is a focused incident reporting platform. Capture what
+              happened with an auto-generated reference number, category, and
+              full detail — then keep every report searchable and exportable for
+              clients, management, and audit.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
               <Link
@@ -137,11 +157,11 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold text-text">
-              Everything you need to manage incidents
+              Everything you need to report and track incidents
             </h2>
             <p className="mt-4 text-text-secondary">
-              Built specifically for private security companies managing
-              multiple sites and clients.
+              Built for security teams that need a clear, searchable record of
+              every incident — from first report to client hand-off.
             </p>
           </div>
           <div className="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -171,6 +191,42 @@ export default function LandingPage() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+      <section
+        id="how-it-works"
+        className="border-t border-border-light bg-surface/50"
+      >
+        <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold text-text">How it works</h2>
+            <p className="mt-4 text-text-secondary">
+              From incident to export in three steps.
+            </p>
+          </div>
+          <div className="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-6 sm:grid-cols-3">
+            {howItWorks.map((step) => (
+              <div
+                key={step.title}
+                className="flex flex-col gap-2 rounded-xl bg-surface p-6 ring-1 ring-border-light"
+              >
+                <h3 className="text-base font-semibold text-text">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-text-secondary">
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <Link
+              href="/how-to"
+              className="text-sm font-medium text-primary hover:text-primary-hover transition-colors"
+            >
+              See the full guide
+            </Link>
           </div>
         </div>
       </section>
