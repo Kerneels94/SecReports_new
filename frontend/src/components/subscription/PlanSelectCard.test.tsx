@@ -17,7 +17,7 @@ describe("PlanSelectCard", () => {
   it("renders plan name, price, and landing page features", () => {
     render(<PlanSelectCard plan={plan} isCurrent={false} onSelect={jest.fn()} />);
     expect(screen.getByText("Professional")).toBeInTheDocument();
-    expect(screen.getByText("For growing security teams that need more seats.")).toBeInTheDocument();
+    expect(screen.getByText("For growing teams that need more seats.")).toBeInTheDocument();
     expect(screen.getByText("Up to 5 users")).toBeInTheDocument();
     expect(screen.getByText("R 1,500")).toBeInTheDocument();
     expect(screen.getByText("CSV & PDF export")).toBeInTheDocument();
