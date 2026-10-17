@@ -141,39 +141,48 @@ export const InvoiceService = {
     if (!invoice) throw new NotFoundError("Invoice");
     if (invoice.status === "paid") throw new ConflictError("Invoice already paid");
 
-    const [updated] = await prisma.$transaction([
-      prisma.invoice.update({
-        where: { id },
-        data: {
-          status: "paid",
-          paidAt: new Date(),
-        },
-      }),
-      prisma.paymentHistory.create({
-        data: {
-          companyId: invoice.companyId,
-          amount: invoice.amount,
-          currency: invoice.currency,
-          reference: `PAY-${invoice.invoiceNumber}`,
-          status: "completed",
-          invoiceId: id,
-        },
-      }),
-      prisma.ledger.create({
-        data: {
-          companyId: invoice.companyId,
-          entryType: "payment",
-          amount: invoice.amount,
-          currency: invoice.currency,
-          reference: `PAY-${invoice.invoiceNumber}`,
-          description: `Payment received for ${invoice.invoiceNumber}`,
-          status: "paid",
-          postedAt: new Date(),
-        },
-      }),
-    ]);
+    try {
+      return await prisma.$transaction(async (tx) => {
+        // Conditional update: a concurrent request (double-click) must not record the payment twice.
+        const { count } = await tx.invoice.updateMany({
+          where: { id, status: { not: "paid" } },
+          data: {
+            status: "paid",
+            paidAt: new Date(),
+          },
+        });
+        if (count === 0) throw new ConflictError("Invoice already paid");
 
-    return updated;
+        await tx.paymentHistory.create({
+          data: {
+            companyId: invoice.companyId,
+            amount: invoice.amount,
+            currency: invoice.currency,
+            reference: `PAY-${invoice.invoiceNumber}`,
+            status: "completed",
+            invoiceId: id,
+          },
+        });
+        await tx.ledger.create({
+          data: {
+            companyId: invoice.companyId,
+            entryType: "payment",
+            amount: invoice.amount,
+            currency: invoice.currency,
+            reference: `PAY-${invoice.invoiceNumber}`,
+            description: `Payment received for ${invoice.invoiceNumber}`,
+            status: "paid",
+            postedAt: new Date(),
+          },
+        });
+
+        return tx.invoice.findUniqueOrThrow({ where: { id } });
+      });
+    } catch (err) {
+      // P2034: MongoDB write conflict with a concurrent transaction paying the same invoice.
+      if ((err as { code?: string }).code === "P2034") throw new ConflictError("Invoice already paid");
+      throw err;
+    }
   },
 
   async markAsOverdue(id: string) {

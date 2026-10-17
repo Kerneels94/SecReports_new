@@ -17,7 +17,7 @@ const strongPassword = z
  * Validates company/employee sign-in credentials.
  */
 export const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().toLowerCase().email(),
   password: z.string().min(1),
 });
 
@@ -27,7 +27,7 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   companyName: z.string().min(1).max(255),
   name: z.string().min(1).max(255),
-  email: z.string().email(),
+  email: z.string().trim().toLowerCase().email(),
   password: strongPassword,
 });
 
@@ -36,7 +36,7 @@ export const registerSchema = z.object({
  */
 export const createUserSchema = z.object({
   name: z.string().min(1).max(255),
-  email: z.string().email(),
+  email: z.string().trim().toLowerCase().email(),
   password: strongPassword,
   role: z.enum(["admin", "manager", "senior"]).optional(),
 });
@@ -45,7 +45,7 @@ export const createUserSchema = z.object({
  * Validates forgot-password email submissions.
  */
 export const forgotPasswordSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().toLowerCase().email(),
 });
 
 /**
@@ -69,6 +69,6 @@ export const changePasswordSchema = z.object({
  */
 export const updateUserSchema = z.object({
   name: z.string().min(1).max(255).optional(),
-  email: z.string().email().optional(),
+  email: z.string().trim().toLowerCase().email().optional(),
   role: z.enum(["admin", "manager", "senior"]).optional(),
 });

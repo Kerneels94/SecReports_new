@@ -635,6 +635,26 @@ describe("updateUser", () => {
     await expect(AuthService.updateUser("1", "999", { name: "New" })).rejects.toThrow(NotFoundError);
   });
 
+  it("lets a manager rename a user when the role sent is unchanged", async () => {
+    const senior = { ...mockUser, id: "3", role: "senior" };
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(senior);
+    (prisma.user.update as jest.Mock).mockResolvedValue({ ...senior, name: "Renamed" });
+
+    const result = await AuthService.updateUser(
+      "1", "3", { name: "Renamed", email: senior.email, role: "senior" }, "2", "manager",
+    );
+
+    expect(result.name).toBe("Renamed");
+  });
+
+  it("still stops a manager from changing a user's role", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue({ ...mockUser, id: "3", role: "senior" });
+
+    await expect(
+      AuthService.updateUser("1", "3", { role: "manager" }, "2", "manager"),
+    ).rejects.toThrow("Only an admin can change a user's role");
+  });
+
   it("throws ConflictError when email already in use", async () => {
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({ ...mockUser, id: "2", email: "other@test.com" });
