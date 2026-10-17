@@ -67,7 +67,12 @@ export default function NewIncidentPage() {
   const onSubmit = async (data: CreateIncidentForm) => {
     try {
       setError(null);
-      await incidentService.create(data);
+      // datetime-local has no offset; convert in the browser so the server gets a UTC instant.
+      await incidentService.create({
+        ...data,
+        dispatchTime: data.dispatchTime ? new Date(data.dispatchTime).toISOString() : undefined,
+        arrivalTime: data.arrivalTime ? new Date(data.arrivalTime).toISOString() : undefined,
+      });
       router.push("/incidents");
     } catch (err) {
       setError(

@@ -613,7 +613,8 @@ export const AuthService = {
       });
       return tx.user.update({
         where: { email: record.email },
-        data: { passwordHash },
+        // The reset link proves mailbox ownership, so lift any lockout. lockoutCount stays for escalation.
+        data: { passwordHash, loginAttempts: 0, lockedUntil: null },
       });
     });
 
