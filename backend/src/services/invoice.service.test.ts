@@ -10,6 +10,7 @@ jest.mock("../lib/db", () => ({
       create: jest.fn(),
       update: jest.fn(),
     },
+    company: { findMany: jest.fn() },
     paymentHistory: { create: jest.fn() },
     ledger: { create: jest.fn() },
     $transaction: jest.fn(),
@@ -32,6 +33,8 @@ const invoice = {
   status: "draft",
   dueDate: new Date("2026-02-07T00:00:00.000Z"),
   paidAt: null,
+  createdAt: new Date("2026-02-01T00:00:00.000Z"),
+  description: "Standard Package payment",
   company,
 };
 
@@ -86,6 +89,18 @@ describe("InvoiceService.sendInvoice", () => {
     ).toBeLessThan((prisma.invoice.update as jest.Mock).mock.invocationCallOrder[0]);
   });
 
+  it("attaches the invoice as a PDF", async () => {
+    (sendMail as jest.Mock).mockResolvedValue({ data: { id: "msg1" } });
+
+    await InvoiceService.sendInvoice("inv1");
+
+    const attachments = (sendMail as jest.Mock).mock.calls[0][0].attachments;
+    expect(attachments).toHaveLength(1);
+    expect(attachments[0].filename).toBe("INV-2026-0001.pdf");
+    expect(Buffer.isBuffer(attachments[0].content)).toBe(true);
+    expect(attachments[0].content.slice(0, 5).toString()).toBe("%PDF-");
+  });
+
   it("leaves the invoice as draft when the email fails", async () => {
     (sendMail as jest.Mock).mockResolvedValue({ error: new Error("smtp down") });
 
@@ -127,5 +142,39 @@ describe("InvoiceService.markAsPaid", () => {
         }),
       }),
     );
+  });
+});
+
+describe("InvoiceService.generateMonthlyInvoices", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers().setSystemTime(new Date(2026, 9, 17)); // 17 Oct 2026
+    (prisma.company.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: "company1",
+        name: "Acme",
+        subscription: { plan: { name: "Standard", price: 150000 } },
+      },
+    ]);
+    (prisma.invoice.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.invoice.create as jest.Mock).mockResolvedValue(invoice);
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue(invoice);
+    (prisma.invoice.update as jest.Mock).mockResolvedValue({
+      ...invoice,
+      status: "sent",
+    });
+    (sendMail as jest.Mock).mockResolvedValue({ data: { id: "msg1" } });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it("sets the due date to the 25th billing day, not the 7th", async () => {
+    await InvoiceService.generateMonthlyInvoices();
+
+    const data = (prisma.invoice.create as jest.Mock).mock.calls[0][0].data;
+    expect(data.dueDate.getDate()).toBe(25);
+    expect(data.dueDate.getMonth()).toBe(9); // October
   });
 });

@@ -1,6 +1,8 @@
 import { prisma } from "../lib/db";
 import { NotFoundError, ConflictError, AppError } from "../lib/errors";
 import { ADMIN_FROM_EMAIL, sendMail } from "./email.service";
+import { getNextBillingDate } from "./subscription.service";
+import { generateInvoicePdf } from "../templates/invoice-pdf";
 
 export const InvoiceService = {
   async generateInvoiceNumber(): Promise<string> {
@@ -87,6 +89,15 @@ export const InvoiceService = {
     if (!invoice) throw new NotFoundError("Invoice");
     if (invoice.status !== "draft") throw new ConflictError("Invoice already sent");
 
+    const pdf = await generateInvoicePdf({
+      companyName: invoice.company.name,
+      amount: invoice.amount,
+      invoiceNumber: invoice.invoiceNumber,
+      dueDate: invoice.dueDate,
+      invoiceDate: invoice.createdAt,
+      description: invoice.description ?? undefined,
+    });
+
     await sendMail({
       to: invoice.company.email,
       from: ADMIN_FROM_EMAIL,
@@ -98,6 +109,9 @@ export const InvoiceService = {
         invoiceNumber: invoice.invoiceNumber,
         dueDate: invoice.dueDate.toISOString(),
       },
+      attachments: [
+        { filename: `${invoice.invoiceNumber}.pdf`, content: pdf },
+      ],
     }).then(({ error }) => {
       if (error)
         throw new AppError(
@@ -208,7 +222,7 @@ export const InvoiceService = {
         continue;
       }
 
-      const dueDate = new Date(now.getFullYear(), now.getMonth() + 1, 7);
+      const dueDate = getNextBillingDate(now);
       const invoice = await this.createInvoice({
         companyId: company.id,
         amount: company.subscription!.plan.price,
