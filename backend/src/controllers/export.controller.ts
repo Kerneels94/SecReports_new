@@ -132,8 +132,8 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
 
       if (inc.dispatchTime || inc.arrivalTime || inc.callSign) {
         y = drawSection(doc, "Response", y + 4);
-        if (inc.dispatchTime) y = drawField(doc, "Dispatch Time", new Date(inc.dispatchTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }), y);
-        if (inc.arrivalTime) y = drawField(doc, "Arrival Time", new Date(inc.arrivalTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }), y);
+        if (inc.dispatchTime) y = drawField(doc, "Dispatch Time", new Date(inc.dispatchTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Johannesburg" }), y);
+        if (inc.arrivalTime) y = drawField(doc, "Arrival Time", new Date(inc.arrivalTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Johannesburg" }), y);
         y = drawField(doc, "Call Sign", inc.callSign || "-", y);
       }
 

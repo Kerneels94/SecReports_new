@@ -520,7 +520,7 @@ describe("AuthService", () => {
       });
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { email: "test@example.com" },
-        data: { passwordHash: "$2b$12$newhashed" },
+        data: { passwordHash: "$2b$12$newhashed", loginAttempts: 0, lockedUntil: null },
       });
     });
 

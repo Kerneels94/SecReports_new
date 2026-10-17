@@ -476,4 +476,17 @@ describe("ExportController.pdf", () => {
     expect(titleX.length).toBeGreaterThanOrEqual(1);
     for (const x of titleX) expect(x).toBeGreaterThan(60);
   });
+
+  // Only fails on a non-SAST host without the fix; run with TZ=UTC to prove it locally.
+  it("formats dispatch and arrival times in South African time, whatever the server zone", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      { ...incident, dispatchTime: new Date("2026-10-16T21:50:00Z"), arrivalTime: new Date("2026-10-16T22:05:00Z") },
+    ]);
+
+    await ExportController.pdf(request, reply as any);
+
+    const text = pdfText(reply.send.mock.calls[0][0]).replace(/\s+/g, "");
+    expect(text).toContain("Oct16,2026,11:50PM");
+    expect(text).toContain("Oct17,2026,12:05AM");
+  });
 });
