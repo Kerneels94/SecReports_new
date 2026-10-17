@@ -108,6 +108,7 @@ export const InvoiceService = {
         currency: invoice.currency,
         invoiceNumber: invoice.invoiceNumber,
         dueDate: invoice.dueDate.toISOString(),
+        description: invoice.description ?? undefined,
       },
       attachments: [
         { filename: `${invoice.invoiceNumber}.pdf`, content: pdf },

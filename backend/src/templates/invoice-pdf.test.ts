@@ -57,6 +57,33 @@ describe("generateInvoicePdf", () => {
 
   it("falls back to the standard item label when no description is given", async () => {
     const text = pdfText(await generateInvoicePdf(base)).replace(/\s+/g, "");
-    expect(text).toContain("StandardPackagepayment");
+    expect(text).toContain("StandardPackage-monthlyservice");
+  });
+
+  it("never claims Pty Ltd before the company is registered", async () => {
+    const text = pdfText(await generateInvoicePdf(base)).replace(/\s+/g, "");
+    expect(text).not.toContain("Pty)Ltd");
+    expect(text).toContain("AccountHolder:SecReports");
+  });
+
+  it("renders the business address when configured", async () => {
+    await new Promise<void>((resolve, reject) => {
+      jest.isolateModules(() => {
+        jest.doMock("./invoice-details", () => ({
+          ...jest.requireActual("./invoice-details"),
+          BUSINESS_ADDRESS: ["12 Test Road", "Randburg, 2194"],
+        }));
+        const { generateInvoicePdf: generate } = require("./invoice-pdf");
+        generate(base)
+          .then((buf: Buffer) => {
+            const text = pdfText(buf).replace(/\s+/g, "");
+            expect(text).toContain("12TestRoad");
+            expect(text).toContain("Randburg,2194");
+            jest.dontMock("./invoice-details");
+            resolve();
+          })
+          .catch(reject);
+      });
+    });
   });
 });

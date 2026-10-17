@@ -165,6 +165,7 @@ export async function sendMail({
           amount: (data.amount as number) || 0,
           invoiceNumber: (data.invoiceNumber as string) || "N/A",
           dueDate: data.dueDate as string | undefined,
+          description: data.description as string | undefined,
           invoiceLink: data.invoiceLink as string | undefined,
         });
         break;

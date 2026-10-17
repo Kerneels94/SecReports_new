@@ -20,10 +20,21 @@ describe("invoiceTemplate", () => {
     expect(html).toContain("From Company");
     expect(html).toContain("SecReports");
     expect(html).toContain("support@secreports.co.za");
-    expect(html).toContain("Standard Package payment");
+    expect(html).toContain("Standard Package - monthly service");
     expect(html).toContain("Amount Due");
     expect(html).toContain("Banking Details");
     expect(html).toContain("Reference: #INV-2026-0001");
+  });
+
+  it("never claims Pty Ltd before the company is registered", () => {
+    const html = invoiceTemplate(base);
+    expect(html).not.toContain("(Pty) Ltd");
+    expect(html).toContain("Account Holder: SecReports");
+  });
+
+  it("uses the invoice description as the line item when provided", () => {
+    const html = invoiceTemplate({ ...base, description: "Custom monthly retainer" });
+    expect(html).toContain("Custom monthly retainer");
   });
 
   it("renders the From block before the To block", () => {
@@ -48,6 +59,20 @@ describe("invoiceTemplate", () => {
     const html = invoiceTemplate({ ...base, invoiceLink: "https://secreports.co.za/invoices/1" });
     expect(html).toContain("https://secreports.co.za/invoices/1");
     expect(html).toContain("View Invoice");
+  });
+
+  it("renders the business address when configured", () => {
+    jest.isolateModules(() => {
+      jest.doMock("./invoice-details", () => ({
+        ...jest.requireActual("./invoice-details"),
+        BUSINESS_ADDRESS: ["12 Test Road", "Randburg, 2194"],
+      }));
+      const template = require("./invoice").default as typeof invoiceTemplate;
+      const html = template(base);
+      expect(html).toContain("12 Test Road");
+      expect(html).toContain("Randburg, 2194");
+      jest.dontMock("./invoice-details");
+    });
   });
 
   it("omits the invoice link when not provided", () => {

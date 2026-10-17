@@ -9,6 +9,13 @@
  */
 import PDFDocument from "pdfkit";
 import { BRAND } from "./layout";
+import {
+  BUSINESS_NAME,
+  BUSINESS_EMAIL,
+  BUSINESS_ADDRESS,
+  BANK_DETAILS,
+  DEFAULT_ITEM_DESCRIPTION,
+} from "./invoice-details";
 
 export interface InvoicePdfData {
   companyName: string;
@@ -74,24 +81,37 @@ export function generateInvoicePdf(data: InvoicePdfData): Promise<Buffer> {
     y += 44;
 
     // From / To columns.
+    const fromX = 50;
+    const toX = 300;
+    const colW = 230;
+
     doc.fontSize(9).font("Helvetica").fillColor(COLORS.faint)
-      .text("FROM COMPANY", 50, y);
+      .text("FROM COMPANY", fromX, y);
     doc.fontSize(9).font("Helvetica").fillColor(COLORS.faint)
-      .text("TO COMPANY", 300, y);
+      .text("TO COMPANY", toX, y);
+
+    let fromY = y + 16;
     doc.fontSize(14).font("Helvetica-Bold").fillColor(COLORS.heading)
-      .text("SecReports", 50, y + 16, { width: 230 });
+      .text(BUSINESS_NAME, fromX, fromY, { width: colW });
     doc.fontSize(14).font("Helvetica-Bold").fillColor(COLORS.heading)
-      .text(data.companyName || "Valued Customer", 300, y + 16, { width: 245 });
+      .text(data.companyName || "Valued Customer", toX, fromY, { width: colW });
+
+    fromY += 22;
     doc.fontSize(10).font("Helvetica").fillColor(COLORS.body)
-      .text("support@secreports.co.za", 50, y + 36, { width: 230 });
-    y += 70;
+      .text(BUSINESS_EMAIL, fromX, fromY, { width: colW });
+    for (const line of BUSINESS_ADDRESS) {
+      fromY += 16;
+      doc.fontSize(10).font("Helvetica").fillColor(COLORS.body)
+        .text(line, fromX, fromY, { width: colW });
+    }
+    y = fromY + 24;
 
     // Detail rows: label left, value right, on a bordered panel.
     const rows: [string, string][] = [
       ["Invoice Date", formatDate(data.invoiceDate ?? new Date())],
       ["Due Date", formatDate(data.dueDate)],
       ["Invoice", `#${data.invoiceNumber}`],
-      ["Item", data.description || "Standard Package payment"],
+      ["Item", data.description || DEFAULT_ITEM_DESCRIPTION],
     ];
 
     const rowH = 30;
@@ -128,9 +148,12 @@ export function generateInvoicePdf(data: InvoicePdfData): Promise<Buffer> {
       .text("BANKING DETAILS", 50, y);
     y += 18;
     const banking = [
-      "Bank: Your Bank",
-      "Account Holder: SecReports (Pty) Ltd",
-      "Account No: 0000000000",
+      `Bank: ${BANK_DETAILS.bankName}`,
+      `Account Holder: ${BANK_DETAILS.accountHolder}`,
+      `Account No: ${BANK_DETAILS.accountNumber}`,
+      ...(BANK_DETAILS.branchCode
+        ? [`Branch Code: ${BANK_DETAILS.branchCode}`]
+        : []),
       `Reference: #${data.invoiceNumber}`,
     ];
     doc.fontSize(10).font("Helvetica").fillColor(COLORS.body)
