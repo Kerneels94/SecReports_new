@@ -24,6 +24,7 @@ jest.mock("../lib/db", () => ({
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
     },
     emailVerificationToken: {
       create: jest.fn().mockResolvedValue({ id: "evt1" }),
@@ -486,6 +487,14 @@ describe("AuthService", () => {
 
       expect(prisma.passwordResetToken.create).not.toHaveBeenCalled();
     });
+
+    it("does nothing for a deleted (inactive) user", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({ ...mockUser, status: "inactive" });
+
+      await AuthService.forgotPassword("test@example.com");
+
+      expect(prisma.passwordResetToken.create).not.toHaveBeenCalled();
+    });
   });
 
   describe("resetPassword", () => {
@@ -686,7 +695,7 @@ describe("updateUser", () => {
 });
 
 describe("deleteUser", () => {
-  it("deactivates the user, revokes refresh tokens, and writes an audit log", async () => {
+  it("deactivates the user, frees their email, revokes tokens, and writes an audit log", async () => {
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
 
     await AuthService.deleteUser("1", "1", "2");
@@ -694,7 +703,10 @@ describe("deleteUser", () => {
     expect(prisma.refreshToken.deleteMany).toHaveBeenCalledWith({ where: { userId: "1" } });
     expect(prisma.user.update).toHaveBeenCalledWith({
       where: { id: "1" },
-      data: { status: "inactive" },
+      data: { status: "inactive", email: "test@example.com.1.invalid" },
+    });
+    expect(prisma.passwordResetToken.deleteMany).toHaveBeenCalledWith({
+      where: { email: "test@example.com" },
     });
     expect(prisma.user.delete).not.toHaveBeenCalled();
     expect(prisma.auditLog.create).toHaveBeenCalledWith({
@@ -711,6 +723,15 @@ describe("deleteUser", () => {
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
 
     await expect(AuthService.deleteUser("1", "999", "2")).rejects.toThrow(NotFoundError);
+  });
+
+  it("only matches active users, so a deleted user cannot be deleted again", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
+
+    await expect(AuthService.deleteUser("1", "1", "2")).rejects.toThrow(NotFoundError);
+    expect(prisma.user.findFirst).toHaveBeenCalledWith({
+      where: { id: "1", companyId: "1", status: "active" },
+    });
   });
 
   it("throws ValidationError when admin tries to delete their own account", async () => {

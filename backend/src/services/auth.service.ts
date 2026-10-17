@@ -567,7 +567,7 @@ export const AuthService = {
    */
   async forgotPassword(email: string) {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user || !user.emailVerified) {
+    if (!user || !user.emailVerified || user.status !== "active") {
       await sleep(200);
       return;
     }
@@ -831,19 +831,22 @@ export const AuthService = {
     return updated;
   },
 
-  /** Deactivates a user (soft delete) and revokes all their refresh tokens. Admin cannot delete themselves. */
+  /** Deactivates a user (soft delete), frees their email for reuse, and revokes their tokens. Admin cannot delete themselves. */
   async deleteUser(companyId: string, userId: string, performedBy: string) {
     const user = await prisma.user.findFirst({
-      where: { id: userId, companyId },
+      where: { id: userId, companyId, status: "active" },
     });
     if (!user) throw new NotFoundError("User not found");
     if (userId === performedBy) throw new ValidationError("You cannot delete your own account");
 
     await prisma.refreshToken.deleteMany({ where: { userId } });
+    // Reset tokens are keyed by email, so they must not survive into a new account with the same address.
+    await prisma.passwordResetToken.deleteMany({ where: { email: user.email } });
 
+    // Email is unique, so rename it to free the address. The reserved .invalid TLD can never receive mail.
     await prisma.user.update({
       where: { id: userId },
-      data: { status: "inactive" },
+      data: { status: "inactive", email: `${user.email}.${userId}.invalid` },
     });
 
     await createAuditLog({
