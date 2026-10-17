@@ -384,4 +384,11 @@ describe("getNextBillingDate", () => {
     expect(result.getDate()).toBe(25);
     expect(result.getMonth()).toBe(8);
   });
+
+  it("does not overflow the month when starting on the 31st", () => {
+    const from = new Date(2026, 0, 31); // 31 Jan
+    const result = getNextBillingDate(from);
+    expect(result.getDate()).toBe(25);
+    expect(result.getMonth()).toBe(1); // Feb, not Mar
+  });
 });

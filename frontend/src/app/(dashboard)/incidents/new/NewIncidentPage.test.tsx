@@ -52,6 +52,12 @@ describe("NewIncidentPage", () => {
     expect(screen.getByLabelText("Incident Date")).toBeInTheDocument();
   });
 
+  it("defaults the incident date to today in local time", () => {
+    render(<NewIncidentPage />);
+    const input = screen.getByLabelText("Incident Date") as HTMLInputElement;
+    expect(input.value).toBe(new Date().toLocaleDateString("en-CA"));
+  });
+
   it("shows validation errors for required fields", async () => {
     render(<NewIncidentPage />);
     const user = userEvent.setup();

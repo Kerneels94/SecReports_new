@@ -51,7 +51,7 @@ export default function NewIncidentPage() {
   } = useForm<CreateIncidentForm>({
     resolver: zodResolver(createIncidentSchema),
     defaultValues: {
-      incidentDate: new Date().toISOString().split("T")[0],
+      incidentDate: new Date().toLocaleDateString("en-CA"),
     },
   });
 

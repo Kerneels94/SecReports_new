@@ -16,22 +16,31 @@ class ApiClient {
   }
 
   private async attemptRefresh(): Promise<boolean> {
-    try {
-      const res = await fetch(`${this.baseUrl}/auth/refresh`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
+    const refresh = async (): Promise<boolean> => {
+      try {
+        const res = await fetch(`${this.baseUrl}/auth/refresh`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
 
-      if (!res.ok) return false;
+        if (!res.ok) return false;
 
-      const json = await res.json();
-      const data = json.data as LoginResponse;
-      localStorage.setItem("accessToken", data.accessToken);
-      return true;
-    } catch {
-      return false;
+        const json = await res.json();
+        const data = json.data as LoginResponse;
+        localStorage.setItem("accessToken", data.accessToken);
+        return true;
+      } catch {
+        return false;
+      }
+    };
+
+    // Serialise refreshes across tabs so two tabs don't rotate the same
+    // refresh token at once and trip reuse detection.
+    if (typeof navigator !== "undefined" && navigator.locks) {
+      return navigator.locks.request("auth-refresh", refresh);
     }
+    return refresh();
   }
 
   private clearTokens(): void {

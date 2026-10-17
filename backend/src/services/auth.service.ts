@@ -112,25 +112,20 @@ async function persistRefreshToken(
 
 /** Checks whether the account is currently locked and increments on failure. */
 async function handleLoginFailure(userId: string): Promise<never> {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) throw new UnauthorizedError("Invalid email or password");
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { loginAttempts: { increment: 1 } },
+  });
 
-  const attempts = user.loginAttempts + 1;
-
-  if (attempts >= MAX_LOGIN_ATTEMPTS) {
+  if (user.loginAttempts >= MAX_LOGIN_ATTEMPTS) {
     const duration = lockoutDuration(user.lockoutCount);
     await prisma.user.update({
       where: { id: userId },
       data: {
-        loginAttempts: attempts,
-        lockoutCount: user.lockoutCount + 1,
+        loginAttempts: 0,
+        lockoutCount: { increment: 1 },
         lockedUntil: new Date(Date.now() + duration),
       },
-    });
-  } else {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { loginAttempts: attempts },
     });
   }
 
@@ -139,7 +134,7 @@ async function handleLoginFailure(userId: string): Promise<never> {
     entityId: userId,
     action: "login_failed",
     performedBy: userId,
-    newValues: JSON.stringify({ loginAttempts: attempts }),
+    newValues: JSON.stringify({ loginAttempts: user.loginAttempts }),
   });
 
   throw new UnauthorizedError("Invalid email or password");
@@ -156,6 +151,7 @@ function authDenied(user: {
   role: string;
   emailVerified: boolean;
   lockedUntil: Date | null;
+  status: string;
 }): boolean {
   const roleAllowed =
     user.role === "admin" ||
@@ -163,6 +159,7 @@ function authDenied(user: {
     user.role === "senior" ||
     user.role === "superadmin";
   return (
+    user.status !== "active" ||
     !roleAllowed ||
     !user.emailVerified ||
     (!!user.lockedUntil && user.lockedUntil > new Date())
@@ -317,17 +314,22 @@ export const AuthService = {
     // Re-run the same gates as login() so a locked, unverified, or
     // trial-expired account cannot keep rotating its refresh token.
     if (authDenied(user)) {
-      await prisma.refreshToken.delete({ where: { id: stored.id } });
+      await prisma.refreshToken.deleteMany({ where: { id: stored.id } });
       throwGenericAuthError();
     }
     try {
       await assertTrialNotExpired(user);
     } catch (err) {
-      await prisma.refreshToken.delete({ where: { id: stored.id } });
+      await prisma.refreshToken.deleteMany({ where: { id: stored.id } });
       throw err;
     }
 
-    await prisma.refreshToken.delete({ where: { id: stored.id } });
+    const consumed = await prisma.refreshToken.deleteMany({
+      where: { id: stored.id },
+    });
+    if (consumed.count === 0) {
+      throw new UnauthorizedError("Refresh token has already been used");
+    }
 
     const newRaw = await persistRefreshToken(
       user,
@@ -666,7 +668,7 @@ export const AuthService = {
   /** Lists all users in a company, ordered by creation date. */
   async listUsers(companyId: string) {
     return prisma.user.findMany({
-      where: { companyId },
+      where: { companyId, status: "active" },
       select: {
         id: true,
         name: true,
@@ -745,10 +747,11 @@ export const AuthService = {
       where: { id: userId },
       data: {
         ...(data.name !== undefined && { name: data.name }),
-        ...(data.email !== undefined && {
-          email: data.email,
-          emailVerified: false,
-        }),
+        ...(data.email !== undefined &&
+          data.email !== user.email && {
+            email: data.email,
+            emailVerified: false,
+          }),
         ...(data.role !== undefined && { role: data.role }),
       },
       select: {
@@ -828,7 +831,7 @@ export const AuthService = {
     return updated;
   },
 
-  /** Deletes a user and all their refresh tokens. Admin cannot delete themselves. */
+  /** Deactivates a user (soft delete) and revokes all their refresh tokens. Admin cannot delete themselves. */
   async deleteUser(companyId: string, userId: string, performedBy: string) {
     const user = await prisma.user.findFirst({
       where: { id: userId, companyId },
@@ -838,7 +841,10 @@ export const AuthService = {
 
     await prisma.refreshToken.deleteMany({ where: { userId } });
 
-    await prisma.user.delete({ where: { id: userId } });
+    await prisma.user.update({
+      where: { id: userId },
+      data: { status: "inactive" },
+    });
 
     await createAuditLog({
       entityType: "user",

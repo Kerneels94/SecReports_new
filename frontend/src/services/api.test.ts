@@ -117,6 +117,41 @@ describe("ApiClient", () => {
       expect(mockFetch.mock.calls[1][1].body).toBeUndefined();
     });
 
+    it("routes refresh through navigator.locks when available", async () => {
+      localStorage.setItem("accessToken", "expired-token");
+      const request = jest.fn((_name: string, cb: () => Promise<boolean>) => cb());
+      Object.defineProperty(navigator, "locks", {
+        value: { request },
+        configurable: true,
+      });
+
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 401,
+          json: () => Promise.resolve({ success: false, error: { message: "Unauthorized" } }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({
+            success: true,
+            data: { accessToken: "new-access", refreshToken: "new-refresh", user: { id: 1, name: "A", email: "a@b.com", role: "admin", status: "active", companyId: 1 } },
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ success: true, data: { id: 42 } }),
+        });
+
+      const result = await api.get("/protected");
+
+      expect(request).toHaveBeenCalledWith("auth-refresh", expect.any(Function));
+      expect(localStorage.getItem("accessToken")).toBe("new-access");
+      expect(result).toEqual({ success: true, data: { id: 42 } });
+
+      delete (navigator as { locks?: unknown }).locks;
+    });
+
     it("clears tokens when refresh fails on 401", async () => {
       localStorage.setItem("accessToken", "expired-token");
 

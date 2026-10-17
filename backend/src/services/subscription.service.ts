@@ -15,8 +15,8 @@ export function getNextBillingDate(from: Date = new Date()): Date {
   if (base.getDate() < BILLING_DAY) {
     next.setDate(BILLING_DAY);
   } else {
-    next.setMonth(next.getMonth() + 1);
     next.setDate(BILLING_DAY);
+    next.setMonth(next.getMonth() + 1);
   }
   next.setHours(0, 0, 0, 0);
   return next;
