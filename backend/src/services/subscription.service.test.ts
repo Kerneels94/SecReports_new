@@ -271,6 +271,19 @@ describe("SubscriptionService expired-trial feature blocking", () => {
     await expect(SubscriptionService.canAddUser("company1")).resolves.toBeUndefined();
   });
 
+  it("canAddUser counts only active users, so deleted users free their seat", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ trialStartedAt: past, trialEndsAt: future }),
+    );
+    (prisma.user.count as jest.Mock).mockResolvedValue(2);
+
+    await SubscriptionService.canAddUser("company1");
+
+    expect(prisma.user.count).toHaveBeenCalledWith({
+      where: { companyId: "company1", status: "active" },
+    });
+  });
+
   it("canAddUser blocks a fourth user during the active trial", async () => {
     (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
       sub({ trialStartedAt: past, trialEndsAt: future }),

@@ -64,7 +64,9 @@ export const SubscriptionService = {
     });
     if (!sub) throw new NotFoundError("Subscription");
 
-    const userCount = await prisma.user.count({ where: { companyId } });
+    const userCount = await prisma.user.count({
+      where: { companyId, status: "active" },
+    });
 
     return {
       ...sub,
@@ -224,7 +226,9 @@ export const SubscriptionService = {
       );
     }
     if (trial?.isTrial && !trial.isExpired) {
-      const count = await prisma.user.count({ where: { companyId } });
+      const count = await prisma.user.count({
+        where: { companyId, status: "active" },
+      });
       if (count >= TRIAL_USER_LIMIT) {
         throw new ForbiddenError(
           `Free trial is limited to ${TRIAL_USER_LIMIT} users. Upgrade to continue.`,
@@ -234,7 +238,9 @@ export const SubscriptionService = {
     }
 
     if (sub.plan.userLimit > 0) {
-      const count = await prisma.user.count({ where: { companyId } });
+      const count = await prisma.user.count({
+        where: { companyId, status: "active" },
+      });
       if (count >= sub.plan.userLimit) {
         throw new ForbiddenError("User limit reached. Upgrade to continue.");
       }
