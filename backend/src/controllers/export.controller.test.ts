@@ -48,7 +48,7 @@ function fillOp(hex: string): string {
 
 jest.mock("../lib/db", () => ({
   prisma: {
-    incident: { findMany: jest.fn() },
+    incident: { findMany: jest.fn(), findFirst: jest.fn() },
     company: { findUnique: jest.fn() },
   },
 }));
@@ -419,7 +419,7 @@ describe("ExportController.pdf", () => {
   };
   const request = {
     user: { companyId: "company1", userId: "user1" },
-    query: {},
+    query: { incidentId: "inc1" },
   } as any;
 
   const incident = {
@@ -449,8 +449,26 @@ describe("ExportController.pdf", () => {
     jest.clearAllMocks();
   });
 
+  it("returns 400 when incidentId is missing", async () => {
+    await ExportController.pdf({ ...request, query: {} } as any, reply as any);
+
+    expect(reply.code).toHaveBeenCalledWith(400);
+    expect(prisma.incident.findFirst).not.toHaveBeenCalled();
+  });
+
+  it("returns 404 when the incident does not exist", async () => {
+    (prisma.incident.findFirst as jest.Mock).mockResolvedValue(null);
+
+    await ExportController.pdf(request, reply as any);
+
+    expect(prisma.incident.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "inc1", companyId: "company1" } }),
+    );
+    expect(reply.code).toHaveBeenCalledWith(404);
+  });
+
   it("matches the yearly crime PDF chrome: zinc page, green footer strip", async () => {
-    (prisma.incident.findMany as jest.Mock).mockResolvedValue([incident]);
+    (prisma.incident.findFirst as jest.Mock).mockResolvedValue(incident);
 
     await ExportController.pdf(request, reply as any);
 
@@ -461,7 +479,7 @@ describe("ExportController.pdf", () => {
   });
 
   it("centres the incident title to mirror the yearly report", async () => {
-    (prisma.incident.findMany as jest.Mock).mockResolvedValue([incident]);
+    (prisma.incident.findFirst as jest.Mock).mockResolvedValue(incident);
 
     await ExportController.pdf(request, reply as any);
 
@@ -479,9 +497,11 @@ describe("ExportController.pdf", () => {
 
   // Only fails on a non-SAST host without the fix; run with TZ=UTC to prove it locally.
   it("formats dispatch and arrival times in South African time, whatever the server zone", async () => {
-    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
-      { ...incident, dispatchTime: new Date("2026-10-16T21:50:00Z"), arrivalTime: new Date("2026-10-16T22:05:00Z") },
-    ]);
+    (prisma.incident.findFirst as jest.Mock).mockResolvedValue({
+      ...incident,
+      dispatchTime: new Date("2026-10-16T21:50:00Z"),
+      arrivalTime: new Date("2026-10-16T22:05:00Z"),
+    });
 
     await ExportController.pdf(request, reply as any);
 

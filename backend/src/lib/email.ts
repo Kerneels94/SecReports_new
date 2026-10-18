@@ -15,8 +15,13 @@ export async function hasMxRecord(email: string): Promise<boolean> {
     const result = mxRecords.length > 0;
     cache.set(domain, { result, expiresAt: Date.now() + CACHE_TTL_MS });
     return result;
-  } catch {
-    cache.set(domain, { result: false, expiresAt: Date.now() + CACHE_TTL_MS });
+  } catch (err) {
+    // Only cache a definitive "no such domain". Timeouts and server failures
+    // return false without caching so a DNS hiccup doesn't block the domain for an hour.
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code === "ENOTFOUND" || code === "ENODATA") {
+      cache.set(domain, { result: false, expiresAt: Date.now() + CACHE_TTL_MS });
+    }
     return false;
   }
 }

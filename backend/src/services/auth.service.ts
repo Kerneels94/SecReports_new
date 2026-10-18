@@ -221,9 +221,11 @@ export const AuthService = {
 
     await assertTrialNotExpired(user);
 
-    SubscriptionService.checkAndNotifyTrialEnding(user.companyId!).catch(
-      (err) => console.error("[AuthService] Trial notification failed:", err),
-    );
+    if (user.companyId) {
+      SubscriptionService.checkAndNotifyTrialEnding(user.companyId).catch(
+        (err) => console.error("[AuthService] Trial notification failed:", err),
+      );
+    }
 
     const familyId = crypto.randomUUID();
     const payload = {
@@ -573,7 +575,9 @@ export const AuthService = {
    */
   async forgotPassword(email: string) {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user || !user.emailVerified || user.status !== "active") {
+    // Unverified users are served too: the reset link proves mailbox ownership,
+    // and resetPassword marks the email verified (golden rule #32).
+    if (!user || user.status !== "active") {
       await sleep(200);
       return;
     }
@@ -619,8 +623,9 @@ export const AuthService = {
       });
       return tx.user.update({
         where: { email: record.email },
-        // The reset link proves mailbox ownership, so lift any lockout. lockoutCount stays for escalation.
-        data: { passwordHash, loginAttempts: 0, lockedUntil: null },
+        // Reset link proves mailbox ownership: verify the email and lift any
+        // lockout. lockoutCount stays for escalation.
+        data: { passwordHash, emailVerified: true, loginAttempts: 0, lockedUntil: null },
       });
     });
 

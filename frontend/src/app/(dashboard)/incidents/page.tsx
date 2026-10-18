@@ -21,7 +21,7 @@ export default function IncidentsPage() {
   const { user } = useAuth();
   const canViewReports = hasPermission(user, "reports.view");
   const canExportPdf = hasPermission(user, "export.csv");
-  const canEmail = hasPermission(user, "reports.view");
+  const canEmail = hasPermission(user, "export.reports");
   const [summary, setSummary] = useState<{
     total: number;
     attemptedCount: number;

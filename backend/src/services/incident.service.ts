@@ -158,8 +158,10 @@ export const IncidentService = {
 
     if (params.dateFrom || params.dateTo) {
       const incidentDate: Prisma.DateTimeFilter = {};
+      // Frontend sends date-only strings ("2026-03-15" = midnight UTC); lte on that
+      // drops the whole selected day, so the upper bound is the start of the next day.
       if (params.dateFrom) incidentDate.gte = new Date(params.dateFrom);
-      if (params.dateTo) incidentDate.lte = new Date(params.dateTo);
+      if (params.dateTo) incidentDate.lt = new Date(Date.parse(params.dateTo) + 86_400_000);
       where.incidentDate = incidentDate;
     }
 

@@ -531,6 +531,15 @@ describe("AuthService", () => {
 
       expect(prisma.passwordResetToken.create).not.toHaveBeenCalled();
     });
+
+    it("sends a reset link to an unverified but active user", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({ ...mockUser, emailVerified: false });
+      (prisma.passwordResetToken.create as jest.Mock).mockResolvedValue({ id: "1" });
+
+      await AuthService.forgotPassword("test@example.com");
+
+      expect(prisma.passwordResetToken.create).toHaveBeenCalled();
+    });
   });
 
   describe("resetPassword", () => {
@@ -556,7 +565,12 @@ describe("AuthService", () => {
       });
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { email: "test@example.com" },
-        data: { passwordHash: "$2b$12$newhashed", loginAttempts: 0, lockedUntil: null },
+        data: {
+          passwordHash: "$2b$12$newhashed",
+          emailVerified: true,
+          loginAttempts: 0,
+          lockedUntil: null,
+        },
       });
     });
 

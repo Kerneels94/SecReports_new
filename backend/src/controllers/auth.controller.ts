@@ -13,6 +13,7 @@ import {
   resetPasswordSchema,
   changePasswordSchema,
   updateUserSchema,
+  verifyEmailSchema,
 } from "../validators/auth.schema";
 import { ValidationError } from "../lib/errors";
 import { REFRESH_TOKEN_TTL_MS } from "../lib/jwt";
@@ -75,10 +76,11 @@ export const AuthController = {
 
   /** Verify a user's email address using a token from the verification email. */
   async verifyEmail(request: FastifyRequest, reply: FastifyReply) {
-    const { token } = request.body as { token: string };
-    if (!token) throw new ValidationError("Verification token is required");
+    const parsed = verifyEmailSchema.safeParse(request.body);
+    if (!parsed.success)
+      throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const result = await AuthService.verifyEmail(token);
+    const result = await AuthService.verifyEmail(parsed.data.token);
     reply.code(200).send({ success: true, data: result });
   },
 

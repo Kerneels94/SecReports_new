@@ -49,6 +49,13 @@ export const forgotPasswordSchema = z.object({
 });
 
 /**
+ * Validates email-verification token submissions.
+ */
+export const verifyEmailSchema = z.object({
+  token: z.string().min(1),
+});
+
+/**
  * Validates password-reset completion payloads (token + new password).
  */
 export const resetPasswordSchema = z.object({

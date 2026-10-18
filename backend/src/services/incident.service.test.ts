@@ -77,6 +77,17 @@ describe("IncidentService", () => {
       );
     });
 
+    it("treats dateTo as inclusive of the whole selected day", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.incident.count as jest.Mock).mockResolvedValue(0);
+
+      await IncidentService.list({ ...defaultListParams, dateTo: "2026-03-15" });
+
+      const where = (prisma.incident.findMany as jest.Mock).mock.calls[0][0].where;
+      expect(where.incidentDate.lt.getTime()).toBe(Date.parse("2026-03-15") + 86_400_000);
+      expect(where.incidentDate.lte).toBeUndefined();
+    });
+
     it("filters by search on title and referenceNumber", async () => {
       (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.incident.count as jest.Mock).mockResolvedValue(0);
