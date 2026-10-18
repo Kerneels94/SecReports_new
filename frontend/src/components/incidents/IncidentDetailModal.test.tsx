@@ -1,10 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { IncidentDetailModal } from "./IncidentDetailModal";
-import { incidentService } from "@/services";
+import { incidentService, exportService } from "@/services";
 
 jest.mock("@/services", () => ({
   incidentService: { getById: jest.fn() },
+  exportService: { downloadPdf: jest.fn() },
 }));
 
 jest.mock("@/components/ui/Modal", () => ({
@@ -173,5 +174,18 @@ describe("IncidentDetailModal", () => {
       expect(screen.getByText("Client & Property")).toBeInTheDocument();
       expect(screen.getByText("Details")).toBeInTheDocument();
     });
+  });
+});
+
+describe("IncidentDetailModal download failure", () => {
+  it("keeps the incident details when the PDF download fails", async () => {
+    mockGetById.mockResolvedValue({ data: mockIncident });
+    (exportService.downloadPdf as jest.Mock).mockRejectedValue(new Error("nope"));
+    render(<IncidentDetailModal incidentId={1} open={true} onClose={jest.fn()} />);
+
+    await userEvent.click(await screen.findByRole("button", { name: /download pdf/i }));
+
+    expect(await screen.findByText("Failed to download PDF")).toBeInTheDocument();
+    expect(screen.getByText("Server Breach")).toBeInTheDocument();
   });
 });
