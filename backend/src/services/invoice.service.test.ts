@@ -7,8 +7,10 @@ jest.mock("../lib/db", () => ({
     invoice: {
       findFirst: jest.fn(),
       findUnique: jest.fn(),
+      findUniqueOrThrow: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
     },
     company: { findMany: jest.fn() },
     paymentHistory: { create: jest.fn() },
@@ -122,11 +124,33 @@ describe("InvoiceService.markAsPaid", () => {
       ...invoice,
       status: "paid",
     });
+    (prisma.invoice.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
+    (prisma.invoice.findUniqueOrThrow as jest.Mock).mockResolvedValue({
+      ...invoice,
+      status: "paid",
+    });
     (prisma.paymentHistory.create as jest.Mock).mockResolvedValue({});
     (prisma.ledger.create as jest.Mock).mockResolvedValue({});
     (prisma.$transaction as jest.Mock).mockImplementation(
-      (ops: Promise<unknown>[]) => Promise.all(ops),
+      (arg: ((tx: typeof prisma) => Promise<unknown>) | Promise<unknown>[]) =>
+        typeof arg === "function" ? arg(prisma) : Promise.all(arg),
     );
+  });
+
+  it("does not record a second payment when a concurrent request already marked it paid", async () => {
+    (prisma.invoice.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
+
+    await expect(InvoiceService.markAsPaid("inv1")).rejects.toThrow("Invoice already paid");
+    expect(prisma.paymentHistory.create).not.toHaveBeenCalled();
+    expect(prisma.ledger.create).not.toHaveBeenCalled();
+  });
+
+  it("reports a transaction write conflict as already paid", async () => {
+    (prisma.$transaction as jest.Mock).mockRejectedValue(
+      Object.assign(new Error("Transaction failed due to a write conflict"), { code: "P2034" }),
+    );
+
+    await expect(InvoiceService.markAsPaid("inv1")).rejects.toThrow("Invoice already paid");
   });
 
   it("records the payment in the ledger only when marked paid", async () => {

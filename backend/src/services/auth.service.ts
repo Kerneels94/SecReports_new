@@ -713,7 +713,8 @@ export const AuthService = {
     });
     if (!user) throw new NotFoundError("User not found");
 
-    if (data.role) {
+    // The edit form always sends the role, so only an actual change is a role change.
+    if (data.role !== undefined && data.role !== user.role) {
       if (actorRole !== "admin") {
         throw new ValidationError("Only an admin can change a user's role");
       }
