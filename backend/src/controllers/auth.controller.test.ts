@@ -170,17 +170,27 @@ describe("AuthController", () => {
 
       await AuthController.createUser(mockRequest, mockReply);
 
-      expect(AuthService.createUser).toHaveBeenCalledWith({ ...validBody, companyId: "1", createdBy: "1" });
+      expect(AuthService.createUser).toHaveBeenCalledWith({
+        ...validBody,
+        companyId: "1",
+        createdBy: "1",
+        actorRole: "admin",
+      });
       expect(mockReply.code).toHaveBeenCalledWith(201);
     });
 
-    it("invalid input: throws ValidationError", async () => {
+    it("invalid input: throws ValidationError with the first issue's message", async () => {
       (createUserSchema.safeParse as jest.Mock).mockReturnValue({
         success: false,
-        error: { flatten: () => ({}) },
+        error: {
+          issues: [{ message: "Password must contain at least one special character" }],
+          flatten: () => ({}),
+        },
       });
 
-      await expect(AuthController.createUser(mockRequest, mockReply)).rejects.toThrow(ValidationError);
+      await expect(AuthController.createUser(mockRequest, mockReply)).rejects.toThrow(
+        new ValidationError("Password must contain at least one special character"),
+      );
     });
   });
 
@@ -317,7 +327,7 @@ describe("AuthController", () => {
 
       await AuthController.deleteUser(mockRequest, mockReply);
 
-      expect(AuthService.deleteUser).toHaveBeenCalledWith("1", "2", "1");
+      expect(AuthService.deleteUser).toHaveBeenCalledWith("1", "2", "1", "admin");
       expect(mockReply.code).toHaveBeenCalledWith(200);
       expect(mockReply.send).toHaveBeenCalledWith({ success: true, message: "User deleted successfully." });
     });

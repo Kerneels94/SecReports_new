@@ -85,13 +85,16 @@ export const AuthController = {
   /** Create a new user within the authenticated admin's company (admin-only via route). */
   async createUser(request: FastifyRequest, reply: FastifyReply) {
     const parsed = createUserSchema.safeParse(request.body);
-    if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+    if (!parsed.success) {
+      const msg = parsed.error.issues[0]?.message || "Invalid input";
+      throw new ValidationError(msg, parsed.error.flatten());
+    }
 
     const user = await AuthService.createUser({
       ...parsed.data,
       companyId: request.user!.companyId,
       createdBy: request.user!.userId,
+      actorRole: request.user!.role,
     });
     reply.code(201).send({ success: true, data: user });
   },
@@ -179,7 +182,7 @@ export const AuthController = {
   /** Delete a user and revoke their access (admin-only via route). */
   async deleteUser(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    await AuthService.deleteUser(request.user!.companyId, id, request.user!.userId);
+    await AuthService.deleteUser(request.user!.companyId, id, request.user!.userId, request.user!.role);
     reply.code(200).send({ success: true, message: "User deleted successfully." });
   },
 

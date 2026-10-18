@@ -257,4 +257,44 @@ describe("ApiClient", () => {
       );
     });
   });
+
+  describe("downloadBlob", () => {
+    const pdfResponse = {
+      ok: true,
+      status: 200,
+      headers: { get: () => 'attachment; filename="incident.pdf"' },
+      blob: () => Promise.resolve(new Blob(["%PDF"])),
+    };
+
+    it("auto-refreshes token on 401 and retries", async () => {
+      localStorage.setItem("accessToken", "expired-token");
+
+      mockFetch
+        .mockResolvedValueOnce({ ok: false, status: 401, text: () => Promise.resolve("Unauthorized") })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ success: true, data: { accessToken: "new-access" } }),
+        })
+        .mockResolvedValueOnce(pdfResponse);
+
+      const blob = await api.downloadBlob("/export/pdf?incidentId=1");
+
+      expect(blob.filename).toBe("incident.pdf");
+      expect(mockFetch).toHaveBeenCalledTimes(3);
+      expect(mockFetch.mock.calls[1][0]).toContain("/auth/refresh");
+      expect(mockFetch.mock.calls[2][1].headers).toEqual({ Authorization: "Bearer new-access" });
+    });
+
+    it("clears tokens and throws when refresh fails on 401", async () => {
+      localStorage.setItem("accessToken", "expired-token");
+
+      mockFetch
+        .mockResolvedValueOnce({ ok: false, status: 401, text: () => Promise.resolve("Unauthorized") })
+        .mockResolvedValueOnce({ ok: false, status: 401, json: () => Promise.resolve({}) });
+
+      await expect(api.downloadBlob("/export/csv")).rejects.toThrow("Download failed: 401");
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(localStorage.getItem("accessToken")).toBeNull();
+    });
+  });
 });

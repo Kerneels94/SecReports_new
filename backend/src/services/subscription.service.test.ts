@@ -381,6 +381,36 @@ describe("SubscriptionService.changePlan", () => {
       NotFoundError,
     );
   });
+
+  it("rejects a plan whose user limit is below the active user count", async () => {
+    const enterprise = { id: "ent", name: "Enterprise", price: 450000, userLimit: 0 };
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(paidPlan);
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: enterprise.id, plan: enterprise }),
+    );
+    (prisma.user.count as jest.Mock).mockResolvedValue(12);
+
+    await expect(SubscriptionService.changePlan("company1", paidPlan.id)).rejects.toThrow(
+      "You have 12 active users. The Professional plan allows 5. Remove users before changing plan.",
+    );
+    expect(prisma.user.count).toHaveBeenCalledWith({
+      where: { companyId: "company1", status: "active" },
+    });
+    expect(prisma.companySubscription.update).not.toHaveBeenCalled();
+  });
+
+  it("allows a plan whose user limit equals the active user count", async () => {
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(paidPlan);
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: freePlan.id, plan: freePlan }),
+    );
+    (prisma.user.count as jest.Mock).mockResolvedValue(5);
+    (prisma.companySubscription.update as jest.Mock).mockResolvedValue({});
+
+    await SubscriptionService.changePlan("company1", paidPlan.id);
+
+    expect(prisma.companySubscription.update).toHaveBeenCalled();
+  });
 });
 
 describe("getNextBillingDate", () => {

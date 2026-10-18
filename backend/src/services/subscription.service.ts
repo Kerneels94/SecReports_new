@@ -330,6 +330,18 @@ export const SubscriptionService = {
       );
     }
 
+    // canAddUser only guards new users, so a downgrade must not leave the company over the new limit.
+    if (plan.userLimit > 0) {
+      const count = await prisma.user.count({
+        where: { companyId, status: "active" },
+      });
+      if (count > plan.userLimit) {
+        throw new ForbiddenError(
+          `You have ${count} active users. The ${plan.name} plan allows ${plan.userLimit}. Remove users before changing plan.`,
+        );
+      }
+    }
+
     const now = new Date();
 
     const updated = await prisma.companySubscription.update({

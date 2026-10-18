@@ -23,12 +23,14 @@ const ACTION_LABELS: Record<string, string> = {
   password_reset: "Password Reset",
   user_created: "User Created",
   user_updated: "User Updated",
+  user_deleted: "User Deleted",
   role_changed: "Role Changed",
+  email_verified: "Email Verified",
   refresh_token_reuse_detected: "Token Reuse Detected",
   create: "Created",
-  update: "Updated",
-  delete: "Deleted",
-  status_change: "Status Changed",
+  report_email_sent: "Report Emailed",
+  report_batch_email_sent: "Batch Report Emailed",
+  report_response_time_exported: "Response Time Report Exported",
 };
 
 function ActionBadge({ action }: { action: string }) {

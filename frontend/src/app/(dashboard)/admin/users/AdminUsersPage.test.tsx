@@ -98,6 +98,22 @@ describe("AdminUsersPage", () => {
     });
   });
 
+  it("rejects a password the backend would reject, before sending it", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    render(<AdminUsersPage />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText("Name"), "Jane Doe");
+    await user.type(screen.getByLabelText("Email"), "jane@example.com");
+    await user.type(screen.getByLabelText("Password"), "guardhouse1");
+    await user.click(screen.getByRole("button", { name: /create user/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Must include an uppercase letter")).toBeInTheDocument();
+    });
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
   it("calls userService.create and shows success", async () => {
     mockUseAuth.mockReturnValue({ user: adminUser });
     mockCreate.mockResolvedValue({ success: true, data: { message: "Verification email sent" } });
@@ -106,14 +122,14 @@ describe("AdminUsersPage", () => {
 
     await user.type(screen.getByLabelText("Name"), "Jane Doe");
     await user.type(screen.getByLabelText("Email"), "jane@example.com");
-    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.type(screen.getByLabelText("Password"), "Password1!");
     await user.click(screen.getByRole("button", { name: /create user/i }));
 
     await waitFor(() => {
       expect(mockCreate).toHaveBeenCalledWith({
         name: "Jane Doe",
         email: "jane@example.com",
-        password: "password123",
+        password: "Password1!",
         role: "senior",
       });
       expect(screen.getByText(/verification email sent/i)).toBeInTheDocument();
@@ -128,7 +144,7 @@ describe("AdminUsersPage", () => {
 
     await user.type(screen.getByLabelText("Name"), "Jane Doe");
     await user.type(screen.getByLabelText("Email"), "taken@example.com");
-    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.type(screen.getByLabelText("Password"), "Password1!");
     await user.click(screen.getByRole("button", { name: /create user/i }));
 
     await waitFor(() => {
@@ -144,7 +160,7 @@ describe("AdminUsersPage", () => {
 
     await user.type(screen.getByLabelText("Name"), "Jane Doe");
     await user.type(screen.getByLabelText("Email"), "jane@example.com");
-    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.type(screen.getByLabelText("Password"), "Password1!");
     await user.click(screen.getByRole("button", { name: /create user/i }));
 
     await waitFor(() => {
