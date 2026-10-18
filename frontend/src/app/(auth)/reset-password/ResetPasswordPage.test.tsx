@@ -93,12 +93,12 @@ describe("ResetPasswordPage", () => {
     render(<ResetPasswordPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText("New Password"), "newpassword123");
-    await user.type(screen.getByLabelText("Confirm Password"), "newpassword123");
+    await user.type(screen.getByLabelText("New Password"), "NewPassword1!");
+    await user.type(screen.getByLabelText("Confirm Password"), "NewPassword1!");
     await user.click(screen.getByRole("button", { name: /reset password/i }));
 
     await waitFor(() => {
-      expect(mockResetPassword).toHaveBeenCalledWith("valid-token", "newpassword123");
+      expect(mockResetPassword).toHaveBeenCalledWith("valid-token", "NewPassword1!");
       expect(screen.getByText(/password reset/i)).toBeInTheDocument();
       expect(screen.getByText(/reset successfully/i)).toBeInTheDocument();
     });
@@ -110,8 +110,8 @@ describe("ResetPasswordPage", () => {
     render(<ResetPasswordPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText("New Password"), "newpassword123");
-    await user.type(screen.getByLabelText("Confirm Password"), "newpassword123");
+    await user.type(screen.getByLabelText("New Password"), "NewPassword1!");
+    await user.type(screen.getByLabelText("Confirm Password"), "NewPassword1!");
     await user.click(screen.getByRole("button", { name: /reset password/i }));
 
     await waitFor(() => {
@@ -125,8 +125,8 @@ describe("ResetPasswordPage", () => {
     render(<ResetPasswordPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText("New Password"), "newpassword123");
-    await user.type(screen.getByLabelText("Confirm Password"), "newpassword123");
+    await user.type(screen.getByLabelText("New Password"), "NewPassword1!");
+    await user.type(screen.getByLabelText("Confirm Password"), "NewPassword1!");
     await user.click(screen.getByRole("button", { name: /reset password/i }));
 
     await waitFor(() => {
@@ -143,10 +143,25 @@ describe("ResetPasswordPage", () => {
     render(<ResetPasswordPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText("New Password"), "newpassword123");
-    await user.type(screen.getByLabelText("Confirm Password"), "newpassword123");
+    await user.type(screen.getByLabelText("New Password"), "NewPassword1!");
+    await user.type(screen.getByLabelText("Confirm Password"), "NewPassword1!");
     await user.click(screen.getByRole("button", { name: /reset password/i }));
 
     expect(screen.getByText("Resetting...")).toBeInTheDocument();
+  });
+});
+
+describe("ResetPasswordPage password rules", () => {
+  it("names the failed rule instead of sending a weak password", async () => {
+    mockToken("valid-token");
+    render(<ResetPasswordPage />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText("New Password"), "guardhouse1");
+    await user.type(screen.getByLabelText("Confirm Password"), "guardhouse1");
+    await user.click(screen.getByRole("button", { name: /reset password/i }));
+
+    expect(await screen.findByText("Must include an uppercase letter")).toBeInTheDocument();
+    expect(mockResetPassword).not.toHaveBeenCalled();
   });
 });

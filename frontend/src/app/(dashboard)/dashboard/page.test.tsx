@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import DashboardPage, { aggregateYearly } from "./page";
+import DashboardPage, { aggregateYearly, fillMonthGaps } from "./page";
 import { reportService, exportService } from "@/services";
 
 jest.mock("next/navigation", () => ({
@@ -383,5 +383,68 @@ describe("aggregateYearly", () => {
     const result = aggregateYearly([]);
     expect(result).toHaveLength(12);
     expect(result.every((d) => d.count === 0)).toBe(true);
+  });
+});
+
+describe("DashboardPage download failures and month gaps", () => {
+  it("keeps the dashboard rendered when the yearly PDF download fails", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockMonthly.mockResolvedValue({ data: [{ month: "2026-01", count: 2 }] });
+    mockDownloadPdf.mockRejectedValue(new Error("nope"));
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Incident Trends")).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: /pdf/i }));
+
+    expect(await screen.findByText("Failed to download PDF")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Retry" })).not.toBeInTheDocument();
+    expect(screen.getByText("Attempted incidents")).toBeInTheDocument();
+  });
+
+  it("compares the latest month with the calendar month before it when that month had no incidents", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockMonthly.mockResolvedValue({
+      data: [
+        { month: "2026-06", count: 5 },
+        { month: "2026-08", count: 3 },
+      ],
+    });
+    render(<DashboardPage />);
+
+    expect(await screen.findByText("Aug 2026 incidents")).toBeInTheDocument();
+    expect(screen.getByText(/▲ 3 vs previous month/)).toBeInTheDocument();
+  });
+});
+
+describe("fillMonthGaps", () => {
+  it("inserts months with no incidents as zero across a year boundary", () => {
+    expect(
+      fillMonthGaps([
+        { month: "2025-11", count: 1 },
+        { month: "2026-02", count: 4 },
+      ]),
+    ).toEqual([
+      { month: "2025-11", count: 1 },
+      { month: "2025-12", count: 0 },
+      { month: "2026-01", count: 0 },
+      { month: "2026-02", count: 4 },
+    ]);
+  });
+
+  it("returns an empty list unchanged", () => {
+    expect(fillMonthGaps([])).toEqual([]);
+  });
+});
+
+describe("fillMonthGaps with malformed keys", () => {
+  it("returns the data unchanged instead of looping", () => {
+    const data = [
+      { month: "2026-01", count: 1 },
+      { month: "NaN-NaN", count: 2 },
+    ];
+    expect(fillMonthGaps(data)).toBe(data);
   });
 });

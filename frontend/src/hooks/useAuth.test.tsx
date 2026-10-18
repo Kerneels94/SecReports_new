@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AuthProvider, useAuth } from "./useAuth";
 import { authService } from "@/services";
@@ -137,5 +137,26 @@ describe("useAuth", () => {
       expect(localStorage.getItem("refreshToken")).toBeNull();
       expect(screen.getByTestId("user")).toHaveTextContent("null");
     });
+  });
+});
+
+describe("useAuth session expiry", () => {
+  it("clears the user when the API reports the session has ended", async () => {
+    localStorage.setItem("accessToken", "tok");
+    mockMe.mockResolvedValue({ data: { id: 1, name: "Alice", email: "a@b.com", role: "admin", status: "active", companyId: 1 } });
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("user")).toHaveTextContent("Alice");
+    });
+
+    act(() => {
+      window.dispatchEvent(new Event("auth:expired"));
+    });
+
+    expect(screen.getByTestId("user")).toHaveTextContent("null");
   });
 });

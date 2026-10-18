@@ -446,6 +446,42 @@ describe("AuthService", () => {
         }),
       ).rejects.toThrow("Email domain does not accept mail");
     });
+
+    it("throws ForbiddenError when a non-admin creates an admin", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+
+      await expect(
+        AuthService.createUser({
+          name: "Test User",
+          email: "test@example.com",
+          password: "password123",
+          role: "admin",
+          companyId: "1",
+          createdBy: "2",
+          actorRole: "manager",
+        }),
+      ).rejects.toThrow(ForbiddenError);
+      expect(prisma.user.create).not.toHaveBeenCalled();
+    });
+
+    it("lets an admin create an admin", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      (prisma.user.create as jest.Mock).mockResolvedValue(mockUser);
+
+      await AuthService.createUser({
+        name: "Test User",
+        email: "test@example.com",
+        password: "password123",
+        role: "admin",
+        companyId: "1",
+        createdBy: "1",
+        actorRole: "admin",
+      });
+
+      expect(prisma.user.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({ role: "admin" }),
+      });
+    });
   });
 
   describe("getMe", () => {
@@ -718,7 +754,7 @@ describe("deleteUser", () => {
   it("deactivates the user, frees their email, revokes tokens, and writes an audit log", async () => {
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
 
-    await AuthService.deleteUser("1", "1", "2");
+    await AuthService.deleteUser("1", "1", "2", "admin");
 
     expect(prisma.refreshToken.deleteMany).toHaveBeenCalledWith({ where: { userId: "1" } });
     expect(prisma.user.update).toHaveBeenCalledWith({
@@ -758,6 +794,25 @@ describe("deleteUser", () => {
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
 
     await expect(AuthService.deleteUser("1", "1", "1")).rejects.toThrow("You cannot delete your own account");
+  });
+
+  it("throws ForbiddenError when a non-admin deletes an admin", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
+
+    await expect(AuthService.deleteUser("1", "1", "2", "manager")).rejects.toThrow(ForbiddenError);
+    expect(prisma.user.update).not.toHaveBeenCalled();
+    expect(prisma.refreshToken.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it("lets a manager delete a senior", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue({ ...mockUser, role: "senior" });
+
+    await AuthService.deleteUser("1", "1", "2", "manager");
+
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: "1" },
+      data: { status: "inactive", email: "test@example.com.1.invalid" },
+    });
   });
 });
 

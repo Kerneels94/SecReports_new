@@ -68,6 +68,7 @@ interface CreateUserParams {
   role?: UserRole;
   companyId: string;
   createdBy: string;
+  actorRole?: string;
 }
 
 /** Creates an audit log entry for auth-sensitive operations. */
@@ -504,6 +505,11 @@ export const AuthService = {
 
   /** Creates a user within a company after checking subscription user-limit. Sends verification email. */
   async createUser(params: CreateUserParams) {
+    // users.manage can be granted to managers; without this they could create an admin they control.
+    if (params.role === "admin" && params.actorRole !== "admin") {
+      throw new ForbiddenError("Only an admin can create an admin");
+    }
+
     await SubscriptionService.canAddUser(params.companyId);
 
     const validDomain = await hasMxRecord(params.email);
@@ -834,12 +840,15 @@ export const AuthService = {
   },
 
   /** Deactivates a user (soft delete), frees their email for reuse, and revokes their tokens. Admin cannot delete themselves. */
-  async deleteUser(companyId: string, userId: string, performedBy: string) {
+  async deleteUser(companyId: string, userId: string, performedBy: string, actorRole?: string) {
     const user = await prisma.user.findFirst({
       where: { id: userId, companyId, status: "active" },
     });
     if (!user) throw new NotFoundError("User not found");
     if (userId === performedBy) throw new ValidationError("You cannot delete your own account");
+    if (user.role === "admin" && actorRole !== "admin") {
+      throw new ForbiddenError("Only an admin can delete an admin");
+    }
 
     await prisma.refreshToken.deleteMany({ where: { userId } });
     // Reset tokens are keyed by email, so they must not survive into a new account with the same address.

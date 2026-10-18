@@ -10,10 +10,11 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/hooks/useAuth";
 import { authService, userService } from "@/services";
+import { hasPermission } from "@/lib/permissions";
 
 /** Profile page component with account info display/edit and password change form. */
 export default function ProfilePage() {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
 
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
@@ -37,6 +38,9 @@ export default function ProfilePage() {
   }, [passwordSuccess]);
 
   if (!user) return null;
+
+  // PATCH /auth/users/:id needs users.update, so only offer the name field to users who can save it.
+  const canEditName = hasPermission(user, "users.update");
 
   const startEditing = () => {
     setEditName(user.name);
@@ -94,6 +98,8 @@ export default function ProfilePage() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+      // The server ended every session, this one included, so sign out now rather than fail later.
+      await logout();
     } catch (err) {
       setPasswordError(err instanceof Error ? err.message : "Failed to change password");
     } finally {
@@ -149,11 +155,13 @@ export default function ProfilePage() {
 
           {editing ? (
             <div className="flex flex-col gap-4">
-              <Input
-                label="Name"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-              />
+              {canEditName && (
+                <Input
+                  label="Name"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                />
+              )}
 
               <div className="border-t border-border-light/30 pt-4 mt-2">
                 <p className="text-sm font-semibold text-text mb-3">Change Password</p>
@@ -205,9 +213,11 @@ export default function ProfilePage() {
               </div>
 
               <div className="flex gap-3 justify-end">
-                <Button onClick={handleProfileSave} loading={profileLoading}>
-                  Save
-                </Button>
+                {canEditName && (
+                  <Button onClick={handleProfileSave} loading={profileLoading}>
+                    Save
+                  </Button>
+                )}
                 <Button variant="secondary" onClick={cancelEditing}>
                   Cancel
                 </Button>

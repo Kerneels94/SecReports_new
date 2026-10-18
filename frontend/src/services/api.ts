@@ -24,7 +24,13 @@ class ApiClient {
           credentials: "include",
         });
 
-        if (!res.ok) return false;
+        if (!res.ok) {
+          // 400 (no cookie) or 401 (expired/revoked): the session is over, not a network blip.
+          if (res.status === 400 || res.status === 401) {
+            window.dispatchEvent(new Event("auth:expired"));
+          }
+          return false;
+        }
 
         const json = await res.json();
         const data = json.data as LoginResponse;
@@ -45,6 +51,16 @@ class ApiClient {
 
   private clearTokens(): void {
     localStorage.removeItem("accessToken");
+  }
+
+  /** Refreshes the access token, sharing one in-flight refresh between concurrent 401s. */
+  private refreshShared(): Promise<boolean> {
+    if (!this.refreshing) {
+      this.refreshing = this.attemptRefresh().finally(() => {
+        this.refreshing = null;
+      });
+    }
+    return this.refreshing;
   }
 
   private async request<T>(
@@ -75,13 +91,7 @@ class ApiClient {
     }
 
     if (res.status === 401 && !isRetry && !path.startsWith("/auth/refresh")) {
-      if (!this.refreshing) {
-        this.refreshing = this.attemptRefresh().finally(() => {
-          this.refreshing = null;
-        });
-      }
-
-      const refreshed = await this.refreshing;
+      const refreshed = await this.refreshShared();
       if (refreshed) {
         return this.request<T>(path, options, true);
       }
@@ -128,7 +138,7 @@ class ApiClient {
     return this.request<T>(path, { method: "DELETE" });
   }
 
-  async downloadBlob(path: string): Promise<Blob & { filename?: string }> {
+  async downloadBlob(path: string, isRetry = false): Promise<Blob & { filename?: string }> {
     const token = this.getToken();
     const headers: HeadersInit = {};
     if (token) {
@@ -140,6 +150,13 @@ class ApiClient {
       headers,
       credentials: "include",
     });
+
+    if (res.status === 401 && !isRetry) {
+      if (await this.refreshShared()) {
+        return this.downloadBlob(path, true);
+      }
+      this.clearTokens();
+    }
 
     if (!res.ok) {
       const text = await res.text();
