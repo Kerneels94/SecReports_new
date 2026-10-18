@@ -134,7 +134,7 @@ async function main() {
     },
   });
 
-  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
+  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL?.trim().toLowerCase();
   const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
   if (!superAdminEmail || !superAdminPassword) {
     console.error("SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD must be set");

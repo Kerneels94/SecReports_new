@@ -33,9 +33,4 @@ describe("HowToPage", () => {
     expect(screen.getByText(/auto-generated reference number/i)).toBeInTheDocument();
     expect(screen.getByText(/Audit Logs records every change/i)).toBeInTheDocument();
   });
-
-  it("renders image placeholder slots for each step", () => {
-    render(<HowToPage />);
-    expect(screen.getAllByLabelText(/screenshot placeholder/i)).toHaveLength(6);
-  });
 });

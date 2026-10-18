@@ -30,7 +30,7 @@ export const PERMISSIONS: Permission[] = [
   {
     key: "reports.view",
     label: "View reports & analytics",
-    description: "Dashboard summaries, monthly stats, and emailed reports",
+    description: "Dashboard summaries and monthly stats",
     defaults: ["admin", "manager", "senior"],
   },
   {

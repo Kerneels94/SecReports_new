@@ -68,6 +68,7 @@ interface CreateUserParams {
   role?: UserRole;
   companyId: string;
   createdBy: string;
+  actorRole?: string;
 }
 
 /** Creates an audit log entry for auth-sensitive operations. */
@@ -112,25 +113,20 @@ async function persistRefreshToken(
 
 /** Checks whether the account is currently locked and increments on failure. */
 async function handleLoginFailure(userId: string): Promise<never> {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) throw new UnauthorizedError("Invalid email or password");
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { loginAttempts: { increment: 1 } },
+  });
 
-  const attempts = user.loginAttempts + 1;
-
-  if (attempts >= MAX_LOGIN_ATTEMPTS) {
+  if (user.loginAttempts >= MAX_LOGIN_ATTEMPTS) {
     const duration = lockoutDuration(user.lockoutCount);
     await prisma.user.update({
       where: { id: userId },
       data: {
-        loginAttempts: attempts,
-        lockoutCount: user.lockoutCount + 1,
+        loginAttempts: 0,
+        lockoutCount: { increment: 1 },
         lockedUntil: new Date(Date.now() + duration),
       },
-    });
-  } else {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { loginAttempts: attempts },
     });
   }
 
@@ -139,7 +135,7 @@ async function handleLoginFailure(userId: string): Promise<never> {
     entityId: userId,
     action: "login_failed",
     performedBy: userId,
-    newValues: JSON.stringify({ loginAttempts: attempts }),
+    newValues: JSON.stringify({ loginAttempts: user.loginAttempts }),
   });
 
   throw new UnauthorizedError("Invalid email or password");
@@ -156,6 +152,7 @@ function authDenied(user: {
   role: string;
   emailVerified: boolean;
   lockedUntil: Date | null;
+  status: string;
 }): boolean {
   const roleAllowed =
     user.role === "admin" ||
@@ -163,6 +160,7 @@ function authDenied(user: {
     user.role === "senior" ||
     user.role === "superadmin";
   return (
+    user.status !== "active" ||
     !roleAllowed ||
     !user.emailVerified ||
     (!!user.lockedUntil && user.lockedUntil > new Date())
@@ -223,9 +221,11 @@ export const AuthService = {
 
     await assertTrialNotExpired(user);
 
-    SubscriptionService.checkAndNotifyTrialEnding(user.companyId!).catch(
-      (err) => console.error("[AuthService] Trial notification failed:", err),
-    );
+    if (user.companyId) {
+      SubscriptionService.checkAndNotifyTrialEnding(user.companyId).catch(
+        (err) => console.error("[AuthService] Trial notification failed:", err),
+      );
+    }
 
     const familyId = crypto.randomUUID();
     const payload = {
@@ -317,17 +317,22 @@ export const AuthService = {
     // Re-run the same gates as login() so a locked, unverified, or
     // trial-expired account cannot keep rotating its refresh token.
     if (authDenied(user)) {
-      await prisma.refreshToken.delete({ where: { id: stored.id } });
+      await prisma.refreshToken.deleteMany({ where: { id: stored.id } });
       throwGenericAuthError();
     }
     try {
       await assertTrialNotExpired(user);
     } catch (err) {
-      await prisma.refreshToken.delete({ where: { id: stored.id } });
+      await prisma.refreshToken.deleteMany({ where: { id: stored.id } });
       throw err;
     }
 
-    await prisma.refreshToken.delete({ where: { id: stored.id } });
+    const consumed = await prisma.refreshToken.deleteMany({
+      where: { id: stored.id },
+    });
+    if (consumed.count === 0) {
+      throw new UnauthorizedError("Refresh token has already been used");
+    }
 
     const newRaw = await persistRefreshToken(
       user,
@@ -502,6 +507,11 @@ export const AuthService = {
 
   /** Creates a user within a company after checking subscription user-limit. Sends verification email. */
   async createUser(params: CreateUserParams) {
+    // users.manage can be granted to managers; without this they could create an admin they control.
+    if (params.role === "admin" && params.actorRole !== "admin") {
+      throw new ForbiddenError("Only an admin can create an admin");
+    }
+
     await SubscriptionService.canAddUser(params.companyId);
 
     const validDomain = await hasMxRecord(params.email);
@@ -565,7 +575,9 @@ export const AuthService = {
    */
   async forgotPassword(email: string) {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user || !user.emailVerified) {
+    // Unverified users are served too: the reset link proves mailbox ownership,
+    // and resetPassword marks the email verified (golden rule #32).
+    if (!user || user.status !== "active") {
       await sleep(200);
       return;
     }
@@ -611,7 +623,9 @@ export const AuthService = {
       });
       return tx.user.update({
         where: { email: record.email },
-        data: { passwordHash },
+        // Reset link proves mailbox ownership: verify the email and lift any
+        // lockout. lockoutCount stays for escalation.
+        data: { passwordHash, emailVerified: true, loginAttempts: 0, lockedUntil: null },
       });
     });
 
@@ -666,7 +680,7 @@ export const AuthService = {
   /** Lists all users in a company, ordered by creation date. */
   async listUsers(companyId: string) {
     return prisma.user.findMany({
-      where: { companyId },
+      where: { companyId, status: "active" },
       select: {
         id: true,
         name: true,
@@ -710,7 +724,8 @@ export const AuthService = {
     });
     if (!user) throw new NotFoundError("User not found");
 
-    if (data.role) {
+    // The edit form always sends the role, so only an actual change is a role change.
+    if (data.role !== undefined && data.role !== user.role) {
       if (actorRole !== "admin") {
         throw new ValidationError("Only an admin can change a user's role");
       }
@@ -745,10 +760,11 @@ export const AuthService = {
       where: { id: userId },
       data: {
         ...(data.name !== undefined && { name: data.name }),
-        ...(data.email !== undefined && {
-          email: data.email,
-          emailVerified: false,
-        }),
+        ...(data.email !== undefined &&
+          data.email !== user.email && {
+            email: data.email,
+            emailVerified: false,
+          }),
         ...(data.role !== undefined && { role: data.role }),
       },
       select: {
@@ -828,17 +844,26 @@ export const AuthService = {
     return updated;
   },
 
-  /** Deletes a user and all their refresh tokens. Admin cannot delete themselves. */
-  async deleteUser(companyId: string, userId: string, performedBy: string) {
+  /** Deactivates a user (soft delete), frees their email for reuse, and revokes their tokens. Admin cannot delete themselves. */
+  async deleteUser(companyId: string, userId: string, performedBy: string, actorRole?: string) {
     const user = await prisma.user.findFirst({
-      where: { id: userId, companyId },
+      where: { id: userId, companyId, status: "active" },
     });
     if (!user) throw new NotFoundError("User not found");
     if (userId === performedBy) throw new ValidationError("You cannot delete your own account");
+    if (user.role === "admin" && actorRole !== "admin") {
+      throw new ForbiddenError("Only an admin can delete an admin");
+    }
 
     await prisma.refreshToken.deleteMany({ where: { userId } });
+    // Reset tokens are keyed by email, so they must not survive into a new account with the same address.
+    await prisma.passwordResetToken.deleteMany({ where: { email: user.email } });
 
-    await prisma.user.delete({ where: { id: userId } });
+    // Email is unique, so rename it to free the address. The reserved .invalid TLD can never receive mail.
+    await prisma.user.update({
+      where: { id: userId },
+      data: { status: "inactive", email: `${user.email}.${userId}.invalid` },
+    });
 
     await createAuditLog({
       entityType: "user",

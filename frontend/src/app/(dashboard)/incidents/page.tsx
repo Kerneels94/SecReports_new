@@ -21,7 +21,7 @@ export default function IncidentsPage() {
   const { user } = useAuth();
   const canViewReports = hasPermission(user, "reports.view");
   const canExportPdf = hasPermission(user, "export.csv");
-  const canEmail = hasPermission(user, "reports.view");
+  const canEmail = hasPermission(user, "export.reports");
   const [summary, setSummary] = useState<{
     total: number;
     attemptedCount: number;
@@ -35,6 +35,8 @@ export default function IncidentsPage() {
   const [selectedIncidentId, setSelectedIncidentId] = useState<number | null>(null);
   const [emailIncident, setEmailIncident] = useState<{ id: number; title: string } | null>(null);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  // Separate from `error`, which replaces the whole table with a Retry button.
+  const [downloadError, setDownloadError] = useState<string | null>(null);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -82,6 +84,7 @@ export default function IncidentsPage() {
 
   const handleDownloadPdf = async (incident: Incident) => {
     setDownloadingId(incident.id);
+    setDownloadError(null);
     try {
       const blob = await exportService.downloadPdf(incident.id);
       const url = URL.createObjectURL(blob);
@@ -93,7 +96,7 @@ export default function IncidentsPage() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch {
-      setError("Failed to download PDF");
+      setDownloadError("Failed to download PDF");
     } finally {
       setDownloadingId(null);
     }
@@ -227,6 +230,12 @@ export default function IncidentsPage() {
         )}
       </div>
 
+      {downloadError && (
+        <p role="alert" className="text-lg text-danger">
+          {downloadError}
+        </p>
+      )}
+
       <Card className="overflow-hidden">
         <CardContent className="p-0">
           {loading ? (
@@ -290,7 +299,8 @@ export default function IncidentsPage() {
                       <td className="px-6 py-4 text-text-secondary">{incident.type}</td>
                       <td className="px-6 py-4 text-text-secondary">{incident.reporter?.name || "-"}</td>
                       <td className="px-6 py-4 text-text-secondary">
-                        {new Date(incident.createdAt).toLocaleDateString()}
+                        {/* incidentDate is stored as UTC midnight; format in UTC so it never shifts a day */}
+                        {new Date(incident.incidentDate).toLocaleDateString(undefined, { timeZone: "UTC" })}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-1">

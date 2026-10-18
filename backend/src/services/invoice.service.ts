@@ -1,6 +1,8 @@
 import { prisma } from "../lib/db";
 import { NotFoundError, ConflictError, AppError } from "../lib/errors";
 import { ADMIN_FROM_EMAIL, sendMail } from "./email.service";
+import { getNextBillingDate } from "./subscription.service";
+import { generateInvoicePdf } from "../templates/invoice-pdf";
 
 export const InvoiceService = {
   async generateInvoiceNumber(): Promise<string> {
@@ -87,6 +89,15 @@ export const InvoiceService = {
     if (!invoice) throw new NotFoundError("Invoice");
     if (invoice.status !== "draft") throw new ConflictError("Invoice already sent");
 
+    const pdf = await generateInvoicePdf({
+      companyName: invoice.company.name,
+      amount: invoice.amount,
+      invoiceNumber: invoice.invoiceNumber,
+      dueDate: invoice.dueDate,
+      invoiceDate: invoice.createdAt,
+      description: invoice.description ?? undefined,
+    });
+
     await sendMail({
       to: invoice.company.email,
       from: ADMIN_FROM_EMAIL,
@@ -97,7 +108,11 @@ export const InvoiceService = {
         currency: invoice.currency,
         invoiceNumber: invoice.invoiceNumber,
         dueDate: invoice.dueDate.toISOString(),
+        description: invoice.description ?? undefined,
       },
+      attachments: [
+        { filename: `${invoice.invoiceNumber}.pdf`, content: pdf },
+      ],
     }).then(({ error }) => {
       if (error)
         throw new AppError(
@@ -126,39 +141,48 @@ export const InvoiceService = {
     if (!invoice) throw new NotFoundError("Invoice");
     if (invoice.status === "paid") throw new ConflictError("Invoice already paid");
 
-    const [updated] = await prisma.$transaction([
-      prisma.invoice.update({
-        where: { id },
-        data: {
-          status: "paid",
-          paidAt: new Date(),
-        },
-      }),
-      prisma.paymentHistory.create({
-        data: {
-          companyId: invoice.companyId,
-          amount: invoice.amount,
-          currency: invoice.currency,
-          reference: `PAY-${invoice.invoiceNumber}`,
-          status: "completed",
-          invoiceId: id,
-        },
-      }),
-      prisma.ledger.create({
-        data: {
-          companyId: invoice.companyId,
-          entryType: "payment",
-          amount: invoice.amount,
-          currency: invoice.currency,
-          reference: `PAY-${invoice.invoiceNumber}`,
-          description: `Payment received for ${invoice.invoiceNumber}`,
-          status: "paid",
-          postedAt: new Date(),
-        },
-      }),
-    ]);
+    try {
+      return await prisma.$transaction(async (tx) => {
+        // Conditional update: a concurrent request (double-click) must not record the payment twice.
+        const { count } = await tx.invoice.updateMany({
+          where: { id, status: { not: "paid" } },
+          data: {
+            status: "paid",
+            paidAt: new Date(),
+          },
+        });
+        if (count === 0) throw new ConflictError("Invoice already paid");
 
-    return updated;
+        await tx.paymentHistory.create({
+          data: {
+            companyId: invoice.companyId,
+            amount: invoice.amount,
+            currency: invoice.currency,
+            reference: `PAY-${invoice.invoiceNumber}`,
+            status: "completed",
+            invoiceId: id,
+          },
+        });
+        await tx.ledger.create({
+          data: {
+            companyId: invoice.companyId,
+            entryType: "payment",
+            amount: invoice.amount,
+            currency: invoice.currency,
+            reference: `PAY-${invoice.invoiceNumber}`,
+            description: `Payment received for ${invoice.invoiceNumber}`,
+            status: "paid",
+            postedAt: new Date(),
+          },
+        });
+
+        return tx.invoice.findUniqueOrThrow({ where: { id } });
+      });
+    } catch (err) {
+      // P2034: MongoDB write conflict with a concurrent transaction paying the same invoice.
+      if ((err as { code?: string }).code === "P2034") throw new ConflictError("Invoice already paid");
+      throw err;
+    }
   },
 
   async markAsOverdue(id: string) {
@@ -208,7 +232,7 @@ export const InvoiceService = {
         continue;
       }
 
-      const dueDate = new Date(now.getFullYear(), now.getMonth() + 1, 7);
+      const dueDate = getNextBillingDate(now);
       const invoice = await this.createInvoice({
         companyId: company.id,
         amount: company.subscription!.plan.price,

@@ -49,6 +49,13 @@ describe("SubscriptionModal", () => {
     expect(screen.queryByText("Free")).not.toBeInTheDocument();
   });
 
+  it("centers the plan cards regardless of how many paid plans exist", async () => {
+    render(<SubscriptionModal open onClose={jest.fn()} />);
+    const card = await screen.findByText("Professional");
+    const container = card.closest(".justify-center");
+    expect(container).toHaveClass("flex");
+  });
+
   it("shows a confirmation after choosing a plan and confirms the change", async () => {
     const onPlanChanged = jest.fn();
     const onClose = jest.fn();

@@ -10,6 +10,8 @@ import { ReportService } from "../services/report.service";
 import { SubscriptionService } from "../services/subscription.service";
 import { sendMail } from "../services/email.service";
 import { BRAND } from "../templates/layout";
+import { emailReportSchema, batchEmailSchema } from "../validators/export.schema";
+import { ValidationError } from "../lib/errors";
 
 interface IncidentForExport {
   referenceNumber: string;
@@ -65,7 +67,7 @@ const INCIDENT_CSV_HEADERS = [
 ];
 
 function sanitizeCsv(val: string): string {
-  if (/^[=+\-@]/.test(val)) return `" ${val.replace(/"/g, '""')}"`;
+  if (/^[=+\-@\t\r]/.test(val)) return `" ${val.replace(/"/g, '""')}"`;
   return `"${val.replace(/"/g, '""')}"`;
 }
 
@@ -132,8 +134,8 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
 
       if (inc.dispatchTime || inc.arrivalTime || inc.callSign) {
         y = drawSection(doc, "Response", y + 4);
-        if (inc.dispatchTime) y = drawField(doc, "Dispatch Time", new Date(inc.dispatchTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }), y);
-        if (inc.arrivalTime) y = drawField(doc, "Arrival Time", new Date(inc.arrivalTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }), y);
+        if (inc.dispatchTime) y = drawField(doc, "Dispatch Time", new Date(inc.dispatchTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Johannesburg" }), y);
+        if (inc.arrivalTime) y = drawField(doc, "Arrival Time", new Date(inc.arrivalTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Johannesburg" }), y);
         y = drawField(doc, "Call Sign", inc.callSign || "-", y);
       }
 
@@ -624,33 +626,35 @@ export const ExportController = {
     reply.code(200).send(pdfBuffer);
   },
 
-  /** Export incidents as a PDF file download. Accepts optional `incidentId` query param for a single incident. */
+  /** Export one incident as a PDF file download. */
   async pdf(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
 
     const query = request.query as { incidentId?: string };
-    const where: any = { companyId: request.user!.companyId };
-    if (query.incidentId) {
-      where.id = query.incidentId;
-    }
-
-    const incidents = await prisma.incident.findMany({
-      where,
-      include: {
-        reporter: { select: { name: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    if (incidents.length === 0) {
-      reply.code(404).send({ success: false, error: { code: "NOT_FOUND", message: "No incidents found" } });
+    if (!query.incidentId) {
+      reply.code(400).send({
+        success: false,
+        error: { code: "VALIDATION_ERROR", message: "incidentId is required" },
+      });
       return;
     }
 
-    const pdfBuffer = await generatePdf(incidents as IncidentForExport[]);
+    const incident = await prisma.incident.findFirst({
+      where: { id: query.incidentId, companyId: request.user!.companyId },
+      include: {
+        reporter: { select: { name: true } },
+      },
+    });
+
+    if (!incident) {
+      reply.code(404).send({ success: false, error: { code: "NOT_FOUND", message: "Incident not found" } });
+      return;
+    }
+
+    const pdfBuffer = await generatePdf([incident as IncidentForExport]);
 
     reply.header("Content-Type", "application/pdf");
-    reply.header("Content-Disposition", `attachment; filename=incident${incidents.length === 1 ? "" : "s"}.pdf`);
+    reply.header("Content-Disposition", `attachment; filename=incident-${incident.referenceNumber}.pdf`);
     reply.code(200).send(pdfBuffer);
   },
 
@@ -658,22 +662,10 @@ export const ExportController = {
   async batchEmail(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
 
-    const { email, type, format } = request.body as { email: string; type: string; format: "csv" | "pdf" };
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Invalid email address" } });
-      return;
-    }
-
-    if (type !== "attempted" && type !== "positive") {
-      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Type must be 'attempted' or 'positive'" } });
-      return;
-    }
-
-    if (format !== "csv" && format !== "pdf") {
-      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Format must be 'csv' or 'pdf'" } });
-      return;
-    }
+    const parsed = batchEmailSchema.safeParse(request.body);
+    if (!parsed.success)
+      throw new ValidationError("Invalid input", parsed.error.flatten());
+    const { email, type, format } = parsed.data;
 
     const incidents = await prisma.incident.findMany({
       where: {
@@ -682,6 +674,8 @@ export const ExportController = {
       },
       include: { reporter: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
+      // ponytail: hard cap so a large company can't stall PDF rendering or blow past mail limits
+      take: 500,
     });
 
     if (incidents.length === 0) {
@@ -773,17 +767,10 @@ export const ExportController = {
   async email(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
 
-    const { incidentId, email, format } = request.body as { incidentId: string; email: string; format: "csv" | "pdf" };
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Invalid email address" } });
-      return;
-    }
-
-    if (format !== "csv" && format !== "pdf") {
-      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Format must be 'csv' or 'pdf'" } });
-      return;
-    }
+    const parsed = emailReportSchema.safeParse(request.body);
+    if (!parsed.success)
+      throw new ValidationError("Invalid input", parsed.error.flatten());
+    const { incidentId, email, format } = parsed.data;
 
     const incident = await prisma.incident.findFirst({
       where: { id: incidentId, companyId: request.user!.companyId },

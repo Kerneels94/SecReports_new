@@ -56,6 +56,21 @@ describe("AuditLogsPage", () => {
     });
   });
 
+  it("offers only actions the backend logs, including user deletions", async () => {
+    render(<AuditLogsPage />);
+    await waitFor(() => expect(mockList).toHaveBeenCalled());
+    const user = userEvent.setup();
+
+    expect(screen.queryByRole("option", { name: "Deleted" })).not.toBeInTheDocument();
+    await user.selectOptions(screen.getByRole("combobox"), "user_deleted");
+
+    await waitFor(() => {
+      expect(mockList).toHaveBeenCalledWith(
+        expect.objectContaining({ action: "user_deleted", page: 1 }),
+      );
+    });
+  });
+
   it("debounces search input into a single request", async () => {
     jest.useFakeTimers();
     render(<AuditLogsPage />);

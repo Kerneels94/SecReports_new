@@ -26,7 +26,11 @@ interface PlanWithStatus extends SubscriptionPlan {
   isCurrent?: boolean;
 }
 
-export function SubscriptionModal({ open, onClose, onPlanChanged }: SubscriptionModalProps) {
+export function SubscriptionModal({
+  open,
+  onClose,
+  onPlanChanged,
+}: SubscriptionModalProps) {
   const [plans, setPlans] = useState<PlanWithStatus[]>([]);
   const [confirming, setConfirming] = useState<PlanWithStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,8 +74,9 @@ export function SubscriptionModal({ open, onClose, onPlanChanged }: Subscription
         className="max-w-3xl"
       >
         <p className="text-sm text-text-secondary mb-5">
-          Your free trial has come to an end. Choose a plan below to continue using your
-          account. Selecting a paid plan starts a monthly subscription.
+          Your free trial has come to an end. Choose a plan below to continue
+          using your account. Selecting a paid plan starts a monthly
+          subscription.
         </p>
 
         {error && (
@@ -85,16 +90,17 @@ export function SubscriptionModal({ open, onClose, onPlanChanged }: Subscription
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+          <div className="flex justify-center gap-5">
             {plans
               .filter((plan) => plan.price > 0)
               .map((plan) => (
-                <PlanSelectCard
-                  key={plan.id}
-                  plan={plan}
-                  isCurrent={Boolean(plan.isCurrent)}
-                  onSelect={() => setConfirming(plan)}
-                />
+                <div key={plan.id} className="mt-3">
+                  <PlanSelectCard
+                    plan={plan}
+                    isCurrent={Boolean(plan.isCurrent)}
+                    onSelect={() => setConfirming(plan)}
+                  />
+                </div>
               ))}
           </div>
         )}

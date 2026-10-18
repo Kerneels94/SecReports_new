@@ -12,7 +12,7 @@ jest.mock("next/navigation", () => ({
 
 jest.mock("@/hooks/useAuth", () => ({
   useAuth: () => ({
-    user: { id: 1, role: "manager", name: "Manager", email: "m@test.com", status: "active", companyId: 1, permissions: ["incidents.view", "incidents.create", "reports.view", "export.csv"] },
+    user: { id: 1, role: "manager", name: "Manager", email: "m@test.com", status: "active", companyId: 1, permissions: ["incidents.view", "incidents.create", "reports.view", "export.csv", "export.reports"] },
   }),
 }));
 
@@ -277,5 +277,36 @@ describe("IncidentsPage", () => {
     await waitFor(() => {
       expect(mockList).toHaveBeenLastCalledWith({ page: "1", perPage: "25" });
     });
+  });
+});
+
+describe("IncidentsPage dates and downloads", () => {
+  it("shows the incident date, not the date the report was created", async () => {
+    mockList.mockResolvedValue({
+      data: {
+        ...mockPaginated,
+        data: [{ ...mockIncidents[0], incidentDate: "2026-04-28T00:00:00.000Z", createdAt: "2026-05-01T06:10:00Z" }],
+      },
+    });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
+    render(<IncidentsPage />);
+
+    const incidentDay = new Date("2026-04-28T00:00:00Z").toLocaleDateString(undefined, { timeZone: "UTC" });
+    expect(await screen.findByText(incidentDay)).toBeInTheDocument();
+    expect(screen.queryByText(new Date("2026-05-01T06:10:00Z").toLocaleDateString())).not.toBeInTheDocument();
+  });
+
+  it("keeps the incident table when a PDF download fails", async () => {
+    mockList.mockResolvedValue({ data: mockPaginated });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
+    (exportService.downloadPdf as jest.Mock).mockRejectedValue(new Error("nope"));
+    render(<IncidentsPage />);
+
+    await screen.findByText("SEC-001");
+    await userEvent.click(screen.getAllByTitle("Download PDF")[0]);
+
+    expect(await screen.findByText("Failed to download PDF")).toBeInTheDocument();
+    expect(screen.getByText("SEC-001")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Retry" })).not.toBeInTheDocument();
   });
 });

@@ -143,7 +143,7 @@ describe("ProfilePage", () => {
     });
 
     it("calls changePassword on valid submission", async () => {
-      mockUseAuth.mockReturnValue({ user: mockUser });
+      mockUseAuth.mockReturnValue({ user: mockUser, logout: jest.fn() });
       (authService.changePassword as jest.Mock).mockResolvedValue({});
 
       render(<ProfilePage />);
@@ -176,6 +176,46 @@ describe("ProfilePage", () => {
       await waitFor(() => {
         expect(screen.getByText("Failed to change password")).toBeInTheDocument();
       });
+    });
+  });
+});
+
+describe("ProfilePage name field and session", () => {
+  it("does not offer the name field to users who cannot update users", async () => {
+    mockUseAuth.mockReturnValue({ user: { ...mockUser, permissions: ["incidents.view"] } });
+    render(<ProfilePage />);
+
+    await userEvent.click(screen.getByText("Edit Profile"));
+
+    expect(screen.queryByLabelText("Name")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Save" })).not.toBeInTheDocument();
+    expect(screen.getByText("Update Password")).toBeInTheDocument();
+  });
+
+  it("offers the name field to users with users.update", async () => {
+    mockUseAuth.mockReturnValue({ user: { ...mockUser, role: "manager", permissions: ["users.update"] } });
+    render(<ProfilePage />);
+
+    await userEvent.click(screen.getByText("Edit Profile"));
+
+    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
+  });
+
+  it("logs out after a successful password change, since the server ended every session", async () => {
+    const logout = jest.fn().mockResolvedValue(undefined);
+    mockUseAuth.mockReturnValue({ user: mockUser, logout });
+    (authService.changePassword as jest.Mock).mockResolvedValue({});
+    render(<ProfilePage />);
+
+    await userEvent.click(screen.getByText("Edit Profile"));
+    await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
+    await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "NewPassword1!");
+    await userEvent.type(screen.getByPlaceholderText("Re-enter new password"), "NewPassword1!");
+    await userEvent.click(screen.getByText("Update Password"));
+
+    await waitFor(() => {
+      expect(logout).toHaveBeenCalledTimes(1);
     });
   });
 });

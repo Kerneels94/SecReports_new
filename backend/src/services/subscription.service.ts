@@ -15,8 +15,8 @@ export function getNextBillingDate(from: Date = new Date()): Date {
   if (base.getDate() < BILLING_DAY) {
     next.setDate(BILLING_DAY);
   } else {
-    next.setMonth(next.getMonth() + 1);
     next.setDate(BILLING_DAY);
+    next.setMonth(next.getMonth() + 1);
   }
   next.setHours(0, 0, 0, 0);
   return next;
@@ -64,7 +64,9 @@ export const SubscriptionService = {
     });
     if (!sub) throw new NotFoundError("Subscription");
 
-    const userCount = await prisma.user.count({ where: { companyId } });
+    const userCount = await prisma.user.count({
+      where: { companyId, status: "active" },
+    });
 
     return {
       ...sub,
@@ -224,7 +226,9 @@ export const SubscriptionService = {
       );
     }
     if (trial?.isTrial && !trial.isExpired) {
-      const count = await prisma.user.count({ where: { companyId } });
+      const count = await prisma.user.count({
+        where: { companyId, status: "active" },
+      });
       if (count >= TRIAL_USER_LIMIT) {
         throw new ForbiddenError(
           `Free trial is limited to ${TRIAL_USER_LIMIT} users. Upgrade to continue.`,
@@ -234,7 +238,9 @@ export const SubscriptionService = {
     }
 
     if (sub.plan.userLimit > 0) {
-      const count = await prisma.user.count({ where: { companyId } });
+      const count = await prisma.user.count({
+        where: { companyId, status: "active" },
+      });
       if (count >= sub.plan.userLimit) {
         throw new ForbiddenError("User limit reached. Upgrade to continue.");
       }
@@ -322,6 +328,18 @@ export const SubscriptionService = {
       throw new ForbiddenError(
         "The free trial plan has already been used. Choose a paid plan to continue.",
       );
+    }
+
+    // canAddUser only guards new users, so a downgrade must not leave the company over the new limit.
+    if (plan.userLimit > 0) {
+      const count = await prisma.user.count({
+        where: { companyId, status: "active" },
+      });
+      if (count > plan.userLimit) {
+        throw new ForbiddenError(
+          `You have ${count} active users. The ${plan.name} plan allows ${plan.userLimit}. Remove users before changing plan.`,
+        );
+      }
     }
 
     const now = new Date();

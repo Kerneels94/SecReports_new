@@ -11,6 +11,14 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { authService } from "@/services";
 
+/** Same rules as the backend's strongPassword, so a weak password is caught here with a clear message. */
+const PASSWORD_RULES: [RegExp, string][] = [
+  [/[a-z]/, "Must include a lowercase letter"],
+  [/[A-Z]/, "Must include an uppercase letter"],
+  [/\d/, "Must include a number"],
+  [/[^a-zA-Z0-9]/, "Must include a special character"],
+];
+
 function getTokenFromUrl(): string | null {
   if (typeof window === "undefined") return null;
   const params = new URLSearchParams(window.location.search);
@@ -49,6 +57,12 @@ function ResetPasswordForm() {
 
     if (password.length < 8) {
       setError("Password must be at least 8 characters");
+      return;
+    }
+
+    const failedRule = PASSWORD_RULES.find(([rule]) => !rule.test(password));
+    if (failedRule) {
+      setError(failedRule[1]);
       return;
     }
 

@@ -40,6 +40,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // api.ts fires this when the refresh token is rejected; dropping the user sends the layouts to /login.
+  useEffect(() => {
+    const onExpired = () => setUser(null);
+    window.addEventListener("auth:expired", onExpired);
+    return () => window.removeEventListener("auth:expired", onExpired);
+  }, []);
+
   const login = useCallback(async (data: LoginRequest) => {
     const res = await authService.login(data);
     localStorage.setItem("accessToken", res.data.accessToken);

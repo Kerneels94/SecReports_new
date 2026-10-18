@@ -77,7 +77,7 @@ export function emailLayout({
 /** Salutation at the top of the email body. */
 export function greeting(name: string): string {
   const safeName = escapeHtml(name);
-  return `<p style="margin: 0 0 8px 0; font-size: 16px; color: ${BRAND.heading}; font-weight: 500;">Dear <strong style="color: #ffffff;">${safeName}</strong>,</p>`;
+  return `<p style="margin: 0 0 8px 0; font-size: 16px; color: ${BRAND.heading}; font-weight: 500;">Dear <strong style="color: #ffffff;">${safeName}</strong></p>`;
 }
 
 /** Standard body paragraph. */

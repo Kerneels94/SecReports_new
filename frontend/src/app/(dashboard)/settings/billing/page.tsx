@@ -46,8 +46,8 @@ export default function BillingPage() {
     try {
       const res = await subscriptionService.changePlan(planId);
       setSubscription(res.data);
-    } catch {
-      setError("Failed to change plan. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to change plan. Please try again.");
     } finally {
       setChanging(false);
     }

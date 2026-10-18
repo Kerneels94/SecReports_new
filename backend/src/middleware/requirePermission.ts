@@ -21,6 +21,11 @@ export function requirePermission(permissionKey: string) {
     }
 
     const { companyId, role } = request.user;
+    // Superadmins have no company; they use the /admin portal routes (requireRole)
+    // instead of company-scoped permission routes.
+    if (!companyId) {
+      throw new ForbiddenError("Insufficient permissions");
+    }
     const override = await prisma.companyPermission.findUnique({
       where: { companyId_permission: { companyId, permission: permissionKey } },
     });

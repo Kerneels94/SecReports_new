@@ -13,6 +13,7 @@ import {
   resetPasswordSchema,
   changePasswordSchema,
   updateUserSchema,
+  verifyEmailSchema,
 } from "../validators/auth.schema";
 import { ValidationError } from "../lib/errors";
 import { REFRESH_TOKEN_TTL_MS } from "../lib/jwt";
@@ -75,23 +76,27 @@ export const AuthController = {
 
   /** Verify a user's email address using a token from the verification email. */
   async verifyEmail(request: FastifyRequest, reply: FastifyReply) {
-    const { token } = request.body as { token: string };
-    if (!token) throw new ValidationError("Verification token is required");
+    const parsed = verifyEmailSchema.safeParse(request.body);
+    if (!parsed.success)
+      throw new ValidationError("Invalid input", parsed.error.flatten());
 
-    const result = await AuthService.verifyEmail(token);
+    const result = await AuthService.verifyEmail(parsed.data.token);
     reply.code(200).send({ success: true, data: result });
   },
 
   /** Create a new user within the authenticated admin's company (admin-only via route). */
   async createUser(request: FastifyRequest, reply: FastifyReply) {
     const parsed = createUserSchema.safeParse(request.body);
-    if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+    if (!parsed.success) {
+      const msg = parsed.error.issues[0]?.message || "Invalid input";
+      throw new ValidationError(msg, parsed.error.flatten());
+    }
 
     const user = await AuthService.createUser({
       ...parsed.data,
       companyId: request.user!.companyId,
       createdBy: request.user!.userId,
+      actorRole: request.user!.role,
     });
     reply.code(201).send({ success: true, data: user });
   },
@@ -113,8 +118,10 @@ export const AuthController = {
   /** Reset a user's password using a valid reset token. Invalidates all sessions. */
   async resetPassword(request: FastifyRequest, reply: FastifyReply) {
     const parsed = resetPasswordSchema.safeParse(request.body);
-    if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+    if (!parsed.success) {
+      const msg = parsed.error.issues[0]?.message || "Invalid input";
+      throw new ValidationError(msg, parsed.error.flatten());
+    }
 
     await AuthService.resetPassword(parsed.data.token, parsed.data.password);
     clearRefreshCookie(reply);
@@ -179,7 +186,7 @@ export const AuthController = {
   /** Delete a user and revoke their access (admin-only via route). */
   async deleteUser(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    await AuthService.deleteUser(request.user!.companyId, id, request.user!.userId);
+    await AuthService.deleteUser(request.user!.companyId, id, request.user!.userId, request.user!.role);
     reply.code(200).send({ success: true, message: "User deleted successfully." });
   },
 

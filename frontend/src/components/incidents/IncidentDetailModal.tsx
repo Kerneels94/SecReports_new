@@ -72,9 +72,12 @@ export function IncidentDetailModal({
   }, [open, fetchIncident]);
 
   const [downloading, setDownloading] = useState(false);
+  // Separate from `error`, which replaces the incident details with a reload prompt.
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const handleDownloadPdf = async () => {
     setDownloading(true);
+    setDownloadError(null);
     try {
       const blob = await exportService.downloadPdf(incidentId);
       const url = URL.createObjectURL(blob);
@@ -86,7 +89,7 @@ export function IncidentDetailModal({
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch {
-      setError("Failed to download PDF");
+      setDownloadError("Failed to download PDF");
     } finally {
       setDownloading(false);
     }
@@ -268,7 +271,12 @@ export function IncidentDetailModal({
             </DetailRow>
           </div>
 
-          <div className="flex justify-end pt-2 border-t border-border-light/50">
+          <div className="flex items-center justify-end gap-3 pt-2 border-t border-border-light/50">
+            {downloadError && (
+              <p role="alert" className="text-sm text-danger">
+                {downloadError}
+              </p>
+            )}
             {canExportPdf && (
             <Button onClick={handleDownloadPdf} variant="secondary" size="sm" disabled={downloading}>
               <svg className="h-4 w-4 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

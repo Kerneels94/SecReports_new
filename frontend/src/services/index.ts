@@ -142,10 +142,8 @@ export function formatDurationMs(ms: number): string {
 
 /** Export/download endpoints. */
 export const exportService = {
-  downloadPdf: (incidentId?: number) => {
-    const params = incidentId ? `?incidentId=${incidentId}` : "";
-    return api.downloadBlob(`/export/pdf${params}`);
-  },
+  downloadPdf: (incidentId: string | number) =>
+    api.downloadBlob(`/export/pdf?incidentId=${encodeURIComponent(String(incidentId))}`),
   downloadCsv: () => api.downloadBlob("/export/csv"),
   downloadYearlyPdf: () => api.downloadBlob("/export/yearly-pdf"),
   downloadResponseTimePdf: (months: ResponsePeriod) =>

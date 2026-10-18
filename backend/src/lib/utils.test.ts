@@ -1,10 +1,10 @@
 import { generateReferenceNumber } from "./utils";
 
 describe("generateReferenceNumber", () => {
-  it("returns a string matching INC-YYYY-XXXXXX pattern", () => {
+  it("returns a string matching INC-YYYY-XXXXXXXX pattern", () => {
     const result = generateReferenceNumber();
     const year = new Date().getFullYear();
-    expect(result).toMatch(new RegExp(`^INC-${year}-[A-Z0-9]{6}$`));
+    expect(result).toMatch(new RegExp(`^INC-${year}-[A-Z0-9]{8}$`));
   });
 
   it("generates unique values across 100 calls", () => {
