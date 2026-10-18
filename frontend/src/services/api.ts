@@ -24,7 +24,13 @@ class ApiClient {
           credentials: "include",
         });
 
-        if (!res.ok) return false;
+        if (!res.ok) {
+          // 400 (no cookie) or 401 (expired/revoked): the session is over, not a network blip.
+          if (res.status === 400 || res.status === 401) {
+            window.dispatchEvent(new Event("auth:expired"));
+          }
+          return false;
+        }
 
         const json = await res.json();
         const data = json.data as LoginResponse;

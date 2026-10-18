@@ -231,13 +231,18 @@ describe("AuthController", () => {
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 
-    it("invalid input: throws ValidationError", async () => {
+    it("invalid input: throws ValidationError with the first issue's message", async () => {
       (resetPasswordSchema.safeParse as jest.Mock).mockReturnValue({
         success: false,
-        error: { flatten: () => ({}) },
+        error: {
+          issues: [{ message: "Password must contain at least one uppercase letter" }],
+          flatten: () => ({}),
+        },
       });
 
-      await expect(AuthController.resetPassword(mockRequest, mockReply)).rejects.toThrow(ValidationError);
+      await expect(AuthController.resetPassword(mockRequest, mockReply)).rejects.toThrow(
+        new ValidationError("Password must contain at least one uppercase letter"),
+      );
     });
   });
 

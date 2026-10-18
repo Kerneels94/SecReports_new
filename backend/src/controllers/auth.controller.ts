@@ -116,8 +116,10 @@ export const AuthController = {
   /** Reset a user's password using a valid reset token. Invalidates all sessions. */
   async resetPassword(request: FastifyRequest, reply: FastifyReply) {
     const parsed = resetPasswordSchema.safeParse(request.body);
-    if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+    if (!parsed.success) {
+      const msg = parsed.error.issues[0]?.message || "Invalid input";
+      throw new ValidationError(msg, parsed.error.flatten());
+    }
 
     await AuthService.resetPassword(parsed.data.token, parsed.data.password);
     clearRefreshCookie(reply);

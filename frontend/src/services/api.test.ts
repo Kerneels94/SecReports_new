@@ -298,3 +298,37 @@ describe("ApiClient", () => {
     });
   });
 });
+
+describe("ApiClient session expiry", () => {
+  const unauthorized = {
+    ok: false,
+    status: 401,
+    json: () => Promise.resolve({ success: false, error: { message: "Invalid or expired token" } }),
+  };
+
+  it.each([400, 401])("fires auth:expired when the refresh is rejected with %i", async (status) => {
+    localStorage.setItem("accessToken", "expired-token");
+    const onExpired = jest.fn();
+    window.addEventListener("auth:expired", onExpired);
+    mockFetch
+      .mockResolvedValueOnce(unauthorized)
+      .mockResolvedValueOnce({ ok: false, status, json: () => Promise.resolve({}) });
+
+    await expect(api.get("/incidents")).rejects.toThrow("Invalid or expired token");
+    window.removeEventListener("auth:expired", onExpired);
+
+    expect(onExpired).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not fire auth:expired when the refresh fails with a network error", async () => {
+    localStorage.setItem("accessToken", "expired-token");
+    const onExpired = jest.fn();
+    window.addEventListener("auth:expired", onExpired);
+    mockFetch.mockResolvedValueOnce(unauthorized).mockRejectedValueOnce(new TypeError("Failed to fetch"));
+
+    await expect(api.get("/incidents")).rejects.toThrow();
+    window.removeEventListener("auth:expired", onExpired);
+
+    expect(onExpired).not.toHaveBeenCalled();
+  });
+});
