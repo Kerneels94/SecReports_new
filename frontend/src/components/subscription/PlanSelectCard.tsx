@@ -68,10 +68,10 @@ export function PlanSelectCard({
         className={cn(
           "mt-6 block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-150",
           highlighted
-            ? "bg-linear-to-r from-primary to-primary-hover text-gray-900 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary"
+            ? "cursor-pointer bg-linear-to-r from-primary to-primary-hover text-gray-900 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary"
             : isCurrent
               ? "cursor-default border border-border-light text-text-secondary"
-              : "border border-border-light text-text hover:bg-surface-elevated hover:border-border",
+              : "cursor-pointer border border-border-light text-text hover:bg-surface-elevated hover:border-border",
         )}
       >
         {isCurrent ? "Current Plan" : highlighted ? "Choose Plan" : "Choose Plan"}

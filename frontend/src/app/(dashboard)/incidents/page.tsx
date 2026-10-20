@@ -136,7 +136,7 @@ export default function IncidentsPage() {
           <h1 className="text-2xl font-bold text-text">Incidents</h1>
           <p className="text-lg text-text-secondary mt-1">{total} total incidents</p>
         </div>
-        <Link href="/incidents/new">
+              <Link href="/incidents/new" className="cursor-pointer">
           <Button>Report Incident</Button>
         </Link>
       </div>
@@ -159,7 +159,7 @@ export default function IncidentsPage() {
                 <button
                   type="button"
                   onClick={() => openBatchModal("attempted")}
-                  className="mt-3 text-lg font-medium text-primary hover:underline"
+                  className="cursor-pointer mt-3 text-lg font-medium text-primary hover:underline"
                 >
                   Email All
                 </button>
@@ -175,7 +175,7 @@ export default function IncidentsPage() {
                 <button
                   type="button"
                   onClick={() => openBatchModal("positive")}
-                  className="mt-3 text-lg font-medium text-primary hover:underline"
+                  className="cursor-pointer mt-3 text-lg font-medium text-primary hover:underline"
                 >
                   Email All
                 </button>
@@ -258,7 +258,7 @@ export default function IncidentsPage() {
                 </svg>
               </div>
               <p className="text-lg text-text-secondary">No incidents found.</p>
-              <Link href="/incidents/new">
+        <Link href="/incidents/new" className="cursor-pointer">
                 <Button variant="gradient">Report your first incident</Button>
               </Link>
             </div>
@@ -282,7 +282,7 @@ export default function IncidentsPage() {
                         <button
                           type="button"
                           onClick={() => setSelectedIncidentId(incident.id)}
-                          className="font-mono text-primary hover:underline"
+                          className="cursor-pointer font-mono text-primary hover:underline"
                         >
                           {incident.referenceNumber}
                         </button>
@@ -291,7 +291,7 @@ export default function IncidentsPage() {
                         <button
                           type="button"
                           onClick={() => setSelectedIncidentId(incident.id)}
-                          className="font-medium text-text hover:text-primary transition-colors text-left"
+                          className="cursor-pointer font-medium text-text hover:text-primary transition-colors text-left"
                         >
                           {incident.title}
                         </button>
@@ -307,7 +307,7 @@ export default function IncidentsPage() {
                           <button
                             type="button"
                             onClick={() => setSelectedIncidentId(incident.id)}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors"
+                            className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors"
                             title="View"
                           >
                             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -320,7 +320,7 @@ export default function IncidentsPage() {
                             type="button"
                             onClick={() => handleDownloadPdf(incident)}
                             disabled={downloadingId === incident.id}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors disabled:opacity-50"
+                            className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors disabled:opacity-50"
                             title="Download PDF"
                           >
                             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -334,7 +334,7 @@ export default function IncidentsPage() {
                           <button
                             type="button"
                             onClick={() => setEmailIncident({ id: incident.id, title: incident.title })}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors"
+                            className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors"
                             title="Email"
                           >
                             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -440,14 +440,14 @@ export default function IncidentsPage() {
                 <button
                   type="button"
                   onClick={() => setBatchFormat("pdf")}
-                  className={`flex-1 rounded-lg border px-3 py-2 text-lg font-medium transition-colors ${batchFormat === "pdf" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
+                  className={`cursor-pointer flex-1 rounded-lg border px-3 py-2 text-lg font-medium transition-colors ${batchFormat === "pdf" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
                 >
                   PDF
                 </button>
                 <button
                   type="button"
                   onClick={() => setBatchFormat("csv")}
-                  className={`flex-1 rounded-lg border px-3 py-2 text-lg font-medium transition-colors ${batchFormat === "csv" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
+                  className={`cursor-pointer flex-1 rounded-lg border px-3 py-2 text-lg font-medium transition-colors ${batchFormat === "csv" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
                 >
                   CSV
                 </button>

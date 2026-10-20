@@ -104,7 +104,7 @@ export function IncidentDetailModal({
     >
       <button
         onClick={onClose}
-        className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors z-20"
+        className="cursor-pointer absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors z-20"
         aria-label="Close"
       >
         <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -137,7 +137,7 @@ export function IncidentDetailModal({
           <p className="text-sm text-danger">{error}</p>
           <button
             onClick={fetchIncident}
-            className="text-xs font-medium text-primary hover:underline"
+            className="cursor-pointer text-xs font-medium text-primary hover:underline"
           >
             Try again
           </button>

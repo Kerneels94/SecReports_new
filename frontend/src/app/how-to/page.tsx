@@ -107,7 +107,7 @@ export default function HowToPage() {
           </p>
           <Link
             href="/register"
-            className="mt-5 inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-gray-900 shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all duration-150"
+            className="cursor-pointer mt-5 inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-gray-900 shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all duration-150"
           >
             Get Started
           </Link>

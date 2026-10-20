@@ -134,7 +134,7 @@ export default function AuditLogsPage() {
                 <button
                   key={et.value}
                   onClick={() => { setEntityType(et.value); setPage(1); }}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                  className={`cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                     entityType === et.value
                       ? "bg-primary text-gray-900"
                       : "bg-surface-elevated/50 text-text-secondary hover:text-text hover:bg-surface-elevated"

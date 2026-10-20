@@ -195,7 +195,7 @@ export default function DashboardPage() {
         <p className="text-lg text-danger">{error}</p>
         <button
           onClick={fetchSummary}
-          className="rounded-lg bg-surface px-4 py-2 text-lg font-medium text-text border border-border hover:bg-surface-elevated transition-colors"
+          className="cursor-pointer rounded-lg bg-surface px-4 py-2 text-lg font-medium text-text border border-border hover:bg-surface-elevated transition-colors"
         >
           Retry
         </button>
@@ -267,7 +267,7 @@ export default function DashboardPage() {
             .{" "}
             <a
               href="/settings/billing"
-              className="underline font-medium hover:text-amber-100"
+              className="cursor-pointer underline font-medium hover:text-amber-100"
             >
               Upgrade now
             </a>{" "}
@@ -293,7 +293,7 @@ export default function DashboardPage() {
             Your free trial has ended. Some features may be limited.{" "}
             <a
               href="/settings/billing"
-              className="underline font-medium hover:text-red-100"
+              className="cursor-pointer underline font-medium hover:text-red-100"
             >
               Upgrade now
             </a>{" "}
@@ -366,7 +366,7 @@ export default function DashboardPage() {
                       key={m}
                       type="button"
                       onClick={() => setChartMode(m)}
-                      className={`rounded-md px-3 py-1 text-lg font-medium capitalize transition-colors ${
+                      className={`cursor-pointer rounded-md px-3 py-1 text-lg font-medium capitalize transition-colors ${
                         chartMode === m
                           ? "bg-surface-elevated text-primary"
                           : "text-text-secondary hover:text-text"
