@@ -246,10 +246,7 @@ export const AuthService = {
       performedBy: user.id,
     });
 
-    if (
-      posthog &&
-      (user.role === "admin" || user.role === "superadmin")
-    ) {
+    if (posthog && (user.role === "admin" || user.role === "superadmin")) {
       posthog.capture({
         distinctId: user.id,
         event: "admin_login",
@@ -334,11 +331,7 @@ export const AuthService = {
       throw new UnauthorizedError("Refresh token has already been used");
     }
 
-    const newRaw = await persistRefreshToken(
-      user,
-      stored.familyId,
-      deviceInfo,
-    );
+    const newRaw = await persistRefreshToken(user, stored.familyId, deviceInfo);
     const newPayload = {
       userId: user.id,
       role: user.role,
@@ -588,7 +581,7 @@ export const AuthService = {
       data: {
         email,
         tokenHash: hashToken(rawToken),
-        expiresAt: new Date(Date.now() + 3600000),
+        expiresAt: new Date(Date.now() + 900000),
       },
     });
 
@@ -625,7 +618,12 @@ export const AuthService = {
         where: { email: record.email },
         // Reset link proves mailbox ownership: verify the email and lift any
         // lockout. lockoutCount stays for escalation.
-        data: { passwordHash, emailVerified: true, loginAttempts: 0, lockedUntil: null },
+        data: {
+          passwordHash,
+          emailVerified: true,
+          loginAttempts: 0,
+          lockedUntil: null,
+        },
       });
     });
 
@@ -836,8 +834,8 @@ export const AuthService = {
       });
 
       const verifyLink = `${getAppUrl()}/verify-email?token=${rawToken}`;
-      sendVerificationEmail(data.email!, updated.name, verifyLink).catch((err) =>
-        console.error("[AuthService] Verification email failed:", err),
+      sendVerificationEmail(data.email!, updated.name, verifyLink).catch(
+        (err) => console.error("[AuthService] Verification email failed:", err),
       );
     }
 
@@ -845,19 +843,27 @@ export const AuthService = {
   },
 
   /** Deactivates a user (soft delete), frees their email for reuse, and revokes their tokens. Admin cannot delete themselves. */
-  async deleteUser(companyId: string, userId: string, performedBy: string, actorRole?: string) {
+  async deleteUser(
+    companyId: string,
+    userId: string,
+    performedBy: string,
+    actorRole?: string,
+  ) {
     const user = await prisma.user.findFirst({
       where: { id: userId, companyId, status: "active" },
     });
     if (!user) throw new NotFoundError("User not found");
-    if (userId === performedBy) throw new ValidationError("You cannot delete your own account");
+    if (userId === performedBy)
+      throw new ValidationError("You cannot delete your own account");
     if (user.role === "admin" && actorRole !== "admin") {
       throw new ForbiddenError("Only an admin can delete an admin");
     }
 
     await prisma.refreshToken.deleteMany({ where: { userId } });
     // Reset tokens are keyed by email, so they must not survive into a new account with the same address.
-    await prisma.passwordResetToken.deleteMany({ where: { email: user.email } });
+    await prisma.passwordResetToken.deleteMany({
+      where: { email: user.email },
+    });
 
     // Email is unique, so rename it to free the address. The reserved .invalid TLD can never receive mail.
     await prisma.user.update({
@@ -870,7 +876,11 @@ export const AuthService = {
       entityId: userId,
       action: "user_deleted",
       performedBy,
-      oldValues: JSON.stringify({ name: user.name, email: user.email, role: user.role }),
+      oldValues: JSON.stringify({
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      }),
     });
   },
 

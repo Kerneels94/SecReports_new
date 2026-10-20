@@ -514,6 +514,11 @@ describe("AuthService", () => {
           expiresAt: expect.any(Date),
         }),
       });
+
+      const { expiresAt } = (prisma.passwordResetToken.create as jest.Mock).mock.calls[0][0].data;
+      const elapsed = expiresAt.getTime() - Date.now();
+      expect(elapsed).toBeGreaterThan(900000 - 1000);
+      expect(elapsed).toBeLessThan(900000 + 1000);
     });
 
     it("does nothing when no user matches the email", async () => {
