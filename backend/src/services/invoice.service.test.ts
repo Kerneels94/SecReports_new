@@ -1,6 +1,7 @@
 import { InvoiceService } from "./invoice.service";
 import { prisma } from "../lib/db";
 import { sendMail } from "./email.service";
+import { ConflictError } from "../lib/errors";
 
 jest.mock("../lib/db", () => ({
   prisma: {
@@ -67,28 +68,34 @@ describe("InvoiceService.createInvoice", () => {
 describe("InvoiceService.sendInvoice", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue(invoice);
-    (prisma.invoice.update as jest.Mock).mockResolvedValue({
-      ...invoice,
-      status: "sent",
-    });
+    (prisma.invoice.findUnique as jest.Mock)
+      .mockResolvedValueOnce(invoice)
+      .mockResolvedValueOnce({ ...invoice, status: "sent" });
+    (prisma.invoice.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
   });
 
-  it("marks the invoice sent only after the email succeeds", async () => {
+  it("claims the draft as sent, emails it once, and returns it as sent", async () => {
     (sendMail as jest.Mock).mockResolvedValue({ data: { id: "msg1" } });
 
-    await InvoiceService.sendInvoice("inv1");
+    const result = await InvoiceService.sendInvoice("inv1");
 
-    expect(sendMail).toHaveBeenCalled();
+    expect(sendMail).toHaveBeenCalledTimes(1);
     expect(sendMail).toHaveBeenCalledWith(
       expect.objectContaining({ from: "accounts@secreports.co.za" }),
     );
-    expect(prisma.invoice.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { status: "sent" } }),
-    );
-    expect(
-      (sendMail as jest.Mock).mock.invocationCallOrder[0],
-    ).toBeLessThan((prisma.invoice.update as jest.Mock).mock.invocationCallOrder[0]);
+    expect(prisma.invoice.updateMany).toHaveBeenCalledTimes(1);
+    expect(prisma.invoice.updateMany).toHaveBeenCalledWith({
+      where: { id: "inv1", status: "draft" },
+      data: { status: "sent" },
+    });
+    expect(result?.status).toBe("sent");
+  });
+
+  it("does not email the client again when a concurrent request already claimed the draft", async () => {
+    (prisma.invoice.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
+
+    await expect(InvoiceService.sendInvoice("inv1")).rejects.toThrow(ConflictError);
+    expect(sendMail).not.toHaveBeenCalled();
   });
 
   it("attaches the invoice as a PDF", async () => {
@@ -109,7 +116,10 @@ describe("InvoiceService.sendInvoice", () => {
     await expect(InvoiceService.sendInvoice("inv1")).rejects.toThrow(
       "Invoice email could not be sent",
     );
-    expect(prisma.invoice.update).not.toHaveBeenCalled();
+    expect(prisma.invoice.updateMany).toHaveBeenLastCalledWith({
+      where: { id: "inv1", status: "sent" },
+      data: { status: "draft" },
+    });
   });
 });
 
@@ -183,10 +193,7 @@ describe("InvoiceService.generateMonthlyInvoices", () => {
     (prisma.invoice.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.invoice.create as jest.Mock).mockResolvedValue(invoice);
     (prisma.invoice.findUnique as jest.Mock).mockResolvedValue(invoice);
-    (prisma.invoice.update as jest.Mock).mockResolvedValue({
-      ...invoice,
-      status: "sent",
-    });
+    (prisma.invoice.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
     (sendMail as jest.Mock).mockResolvedValue({ data: { id: "msg1" } });
   });
 
