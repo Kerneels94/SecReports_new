@@ -201,4 +201,45 @@ describe("InvoiceService.generateMonthlyInvoices", () => {
     expect(data.dueDate.getDate()).toBe(25);
     expect(data.dueDate.getMonth()).toBe(9); // October
   });
+
+  it("retries an existing draft whose earlier email failed instead of skipping it", async () => {
+    const leftoverDraft = { ...invoice, id: "inv-old", invoiceNumber: "INV-2026-0042" };
+    (prisma.invoice.findFirst as jest.Mock).mockResolvedValue(leftoverDraft);
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue(leftoverDraft);
+
+    const results = await InvoiceService.generateMonthlyInvoices();
+
+    expect(prisma.invoice.create).not.toHaveBeenCalled();
+    expect(prisma.invoice.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "inv-old" } }),
+    );
+    expect(sendMail).toHaveBeenCalledTimes(1);
+    expect(results).toEqual([
+      expect.objectContaining({ invoiceNumber: "INV-2026-0042", status: "sent" }),
+    ]);
+  });
+
+  it("reports a failed retry of an existing draft", async () => {
+    (prisma.invoice.findFirst as jest.Mock).mockResolvedValue(invoice);
+    (sendMail as jest.Mock).mockResolvedValue({ error: new Error("smtp down") });
+
+    const results = await InvoiceService.generateMonthlyInvoices();
+
+    expect(prisma.invoice.create).not.toHaveBeenCalled();
+    expect(results).toEqual([
+      expect.objectContaining({ status: "failed (Invoice email could not be sent)" }),
+    ]);
+  });
+
+  it.each(["sent", "paid", "overdue"])("skips an existing %s invoice without emailing", async (status) => {
+    (prisma.invoice.findFirst as jest.Mock).mockResolvedValue({ ...invoice, status });
+
+    const results = await InvoiceService.generateMonthlyInvoices();
+
+    expect(prisma.invoice.create).not.toHaveBeenCalled();
+    expect(sendMail).not.toHaveBeenCalled();
+    expect(results).toEqual([
+      expect.objectContaining({ status: "skipped (already exists)" }),
+    ]);
+  });
 });
