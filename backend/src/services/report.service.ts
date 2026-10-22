@@ -90,8 +90,7 @@ export const ReportService = {
 
     const byMonth: Record<string, number> = {};
     for (const inc of incidents) {
-      const d = new Date(inc.incidentDate);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const key = monthKey(new Date(inc.incidentDate));
       byMonth[key] = (byMonth[key] || 0) + 1;
     }
 
