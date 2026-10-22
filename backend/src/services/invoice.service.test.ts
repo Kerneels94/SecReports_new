@@ -68,13 +68,15 @@ describe("InvoiceService.createInvoice", () => {
 describe("InvoiceService.sendInvoice", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (prisma.invoice.findUnique as jest.Mock)
-      .mockResolvedValueOnce(invoice)
-      .mockResolvedValueOnce({ ...invoice, status: "sent" });
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue(invoice);
     (prisma.invoice.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
   });
 
   it("claims the draft as sent, emails it once, and returns it as sent", async () => {
+    // Both values are consumed here, so none leak into later tests.
+    (prisma.invoice.findUnique as jest.Mock)
+      .mockResolvedValueOnce(invoice)
+      .mockResolvedValueOnce({ ...invoice, status: "sent" });
     (sendMail as jest.Mock).mockResolvedValue({ data: { id: "msg1" } });
 
     const result = await InvoiceService.sendInvoice("inv1");
