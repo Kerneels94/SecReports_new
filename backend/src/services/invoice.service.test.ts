@@ -1,12 +1,13 @@
 import { InvoiceService } from "./invoice.service";
 import { prisma } from "../lib/db";
 import { sendMail } from "./email.service";
-import { ConflictError } from "../lib/errors";
+import { ConflictError, NotFoundError } from "../lib/errors";
 
 jest.mock("../lib/db", () => ({
   prisma: {
     invoice: {
       findFirst: jest.fn(),
+      findMany: jest.fn(),
       findUnique: jest.fn(),
       findUniqueOrThrow: jest.fn(),
       create: jest.fn(),
@@ -62,6 +63,23 @@ describe("InvoiceService.createInvoice", () => {
     );
     expect(prisma.ledger.create).not.toHaveBeenCalled();
     expect(result).toBe(invoice);
+  });
+});
+
+describe("InvoiceService.getInvoices", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.invoice.findMany as jest.Mock).mockResolvedValue([invoice]);
+  });
+
+  it("includes the whole dateTo day", async () => {
+    await InvoiceService.getInvoices({ dateFrom: "2026-10-22", dateTo: "2026-10-22" });
+
+    const { createdAt } = (prisma.invoice.findMany as jest.Mock).mock.calls[0][0].where;
+    expect(createdAt).toEqual({
+      gte: new Date("2026-10-22T00:00:00.000Z"),
+      lt: new Date("2026-10-23T00:00:00.000Z"),
+    });
   });
 });
 
@@ -178,6 +196,65 @@ describe("InvoiceService.markAsPaid", () => {
         }),
       }),
     );
+  });
+
+  it("rejects a draft invoice without recording a payment", async () => {
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue(invoice);
+
+    await expect(InvoiceService.markAsPaid("inv1")).rejects.toThrow(ConflictError);
+    expect(prisma.invoice.updateMany).not.toHaveBeenCalled();
+    expect(prisma.paymentHistory.create).not.toHaveBeenCalled();
+    expect(prisma.ledger.create).not.toHaveBeenCalled();
+  });
+
+  it("pays an overdue invoice", async () => {
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({ ...invoice, status: "overdue" });
+
+    await InvoiceService.markAsPaid("inv1");
+
+    expect(prisma.paymentHistory.create).toHaveBeenCalled();
+    expect(prisma.ledger.create).toHaveBeenCalled();
+  });
+
+  it("only flips the status from sent or overdue in the conditional update", async () => {
+    await InvoiceService.markAsPaid("inv1");
+
+    expect(prisma.invoice.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "inv1", status: { in: ["sent", "overdue"] } },
+      }),
+    );
+  });
+});
+
+describe("InvoiceService.markAsOverdue", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({ ...invoice, status: "sent" });
+    (prisma.invoice.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
+  });
+
+  it("marks a sent invoice overdue with a conditional update", async () => {
+    await InvoiceService.markAsOverdue("inv1");
+
+    expect(prisma.invoice.updateMany).toHaveBeenCalledWith({
+      where: { id: "inv1", status: "sent" },
+      data: { status: "overdue" },
+    });
+  });
+
+  it.each(["draft", "overdue", "paid"])("rejects a %s invoice", async (status) => {
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({ ...invoice, status });
+    (prisma.invoice.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
+
+    await expect(InvoiceService.markAsOverdue("inv1")).rejects.toThrow(ConflictError);
+  });
+
+  it("throws not found for a missing invoice", async () => {
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue(null);
+
+    await expect(InvoiceService.markAsOverdue("missing")).rejects.toThrow(NotFoundError);
+    expect(prisma.invoice.updateMany).not.toHaveBeenCalled();
   });
 });
 

@@ -84,6 +84,40 @@ describe("ReportService", () => {
       const result = await ReportService.monthlyStats("empty");
       expect(result).toEqual([]);
     });
+
+    describe("on a host ahead of UTC", () => {
+      const originalTz = process.env.TZ;
+      beforeAll(() => {
+        process.env.TZ = "Africa/Johannesburg";
+      });
+      afterAll(() => {
+        process.env.TZ = originalTz;
+      });
+
+      // 23:00 UTC on 30 April is 01:00 SAST on 1 May.
+      const lateApril = {
+        incidentDate: "2026-04-30T23:00:00Z",
+        dispatchTime: new Date("2026-04-30T23:00:00Z"),
+        arrivalTime: new Date("2026-04-30T23:10:00Z"),
+      };
+
+      it("buckets by UTC month, not the host's local month", async () => {
+        (prisma.incident.findMany as jest.Mock).mockResolvedValue([lateApril]);
+
+        expect(await ReportService.monthlyStats("company1")).toEqual([
+          { month: "2026-04", count: 1 },
+        ]);
+      });
+
+      it("uses the same month keys as monthlyResponse", async () => {
+        (prisma.incident.findMany as jest.Mock).mockResolvedValue([lateApril]);
+
+        const stats = await ReportService.monthlyStats("company1");
+        const response = await ReportService.monthlyResponse("company1");
+
+        expect(stats.map((s) => s.month)).toEqual(response.map((r) => r.month));
+      });
+    });
   });
 
   describe("monthlyResponse", () => {
