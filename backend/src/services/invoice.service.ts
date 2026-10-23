@@ -6,17 +6,21 @@ import { generateInvoicePdf } from "../templates/invoice-pdf";
 
 export const InvoiceService = {
   async generateInvoiceNumber(): Promise<string> {
-    const year = new Date().getFullYear();
-    const lastInvoice = await prisma.invoice.findFirst({
-      where: { invoiceNumber: { startsWith: `INV-${year}-` } },
-      orderBy: { invoiceNumber: "desc" },
-    });
-    let nextSeq = 1;
-    if (lastInvoice) {
-      const parts = lastInvoice.invoiceNumber.split("-");
-      nextSeq = parseInt(parts[2], 10) + 1;
+    try {
+      const year = new Date().getFullYear();
+      const lastInvoice = await prisma.invoice.findFirst({
+        where: { invoiceNumber: { startsWith: `INV-${year}-` } },
+        orderBy: { invoiceNumber: "desc" },
+      });
+      let nextSeq = 1;
+      if (lastInvoice) {
+        const parts = lastInvoice.invoiceNumber.split("-");
+        nextSeq = parseInt(parts[2], 10) + 1;
+      }
+      return `INV-${year}-${String(nextSeq).padStart(4, "0")}`;
+    } catch (error) {
+      return `${error}`;
     }
-    return `INV-${year}-${String(nextSeq).padStart(4, "0")}`;
   },
 
   async createInvoice(data: {
@@ -70,15 +74,19 @@ export const InvoiceService = {
   },
 
   async getInvoiceById(id: string) {
-    const invoice = await prisma.invoice.findUnique({
-      where: { id },
-      include: {
-        company: { select: { id: true, name: true, email: true } },
-        payments: true,
-      },
-    });
-    if (!invoice) throw new NotFoundError("Invoice");
-    return invoice;
+    try {
+      const invoice = await prisma.invoice.findUnique({
+        where: { id },
+        include: {
+          company: { select: { id: true, name: true, email: true } },
+          payments: true,
+        },
+      });
+      if (!invoice) throw new NotFoundError("Invoice");
+      return invoice;
+    } catch (error) {
+      return new Error("Could not get invoice id: check ");
+    }
   },
 
   async sendInvoice(id: string) {
@@ -87,7 +95,8 @@ export const InvoiceService = {
       include: { company: true },
     });
     if (!invoice) throw new NotFoundError("Invoice");
-    if (invoice.status !== "draft") throw new ConflictError("Invoice already sent");
+    if (invoice.status !== "draft")
+      throw new ConflictError("Invoice already sent");
 
     const pdf = await generateInvoicePdf({
       companyName: invoice.company.name,
@@ -110,9 +119,7 @@ export const InvoiceService = {
         dueDate: invoice.dueDate.toISOString(),
         description: invoice.description ?? undefined,
       },
-      attachments: [
-        { filename: `${invoice.invoiceNumber}.pdf`, content: pdf },
-      ],
+      attachments: [{ filename: `${invoice.invoiceNumber}.pdf`, content: pdf }],
     }).then(({ error }) => {
       if (error)
         throw new AppError(
@@ -139,7 +146,8 @@ export const InvoiceService = {
       include: { company: true },
     });
     if (!invoice) throw new NotFoundError("Invoice");
-    if (invoice.status === "paid") throw new ConflictError("Invoice already paid");
+    if (invoice.status === "paid")
+      throw new ConflictError("Invoice already paid");
 
     try {
       return await prisma.$transaction(async (tx) => {
@@ -180,21 +188,32 @@ export const InvoiceService = {
       });
     } catch (err) {
       // P2034: MongoDB write conflict with a concurrent transaction paying the same invoice.
-      if ((err as { code?: string }).code === "P2034") throw new ConflictError("Invoice already paid");
+      if ((err as { code?: string }).code === "P2034")
+        throw new ConflictError("Invoice already paid");
       throw err;
     }
   },
 
   async markAsOverdue(id: string) {
-    const invoice = await prisma.invoice.findUnique({ where: { id } });
-    if (!invoice) throw new NotFoundError("Invoice");
-    if (invoice.status === "paid") throw new ConflictError("Cannot mark paid invoice as overdue");
+    try {
+      const invoice = await prisma.invoice.findUnique({ where: { id } });
+      if (!invoice) throw new NotFoundError("Invoice");
+      if (invoice.status === "paid")
+        throw new ConflictError("Cannot mark paid invoice as overdue");
 
-    return prisma.invoice.update({
-      where: { id },
-      data: { status: "overdue" },
-      include: { company: { select: { id: true, name: true, email: true } } },
-    });
+      let updateInvoiceStatus = prisma.invoice.update({
+        where: { id },
+        data: { status: "overdue" },
+        include: { company: { select: { id: true, name: true, email: true } } },
+      });
+
+      if (!updateInvoiceStatus)
+        return new Error("Could not update invoice status to overdue");
+
+      return updateInvoiceStatus;
+    } catch (error) {
+      return new Error("Could not mark invoice as overdue");
+    }
   },
 
   async generateMonthlyInvoices() {
@@ -212,7 +231,12 @@ export const InvoiceService = {
     const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-    const results: Array<{ companyId: string; companyName: string; invoiceNumber: string; status: string }> = [];
+    const results: Array<{
+      companyId: string;
+      companyName: string;
+      invoiceNumber: string;
+      status: string;
+    }> = [];
 
     for (const company of companies) {
       const existing = await prisma.invoice.findFirst({
@@ -269,13 +293,21 @@ export const InvoiceService = {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const yearStart = new Date(now.getFullYear(), 0, 1);
 
-    const [totalRevenue, monthlyRevenue, paidCounts, overdueCounts, companyCount] = await Promise.all([
+    const [
+      totalRevenue,
+      monthlyRevenue,
+      paidCounts,
+      overdueCounts,
+      companyCount,
+    ] = await Promise.all([
       prisma.paymentHistory.aggregate({ _sum: { amount: true } }),
       prisma.paymentHistory.aggregate({
         _sum: { amount: true },
         where: { createdAt: { gte: monthStart } },
       }),
-      prisma.invoice.count({ where: { status: "paid", paidAt: { gte: yearStart } } }),
+      prisma.invoice.count({
+        where: { status: "paid", paidAt: { gte: yearStart } },
+      }),
       prisma.invoice.count({ where: { status: "overdue" } }),
       prisma.company.count(),
     ]);
@@ -304,7 +336,12 @@ export const InvoiceService = {
       orderBy: { createdAt: "asc" },
     });
 
-    const trends: Array<{ month: string; year: number; revenue: number; count: number }> = [];
+    const trends: Array<{
+      month: string;
+      year: number;
+      revenue: number;
+      count: number;
+    }> = [];
     const monthMap = new Map<string, { revenue: number; count: number }>();
 
     for (let i = 0; i < 12; i++) {
@@ -351,7 +388,15 @@ export const InvoiceService = {
       where: { id },
       include: {
         subscription: { include: { plan: true } },
-        users: { select: { id: true, name: true, email: true, role: true, status: true } },
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            status: true,
+          },
+        },
         invoices: { orderBy: { createdAt: "desc" } },
         _count: { select: { incidents: true } },
       },

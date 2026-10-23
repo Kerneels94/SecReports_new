@@ -5,8 +5,16 @@ import { ValidationError } from "../lib/errors";
 
 export const InvoiceController = {
   async listInvoices(request: FastifyRequest, reply: FastifyReply) {
-    const { status, companyId, dateFrom, dateTo } = request.query as Record<string, string | undefined>;
-    const data = await InvoiceService.getInvoices({ status, companyId, dateFrom, dateTo });
+    const { status, companyId, dateFrom, dateTo } = request.query as Record<
+      string,
+      string | undefined
+    >;
+    const data = await InvoiceService.getInvoices({
+      status,
+      companyId,
+      dateFrom,
+      dateTo,
+    });
     reply.code(200).send({ success: true, data });
   },
 
@@ -18,7 +26,8 @@ export const InvoiceController = {
 
   async createInvoice(request: FastifyRequest, reply: FastifyReply) {
     const parsed = createInvoiceSchema.safeParse(request.body);
-    if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
+    if (!parsed.success)
+      throw new ValidationError("Invalid input", parsed.error.flatten());
     const data = await InvoiceService.createInvoice(parsed.data);
     reply.code(201).send({ success: true, data });
   },
