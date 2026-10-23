@@ -136,13 +136,13 @@ export default function LandingPage() {
             <div className="mt-10 flex items-center justify-center gap-4">
               <Link
                 href="/register"
-                className="rounded-lg bg-linear-to-r from-primary to-primary-hover px-6 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary transition-all duration-150"
+                className="cursor-pointer rounded-lg bg-linear-to-r from-primary to-primary-hover px-6 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary transition-all duration-150"
               >
                 Start Free Trial
               </Link>
               <a
                 href="#features"
-                className="rounded-lg border border-border-light bg-surface/50 px-6 py-3 text-sm font-semibold text-text hover:bg-surface hover:border-border transition-all duration-150"
+                className="cursor-pointer rounded-lg border border-border-light bg-surface/50 px-6 py-3 text-sm font-semibold text-text hover:bg-surface hover:border-border transition-all duration-150"
               >
                 Learn More
               </a>
@@ -223,7 +223,7 @@ export default function LandingPage() {
           <div className="mt-10 text-center">
             <Link
               href="/how-to"
-              className="text-sm font-medium text-primary hover:text-primary-hover transition-colors"
+              className="cursor-pointer text-sm font-medium text-primary hover:text-primary-hover transition-colors"
             >
               See the full guide
             </Link>
@@ -294,7 +294,7 @@ export default function LandingPage() {
                 </ul>
                 <Link
                   href={tier.href}
-                  className={`mt-8 block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-150 ${
+                  className={`cursor-pointer mt-8 block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-150 ${
                     tier.highlighted
                       ? "bg-linear-to-r from-primary to-primary-hover text-gray-900 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary"
                       : "border border-border-light text-text hover:bg-surface-elevated hover:border-border"

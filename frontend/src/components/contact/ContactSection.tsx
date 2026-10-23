@@ -79,7 +79,7 @@ export default function ContactSection() {
               Prefer email?{" "}
               <a
                 href="mailto:support@secreports.co.za"
-                className="font-medium text-primary hover:underline transition-colors"
+                className="cursor-pointer font-medium text-primary hover:underline transition-colors"
               >
                 support@secreports.co.za
               </a>

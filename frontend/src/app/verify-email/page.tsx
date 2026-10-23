@@ -95,14 +95,14 @@ function VerifyEmailContent() {
           {state === "success" ? (
             <Link
               href="/login"
-              className="block w-full rounded-lg bg-primary py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
+              className="cursor-pointer block w-full rounded-lg bg-primary py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
             >
               Go to Login
             </Link>
           ) : (
             <Link
               href="/"
-              className="text-primary hover:underline transition-colors text-sm"
+              className="cursor-pointer text-primary hover:underline transition-colors text-sm"
             >
               Back to Homepage
             </Link>

@@ -61,7 +61,7 @@ function NavItemsList({ items, onClose }: { items: NavItem[]; onClose?: () => vo
             href={item.href}
             onClick={onClose}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 relative",
+              "cursor-pointer flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 relative",
               isActive
                 ? "text-primary bg-gradient-to-r from-primary/[0.08] to-transparent"
                 : "text-text-secondary hover:text-text hover:bg-surface-elevated/50",
@@ -116,7 +116,7 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors lg:hidden"
+            className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors lg:hidden"
             aria-label="Close sidebar"
           >
             <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

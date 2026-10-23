@@ -84,7 +84,7 @@ function ResetPasswordForm() {
         <CardContent className="pt-6">
           <p className="text-center text-text-secondary">Invalid reset link. No token provided.</p>
           <div className="mt-4 text-center">
-            <button onClick={() => router.push("/forgot-password")} className="text-sm text-primary hover:underline">
+            <button onClick={() => router.push("/forgot-password")} className="cursor-pointer text-sm text-primary hover:underline">
               Request a new reset link
             </button>
           </div>

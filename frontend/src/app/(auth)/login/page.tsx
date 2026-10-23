@@ -75,14 +75,14 @@ export default function LoginPage() {
           <div className="mb-4 flex rounded-xl bg-surface-elevated/40 p-1">
             <button
               type="button"
-              className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${tab === "company" ? "bg-primary text-gray-900 shadow-sm" : "text-text-secondary hover:text-text"}`}
+              className={`cursor-pointer flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${tab === "company" ? "bg-primary text-gray-900 shadow-sm" : "text-text-secondary hover:text-text"}`}
               onClick={() => setTab("company")}
             >
               Admin/Manager
             </button>
             <button
               type="button"
-              className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${tab === "senior" ? "bg-primary text-gray-900 shadow-sm" : "text-text-secondary hover:text-text"}`}
+              className={`cursor-pointer flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${tab === "senior" ? "bg-primary text-gray-900 shadow-sm" : "text-text-secondary hover:text-text"}`}
               onClick={() => setTab("senior")}
             >
               Senior
@@ -124,14 +124,14 @@ export default function LoginPage() {
           <div className="mt-4 flex items-center justify-center gap-3 text-sm text-text-secondary">
             <a
               href="/forgot-password"
-              className="text-primary hover:underline transition-colors"
+              className="cursor-pointer text-primary hover:underline transition-colors"
             >
               Forgot password?
             </a>
             <span className="text-border-light">|</span>
             <a
               href="/"
-              className="text-primary hover:underline transition-colors"
+              className="cursor-pointer text-primary hover:underline transition-colors"
             >
               Back to Homepage
             </a>

@@ -91,7 +91,7 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
       <p className="text-sm font-medium flex-1">{toast.message}</p>
       <button
         onClick={() => onDismiss(toast.id)}
-        className="shrink-0 rounded p-0.5 opacity-70 hover:opacity-100 transition-opacity"
+        className="cursor-pointer shrink-0 rounded p-0.5 opacity-70 hover:opacity-100 transition-opacity"
         aria-label="Dismiss notification"
       >
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

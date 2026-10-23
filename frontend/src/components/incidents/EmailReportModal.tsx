@@ -88,14 +88,14 @@ export function EmailReportModal({
               <button
                 type="button"
                 onClick={() => setFormat("pdf")}
-                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${format === "pdf" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
+                className={`cursor-pointer flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${format === "pdf" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
               >
                 PDF
               </button>
               <button
                 type="button"
                 onClick={() => setFormat("csv")}
-                className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${format === "csv" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
+                className={`cursor-pointer flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${format === "csv" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
               >
                 CSV
               </button>
