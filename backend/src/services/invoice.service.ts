@@ -244,7 +244,7 @@ export const InvoiceService = {
           periodEnd: { lte: periodEnd },
         },
       });
-      if (existing) {
+      if (existing && existing.status !== "draft") {
         results.push({
           companyId: company.id,
           companyName: company.name,
@@ -254,16 +254,18 @@ export const InvoiceService = {
         continue;
       }
 
-      const dueDate = getNextBillingDate(now);
-      const invoice = await this.createInvoice({
-        companyId: company.id,
-        amount: company.subscription!.plan.price,
-        currency: "ZAR",
-        dueDate,
-        periodStart,
-        periodEnd,
-        description: `Monthly subscription - ${company.subscription!.plan.name} plan`,
-      });
+      // A draft here is left from an earlier run whose email failed: retry it, don't skip it.
+      const invoice =
+        existing ??
+        (await this.createInvoice({
+          companyId: company.id,
+          amount: company.subscription!.plan.price,
+          currency: "ZAR",
+          dueDate: getNextBillingDate(now),
+          periodStart,
+          periodEnd,
+          description: `Monthly subscription - ${company.subscription!.plan.name} plan`,
+        }));
 
       try {
         await this.sendInvoice(invoice.id);
