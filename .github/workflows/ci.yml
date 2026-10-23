@@ -36,6 +36,9 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
+      - name: Type check prisma scripts
+        run: npm run typecheck:prisma
+
       - name: Run tests
         run: npm test
         env:

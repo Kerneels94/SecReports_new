@@ -2,7 +2,7 @@
  * One-off migration: sets emailVerified = true for the superadmin user.
  * Run: npx ts-node prisma/migrate-email-verified.ts
  */
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../src/generated/prisma/client";
 
 const prisma = new PrismaClient();
 
