@@ -127,8 +127,10 @@ export const LedgerService = {
     if (filters?.status) where.status = filters.status;
     if (filters?.dateFrom || filters?.dateTo) {
       const postedAt: Record<string, Date> = {};
+      // dateTo is date-only ("2026-10-22" = midnight UTC); lte on that drops the whole
+      // selected day, so the upper bound is the start of the next day.
       if (filters.dateFrom) postedAt.gte = new Date(filters.dateFrom);
-      if (filters.dateTo) postedAt.lte = new Date(filters.dateTo);
+      if (filters.dateTo) postedAt.lt = new Date(Date.parse(filters.dateTo) + 86_400_000);
       where.postedAt = postedAt;
     }
 

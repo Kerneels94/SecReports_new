@@ -58,8 +58,10 @@ export const InvoiceService = {
     if (filters?.companyId) where.companyId = filters.companyId;
     if (filters?.dateFrom || filters?.dateTo) {
       const createdAt: Record<string, Date> = {};
+      // dateTo is date-only ("2026-10-22" = midnight UTC); lte on that drops the whole
+      // selected day, so the upper bound is the start of the next day.
       if (filters.dateFrom) createdAt.gte = new Date(filters.dateFrom);
-      if (filters.dateTo) createdAt.lte = new Date(filters.dateTo);
+      if (filters.dateTo) createdAt.lt = new Date(Date.parse(filters.dateTo) + 86_400_000);
       where.createdAt = createdAt;
     }
     return prisma.invoice.findMany({

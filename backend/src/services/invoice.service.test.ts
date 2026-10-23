@@ -7,6 +7,7 @@ jest.mock("../lib/db", () => ({
   prisma: {
     invoice: {
       findFirst: jest.fn(),
+      findMany: jest.fn(),
       findUnique: jest.fn(),
       findUniqueOrThrow: jest.fn(),
       create: jest.fn(),
@@ -62,6 +63,23 @@ describe("InvoiceService.createInvoice", () => {
     );
     expect(prisma.ledger.create).not.toHaveBeenCalled();
     expect(result).toBe(invoice);
+  });
+});
+
+describe("InvoiceService.getInvoices", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.invoice.findMany as jest.Mock).mockResolvedValue([invoice]);
+  });
+
+  it("includes the whole dateTo day", async () => {
+    await InvoiceService.getInvoices({ dateFrom: "2026-10-22", dateTo: "2026-10-22" });
+
+    const { createdAt } = (prisma.invoice.findMany as jest.Mock).mock.calls[0][0].where;
+    expect(createdAt).toEqual({
+      gte: new Date("2026-10-22T00:00:00.000Z"),
+      lt: new Date("2026-10-23T00:00:00.000Z"),
+    });
   });
 });
 
