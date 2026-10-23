@@ -62,8 +62,10 @@ export const InvoiceService = {
     if (filters?.companyId) where.companyId = filters.companyId;
     if (filters?.dateFrom || filters?.dateTo) {
       const createdAt: Record<string, Date> = {};
+      // dateTo is date-only ("2026-10-22" = midnight UTC); lte on that drops the whole
+      // selected day, so the upper bound is the start of the next day.
       if (filters.dateFrom) createdAt.gte = new Date(filters.dateFrom);
-      if (filters.dateTo) createdAt.lte = new Date(filters.dateTo);
+      if (filters.dateTo) createdAt.lt = new Date(Date.parse(filters.dateTo) + 86_400_000);
       where.createdAt = createdAt;
     }
     return prisma.invoice.findMany({
@@ -95,6 +97,7 @@ export const InvoiceService = {
       include: { company: true },
     });
     if (!invoice) throw new NotFoundError("Invoice");
+<<<<<<< HEAD
     if (invoice.status !== "draft")
       throw new ConflictError("Invoice already sent");
 
@@ -131,8 +134,58 @@ export const InvoiceService = {
 
     await prisma.invoice.update({
       where: { id },
+=======
+
+    // Conditional update: claim the draft before emailing, so a concurrent request
+    // (double-click, retry) cannot email the client a second time.
+    const { count } = await prisma.invoice.updateMany({
+      where: { id, status: "draft" },
+>>>>>>> 34b07643363cdd7c344deec6218c90b8a7d97a24
       data: { status: "sent" },
     });
+    if (count === 0) throw new ConflictError("Invoice already sent");
+
+    try {
+      const pdf = await generateInvoicePdf({
+        companyName: invoice.company.name,
+        amount: invoice.amount,
+        invoiceNumber: invoice.invoiceNumber,
+        dueDate: invoice.dueDate,
+        invoiceDate: invoice.createdAt,
+        description: invoice.description ?? undefined,
+      });
+
+      await sendMail({
+        to: invoice.company.email,
+        from: ADMIN_FROM_EMAIL,
+        subject: "invoice",
+        data: {
+          companyName: invoice.company.name,
+          amount: invoice.amount,
+          currency: invoice.currency,
+          invoiceNumber: invoice.invoiceNumber,
+          dueDate: invoice.dueDate.toISOString(),
+          description: invoice.description ?? undefined,
+        },
+        attachments: [
+          { filename: `${invoice.invoiceNumber}.pdf`, content: pdf },
+        ],
+      }).then(({ error }) => {
+        if (error)
+          throw new AppError(
+            502,
+            "EMAIL_SEND_FAILED",
+            "Invoice email could not be sent",
+          );
+      });
+    } catch (err) {
+      // The client never got it: release the claim so the send can be retried.
+      await prisma.invoice.updateMany({
+        where: { id, status: "sent" },
+        data: { status: "draft" },
+      });
+      throw err;
+    }
 
     return prisma.invoice.findUnique({
       where: { id },
@@ -146,14 +199,21 @@ export const InvoiceService = {
       include: { company: true },
     });
     if (!invoice) throw new NotFoundError("Invoice");
+<<<<<<< HEAD
     if (invoice.status === "paid")
       throw new ConflictError("Invoice already paid");
+=======
+    if (invoice.status === "paid") throw new ConflictError("Invoice already paid");
+    // A draft was never sent to the client, so it cannot be paid.
+    if (invoice.status !== "sent" && invoice.status !== "overdue")
+      throw new ConflictError("Only sent or overdue invoices can be marked paid");
+>>>>>>> 34b07643363cdd7c344deec6218c90b8a7d97a24
 
     try {
       return await prisma.$transaction(async (tx) => {
         // Conditional update: a concurrent request (double-click) must not record the payment twice.
         const { count } = await tx.invoice.updateMany({
-          where: { id, status: { not: "paid" } },
+          where: { id, status: { in: ["sent", "overdue"] } },
           data: {
             status: "paid",
             paidAt: new Date(),
@@ -195,6 +255,7 @@ export const InvoiceService = {
   },
 
   async markAsOverdue(id: string) {
+<<<<<<< HEAD
     try {
       const invoice = await prisma.invoice.findUnique({ where: { id } });
       if (!invoice) throw new NotFoundError("Invoice");
@@ -214,6 +275,23 @@ export const InvoiceService = {
     } catch (error) {
       return new Error("Could not mark invoice as overdue");
     }
+=======
+    const invoice = await prisma.invoice.findUnique({ where: { id } });
+    if (!invoice) throw new NotFoundError("Invoice");
+
+    // Conditional update: only a sent invoice can go overdue. Checking and writing in one step
+    // stops a draft from being stranded as overdue (sendInvoice only sends drafts).
+    const { count } = await prisma.invoice.updateMany({
+      where: { id, status: "sent" },
+      data: { status: "overdue" },
+    });
+    if (count === 0) throw new ConflictError("Only sent invoices can be marked overdue");
+
+    return prisma.invoice.findUnique({
+      where: { id },
+      include: { company: { select: { id: true, name: true, email: true } } },
+    });
+>>>>>>> 34b07643363cdd7c344deec6218c90b8a7d97a24
   },
 
   async generateMonthlyInvoices() {
@@ -246,7 +324,7 @@ export const InvoiceService = {
           periodEnd: { lte: periodEnd },
         },
       });
-      if (existing) {
+      if (existing && existing.status !== "draft") {
         results.push({
           companyId: company.id,
           companyName: company.name,
@@ -256,16 +334,18 @@ export const InvoiceService = {
         continue;
       }
 
-      const dueDate = getNextBillingDate(now);
-      const invoice = await this.createInvoice({
-        companyId: company.id,
-        amount: company.subscription!.plan.price,
-        currency: "ZAR",
-        dueDate,
-        periodStart,
-        periodEnd,
-        description: `Monthly subscription - ${company.subscription!.plan.name} plan`,
-      });
+      // A draft here is left from an earlier run whose email failed: retry it, don't skip it.
+      const invoice =
+        existing ??
+        (await this.createInvoice({
+          companyId: company.id,
+          amount: company.subscription!.plan.price,
+          currency: "ZAR",
+          dueDate: getNextBillingDate(now),
+          periodStart,
+          periodEnd,
+          description: `Monthly subscription - ${company.subscription!.plan.name} plan`,
+        }));
 
       try {
         await this.sendInvoice(invoice.id);
