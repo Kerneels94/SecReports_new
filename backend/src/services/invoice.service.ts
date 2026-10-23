@@ -140,12 +140,15 @@ export const InvoiceService = {
     });
     if (!invoice) throw new NotFoundError("Invoice");
     if (invoice.status === "paid") throw new ConflictError("Invoice already paid");
+    // A draft was never sent to the client, so it cannot be paid.
+    if (invoice.status !== "sent" && invoice.status !== "overdue")
+      throw new ConflictError("Only sent or overdue invoices can be marked paid");
 
     try {
       return await prisma.$transaction(async (tx) => {
         // Conditional update: a concurrent request (double-click) must not record the payment twice.
         const { count } = await tx.invoice.updateMany({
-          where: { id, status: { not: "paid" } },
+          where: { id, status: { in: ["sent", "overdue"] } },
           data: {
             status: "paid",
             paidAt: new Date(),
@@ -188,11 +191,17 @@ export const InvoiceService = {
   async markAsOverdue(id: string) {
     const invoice = await prisma.invoice.findUnique({ where: { id } });
     if (!invoice) throw new NotFoundError("Invoice");
-    if (invoice.status === "paid") throw new ConflictError("Cannot mark paid invoice as overdue");
 
-    return prisma.invoice.update({
-      where: { id },
+    // Conditional update: only a sent invoice can go overdue. Checking and writing in one step
+    // stops a draft from being stranded as overdue (sendInvoice only sends drafts).
+    const { count } = await prisma.invoice.updateMany({
+      where: { id, status: "sent" },
       data: { status: "overdue" },
+    });
+    if (count === 0) throw new ConflictError("Only sent invoices can be marked overdue");
+
+    return prisma.invoice.findUnique({
+      where: { id },
       include: { company: { select: { id: true, name: true, email: true } } },
     });
   },
