@@ -89,45 +89,56 @@ export const InvoiceService = {
       include: { company: true },
     });
     if (!invoice) throw new NotFoundError("Invoice");
-    if (invoice.status !== "draft") throw new ConflictError("Invoice already sent");
 
-    const pdf = await generateInvoicePdf({
-      companyName: invoice.company.name,
-      amount: invoice.amount,
-      invoiceNumber: invoice.invoiceNumber,
-      dueDate: invoice.dueDate,
-      invoiceDate: invoice.createdAt,
-      description: invoice.description ?? undefined,
-    });
-
-    await sendMail({
-      to: invoice.company.email,
-      from: ADMIN_FROM_EMAIL,
-      subject: "invoice",
-      data: {
-        companyName: invoice.company.name,
-        amount: invoice.amount,
-        currency: invoice.currency,
-        invoiceNumber: invoice.invoiceNumber,
-        dueDate: invoice.dueDate.toISOString(),
-        description: invoice.description ?? undefined,
-      },
-      attachments: [
-        { filename: `${invoice.invoiceNumber}.pdf`, content: pdf },
-      ],
-    }).then(({ error }) => {
-      if (error)
-        throw new AppError(
-          502,
-          "EMAIL_SEND_FAILED",
-          "Invoice email could not be sent",
-        );
-    });
-
-    await prisma.invoice.update({
-      where: { id },
+    // Conditional update: claim the draft before emailing, so a concurrent request
+    // (double-click, retry) cannot email the client a second time.
+    const { count } = await prisma.invoice.updateMany({
+      where: { id, status: "draft" },
       data: { status: "sent" },
     });
+    if (count === 0) throw new ConflictError("Invoice already sent");
+
+    try {
+      const pdf = await generateInvoicePdf({
+        companyName: invoice.company.name,
+        amount: invoice.amount,
+        invoiceNumber: invoice.invoiceNumber,
+        dueDate: invoice.dueDate,
+        invoiceDate: invoice.createdAt,
+        description: invoice.description ?? undefined,
+      });
+
+      await sendMail({
+        to: invoice.company.email,
+        from: ADMIN_FROM_EMAIL,
+        subject: "invoice",
+        data: {
+          companyName: invoice.company.name,
+          amount: invoice.amount,
+          currency: invoice.currency,
+          invoiceNumber: invoice.invoiceNumber,
+          dueDate: invoice.dueDate.toISOString(),
+          description: invoice.description ?? undefined,
+        },
+        attachments: [
+          { filename: `${invoice.invoiceNumber}.pdf`, content: pdf },
+        ],
+      }).then(({ error }) => {
+        if (error)
+          throw new AppError(
+            502,
+            "EMAIL_SEND_FAILED",
+            "Invoice email could not be sent",
+          );
+      });
+    } catch (err) {
+      // The client never got it: release the claim so the send can be retried.
+      await prisma.invoice.updateMany({
+        where: { id, status: "sent" },
+        data: { status: "draft" },
+      });
+      throw err;
+    }
 
     return prisma.invoice.findUnique({
       where: { id },

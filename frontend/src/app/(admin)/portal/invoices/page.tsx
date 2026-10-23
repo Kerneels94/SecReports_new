@@ -41,6 +41,7 @@ export default function AdminInvoicesPage() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [success, setSuccess] = useState<string | null>(null);
+  const [sendingId, setSendingId] = useState<string | null>(null);
 
   const fetchInvoices = async () => {
     setLoading(true);
@@ -73,6 +74,7 @@ export default function AdminInvoicesPage() {
   };
 
   const handleSend = async (id: string) => {
+    setSendingId(id);
     try {
       setError(null);
       setSuccess(null);
@@ -81,6 +83,8 @@ export default function AdminInvoicesPage() {
       fetchInvoices();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send invoice");
+    } finally {
+      setSendingId(null);
     }
   };
 
@@ -212,6 +216,7 @@ export default function AdminInvoicesPage() {
                             <Button
                               variant="ghost"
                               size="sm"
+                              loading={sendingId === inv.id}
                               onClick={() => handleSend(inv.id)}
                             >
                               Send
