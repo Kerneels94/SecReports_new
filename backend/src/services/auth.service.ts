@@ -437,7 +437,7 @@ export const AuthService = {
       data: {
         userId: result.user.id,
         tokenHash: hashToken(rawToken),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000),
       },
     });
 
@@ -534,7 +534,7 @@ export const AuthService = {
       data: {
         userId: user.id,
         tokenHash: hashToken(rawToken),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000),
       },
     });
 
@@ -829,7 +829,7 @@ export const AuthService = {
         data: {
           userId,
           tokenHash: hashToken(rawToken),
-          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000),
         },
       });
 

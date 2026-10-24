@@ -15,7 +15,9 @@ export default function BillingPage() {
   const canManageBilling = hasPermission(user, "billing.manage");
 
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
-  const [subscription, setSubscription] = useState<CompanySubscription | null>(null);
+  const [subscription, setSubscription] = useState<CompanySubscription | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [changing, setChanging] = useState(false);
   const [confirming, setConfirming] = useState<SubscriptionPlan | null>(null);
@@ -47,7 +49,11 @@ export default function BillingPage() {
       const res = await subscriptionService.changePlan(planId);
       setSubscription(res.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to change plan. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to change plan. Please try again.",
+      );
     } finally {
       setChanging(false);
     }
@@ -58,7 +64,9 @@ export default function BillingPage() {
       <div className="flex flex-col gap-6 max-w-4xl mx-auto animate-fade-in">
         <div>
           <h1 className="text-2xl font-bold text-text">Billing & Plan</h1>
-          <p className="text-sm text-text-secondary mt-1">Loading subscription data...</p>
+          <p className="text-sm text-text-secondary mt-1">
+            Loading subscription data...
+          </p>
         </div>
         <Card>
           <CardContent>
@@ -98,16 +106,27 @@ export default function BillingPage() {
             )}
           </div>
           <p className="text-sm text-text-secondary mt-1">
-            Monthly payments are due on the 25th of each month. Upgrades take effect
-            immediately; your first payment date is shown before you confirm.
+            Monthly payments are due on the 25th of each month. Upgrades take
+            effect immediately; your first payment date is shown before you
+            confirm.
           </p>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap justify-center gap-4">
             {plans
-              .filter((plan) => !(subscription && plan.price === 0 && subscription.plan.price > 0))
+              .filter(
+                (plan) =>
+                  !(
+                    subscription &&
+                    plan.price === 0 &&
+                    subscription.plan.price > 0
+                  ),
+              )
               .map((plan) => (
-                <div key={plan.id} className="w-full md:w-[calc((100%-2rem)/3)]">
+                <div
+                  key={plan.id}
+                  className="w-full md:w-[calc((100%-2rem)/3)]"
+                >
                   <PlanSelectCard
                     plan={plan}
                     isCurrent={subscription?.planId === plan.id}
@@ -129,11 +148,17 @@ export default function BillingPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <p className="text-sm text-text-secondary">Plan</p>
-                <p className="font-medium text-text">{subscription.plan.name}</p>
+                <p className="font-medium text-text">
+                  {subscription.plan.name}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-text-secondary">Status</p>
-                <Badge variant={subscription.status === "active" ? "success" : "default"}>
+                <Badge
+                  variant={
+                    subscription.status === "active" ? "success" : "default"
+                  }
+                >
                   {subscription.status}
                 </Badge>
               </div>
@@ -141,7 +166,8 @@ export default function BillingPage() {
                 <p className="text-sm text-text-secondary">Users Used</p>
                 <p className="font-medium text-text">
                   {subscription.usage?.users ?? 0}
-                  {subscription.plan.userLimit > 0 && ` / ${subscription.plan.userLimit}`}
+                  {subscription.plan.userLimit > 0 &&
+                    ` / ${subscription.plan.userLimit}`}
                   {subscription.plan.userLimit === 0 && " (unlimited)"}
                 </p>
               </div>
@@ -156,8 +182,8 @@ export default function BillingPage() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-text-secondary">
-            Monthly invoices are auto-generated for active paid subscriptions and are due on
-            the 25th of each month.
+            Monthly invoices are auto-generated for active paid subscriptions
+            and are due on the 25th of each month.
           </p>
         </CardContent>
       </Card>
