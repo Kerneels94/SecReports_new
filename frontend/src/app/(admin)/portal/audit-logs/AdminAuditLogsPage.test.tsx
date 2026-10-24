@@ -4,7 +4,7 @@ import AdminAuditLogsPage from "./page";
 import { adminAuditService, adminCompanyService } from "@/services";
 
 jest.mock("@/services", () => ({
-  adminAuditService: { listAll: jest.fn() },
+  adminAuditService: { listAll: jest.fn(), exportCompany: jest.fn() },
   adminCompanyService: { list: jest.fn() },
 }));
 
@@ -13,6 +13,7 @@ jest.mock("@/components/ui/Badge", () => ({
 }));
 
 const mockListAll = adminAuditService.listAll as jest.Mock;
+const mockExport = adminAuditService.exportCompany as jest.Mock;
 const mockCompanies = adminCompanyService.list as jest.Mock;
 
 const makeEntry = (overrides: Record<string, unknown> = {}) => ({
@@ -41,7 +42,16 @@ beforeEach(() => {
     data: { data: [], total: 0, page: 1, perPage: 20 },
   });
   mockCompanies.mockResolvedValue({
-    data: [{ id: "c1", name: "Acme" }],
+    data: [
+      {
+        id: "c1",
+        name: "Acme",
+        subscription: { status: "active", plan: { id: "p1", name: "Pro", price: 50000 } },
+      },
+    ],
+  });
+  mockExport.mockResolvedValue({
+    data: { emailedTo: ["admin@acme.com"], count: 3 },
   });
 });
 
@@ -59,7 +69,9 @@ describe("AdminAuditLogsPage", () => {
     render(<AdminAuditLogsPage />);
     const user = userEvent.setup();
 
-    await waitFor(() => expect(screen.getByRole("option", { name: "Acme" })).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getAllByRole("option", { name: "Acme" }).length).toBeGreaterThan(0),
+    );
     await user.selectOptions(screen.getAllByRole("combobox")[0], "c1");
 
     await waitFor(() => {
@@ -89,5 +101,23 @@ describe("AdminAuditLogsPage", () => {
 
     expect(screen.getByText("1.2.3.4")).toBeInTheDocument();
     expect(screen.getByText("Chrome")).toBeInTheDocument();
+  });
+
+  it("emails the company export to the superadmin and client", async () => {
+    render(<AdminAuditLogsPage />);
+    const user = userEvent.setup();
+
+    await waitFor(() =>
+      expect(screen.getAllByRole("option", { name: "Acme" }).length).toBeGreaterThan(0),
+    );
+
+    const exportSelect = screen.getAllByRole("combobox")[2];
+    await user.selectOptions(exportSelect, "c1");
+    await user.click(screen.getByRole("button", { name: /email export/i }));
+
+    await waitFor(() => expect(mockExport).toHaveBeenCalledWith("c1"));
+    expect(
+      await screen.findByText(/Emailed 3 entries to admin@acme.com/),
+    ).toBeInTheDocument();
   });
 });

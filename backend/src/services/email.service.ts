@@ -122,7 +122,8 @@ interface SendMailParams {
     | "suspention"
     | "report"
     | "trial_ending"
-    | "contact";
+    | "contact"
+    | "audit_export";
   data?: Record<string, unknown>;
   from?: string;
   /** Set for enquiries so a direct reply reaches the original sender. */
@@ -138,6 +139,7 @@ const subjectLabels: Record<string, string> = {
   report: "New Incident Report",
   trial_ending: "Your SecReports Free Trial Is Ending Soon",
   contact: "New SecReports Website Enquiry",
+  audit_export: "Audit Log Export",
 };
 
 /** Builds HTML from lazy-loaded templates by subject type and sends via Resend. */
@@ -210,6 +212,14 @@ export async function sendMail({
           email: (data.email as string) || "",
           company: data.company as string | undefined,
           message: (data.message as string) || "",
+        });
+        break;
+      }
+      case "audit_export": {
+        const { default: template } = await import("../templates/audit-export");
+        html = template({
+          companyName: (data.companyName as string) || "Company",
+          entryCount: (data.entryCount as number) || 0,
         });
         break;
       }

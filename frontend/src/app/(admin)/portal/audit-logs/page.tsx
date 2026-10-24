@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect, Fragment } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -7,7 +6,6 @@ import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { adminAuditService, adminCompanyService } from "@/services";
 import type { AdminCompany, AuditLogEntry, PaginatedResponse } from "@/types";
-
 const ENTITY_TYPES = [
   { value: "", label: "All Types" },
   { value: "user", label: "User" },
@@ -15,7 +13,6 @@ const ENTITY_TYPES = [
   { value: "ledger", label: "Ledger" },
   { value: "report", label: "Report" },
 ];
-
 const ACTION_LABELS: Record<string, string> = {
   login: "Login",
   login_failed: "Login Failed",
@@ -36,7 +33,6 @@ const ACTION_LABELS: Record<string, string> = {
   ledger_entry_posted: "Ledger Entry Posted",
   ledger_entry_voided: "Ledger Entry Voided",
 };
-
 function ActionBadge({ action }: { action: string }) {
   const variant =
     action.includes("failed") || action.includes("reuse_detected")
@@ -50,7 +46,6 @@ function ActionBadge({ action }: { action: string }) {
             : "info";
   return <Badge variant={variant}>{ACTION_LABELS[action] || action}</Badge>;
 }
-
 function formatDateTime(dateStr: string): string {
   return new Date(dateStr).toLocaleString("en-ZA", {
     year: "numeric",
@@ -60,7 +55,6 @@ function formatDateTime(dateStr: string): string {
     minute: "2-digit",
   });
 }
-
 function parseBrowser(ua: string | null): string {
   if (!ua) return "Unknown";
   if (ua.includes("Edg/")) return "Microsoft Edge";
@@ -71,13 +65,11 @@ function parseBrowser(ua: string | null): string {
   if (ua.includes("Safari/")) return "Safari";
   return "Other";
 }
-
 export default function AdminAuditLogsPage() {
   const [data, setData] = useState<PaginatedResponse<AuditLogEntry> | null>(null);
   const [companies, setCompanies] = useState<AdminCompany[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [page, setPage] = useState(1);
   const [companyId, setCompanyId] = useState("");
   const [entityType, setEntityType] = useState("");
@@ -85,14 +77,12 @@ export default function AdminAuditLogsPage() {
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
   useEffect(() => {
     adminCompanyService
       .list()
       .then((res) => setCompanies(res.data))
       .catch(() => setCompanies([]));
   }, []);
-
   const fetchData = async () => {
     setLoading(true);
     setError(null);
@@ -112,11 +102,9 @@ export default function AdminAuditLogsPage() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchData();
   }, [page, companyId, entityType, action, search]);
-
   useEffect(() => {
     const t = setTimeout(() => {
       setSearch(searchInput.trim());
@@ -124,9 +112,29 @@ export default function AdminAuditLogsPage() {
     }, 300);
     return () => clearTimeout(t);
   }, [searchInput]);
-
+  const [exporting, setExporting] = useState(false);
+  const [exportMsg, setExportMsg] = useState<string | null>(null);
   const totalPages = data ? Math.ceil(data.total / data.perPage) : 0;
-
+  const exportCompanies = companies.filter(
+    (c) => c.subscription?.status === "active" && (c.subscription?.plan?.price ?? 0) > 0,
+  );
+  const handleExport = async () => {
+    if (!companyId) {
+      setExportMsg("Select a company to export.");
+      return;
+    }
+    setExporting(true);
+    setExportMsg(null);
+    setError(null);
+    try {
+      const res = await adminAuditService.exportCompany(companyId);
+      setExportMsg(`Emailed ${res.data.count} entries to ${res.data.emailedTo.join(", ")}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to export audit logs");
+    } finally {
+      setExporting(false);
+    }
+  };
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       <div>
@@ -135,13 +143,11 @@ export default function AdminAuditLogsPage() {
           Activity and changes across every company.
         </p>
       </div>
-
       {error && (
         <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
           {error}
         </div>
       )}
-
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -194,6 +200,35 @@ export default function AdminAuditLogsPage() {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium text-text">Export audit logs</p>
+            <p className="text-xs text-text-secondary">Select a company and email the full CSV to the superadmin and that client.</p>
+          </div>
+          <div className="flex gap-2">
+            <select
+              value={companyId}
+              onChange={(e) => setCompanyId(e.target.value)}
+              className="rounded-lg border border-border-light bg-surface-elevated/50 px-3 py-1.5 text-xs font-medium text-text-secondary"
+            >
+              <option value="" className="bg-surface-elevated text-text-secondary">Choose a company</option>
+              {exportCompanies.map((c) => (
+                <option key={c.id} value={c.id} className="bg-surface-elevated text-text-secondary">{c.name}</option>
+              ))}
+            </select>
+            <Button onClick={handleExport} loading={exporting} disabled={!companyId}>
+              Email export
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      {exportMsg && (
+        <div className="rounded-lg bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20" role="status">
+          {exportMsg}
+        </div>
+      )}
+
       <Card className="overflow-hidden">
         <CardContent className="p-0">
           {loading ? (
@@ -240,7 +275,6 @@ export default function AdminAuditLogsPage() {
                     } catch {
                       details = entry.newValues || "";
                     }
-
                     return (
                       <Fragment key={entry.id}>
                       <tr className={`border-b border-border-light/50 hover:bg-surface-elevated/20 transition-colors cursor-pointer select-none ${idx % 2 === 0 ? "bg-surface-elevated/10" : ""}`} onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}>
@@ -285,7 +319,6 @@ export default function AdminAuditLogsPage() {
           )}
         </CardContent>
       </Card>
-
       {data && data.total > data.perPage && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-text-secondary">

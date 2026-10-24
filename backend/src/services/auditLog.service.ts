@@ -99,4 +99,23 @@ export const AuditLogService = {
 
     return { data, total, page: params.page, perPage: params.perPage };
   },
+
+  async exportForCompany(companyId: string) {
+    const [company, entries] = await Promise.all([
+      prisma.company.findUnique({
+        where: { id: companyId },
+        select: { id: true, name: true, email: true },
+      }),
+      prisma.auditLog.findMany({
+        where: { performedByUser: { companyId } },
+        include: {
+          performedByUser: {
+            select: { id: true, name: true, email: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
+    return { company, entries };
+  },
 };

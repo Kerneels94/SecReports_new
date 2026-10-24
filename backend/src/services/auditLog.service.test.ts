@@ -9,6 +9,9 @@ jest.mock("../lib/db", () => ({
       count: jest.fn(),
       create: jest.fn(),
     },
+    company: {
+      findUnique: jest.fn(),
+    },
   },
 }));
 
@@ -52,6 +55,27 @@ describe("AuditLogService", () => {
 
     const where = (prisma.auditLog.findMany as jest.Mock).mock.calls[0][0].where;
     expect(where.performedByUser).toEqual({ companyId: "company-1" });
+  });
+
+  it("exports a company's logs with company details", async () => {
+    (prisma.company.findUnique as jest.Mock).mockResolvedValue({
+      id: "company-1",
+      name: "Acme",
+      email: "admin@acme.com",
+    });
+    (prisma.auditLog.findMany as jest.Mock).mockResolvedValue([{ id: "log-1" }]);
+
+    const result = await AuditLogService.exportForCompany("company-1");
+
+    expect(result.company).toEqual({
+      id: "company-1",
+      name: "Acme",
+      email: "admin@acme.com",
+    });
+    expect(result.entries).toEqual([{ id: "log-1" }]);
+    expect((prisma.auditLog.findMany as jest.Mock).mock.calls[0][0].where).toEqual({
+      performedByUser: { companyId: "company-1" },
+    });
   });
 
   it("fuses request context (ip + user agent) into created entries", async () => {

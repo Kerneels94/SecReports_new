@@ -297,6 +297,8 @@ export const adminAuditService = {
       `/admin/audit-logs${qs ? `?${qs}` : ""}`,
     );
   },
+  exportCompany: (companyId: string) =>
+    api.post<{ emailedTo: string[]; count: number }>(`/admin/audit-logs/export/${companyId}`),
 };
 
 /** Subscription plan and company subscription endpoints. */

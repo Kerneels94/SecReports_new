@@ -8,4 +8,5 @@ export default async function auditLogRoutes(fastify: FastifyInstance) {
 
   fastify.get("/audit-logs", { preHandler: [requirePermission("auditLogs.view")] }, AuditLogController.list);
   fastify.get("/admin/audit-logs", { preHandler: [requireRole("superadmin")] }, AuditLogController.adminList);
+  fastify.post("/admin/audit-logs/export/:companyId", { preHandler: [requireRole("superadmin")] }, AuditLogController.exportCompany);
 }
