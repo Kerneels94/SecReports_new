@@ -6,17 +6,21 @@ import { generateInvoicePdf } from "../templates/invoice-pdf";
 
 export const InvoiceService = {
   async generateInvoiceNumber(): Promise<string> {
-    const year = new Date().getFullYear();
-    const lastInvoice = await prisma.invoice.findFirst({
-      where: { invoiceNumber: { startsWith: `INV-${year}-` } },
-      orderBy: { invoiceNumber: "desc" },
-    });
-    let nextSeq = 1;
-    if (lastInvoice) {
-      const parts = lastInvoice.invoiceNumber.split("-");
-      nextSeq = parseInt(parts[2], 10) + 1;
+    try {
+      const year = new Date().getFullYear();
+      const lastInvoice = await prisma.invoice.findFirst({
+        where: { invoiceNumber: { startsWith: `INV-${year}-` } },
+        orderBy: { invoiceNumber: "desc" },
+      });
+      let nextSeq = 1;
+      if (lastInvoice) {
+        const parts = lastInvoice.invoiceNumber.split("-");
+        nextSeq = parseInt(parts[2], 10) + 1;
+      }
+      return `INV-${year}-${String(nextSeq).padStart(4, "0")}`;
+    } catch (error) {
+      return `${error}`;
     }
-    return `INV-${year}-${String(nextSeq).padStart(4, "0")}`;
   },
 
   async createInvoice(data: {
@@ -58,8 +62,10 @@ export const InvoiceService = {
     if (filters?.companyId) where.companyId = filters.companyId;
     if (filters?.dateFrom || filters?.dateTo) {
       const createdAt: Record<string, Date> = {};
+      // dateTo is date-only ("2026-10-22" = midnight UTC); lte on that drops the whole
+      // selected day, so the upper bound is the start of the next day.
       if (filters.dateFrom) createdAt.gte = new Date(filters.dateFrom);
-      if (filters.dateTo) createdAt.lte = new Date(filters.dateTo);
+      if (filters.dateTo) createdAt.lt = new Date(Date.parse(filters.dateTo) + 86_400_000);
       where.createdAt = createdAt;
     }
     return prisma.invoice.findMany({
@@ -70,15 +76,19 @@ export const InvoiceService = {
   },
 
   async getInvoiceById(id: string) {
-    const invoice = await prisma.invoice.findUnique({
-      where: { id },
-      include: {
-        company: { select: { id: true, name: true, email: true } },
-        payments: true,
-      },
-    });
-    if (!invoice) throw new NotFoundError("Invoice");
-    return invoice;
+    try {
+      const invoice = await prisma.invoice.findUnique({
+        where: { id },
+        include: {
+          company: { select: { id: true, name: true, email: true } },
+          payments: true,
+        },
+      });
+      if (!invoice) throw new NotFoundError("Invoice");
+      return invoice;
+    } catch (error) {
+      return new Error("Could not get invoice id: check ");
+    }
   },
 
   async sendInvoice(id: string) {
@@ -87,45 +97,55 @@ export const InvoiceService = {
       include: { company: true },
     });
     if (!invoice) throw new NotFoundError("Invoice");
-    if (invoice.status !== "draft") throw new ConflictError("Invoice already sent");
-
-    const pdf = await generateInvoicePdf({
-      companyName: invoice.company.name,
-      amount: invoice.amount,
-      invoiceNumber: invoice.invoiceNumber,
-      dueDate: invoice.dueDate,
-      invoiceDate: invoice.createdAt,
-      description: invoice.description ?? undefined,
-    });
-
-    await sendMail({
-      to: invoice.company.email,
-      from: ADMIN_FROM_EMAIL,
-      subject: "invoice",
-      data: {
-        companyName: invoice.company.name,
-        amount: invoice.amount,
-        currency: invoice.currency,
-        invoiceNumber: invoice.invoiceNumber,
-        dueDate: invoice.dueDate.toISOString(),
-        description: invoice.description ?? undefined,
-      },
-      attachments: [
-        { filename: `${invoice.invoiceNumber}.pdf`, content: pdf },
-      ],
-    }).then(({ error }) => {
-      if (error)
-        throw new AppError(
-          502,
-          "EMAIL_SEND_FAILED",
-          "Invoice email could not be sent",
-        );
-    });
-
-    await prisma.invoice.update({
-      where: { id },
+    // Conditional update: claim the draft before emailing, so a concurrent request
+    // (double-click, retry) cannot email the client a second time.
+    const { count } = await prisma.invoice.updateMany({
+      where: { id, status: "draft" },
       data: { status: "sent" },
     });
+    if (count === 0) throw new ConflictError("Invoice already sent");
+
+    try {
+      const pdf = await generateInvoicePdf({
+        companyName: invoice.company.name,
+        amount: invoice.amount,
+        invoiceNumber: invoice.invoiceNumber,
+        dueDate: invoice.dueDate,
+        invoiceDate: invoice.createdAt,
+        description: invoice.description ?? undefined,
+      });
+
+      await sendMail({
+        to: invoice.company.email,
+        from: ADMIN_FROM_EMAIL,
+        subject: "invoice",
+        data: {
+          companyName: invoice.company.name,
+          amount: invoice.amount,
+          currency: invoice.currency,
+          invoiceNumber: invoice.invoiceNumber,
+          dueDate: invoice.dueDate.toISOString(),
+          description: invoice.description ?? undefined,
+        },
+        attachments: [
+          { filename: `${invoice.invoiceNumber}.pdf`, content: pdf },
+        ],
+      }).then(({ error }) => {
+        if (error)
+          throw new AppError(
+            502,
+            "EMAIL_SEND_FAILED",
+            "Invoice email could not be sent",
+          );
+      });
+    } catch (err) {
+      // The client never got it: release the claim so the send can be retried.
+      await prisma.invoice.updateMany({
+        where: { id, status: "sent" },
+        data: { status: "draft" },
+      });
+      throw err;
+    }
 
     return prisma.invoice.findUnique({
       where: { id },
@@ -183,7 +203,8 @@ export const InvoiceService = {
       });
     } catch (err) {
       // P2034: MongoDB write conflict with a concurrent transaction paying the same invoice.
-      if ((err as { code?: string }).code === "P2034") throw new ConflictError("Invoice already paid");
+      if ((err as { code?: string }).code === "P2034")
+        throw new ConflictError("Invoice already paid");
       throw err;
     }
   },
@@ -221,7 +242,12 @@ export const InvoiceService = {
     const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-    const results: Array<{ companyId: string; companyName: string; invoiceNumber: string; status: string }> = [];
+    const results: Array<{
+      companyId: string;
+      companyName: string;
+      invoiceNumber: string;
+      status: string;
+    }> = [];
 
     for (const company of companies) {
       const existing = await prisma.invoice.findFirst({
@@ -231,7 +257,7 @@ export const InvoiceService = {
           periodEnd: { lte: periodEnd },
         },
       });
-      if (existing) {
+      if (existing && existing.status !== "draft") {
         results.push({
           companyId: company.id,
           companyName: company.name,
@@ -241,16 +267,18 @@ export const InvoiceService = {
         continue;
       }
 
-      const dueDate = getNextBillingDate(now);
-      const invoice = await this.createInvoice({
-        companyId: company.id,
-        amount: company.subscription!.plan.price,
-        currency: "ZAR",
-        dueDate,
-        periodStart,
-        periodEnd,
-        description: `Monthly subscription - ${company.subscription!.plan.name} plan`,
-      });
+      // A draft here is left from an earlier run whose email failed: retry it, don't skip it.
+      const invoice =
+        existing ??
+        (await this.createInvoice({
+          companyId: company.id,
+          amount: company.subscription!.plan.price,
+          currency: "ZAR",
+          dueDate: getNextBillingDate(now),
+          periodStart,
+          periodEnd,
+          description: `Monthly subscription - ${company.subscription!.plan.name} plan`,
+        }));
 
       try {
         await this.sendInvoice(invoice.id);
@@ -278,13 +306,21 @@ export const InvoiceService = {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const yearStart = new Date(now.getFullYear(), 0, 1);
 
-    const [totalRevenue, monthlyRevenue, paidCounts, overdueCounts, companyCount] = await Promise.all([
+    const [
+      totalRevenue,
+      monthlyRevenue,
+      paidCounts,
+      overdueCounts,
+      companyCount,
+    ] = await Promise.all([
       prisma.paymentHistory.aggregate({ _sum: { amount: true } }),
       prisma.paymentHistory.aggregate({
         _sum: { amount: true },
         where: { createdAt: { gte: monthStart } },
       }),
-      prisma.invoice.count({ where: { status: "paid", paidAt: { gte: yearStart } } }),
+      prisma.invoice.count({
+        where: { status: "paid", paidAt: { gte: yearStart } },
+      }),
       prisma.invoice.count({ where: { status: "overdue" } }),
       prisma.company.count(),
     ]);
@@ -313,7 +349,12 @@ export const InvoiceService = {
       orderBy: { createdAt: "asc" },
     });
 
-    const trends: Array<{ month: string; year: number; revenue: number; count: number }> = [];
+    const trends: Array<{
+      month: string;
+      year: number;
+      revenue: number;
+      count: number;
+    }> = [];
     const monthMap = new Map<string, { revenue: number; count: number }>();
 
     for (let i = 0; i < 12; i++) {
@@ -360,7 +401,15 @@ export const InvoiceService = {
       where: { id },
       include: {
         subscription: { include: { plan: true } },
-        users: { select: { id: true, name: true, email: true, role: true, status: true } },
+        users: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            status: true,
+          },
+        },
         invoices: { orderBy: { createdAt: "desc" } },
         _count: { select: { incidents: true } },
       },

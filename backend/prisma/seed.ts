@@ -46,7 +46,6 @@ async function main() {
     data: {
       name: "Enterprise",
       price: 450000,
-      siteLimit: 0,
       userLimit: 0,
       features: allFeatures,
     },
@@ -72,6 +71,7 @@ async function main() {
       email: "admin@example.com",
       passwordHash,
       role: "admin",
+      emailVerified: true,
     },
   });
 
@@ -82,6 +82,7 @@ async function main() {
       email: "manager@example.com",
       passwordHash,
       role: "manager",
+      emailVerified: true,
     },
   });
 
@@ -92,6 +93,7 @@ async function main() {
       email: "senior@example.com",
       passwordHash,
       role: "senior",
+      emailVerified: true,
     },
   });
 

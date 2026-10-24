@@ -184,8 +184,17 @@ describe("LedgerService.getEntries", () => {
     const where = (prisma.ledger.findMany as jest.Mock).mock.calls[0][0].where;
     expect(where.postedAt).toEqual({
       gte: new Date("2026-01-01"),
-      lte: new Date("2026-01-31"),
+      lt: new Date("2026-02-01T00:00:00.000Z"),
     });
+  });
+
+  it("includes the whole dateTo day", async () => {
+    await LedgerService.getEntries({ dateFrom: "2026-10-22", dateTo: "2026-10-22" });
+
+    const { postedAt } = (prisma.ledger.findMany as jest.Mock).mock.calls[0][0].where;
+    const postedMidMorning = new Date("2026-10-22T10:00:00Z");
+    expect(postedAt.lte).toBeUndefined();
+    expect(postedAt.gte <= postedMidMorning && postedMidMorning < postedAt.lt).toBe(true);
   });
 
   it("returns all entries when no filters are supplied", async () => {

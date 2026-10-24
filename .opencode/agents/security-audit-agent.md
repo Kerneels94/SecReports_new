@@ -4,13 +4,16 @@ command: security-audit
 mode: subagent
 model: opencode/big-pickle
 permission:
-  read: allow
+  read:
+    "*": allow
+    "**/.env*": deny
+    "**/*.env": deny
   edit: allow
   bash:
-    "npx jest *": allow
-    "npm test": allow
-    "npm run *": allow
-    "*": ask
+    "*": allow
+    "*.env": deny
+    "**/*.env": deny
+    "* .env*": deny
 ---
 
 # Security Audit Agent — Incident Report System

@@ -3,7 +3,7 @@
  * MongoDB has no schema migrations, so the collections survive after the models are deleted.
  * Run ONCE against every environment: npx ts-node prisma/drop-guarding-collections.ts
  */
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../src/generated/prisma/client";
 
 const prisma = new PrismaClient();
 
