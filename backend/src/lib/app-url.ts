@@ -8,6 +8,6 @@ export function getAppUrl(): string {
     process.env.FRONTEND_URL ||
     (process.env.ENVIRONMENT === "localhost"
       ? "http://localhost:3000"
-      : "https://roaring-sable-cba735.netlify.app")
+      : "https://secreports.co.za")
   );
 }
