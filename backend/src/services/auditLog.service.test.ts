@@ -37,6 +37,23 @@ describe("AuditLogService", () => {
     );
   });
 
+  it("lists across every company when no companyId is supplied", async () => {
+    await AuditLogService.list({ page: 1, perPage: 20, companyId: null });
+
+    const call = (prisma.auditLog.findMany as jest.Mock).mock.calls[0][0];
+    expect(call.where.performedByUser).toBeUndefined();
+    expect(call.include.performedByUser.select.company).toEqual({
+      select: { id: true, name: true },
+    });
+  });
+
+  it("filters to one company when a companyId is supplied", async () => {
+    await AuditLogService.list({ page: 1, perPage: 20, companyId: "company-1" });
+
+    const where = (prisma.auditLog.findMany as jest.Mock).mock.calls[0][0].where;
+    expect(where.performedByUser).toEqual({ companyId: "company-1" });
+  });
+
   it("fuses request context (ip + user agent) into created entries", async () => {
     await runWithAuditContext(
       { ipAddress: "1.2.3.4", userAgent: "Mozilla/5.0 (Windows NT 10.0) Chrome/126.0" },

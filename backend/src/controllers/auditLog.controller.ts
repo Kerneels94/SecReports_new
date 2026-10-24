@@ -25,4 +25,27 @@ export const AuditLogController = {
 
     reply.code(200).send({ success: true, data });
   },
+
+  /** Superadmin listing across every company, optionally filtered to one. */
+  async adminList(request: FastifyRequest, reply: FastifyReply) {
+    const { companyId, entityType, action, dateFrom, dateTo, search } =
+      request.query as Record<string, string | undefined>;
+
+    const parsed = paginationSchema.safeParse(request.query);
+    if (!parsed.success) throw new ValidationError("Invalid query", parsed.error.flatten());
+    const { page, perPage } = parsed.data;
+
+    const data = await AuditLogService.list({
+      page,
+      perPage,
+      companyId: companyId || null,
+      entityType,
+      action,
+      dateFrom,
+      dateTo,
+      search,
+    });
+
+    reply.code(200).send({ success: true, data });
+  },
 };

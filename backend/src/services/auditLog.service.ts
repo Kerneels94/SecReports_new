@@ -33,11 +33,16 @@ export const AuditLogService = {
     });
   },
 
-  /** Paginated listing of audit logs for a company with performer info and optional filters. */
+  /**
+   * Paginated listing of audit logs with performer info and optional filters.
+   * Omitting `companyId` returns entries for every company (superadmin view).
+   */
   async list(params: ListAuditLogsParams) {
-    const where: Prisma.AuditLogWhereInput = {
-      performedByUser: { companyId: params.companyId },
-    };
+    const where: Prisma.AuditLogWhereInput = {};
+
+    if (params.companyId) {
+      where.performedByUser = { companyId: params.companyId };
+    }
 
     if (params.entityType) where.entityType = params.entityType;
     if (params.action) where.action = params.action;
@@ -50,7 +55,6 @@ export const AuditLogService = {
     }
 
     if (params.search) {
-      where.performedByUser = { companyId: params.companyId };
       where.OR = [
         { action: { contains: params.search, mode: "insensitive" } },
         {
@@ -61,6 +65,13 @@ export const AuditLogService = {
         {
           performedByUser: {
             email: { contains: params.search, mode: "insensitive" },
+          },
+        },
+        {
+          performedByUser: {
+            company: {
+              name: { contains: params.search, mode: "insensitive" },
+            },
           },
         },
       ];
@@ -75,6 +86,7 @@ export const AuditLogService = {
               id: true,
               name: true,
               email: true,
+              company: { select: { id: true, name: true } },
             },
           },
         },
