@@ -110,6 +110,7 @@ async function sendEmail({
 interface Attachment {
   filename: string;
   content: string | Buffer;
+  applicationType: string;
 }
 
 /** Parameters for sending a transactional email. */
