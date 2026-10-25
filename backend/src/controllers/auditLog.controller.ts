@@ -254,10 +254,12 @@ export const AuditLogController = {
           ],
         });
       }
-      return reply.code(200).send({
-        success: true,
-        data: { emailedTo: recipients, count: entries.length },
-      });
+      return reply
+        .code(200)
+        .send({
+          success: true,
+          data: { emailedTo: recipients, count: entries.length },
+        });
     }
 
     const { company, entries } =
@@ -288,9 +290,11 @@ export const AuditLogController = {
       });
     }
 
-    reply.code(200).send({
-      success: true,
-      data: { emailedTo: recipients, count: entries.length },
-    });
+    reply
+      .code(200)
+      .send({
+        success: true,
+        data: { emailedTo: recipients, count: entries.length },
+      });
   },
 };
