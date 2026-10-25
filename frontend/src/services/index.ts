@@ -272,6 +272,33 @@ export const adminAuditService = {
       `/audit-logs${qs ? `?${qs}` : ""}`,
     );
   },
+  /** Superadmin listing across every company. */
+  listAll: (params?: {
+    page?: number;
+    perPage?: number;
+    companyId?: string;
+    entityType?: string;
+    action?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    search?: string;
+  }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set("page", String(params.page));
+    if (params?.perPage) searchParams.set("perPage", String(params.perPage));
+    if (params?.companyId) searchParams.set("companyId", params.companyId);
+    if (params?.entityType) searchParams.set("entityType", params.entityType);
+    if (params?.action) searchParams.set("action", params.action);
+    if (params?.dateFrom) searchParams.set("dateFrom", params.dateFrom);
+    if (params?.dateTo) searchParams.set("dateTo", params.dateTo);
+    if (params?.search) searchParams.set("search", params.search);
+    const qs = searchParams.toString();
+    return api.get<PaginatedResponse<AuditLogEntry>>(
+      `/admin/audit-logs${qs ? `?${qs}` : ""}`,
+    );
+  },
+  exportCompany: (companyId: string) =>
+    api.post<{ emailedTo: string[]; count: number }>(`/admin/audit-logs/export/${companyId}`),
 };
 
 /** Subscription plan and company subscription endpoints. */
