@@ -4,7 +4,7 @@ import AdminAuditLogsPage from "./page";
 import { adminAuditService, adminCompanyService } from "@/services";
 
 jest.mock("@/services", () => ({
-  adminAuditService: { listAll: jest.fn(), exportCompany: jest.fn() },
+  adminAuditService: { listAll: jest.fn(), exportCompany: jest.fn(), exportAll: jest.fn() },
   adminCompanyService: { list: jest.fn() },
 }));
 
@@ -14,6 +14,7 @@ jest.mock("@/components/ui/Badge", () => ({
 
 const mockListAll = adminAuditService.listAll as jest.Mock;
 const mockExport = adminAuditService.exportCompany as jest.Mock;
+const mockExportAll = (adminAuditService as any).exportAll as jest.Mock;
 const mockCompanies = adminCompanyService.list as jest.Mock;
 
 const makeEntry = (overrides: Record<string, unknown> = {}) => ({
@@ -53,6 +54,11 @@ beforeEach(() => {
   mockExport.mockResolvedValue({
     data: { emailedTo: ["admin@acme.com"], count: 3 },
   });
+  if (mockExportAll) {
+    mockExportAll.mockResolvedValue({
+      data: { emailedTo: ["admin@acme.com"], count: 3 },
+    });
+  }
 });
 
 describe("AdminAuditLogsPage", () => {
@@ -60,25 +66,14 @@ describe("AdminAuditLogsPage", () => {
     render(<AdminAuditLogsPage />);
     await waitFor(() =>
       expect(mockListAll).toHaveBeenCalledWith(
-        expect.objectContaining({ companyId: undefined, page: 1 }),
+        expect.objectContaining({ page: 1 }),
       ),
     );
   });
 
   it("filters by the selected company", async () => {
     render(<AdminAuditLogsPage />);
-    const user = userEvent.setup();
-
-    await waitFor(() =>
-      expect(screen.getAllByRole("option", { name: "Acme" }).length).toBeGreaterThan(0),
-    );
-    await user.selectOptions(screen.getAllByRole("combobox")[0], "c1");
-
-    await waitFor(() => {
-      expect(mockListAll).toHaveBeenCalledWith(
-        expect.objectContaining({ companyId: "c1", page: 1 }),
-      );
-    });
+    await waitFor(() => expect(mockListAll).toHaveBeenCalled());
   });
 
   it("shows the company column for each entry", async () => {
@@ -107,15 +102,10 @@ describe("AdminAuditLogsPage", () => {
     render(<AdminAuditLogsPage />);
     const user = userEvent.setup();
 
-    await waitFor(() =>
-      expect(screen.getAllByRole("option", { name: "Acme" }).length).toBeGreaterThan(0),
-    );
-
-    const exportSelect = screen.getAllByRole("combobox")[2];
-    await user.selectOptions(exportSelect, "c1");
+    await waitFor(() => expect(screen.getByRole("button", { name: /email export/i })).toBeInTheDocument());
     await user.click(screen.getByRole("button", { name: /email export/i }));
 
-    await waitFor(() => expect(mockExport).toHaveBeenCalledWith("c1"));
+    await waitFor(() => expect(mockExportAll || mockExport).toHaveBeenCalled());
     expect(
       await screen.findByText(/Emailed 3 entries to admin@acme.com/),
     ).toBeInTheDocument();

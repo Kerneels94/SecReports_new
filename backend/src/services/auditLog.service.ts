@@ -118,4 +118,16 @@ export const AuditLogService = {
     ]);
     return { company, entries };
   },
+
+  async exportAll() {
+    const entries = await prisma.auditLog.findMany({
+      include: {
+        performedByUser: {
+          select: { id: true, name: true, email: true, company: { select: { name: true } } },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return { entries };
+  },
 };

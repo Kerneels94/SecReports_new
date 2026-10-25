@@ -4,8 +4,8 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
-import { adminAuditService, adminCompanyService } from "@/services";
-import type { AdminCompany, AuditLogEntry, PaginatedResponse } from "@/types";
+import { adminAuditService } from "@/services";
+import type { AuditLogEntry, PaginatedResponse } from "@/types";
 const ENTITY_TYPES = [
   { value: "", label: "All Types" },
   { value: "user", label: "User" },
@@ -67,22 +67,14 @@ function parseBrowser(ua: string | null): string {
 }
 export default function AdminAuditLogsPage() {
   const [data, setData] = useState<PaginatedResponse<AuditLogEntry> | null>(null);
-  const [companies, setCompanies] = useState<AdminCompany[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [companyId, setCompanyId] = useState("");
   const [entityType, setEntityType] = useState("");
   const [action, setAction] = useState("");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  useEffect(() => {
-    adminCompanyService
-      .list()
-      .then((res) => setCompanies(res.data))
-      .catch(() => setCompanies([]));
-  }, []);
   const fetchData = async () => {
     setLoading(true);
     setError(null);
@@ -90,7 +82,6 @@ export default function AdminAuditLogsPage() {
       const res = await adminAuditService.listAll({
         page,
         perPage: 20,
-        companyId: companyId || undefined,
         entityType: entityType || undefined,
         action: action || undefined,
         search: search || undefined,
@@ -104,7 +95,7 @@ export default function AdminAuditLogsPage() {
   };
   useEffect(() => {
     fetchData();
-  }, [page, companyId, entityType, action, search]);
+  }, [page, entityType, action, search]);
   useEffect(() => {
     const t = setTimeout(() => {
       setSearch(searchInput.trim());
@@ -115,19 +106,12 @@ export default function AdminAuditLogsPage() {
   const [exporting, setExporting] = useState(false);
   const [exportMsg, setExportMsg] = useState<string | null>(null);
   const totalPages = data ? Math.ceil(data.total / data.perPage) : 0;
-  const exportCompanies = companies.filter(
-    (c) => c.subscription?.status === "active" && (c.subscription?.plan?.price ?? 0) > 0,
-  );
   const handleExport = async () => {
-    if (!companyId) {
-      setExportMsg("Select a company to export.");
-      return;
-    }
     setExporting(true);
     setExportMsg(null);
     setError(null);
     try {
-      const res = await adminAuditService.exportCompany(companyId);
+      const res = await adminAuditService.exportAll();
       setExportMsg(`Emailed ${res.data.count} entries to ${res.data.emailedTo.join(", ")}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to export audit logs");
@@ -168,16 +152,6 @@ export default function AdminAuditLogsPage() {
             </div>
             <div className="flex gap-2">
               <select
-                value={companyId}
-                onChange={(e) => { setCompanyId(e.target.value); setPage(1); }}
-                className="rounded-lg border border-border-light bg-surface-elevated/50 px-3 py-1.5 text-xs font-medium text-text-secondary"
-              >
-                <option value="" className="bg-surface-elevated text-text-secondary">All Companies</option>
-                {companies.map((c) => (
-                  <option key={c.id} value={c.id} className="bg-surface-elevated text-text-secondary">{c.name}</option>
-                ))}
-              </select>
-              <select
                 value={action}
                 onChange={(e) => { setAction(e.target.value); setPage(1); }}
                 className="rounded-lg border border-border-light bg-surface-elevated/50 px-3 py-1.5 text-xs font-medium text-text-secondary"
@@ -204,20 +178,10 @@ export default function AdminAuditLogsPage() {
         <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium text-text">Export audit logs</p>
-            <p className="text-xs text-text-secondary">Select a company and email the full CSV to the superadmin and that client.</p>
+            <p className="text-xs text-text-secondary">Email the full PDF to the superadmin and that client.</p>
           </div>
           <div className="flex gap-2">
-            <select
-              value={companyId}
-              onChange={(e) => setCompanyId(e.target.value)}
-              className="rounded-lg border border-border-light bg-surface-elevated/50 px-3 py-1.5 text-xs font-medium text-text-secondary"
-            >
-              <option value="" className="bg-surface-elevated text-text-secondary">Choose a company</option>
-              {exportCompanies.map((c) => (
-                <option key={c.id} value={c.id} className="bg-surface-elevated text-text-secondary">{c.name}</option>
-              ))}
-            </select>
-            <Button onClick={handleExport} loading={exporting} disabled={!companyId}>
+            <Button onClick={handleExport} loading={exporting}>
               Email export
             </Button>
           </div>
