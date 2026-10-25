@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRouter } from "next/navigation";
 import NewIncidentPage from "./page";
@@ -52,6 +52,12 @@ describe("NewIncidentPage", () => {
     expect(screen.getByLabelText("Incident Date")).toBeInTheDocument();
   });
 
+  it("defaults the incident date to today in local time", () => {
+    render(<NewIncidentPage />);
+    const input = screen.getByLabelText("Incident Date") as HTMLInputElement;
+    expect(input.value).toBe(new Date().toLocaleDateString("en-CA"));
+  });
+
   it("shows validation errors for required fields", async () => {
     render(<NewIncidentPage />);
     const user = userEvent.setup();
@@ -92,8 +98,8 @@ describe("NewIncidentPage", () => {
       expect(mockCreate).toHaveBeenCalledWith({
         operatorName: "John Op",
         dispatcher: "Jane Disp",
-        dispatchTime: "",
-        arrivalTime: "",
+        dispatchTime: undefined,
+        arrivalTime: undefined,
         callSign: "AR-42",
         propertyAddress: "123 Main St",
         suburb: "Rivonia",
@@ -108,6 +114,31 @@ describe("NewIncidentPage", () => {
         incidentDate: expect.any(String),
       });
       expect(mockRouter.push).toHaveBeenCalledWith("/incidents");
+    });
+  });
+
+  it("sends dispatch and arrival times as UTC instants from the browser's time zone", async () => {
+    mockCreate.mockResolvedValue({});
+    render(<NewIncidentPage />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText("Operator Name"), "John");
+    await user.type(screen.getByLabelText("Dispatcher"), "Jane");
+    fireEvent.change(screen.getByLabelText("Dispatch Time"), { target: { value: "2026-10-16T23:50" } });
+    fireEvent.change(screen.getByLabelText("Arrival Time"), { target: { value: "2026-10-17T00:05" } });
+    await user.type(screen.getByLabelText("Title"), "Server Down");
+    await user.type(screen.getByLabelText("Report"), "Server is down");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Type" }), "Attempted");
+
+    await user.click(screen.getByRole("button", { name: /submit report/i }));
+
+    await waitFor(() => {
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dispatchTime: new Date("2026-10-16T23:50").toISOString(),
+          arrivalTime: new Date("2026-10-17T00:05").toISOString(),
+        }),
+      );
     });
   });
 

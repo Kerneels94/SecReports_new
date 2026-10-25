@@ -10,7 +10,7 @@ export default function resetPasswordTemplate(name: string, resetLink: string): 
         ${greeting(name)}
         ${paragraph("We received a request to reset the password for your SecReports account.")}
         ${ctaButton(resetLink, "Reset Your Password")}
-        ${mutedNote("This link will expire in <strong>1 hour</strong>.")}
+        ${mutedNote("This link will expire in <strong>15 minutes</strong>.")}
         ${mutedNote("If you did not request a password reset, please ignore this email.")}
       `;
 

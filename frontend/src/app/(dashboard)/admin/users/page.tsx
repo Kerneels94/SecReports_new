@@ -20,7 +20,14 @@ import { hasPermission } from "@/lib/permissions";
 const createUserSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email"),
-  password: z.string().min(8, "Min 8 characters"),
+  // Same rules as the backend's strongPassword, so a weak password is caught here with a clear message.
+  password: z
+    .string()
+    .min(8, "Min 8 characters")
+    .regex(/[a-z]/, "Must include a lowercase letter")
+    .regex(/[A-Z]/, "Must include an uppercase letter")
+    .regex(/\d/, "Must include a number")
+    .regex(/[^a-zA-Z0-9]/, "Must include a special character"),
   role: z.enum(["manager", "senior"]),
 });
 
@@ -192,7 +199,7 @@ if (!canManageUsers) {
               <Input
                 label="Password"
                 type="password"
-                placeholder="Min. 8 characters"
+                placeholder="8+ chars: upper, lower, number, symbol"
                 error={errors.password?.message}
                 {...register("password")}
               />

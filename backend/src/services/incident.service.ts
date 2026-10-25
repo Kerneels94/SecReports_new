@@ -3,6 +3,7 @@
  * permission checks for reporters, and natural language date parsing for searches.
  */
 import { prisma } from "../lib/db";
+import { Prisma } from "../generated/prisma/client";
 import { AuditLogService } from "./auditLog.service";
 import { NotFoundError } from "../lib/errors";
 import { generateReferenceNumber } from "../lib/utils";
@@ -137,27 +138,31 @@ interface ListParams {
 export const IncidentService = {
   /** Paginated listing with filtering by status, type, full-text search, and date range. Search also attempts natural language date parsing. */
   async list(params: ListParams) {
-    const where: any = { companyId: params.companyId };
+    const where: Prisma.IncidentWhereInput = { companyId: params.companyId };
 
     if (params.status) where.status = params.status;
     if (params.type) where.type = { contains: params.type, mode: "insensitive" };
     if (params.search) {
-      where.OR = [
-        ...(where.OR || []),
+      const or: Prisma.IncidentWhereInput[] = [
         { title: { contains: params.search } },
         { referenceNumber: { contains: params.search } },
       ];
 
       const parsed = tryParseDate(params.search);
       if (parsed) {
-        where.OR.push({ incidentDate: { gte: parsed.gte, lte: parsed.lte } });
+        or.push({ incidentDate: { gte: parsed.gte, lte: parsed.lte } });
       }
+
+      where.OR = or;
     }
 
     if (params.dateFrom || params.dateTo) {
-      where.incidentDate = {};
-      if (params.dateFrom) where.incidentDate.gte = new Date(params.dateFrom);
-      if (params.dateTo) where.incidentDate.lte = new Date(params.dateTo);
+      const incidentDate: Prisma.DateTimeFilter = {};
+      // Frontend sends date-only strings ("2026-03-15" = midnight UTC); lte on that
+      // drops the whole selected day, so the upper bound is the start of the next day.
+      if (params.dateFrom) incidentDate.gte = new Date(params.dateFrom);
+      if (params.dateTo) incidentDate.lt = new Date(Date.parse(params.dateTo) + 86_400_000);
+      where.incidentDate = incidentDate;
     }
 
     const [data, total] = await Promise.all([

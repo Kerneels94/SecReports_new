@@ -99,13 +99,13 @@ export default function RegisterPage() {
             <div className="mt-6 space-y-3">
               <Link
                 href="/login"
-                className="block w-full rounded-lg bg-primary py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
+                className="cursor-pointer block w-full rounded-lg bg-primary py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
               >
                 Go to Login
               </Link>
               <a
                 href="/"
-                className="inline-flex items-center justify-center gap-1.5 text-primary hover:underline transition-colors text-sm"
+                className="cursor-pointer inline-flex items-center justify-center gap-1.5 text-primary hover:underline transition-colors text-sm"
               >
                 <svg
                   className="h-4 w-4"
@@ -193,7 +193,7 @@ export default function RegisterPage() {
               Passwords must meet our{" "}
               <Link
                 href="/privacy#password-policy"
-                className="text-primary hover:underline transition-colors"
+                className="cursor-pointer text-primary hover:underline transition-colors"
               >
                 Password Policy
               </Link>
@@ -217,7 +217,7 @@ export default function RegisterPage() {
             Already have an account?{" "}
             <Link
               href="/login"
-              className="text-primary hover:underline transition-colors"
+              className="cursor-pointer text-primary hover:underline transition-colors"
             >
               Sign in
             </Link>
@@ -225,7 +225,7 @@ export default function RegisterPage() {
           <div className="mt-3 text-center text-sm">
             <a
               href="/"
-              className="inline-flex items-center gap-1.5 text-primary hover:underline transition-colors"
+              className="cursor-pointer inline-flex items-center gap-1.5 text-primary hover:underline transition-colors"
             >
               <svg
                 className="h-4 w-4"

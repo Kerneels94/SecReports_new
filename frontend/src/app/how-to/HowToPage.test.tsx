@@ -12,7 +12,8 @@ describe("HowToPage", () => {
 
   it("renders the header and footer with the back-to-home navigation", () => {
     render(<HowToPage />);
-    expect(screen.getAllByText("SecReports")).toHaveLength(2);
+    expect(screen.getByAltText("SecReports")).toBeInTheDocument();
+    expect(screen.getAllByText("SecReports")).toHaveLength(1);
     expect(screen.getByText(/terms & conditions/i)).toBeInTheDocument();
   });
 
@@ -31,10 +32,5 @@ describe("HowToPage", () => {
     expect(screen.getByText(/open the verification email/i)).toBeInTheDocument();
     expect(screen.getByText(/auto-generated reference number/i)).toBeInTheDocument();
     expect(screen.getByText(/Audit Logs records every change/i)).toBeInTheDocument();
-  });
-
-  it("renders image placeholder slots for each step", () => {
-    render(<HowToPage />);
-    expect(screen.getAllByLabelText(/screenshot placeholder/i)).toHaveLength(6);
   });
 });

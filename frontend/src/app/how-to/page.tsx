@@ -5,7 +5,6 @@ import { Footer } from "@/components/footer/Footer";
 const steps = [
   {
     title: "1. Create your account",
-    imageAlt: "Register screenshot placeholder",
     items: [
       "Click Start Free Trial or Get Started in the top navigation.",
       "Fill in your company name, your name, a valid email address, and a strong password (at least 8 characters with an uppercase letter, lowercase letter, number, and special character).",
@@ -15,7 +14,6 @@ const steps = [
   },
   {
     title: "2. Log in",
-    imageAlt: "Login screenshot placeholder",
     items: [
       "Click Sign In in the top navigation.",
       "Enter your verified email address and password.",
@@ -25,7 +23,6 @@ const steps = [
   },
   {
     title: "3. Understand the dashboard",
-    imageAlt: "Dashboard screenshot placeholder",
     items: [
       "The dashboard gives you a snapshot of your security operations.",
       "Stat cards show total, attempted, and positive incidents, plus current-month activity.",
@@ -36,7 +33,6 @@ const steps = [
   },
   {
     title: "4. Report an incident",
-    imageAlt: "Report incident form screenshot placeholder",
     items: [
       "From the sidebar, click Report Incident.",
       "Select the incident Type - Attempted or Positive.",
@@ -49,7 +45,6 @@ const steps = [
   },
   {
     title: "5. Manage incidents",
-    imageAlt: "Incidents list screenshot placeholder",
     items: [
       "Open Incidents from the sidebar to see every report in a table.",
       "Filter by date range or incident type, or click Clear to reset.",
@@ -60,7 +55,6 @@ const steps = [
   },
   {
     title: "6. Admin tools and billing",
-    imageAlt: "Admin tools screenshot placeholder",
     items: [
       "Admins see an Admin Tools section in the sidebar: Permissions, Users, Audit Logs, and Billing.",
       "Permissions control what each role can do - assign them to users as needed.",
@@ -101,12 +95,6 @@ export default function HowToPage() {
                   </li>
                 ))}
               </ol>
-              <div
-                className="mt-5 flex h-40 items-center justify-center rounded-xl border border-dashed border-border-light bg-surface-secondary text-xs text-text-secondary/60"
-                aria-label={step.imageAlt}
-              >
-                {step.imageAlt}
-              </div>
             </article>
           ))}
         </div>
@@ -119,7 +107,7 @@ export default function HowToPage() {
           </p>
           <Link
             href="/register"
-            className="mt-5 inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-gray-900 shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all duration-150"
+            className="cursor-pointer mt-5 inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-gray-900 shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all duration-150"
           >
             Get Started
           </Link>

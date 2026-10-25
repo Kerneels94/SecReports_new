@@ -46,7 +46,7 @@ export const PLAN_WORDING: Record<string, PlanWording> = {
     ],
   },
   Professional: {
-    description: "For growing security teams that need more seats.",
+    description: "For growing teams that need more seats.",
     limit: "Up to 5 users",
     features: [
       "Up to 5 user accounts",
@@ -56,7 +56,7 @@ export const PLAN_WORDING: Record<string, PlanWording> = {
     ],
   },
   Enterprise: {
-    description: "For large security operations with unlimited seats.",
+    description: "For larger teams that need unlimited seats.",
     limit: "Unlimited users",
     features: [
       "Unlimited users",

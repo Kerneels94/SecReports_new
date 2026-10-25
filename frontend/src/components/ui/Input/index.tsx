@@ -49,7 +49,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               type="button"
               tabIndex={-1}
               onClick={() => setVisible((v) => !v)}
-              className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-text-secondary/60 hover:text-text-secondary transition-colors"
+              className="cursor-pointer flex h-6 w-6 shrink-0 items-center justify-center rounded text-text-secondary/60 hover:text-text-secondary transition-colors"
               aria-label={visible ? "Hide password" : "Show password"}
             >
               {visible ? (

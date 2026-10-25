@@ -16,10 +16,10 @@ export default async function reportRoutes(fastify: FastifyInstance) {
   fastify.get("/reports/response-by-area", { preHandler: [requirePermission("reports.view")] }, ReportController.responseByArea);
   fastify.post("/reports/email", {
     config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
-    preHandler: [requirePermission("reports.view")],
+    preHandler: [requirePermission("export.reports")],
   }, ExportController.email);
   fastify.post("/reports/batch-email", {
     config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
-    preHandler: [requirePermission("reports.view")],
+    preHandler: [requirePermission("export.reports")],
   }, ExportController.batchEmail);
 }

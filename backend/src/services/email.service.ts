@@ -3,13 +3,17 @@
  * Handles transactional emails for registration, invoices, cancellations,
  * suspensions, and reports using dynamic template imports.
  *
- * Deliberately no SMTP transport: Resend is reached over HTTPS (443), so the
- * process opens no outbound port 25 socket and cannot be turned into an open
- * relay by injected content. Send over API, not SMTP.
+ * Production uses the Resend HTTP API, so the process opens no outbound port 25
+ * socket and cannot be turned into an open relay by injected content.
+ *
+ * Local dev override: if SMTP_HOST is set (e.g. an Ethereal inbox) mail is sent
+ * over SMTP instead, giving a preview URL with no real delivery. This path is
+ * disabled in production and tests, so prod still has no SMTP socket.
  *
  * RESEND_API_KEY  - Resend API key (required to send)
  * FROM_EMAIL      - app-facing sender (support@secreports.co.za)
  * ADMIN_FROM_EMAIL - superadmin/accounts sender (accounts@secreports.co.za)
+ * SMTP_*          - local-only Ethereal/SMTP override (dev, never prod)
  */
 import { Resend } from "resend";
 
@@ -19,6 +23,15 @@ export const ADMIN_FROM_EMAIL =
 const OWNER_NOTIFY_EMAIL = process.env.OWNER_NOTIFY_EMAIL;
 
 const resend = new Resend(process.env.RESEND_API_KEY || "Key not found");
+
+/** Local dev with an SMTP host set (e.g. Ethereal). Never prod, never tests. */
+function useLocalSmtp() {
+  return (
+    !!process.env.SMTP_HOST &&
+    process.env.NODE_ENV !== "production" &&
+    process.env.NODE_ENV !== "test"
+  );
+}
 
 async function sendEmail({
   from,
@@ -36,6 +49,37 @@ async function sendEmail({
   replyTo?: string;
 }) {
   try {
+    if (useLocalSmtp()) {
+      const { default: nodemailer } = await import("nodemailer");
+      const port = parseInt(process.env.SMTP_PORT || "587", 10);
+      const secureEnv = process.env.SMTP_SECURE;
+      const transport = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port,
+        secure:
+          secureEnv === "true"
+            ? true
+            : secureEnv === "false"
+              ? false
+              : port === 465,
+        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      });
+      const info = await transport.sendMail({
+        from,
+        to,
+        subject,
+        html,
+        attachments,
+        replyTo,
+      });
+      // Ethereal exposes a preview URL for each accepted message.
+      const preview = nodemailer.getTestMessageUrl(info);
+      console.log(
+        `[email] local SMTP -> ${to.join(", ")}${preview ? `\n        preview: ${preview}` : ""}`,
+      );
+      return { data: info };
+    }
+
     const { data, error } = await resend.emails.send({
       from,
       to,
@@ -78,7 +122,8 @@ interface SendMailParams {
     | "suspention"
     | "report"
     | "trial_ending"
-    | "contact";
+    | "contact"
+    | "audit_export";
   data?: Record<string, unknown>;
   from?: string;
   /** Set for enquiries so a direct reply reaches the original sender. */
@@ -94,6 +139,7 @@ const subjectLabels: Record<string, string> = {
   report: "New Incident Report",
   trial_ending: "Your SecReports Free Trial Is Ending Soon",
   contact: "New SecReports Website Enquiry",
+  audit_export: "Audit Log Export",
 };
 
 /** Builds HTML from lazy-loaded templates by subject type and sends via Resend. */
@@ -121,6 +167,7 @@ export async function sendMail({
           amount: (data.amount as number) || 0,
           invoiceNumber: (data.invoiceNumber as string) || "N/A",
           dueDate: data.dueDate as string | undefined,
+          description: data.description as string | undefined,
           invoiceLink: data.invoiceLink as string | undefined,
         });
         break;
@@ -165,6 +212,14 @@ export async function sendMail({
           email: (data.email as string) || "",
           company: data.company as string | undefined,
           message: (data.message as string) || "",
+        });
+        break;
+      }
+      case "audit_export": {
+        const { default: template } = await import("../templates/audit-export");
+        html = template({
+          companyName: (data.companyName as string) || "Company",
+          entryCount: (data.entryCount as number) || 0,
         });
         break;
       }

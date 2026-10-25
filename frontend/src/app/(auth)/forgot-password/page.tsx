@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
             <div className="mt-6 text-center">
               <button
                 onClick={() => router.push("/login")}
-                className="text-sm font-medium text-primary hover:underline transition-colors"
+                className="cursor-pointer text-sm font-medium text-primary hover:underline transition-colors"
               >
                 Back to sign in
               </button>
@@ -115,7 +115,7 @@ export default function ForgotPasswordPage() {
           <p className="mt-4 text-center text-sm text-text-secondary">
             <button
               onClick={() => router.push("/login")}
-              className="text-sm font-medium text-primary hover:underline transition-colors"
+              className="cursor-pointer text-sm font-medium text-primary hover:underline transition-colors"
             >
               Back to sign in
             </button>

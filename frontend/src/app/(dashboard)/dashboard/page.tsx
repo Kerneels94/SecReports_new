@@ -43,6 +43,25 @@ export function aggregateYearly(
   return totals.map((count, i) => ({ month: monthNames[i], count }));
 }
 
+/** monthlyStats omits months with no incidents; insert them as 0 so the chart and month-over-month delta stay contiguous. */
+export function fillMonthGaps(
+  data: { month: string; count: number }[],
+): { month: string; count: number }[] {
+  if (data.length === 0) return data;
+  const monthIndex = (key: string) => {
+    const [y, m] = key.split("-").map(Number);
+    return y * 12 + m - 1;
+  };
+  const start = monthIndex(data[0].month);
+  const end = monthIndex(data[data.length - 1].month);
+  if (!(end >= start)) return data; // malformed or unsorted keys: leave as-is
+  const counts = new Map(data.map((d) => [d.month, d.count]));
+  return Array.from({ length: end - start + 1 }, (_, i) => {
+    const month = `${Math.floor((start + i) / 12)}-${String(((start + i) % 12) + 1).padStart(2, "0")}`;
+    return { month, count: counts.get(month) ?? 0 };
+  });
+}
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const canExportReports = hasPermission(user, "export.reports");
@@ -64,6 +83,7 @@ export default function DashboardPage() {
   // Download failures are reported next to the buttons, not via `error`: that one replaces the
   // whole dashboard with a Retry button, so a 404 or expired trial would blank every chart.
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [yearlyError, setYearlyError] = useState<string | null>(null);
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -77,7 +97,7 @@ export default function DashboardPage() {
       setAttemptedCount(summaryRes.data.attemptedCount);
       setPositiveCount(summaryRes.data.positiveCount);
       setTrial(summaryRes.data.trial);
-      setMonthlyData(monthlyRes.data);
+      setMonthlyData(fillMonthGaps(monthlyRes.data));
     } catch {
       setError("Failed to load dashboard data");
     } finally {
@@ -133,10 +153,11 @@ export default function DashboardPage() {
 
   const handleDownloadPdf = async () => {
     setDownloading(true);
+    setYearlyError(null);
     try {
       saveBlob(await exportService.downloadYearlyPdf(), "yearly-crime-stats.pdf");
     } catch {
-      setError("Failed to download PDF");
+      setYearlyError("Failed to download PDF");
     } finally {
       setDownloading(false);
     }
@@ -162,7 +183,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center py-24">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-sm text-text-secondary">Loading dashboard...</p>
+          <p className="text-lg text-text-secondary">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -171,10 +192,10 @@ export default function DashboardPage() {
   if (error) {
     return (
       <div className="flex flex-col items-center gap-4 py-24">
-        <p className="text-sm text-danger">{error}</p>
+        <p className="text-lg text-danger">{error}</p>
         <button
           onClick={fetchSummary}
-          className="rounded-lg bg-surface px-4 py-2 text-sm font-medium text-text border border-border hover:bg-surface-elevated transition-colors"
+          className="cursor-pointer rounded-lg bg-surface px-4 py-2 text-lg font-medium text-text border border-border hover:bg-surface-elevated transition-colors"
         >
           Retry
         </button>
@@ -238,7 +259,7 @@ export default function DashboardPage() {
           >
             <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <div className="text-sm text-amber-200">
+          <div className="text-lg text-amber-200">
             Your free trial ends in{" "}
             <strong>
               {trial.daysRemaining} day{trial.daysRemaining === 1 ? "" : "s"}
@@ -246,7 +267,7 @@ export default function DashboardPage() {
             .{" "}
             <a
               href="/settings/billing"
-              className="underline font-medium hover:text-amber-100"
+              className="cursor-pointer underline font-medium hover:text-amber-100"
             >
               Upgrade now
             </a>{" "}
@@ -268,11 +289,11 @@ export default function DashboardPage() {
           >
             <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <div className="text-sm text-red-200">
+          <div className="text-lg text-red-200">
             Your free trial has ended. Some features may be limited.{" "}
             <a
               href="/settings/billing"
-              className="underline font-medium hover:text-red-100"
+              className="cursor-pointer underline font-medium hover:text-red-100"
             >
               Upgrade now
             </a>{" "}
@@ -284,7 +305,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">Dashboard</h1>
-          <p className="text-sm text-text-secondary mt-1">
+          <p className="text-lg text-text-secondary mt-1">
             Overview of incident reports
           </p>
         </div>
@@ -298,7 +319,7 @@ export default function DashboardPage() {
             />
             <CardContent className="relative">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-text-secondary">{stat.label}</p>
+                <p className="text-lg text-text-secondary">{stat.label}</p>
                 <div
                   className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient}`}
                 >
@@ -322,7 +343,7 @@ export default function DashboardPage() {
               </p>
               {stat.delta !== undefined && stat.delta !== null && (
                 <p
-                  className={`mt-1 text-xs font-medium ${stat.delta >= 0 ? "text-danger" : "text-success"}`}
+                  className={`mt-1 text-lg font-medium ${stat.delta >= 0 ? "text-danger" : "text-success"}`}
                 >
                   {stat.delta >= 0 ? "▲" : "▼"} {Math.abs(stat.delta)} vs
                   previous month
@@ -336,7 +357,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle>Incident Trends</CardTitle>
               <div className="flex items-center gap-2">
                 <div className="flex rounded-lg bg-surface-secondary p-0.5 ring-1 ring-border-light">
@@ -345,7 +366,7 @@ export default function DashboardPage() {
                       key={m}
                       type="button"
                       onClick={() => setChartMode(m)}
-                      className={`rounded-md px-3 py-1 text-xs font-medium capitalize transition-colors ${
+                      className={`cursor-pointer rounded-md px-3 py-1 text-lg font-medium capitalize transition-colors ${
                         chartMode === m
                           ? "bg-surface-elevated text-primary"
                           : "text-text-secondary hover:text-text"
@@ -380,10 +401,15 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
+            {yearlyError && (
+              <p role="alert" className="text-lg text-danger">
+                {yearlyError}
+              </p>
+            )}
           </CardHeader>
           <CardContent>
             {monthlyData.length === 0 ? (
-              <p className="text-sm text-text-secondary">
+              <p className="text-lg text-text-secondary">
                 No incident data yet.
               </p>
             ) : (
@@ -398,7 +424,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {total === 0 ? (
-              <p className="text-sm text-text-secondary">
+              <p className="text-lg text-text-secondary">
                 No incidents reported yet.
               </p>
             ) : (
@@ -435,7 +461,7 @@ export default function DashboardPage() {
               )}
             </div>
             {downloadError && (
-              <p role="alert" className="text-sm text-danger">
+              <p role="alert" className="text-lg text-danger">
                 {downloadError}
               </p>
             )}
@@ -443,7 +469,7 @@ export default function DashboardPage() {
           <CardContent>
             {responseError ? (
               <div className="flex flex-col items-center gap-3 py-8">
-                <p className="text-sm text-danger">
+                <p className="text-lg text-danger">
                   Failed to load response time data
                 </p>
                 <Button
@@ -455,7 +481,7 @@ export default function DashboardPage() {
                 </Button>
               </div>
             ) : responseData.length === 0 ? (
-              <p className="text-sm text-text-secondary">
+              <p className="text-lg text-text-secondary">
                 No response time data yet (dispatch/arrival times not recorded).
               </p>
             ) : (
@@ -471,12 +497,12 @@ export default function DashboardPage() {
           <CardContent>
             {responseError ? (
               <div className="flex h-full items-center justify-center py-8">
-                <p className="text-sm text-danger">
+                <p className="text-lg text-danger">
                   Failed to load response time data
                 </p>
               </div>
             ) : areaData.length === 0 ? (
-              <p className="text-sm text-text-secondary">
+              <p className="text-lg text-text-secondary">
                 No area response data yet.
               </p>
             ) : (
@@ -488,7 +514,7 @@ export default function DashboardPage() {
                       key={area.area}
                       className="flex items-center gap-4 py-2.5"
                     >
-                      <span className="w-32 shrink-0 truncate text-sm text-text-secondary">
+                      <span className="w-32 shrink-0 truncate text-lg text-text-secondary">
                         {area.area}
                       </span>
                       <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-secondary">
@@ -497,10 +523,10 @@ export default function DashboardPage() {
                           style={{ width: `${(area.avgMs / max) * 100}%` }}
                         />
                       </div>
-                      <span className="w-16 shrink-0 text-right text-sm font-medium text-text">
+                      <span className="w-16 shrink-0 text-right text-lg font-medium text-text">
                         {formatDurationMs(area.avgMs)}
                       </span>
-                      <span className="w-16 shrink-0 text-right text-xs text-text-secondary">
+                      <span className="w-16 shrink-0 text-right text-lg text-text-secondary">
                         {area.count} incidents
                       </span>
                     </div>

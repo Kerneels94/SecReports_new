@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -20,13 +20,23 @@ function InvoiceStatusBadge({ status }: { status: string }) {
   return <Badge variant={variant}>{status}</Badge>;
 }
 
-export default function CompanyDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function CompanyDetailPage() {
+  const [id, setId] = useState<string | null>(null);
   const [company, setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("id");
+    setId(id);
+    if (!id) {
+      setError("Missing company id");
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!id) return;
     adminCompanyService
       .getById(id)
       .then((res) => setCompany(res.data))

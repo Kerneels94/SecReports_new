@@ -28,7 +28,7 @@ export default function contactTemplate(data: ContactSubmission): string {
       },
     ])}
     <div style="background: ${BRAND.background}; border: 1px solid ${BRAND.border}; border-radius: 12px; padding: 20px 24px; margin-bottom: 32px;">
-      <p style="margin: 0 0 10px 0; font-size: 13px; font-weight: 600; color: ${BRAND.navy}; text-transform: uppercase; letter-spacing: 0.3px;">Message</p>
+      <p style="margin: 0 0 10px 0; font-size: 13px; font-weight: 600; color: ${BRAND.heading}; text-transform: uppercase; letter-spacing: 0.3px;">Message</p>
       <p style="margin: 0; font-size: 15px; color: ${BRAND.body}; line-height: 1.6; white-space: pre-wrap; word-break: break-word;">${escapeHtml(data.message)}</p>
     </div>
     ${mutedNote("Reply directly to this email to respond to the sender.")}

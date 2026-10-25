@@ -11,6 +11,14 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { authService } from "@/services";
 
+/** Same rules as the backend's strongPassword, so a weak password is caught here with a clear message. */
+const PASSWORD_RULES: [RegExp, string][] = [
+  [/[a-z]/, "Must include a lowercase letter"],
+  [/[A-Z]/, "Must include an uppercase letter"],
+  [/\d/, "Must include a number"],
+  [/[^a-zA-Z0-9]/, "Must include a special character"],
+];
+
 function getTokenFromUrl(): string | null {
   if (typeof window === "undefined") return null;
   const params = new URLSearchParams(window.location.search);
@@ -52,6 +60,12 @@ function ResetPasswordForm() {
       return;
     }
 
+    const failedRule = PASSWORD_RULES.find(([rule]) => !rule.test(password));
+    if (failedRule) {
+      setError(failedRule[1]);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -70,7 +84,7 @@ function ResetPasswordForm() {
         <CardContent className="pt-6">
           <p className="text-center text-text-secondary">Invalid reset link. No token provided.</p>
           <div className="mt-4 text-center">
-            <button onClick={() => router.push("/forgot-password")} className="text-sm text-primary hover:underline">
+            <button onClick={() => router.push("/forgot-password")} className="cursor-pointer text-sm text-primary hover:underline">
               Request a new reset link
             </button>
           </div>
@@ -107,6 +121,12 @@ function ResetPasswordForm() {
   return (
     <Card variant="elevated" className="w-full max-w-sm animate-slide-up">
       <CardHeader className="text-center">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
+          <svg className="h-6 w-6 text-gray-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+          </svg>
+        </div>
         <CardTitle>Set New Password</CardTitle>
         <p className="mt-1 text-sm text-text-secondary">
           Enter your new password below

@@ -32,7 +32,7 @@ const tiers = [
     price: "R 1,500",
     period: "/month",
     limit: "Up to 5 users",
-    description: "For growing security teams that need more seats.",
+    description: "For growing teams that need more seats.",
     features: [
       "Up to 5 user accounts",
       "100 incident reports",
@@ -48,7 +48,7 @@ const tiers = [
     price: "R 4,500",
     period: "/month",
     limit: "Unlimited users",
-    description: "For large security operations with unlimited seats.",
+    description: "For larger teams that need unlimited seats.",
     features: [
       "Unlimited users",
       "Unlimited reports",
@@ -65,12 +65,12 @@ const features = [
   {
     title: "Incident Reporting",
     description:
-      "Full lifecycle management — log, automatic categorisation, and resolve security incidents with auto-generated reference numbers.",
+      "Log and store security incidents with automatic categorisation and auto-generated reference numbers, kept searchable for quick reference.",
   },
   {
     title: "Crime statistics",
     description:
-      "Generate reports detailing a monhtly or yearly crime analaysis which aids in visibility.",
+      "Generate monthly or yearly analysis reports to spot incident trends over time.",
   },
   {
     title: "Audit Trail",
@@ -80,12 +80,30 @@ const features = [
   {
     title: "Reports & Exporting",
     description:
-      "Generate PDF and CSV reports management, clients, or regulators with batch email support.",
+      "Generate PDF and CSV reports for management, clients, or regulators, with batch email support.",
   },
   {
     title: "Analytics",
     description:
-      "Dashboard analytics to keep track of attemped and positive events.",
+      "Dashboard analytics to keep track of attempted and positive events.",
+  },
+];
+
+const howItWorks = [
+  {
+    title: "1. Log the incident",
+    description:
+      "Capture the type, times, location, client, and a full description. Every report gets an auto-generated reference number.",
+  },
+  {
+    title: "2. Track and search",
+    description:
+      "Filter reports by date or type, and open any incident at any time for the full detail.",
+  },
+  {
+    title: "3. Export and share",
+    description:
+      "Download a PDF or CSV, or email a report straight to your client.",
   },
 ];
 
@@ -98,30 +116,33 @@ export default function LandingPage() {
       <CookieConsent />
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
+          <div className="mx-auto max-w-5xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/8 px-4 py-1.5 text-lg text-primary ring-1 ring-primary/20">
               <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-              Incident Management Platform
+              Incident Reporting Platform
             </div>
-            <h1 className="text-4xl font-bold tracking-tight text-text sm:text-6xl">
-              Incident Reporting for{" "}
-              <span className="text-primary">Security Professionals</span>
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-text-secondary">
-              SecReports helps private security companies log, track, and
-              resolve incidents efficiently — from access control breaches to
-              response times, with a dedicated reporting platform.
+            <div className="flex justify-center">
+              <h1 className="whitespace-nowrap text-4xl font-bold tracking-tight text-text sm:text-5xl lg:text-6xl">
+                Every incident,{" "}
+                <span className="text-primary">captured and searchable</span>
+              </h1>
+            </div>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-text-secondary">
+              SecReports is a focused incident reporting platform. Capture what
+              happened with an auto-generated reference number, category, and
+              full detail — then keep every report searchable and exportable for
+              clients, management, and audit.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
               <Link
                 href="/register"
-                className="rounded-lg bg-linear-to-r from-primary to-primary-hover px-6 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary transition-all duration-150"
+                className="cursor-pointer rounded-lg bg-linear-to-r from-primary to-primary-hover px-6 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary transition-all duration-150"
               >
                 Start Free Trial
               </Link>
               <a
                 href="#features"
-                className="rounded-lg border border-border-light bg-surface/50 px-6 py-3 text-sm font-semibold text-text hover:bg-surface hover:border-border transition-all duration-150"
+                className="cursor-pointer rounded-lg border border-border-light bg-surface/50 px-6 py-3 text-sm font-semibold text-text hover:bg-surface hover:border-border transition-all duration-150"
               >
                 Learn More
               </a>
@@ -136,11 +157,11 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold text-text">
-              Everything you need to manage incidents
+              Everything you need to report and track incidents
             </h2>
             <p className="mt-4 text-text-secondary">
-              Built specifically for private security companies managing
-              multiple sites and clients.
+              Built for security teams that need a clear, searchable record of
+              every incident — from first report to client hand-off.
             </p>
           </div>
           <div className="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -170,6 +191,42 @@ export default function LandingPage() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+      <section
+        id="how-it-works"
+        className="border-t border-border-light bg-surface/50"
+      >
+        <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold text-text">How it works</h2>
+            <p className="mt-4 text-text-secondary">
+              From incident to export in three steps.
+            </p>
+          </div>
+          <div className="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-6 sm:grid-cols-3">
+            {howItWorks.map((step) => (
+              <div
+                key={step.title}
+                className="flex flex-col gap-2 rounded-xl bg-surface p-6 ring-1 ring-border-light"
+              >
+                <h3 className="text-base font-semibold text-text">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-text-secondary">
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <Link
+              href="/how-to"
+              className="cursor-pointer text-sm font-medium text-primary hover:text-primary-hover transition-colors"
+            >
+              See the full guide
+            </Link>
           </div>
         </div>
       </section>
@@ -237,7 +294,7 @@ export default function LandingPage() {
                 </ul>
                 <Link
                   href={tier.href}
-                  className={`mt-8 block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-150 ${
+                  className={`cursor-pointer mt-8 block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-150 ${
                     tier.highlighted
                       ? "bg-linear-to-r from-primary to-primary-hover text-gray-900 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary"
                       : "border border-border-light text-text hover:bg-surface-elevated hover:border-border"

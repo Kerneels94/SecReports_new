@@ -23,12 +23,14 @@ const ACTION_LABELS: Record<string, string> = {
   password_reset: "Password Reset",
   user_created: "User Created",
   user_updated: "User Updated",
+  user_deleted: "User Deleted",
   role_changed: "Role Changed",
+  email_verified: "Email Verified",
   refresh_token_reuse_detected: "Token Reuse Detected",
   create: "Created",
-  update: "Updated",
-  delete: "Deleted",
-  status_change: "Status Changed",
+  report_email_sent: "Report Emailed",
+  report_batch_email_sent: "Batch Report Emailed",
+  report_response_time_exported: "Response Time Report Exported",
 };
 
 function ActionBadge({ action }: { action: string }) {
@@ -132,7 +134,7 @@ export default function AuditLogsPage() {
                 <button
                   key={et.value}
                   onClick={() => { setEntityType(et.value); setPage(1); }}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                  className={`cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                     entityType === et.value
                       ? "bg-primary text-gray-900"
                       : "bg-surface-elevated/50 text-text-secondary hover:text-text hover:bg-surface-elevated"

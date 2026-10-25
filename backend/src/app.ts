@@ -32,7 +32,13 @@ import permissionRoutes from "./routes/permission.routes";
  * standard JSON envelope.
  */
 export async function buildApp() {
-  const fastify = Fastify({ logger: true });
+  // trustProxy limited to localhost: production sits behind Nginx on the same host,
+  // so request.ip / rate limits / audit logs see the real client from X-Forwarded-For.
+  // Never `true` — a directly reachable Node would let clients spoof the header.
+  const fastify = Fastify({
+    logger: true,
+    trustProxy: process.env.TRUST_PROXY ?? "127.0.0.1",
+  });
 
   const corsOrigin = process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
@@ -165,10 +171,23 @@ export async function buildApp() {
       return;
     }
 
+    if (error.code === "P2023" || error.code === "P2025") {
+      // Malformed ObjectId (P2023) or record not found (P2025) — client input
+      // problem, not a server fault.
+      reply.code(404).send({
+        success: false,
+        error: {
+          code: "NOT_FOUND",
+          message: "Resource not found",
+        },
+      });
+      return;
+    }
+
     request.log.error(error);
 
     posthog?.capture({
-      distinctId: (request.user as any)?.userId ?? "anonymous",
+      distinctId: request.user?.userId ?? "anonymous",
       event: "backend_error",
       properties: {
         code: error.code ?? "UNKNOWN",

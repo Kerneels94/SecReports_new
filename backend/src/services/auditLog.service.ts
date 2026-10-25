@@ -4,17 +4,18 @@
  * scoped to a specific company.
  */
 import { prisma } from "../lib/db";
+import { Prisma } from "../generated/prisma/client";
 import { auditContext } from "../lib/auditContext";
 
 interface ListAuditLogsParams {
-  page: number;
-  perPage: number;
-  companyId: string;
-  entityType?: string;
-  action?: string;
-  dateFrom?: string;
-  dateTo?: string;
-  search?: string;
+  page: number | 0;
+  perPage: number | 0;
+  companyId: string | null | undefined;
+  entityType?: string | null | undefined;
+  action?: string | null | undefined;
+  dateFrom?: string | null;
+  dateTo?: string | null;
+  search?: string | null | undefined;
 }
 
 export const AuditLogService = {
@@ -32,27 +33,47 @@ export const AuditLogService = {
     });
   },
 
-  /** Paginated listing of audit logs for a company with performer info and optional filters. */
+  /**
+   * Paginated listing of audit logs with performer info and optional filters.
+   * Omitting `companyId` returns entries for every company (superadmin view).
+   */
   async list(params: ListAuditLogsParams) {
-    const where: any = {
-      performedByUser: { companyId: params.companyId },
-    };
+    const where: Prisma.AuditLogWhereInput = {};
+
+    if (params.companyId) {
+      where.performedByUser = { companyId: params.companyId };
+    }
 
     if (params.entityType) where.entityType = params.entityType;
     if (params.action) where.action = params.action;
 
     if (params.dateFrom || params.dateTo) {
-      where.createdAt = {};
-      if (params.dateFrom) where.createdAt.gte = new Date(params.dateFrom);
-      if (params.dateTo) where.createdAt.lte = new Date(params.dateTo);
+      const createdAt: Prisma.DateTimeFilter = {};
+      if (params.dateFrom) createdAt.gte = new Date(params.dateFrom);
+      if (params.dateTo) createdAt.lte = new Date(params.dateTo);
+      where.createdAt = createdAt;
     }
 
     if (params.search) {
-      where.performedByUser = { companyId: params.companyId };
       where.OR = [
         { action: { contains: params.search, mode: "insensitive" } },
-        { performedByUser: { name: { contains: params.search, mode: "insensitive" } } },
-        { performedByUser: { email: { contains: params.search, mode: "insensitive" } } },
+        {
+          performedByUser: {
+            name: { contains: params.search, mode: "insensitive" },
+          },
+        },
+        {
+          performedByUser: {
+            email: { contains: params.search, mode: "insensitive" },
+          },
+        },
+        {
+          performedByUser: {
+            company: {
+              name: { contains: params.search, mode: "insensitive" },
+            },
+          },
+        },
       ];
     }
 
@@ -65,6 +86,7 @@ export const AuditLogService = {
               id: true,
               name: true,
               email: true,
+              company: { select: { id: true, name: true } },
             },
           },
         },
@@ -76,5 +98,36 @@ export const AuditLogService = {
     ]);
 
     return { data, total, page: params.page, perPage: params.perPage };
+  },
+
+  async exportForCompany(companyId: string) {
+    const [company, entries] = await Promise.all([
+      prisma.company.findUnique({
+        where: { id: companyId },
+        select: { id: true, name: true, email: true },
+      }),
+      prisma.auditLog.findMany({
+        where: { performedByUser: { companyId } },
+        include: {
+          performedByUser: {
+            select: { id: true, name: true, email: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
+    return { company, entries };
+  },
+
+  async exportAll() {
+    const entries = await prisma.auditLog.findMany({
+      include: {
+        performedByUser: {
+          select: { id: true, name: true, email: true, company: { select: { name: true } } },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return { entries };
   },
 };

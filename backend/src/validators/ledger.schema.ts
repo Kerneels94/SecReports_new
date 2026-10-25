@@ -5,12 +5,7 @@
  */
 import { z } from "zod";
 import { LEDGER_ENTRY_TYPES } from "../services/ledger.service";
-
-const isoDate = z
-  .string()
-  .refine((value) => !Number.isNaN(Date.parse(value)), {
-    message: "Must be a valid date",
-  });
+import { isoDate } from "./shared";
 
 /**
  * Validates creation of a new ledger entry (superadmin only).

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 64" width="250" height="64">
+  <g transform="translate(2,12) scale(0.625)">
+    <path d="M32 8 L52 15.5 V33 c0 12.4-8.6 21.2-20 24-11.4-2.8-20-11.6-20-24V15.5 Z"
+          fill="none" stroke="#86efac" stroke-width="4" stroke-linejoin="round"/>
+    <rect x="24" y="25" width="16" height="4" rx="2" fill="#86efac"/>
+    <rect x="24" y="33" width="16" height="4" rx="2" fill="#86efac"/>
+    <rect x="24" y="41" width="9" height="4" rx="2" fill="#86efac"/>
+  </g>
+  <text x="52" y="42" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif"
+        font-size="27" font-weight="700" letter-spacing="-0.5" fill="#e4e4e7">
+    SecReports
+  </text>
+</svg>

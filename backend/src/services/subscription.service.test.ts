@@ -271,6 +271,19 @@ describe("SubscriptionService expired-trial feature blocking", () => {
     await expect(SubscriptionService.canAddUser("company1")).resolves.toBeUndefined();
   });
 
+  it("canAddUser counts only active users, so deleted users free their seat", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ trialStartedAt: past, trialEndsAt: future }),
+    );
+    (prisma.user.count as jest.Mock).mockResolvedValue(2);
+
+    await SubscriptionService.canAddUser("company1");
+
+    expect(prisma.user.count).toHaveBeenCalledWith({
+      where: { companyId: "company1", status: "active" },
+    });
+  });
+
   it("canAddUser blocks a fourth user during the active trial", async () => {
     (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
       sub({ trialStartedAt: past, trialEndsAt: future }),
@@ -368,6 +381,36 @@ describe("SubscriptionService.changePlan", () => {
       NotFoundError,
     );
   });
+
+  it("rejects a plan whose user limit is below the active user count", async () => {
+    const enterprise = { id: "ent", name: "Enterprise", price: 450000, userLimit: 0 };
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(paidPlan);
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: enterprise.id, plan: enterprise }),
+    );
+    (prisma.user.count as jest.Mock).mockResolvedValue(12);
+
+    await expect(SubscriptionService.changePlan("company1", paidPlan.id)).rejects.toThrow(
+      "You have 12 active users. The Professional plan allows 5. Remove users before changing plan.",
+    );
+    expect(prisma.user.count).toHaveBeenCalledWith({
+      where: { companyId: "company1", status: "active" },
+    });
+    expect(prisma.companySubscription.update).not.toHaveBeenCalled();
+  });
+
+  it("allows a plan whose user limit equals the active user count", async () => {
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(paidPlan);
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: freePlan.id, plan: freePlan }),
+    );
+    (prisma.user.count as jest.Mock).mockResolvedValue(5);
+    (prisma.companySubscription.update as jest.Mock).mockResolvedValue({});
+
+    await SubscriptionService.changePlan("company1", paidPlan.id);
+
+    expect(prisma.companySubscription.update).toHaveBeenCalled();
+  });
 });
 
 describe("getNextBillingDate", () => {
@@ -383,5 +426,12 @@ describe("getNextBillingDate", () => {
     const result = getNextBillingDate(from);
     expect(result.getDate()).toBe(25);
     expect(result.getMonth()).toBe(8);
+  });
+
+  it("does not overflow the month when starting on the 31st", () => {
+    const from = new Date(2026, 0, 31); // 31 Jan
+    const result = getNextBillingDate(from);
+    expect(result.getDate()).toBe(25);
+    expect(result.getMonth()).toBe(1); // Feb, not Mar
   });
 });

@@ -34,7 +34,7 @@ export function Header({ user, onLogout }: HeaderProps) {
           <button
             type="button"
             onClick={() => setOpen((prev) => !prev)}
-            className="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-surface-elevated/50 transition-colors"
+            className="cursor-pointer flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-surface-elevated/50 transition-colors"
           >
             <div className="text-right">
               <p className="text-sm font-medium text-text">{user.name}</p>
@@ -50,7 +50,7 @@ export function Header({ user, onLogout }: HeaderProps) {
               <Link
                 href="/profile"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 px-4 py-3 text-sm font-medium text-text hover:bg-surface-elevated/20 transition-colors"
+                className="cursor-pointer flex items-center gap-2.5 px-4 py-3 text-sm font-medium text-text hover:bg-surface-elevated/20 transition-colors"
               >
                 <svg className="h-4 w-4 text-text-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
@@ -60,7 +60,7 @@ export function Header({ user, onLogout }: HeaderProps) {
               {onLogout && (
                 <button
                   onClick={() => { setOpen(false); onLogout(); }}
-                  className="flex items-center gap-2.5 w-full text-left px-4 py-3 text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-elevated/20 transition-colors border-t border-border-light/30"
+                  className="cursor-pointer flex items-center gap-2.5 w-full text-left px-4 py-3 text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-elevated/20 transition-colors border-t border-border-light/30"
                 >
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />

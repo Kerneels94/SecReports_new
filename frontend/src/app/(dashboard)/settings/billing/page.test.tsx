@@ -147,4 +147,23 @@ describe("BillingPage", () => {
     await userEvent.click(screen.getByRole("button", { name: /confirm & upgrade/i }));
     expect(changePlan).not.toHaveBeenCalled();
   });
+
+  it("shows the server's reason when the plan change is refused", async () => {
+    const reason = "You have 12 active users. The Professional plan allows 5. Remove users before changing plan.";
+    changePlan.mockRejectedValue(new Error(reason));
+    render(<BillingPage />);
+    await waitFor(() => {
+      expect(screen.getAllByRole("button", { name: /choose plan/i }).length).toBeGreaterThan(0);
+    });
+
+    const chooseButtons = screen.getAllByRole("button", { name: /choose plan/i });
+    await userEvent.click(chooseButtons.find((btn) => !btn.hasAttribute("disabled"))!);
+    await waitFor(() => {
+      expect(screen.getByText("Confirm Your Subscription")).toBeInTheDocument();
+    });
+    await userEvent.click(screen.getByRole("checkbox"));
+    await userEvent.click(screen.getByRole("button", { name: /confirm & upgrade/i }));
+
+    expect(await screen.findByText(reason)).toBeInTheDocument();
+  });
 });

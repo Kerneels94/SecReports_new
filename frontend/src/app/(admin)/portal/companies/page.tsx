@@ -83,7 +83,7 @@ export default function AdminCompaniesPage() {
                       </td>
                       <td className="px-4 py-3 text-text-secondary">{formatDate(c.createdAt)}</td>
                       <td className="px-4 py-3 text-right">
-                        <Button variant="ghost" size="sm" onClick={() => window.location.href = `/portal/companies/${c.id}`}>
+                        <Button variant="ghost" size="sm" onClick={() => window.location.href = `/portal/companies/detail?id=${c.id}`}>
                           View
                         </Button>
                       </td>

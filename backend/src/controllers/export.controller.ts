@@ -10,6 +10,8 @@ import { ReportService } from "../services/report.service";
 import { SubscriptionService } from "../services/subscription.service";
 import { sendMail } from "../services/email.service";
 import { BRAND } from "../templates/layout";
+import { emailReportSchema, batchEmailSchema } from "../validators/export.schema";
+import { ValidationError } from "../lib/errors";
 
 interface IncidentForExport {
   referenceNumber: string;
@@ -35,15 +37,29 @@ interface IncidentForExport {
 }
 
 const COLORS = {
-  primary: BRAND.navy,
   gray: BRAND.label,
   dark: BRAND.heading,
-  light: BRAND.background,
+  light: BRAND.surface,
   border: BRAND.border,
   muted: BRAND.muted,
   faint: BRAND.faint,
-  white: BRAND.surface,
+  white: "#ffffff",
+  page: BRAND.background,
+  accent: BRAND.accent,
+  success: BRAND.success,
 };
+
+/** Corner radius for counter cards and table panels. */
+const RADIUS = 8;
+
+/** Zinc-800 page background on the first page and every page added later. */
+function newDoc(): typeof PDFDocument.prototype {
+  const doc = new PDFDocument({ margin: 50, size: "A4" });
+  const paint = () => doc.rect(0, 0, doc.page.width, doc.page.height).fill(COLORS.page);
+  paint();
+  doc.on("pageAdded", paint);
+  return doc;
+}
 
 const INCIDENT_CSV_HEADERS = [
   "Reference", "Title", "Type", "Report",
@@ -51,13 +67,13 @@ const INCIDENT_CSV_HEADERS = [
 ];
 
 function sanitizeCsv(val: string): string {
-  if (/^[=+\-@]/.test(val)) return `" ${val.replace(/"/g, '""')}"`;
+  if (/^[=+\-@\t\r]/.test(val)) return `" ${val.replace(/"/g, '""')}"`;
   return `"${val.replace(/"/g, '""')}"`;
 }
 
-/** Brand header mirroring emailLayout: navy block, wordmark, uppercase tagline, 4px rule. */
+/** Brand header: zinc block, wordmark, uppercase tagline, 4px rule. */
 function drawHeader(doc: typeof PDFDocument.prototype): number {
-  doc.rect(50, 40, 495, 64).fill(COLORS.primary);
+  doc.rect(50, 40, 495, 64).fill(COLORS.page);
   doc.fillColor(COLORS.white).fontSize(22).font("Helvetica-Bold")
     .text("SecReports", 50, 54, { width: 495, align: "center" });
   doc.fillColor(COLORS.muted).fontSize(9).font("Helvetica")
@@ -67,10 +83,10 @@ function drawHeader(doc: typeof PDFDocument.prototype): number {
   return 130;
 }
 
-/** Brand footer mirroring emailLayout: hairline rule, copyright, automated-notice line. */
+/** Brand footer: green strip, copyright, automated-notice line. */
 function drawFooter(doc: typeof PDFDocument.prototype) {
   const y = doc.page.height - 85;
-  doc.rect(50, y, 495, 0.8).fill(COLORS.border);
+  doc.rect(50, y, 495, 3).fill(COLORS.success);
   doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
     .text(`© ${new Date().getFullYear()} SecReports. All rights reserved.`, 50, y + 10, { width: 495, align: "center" })
     .fillColor(COLORS.faint)
@@ -78,8 +94,7 @@ function drawFooter(doc: typeof PDFDocument.prototype) {
 }
 
 function drawSection(doc: typeof PDFDocument.prototype, title: string, y: number): number {
-  doc.rect(50, y, 495, 22).fillAndStroke(COLORS.light, COLORS.border);
-  doc.fillColor(COLORS.dark).fontSize(11).font("Helvetica-Bold").text(title, 60, y + 5);
+  doc.fillColor(COLORS.dark).fontSize(11).font("Helvetica-Bold").text(title, 50, y + 5, { width: 495, align: "center" });
   return y + 30;
 }
 
@@ -91,7 +106,7 @@ function drawField(doc: typeof PDFDocument.prototype, label: string, value: stri
 
 async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    const doc = newDoc();
     const chunks: Buffer[] = [];
 
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -104,9 +119,9 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
 
       let y = drawHeader(doc) + 10;
 
-      doc.fontSize(16).font("Helvetica-Bold").fillColor(COLORS.dark).text(inc.title, 50, y);
-      y += 22;
-      doc.fontSize(8).font("Helvetica").fillColor(COLORS.gray).text(`Ref: ${inc.referenceNumber}`, 50, y);
+      doc.fontSize(18).font("Helvetica-Bold").fillColor(COLORS.dark).text(inc.title, 50, y, { width: 495, align: "center" });
+      y += 24;
+      doc.fontSize(9).font("Helvetica").fillColor(COLORS.muted).text(`Ref: ${inc.referenceNumber}`, 50, y, { width: 495, align: "center" });
       y += 20;
 
       y = drawSection(doc, "Description", y);
@@ -119,8 +134,8 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
 
       if (inc.dispatchTime || inc.arrivalTime || inc.callSign) {
         y = drawSection(doc, "Response", y + 4);
-        if (inc.dispatchTime) y = drawField(doc, "Dispatch Time", new Date(inc.dispatchTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }), y);
-        if (inc.arrivalTime) y = drawField(doc, "Arrival Time", new Date(inc.arrivalTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }), y);
+        if (inc.dispatchTime) y = drawField(doc, "Dispatch Time", new Date(inc.dispatchTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Johannesburg" }), y);
+        if (inc.arrivalTime) y = drawField(doc, "Arrival Time", new Date(inc.arrivalTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Johannesburg" }), y);
         y = drawField(doc, "Call Sign", inc.callSign || "-", y);
       }
 
@@ -152,8 +167,6 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
 interface YearBreakdown {
   year: number;
   count: number;
-  attempted: number;
-  positive: number;
 }
 
 interface TypeBreakdown {
@@ -188,7 +201,7 @@ function drawBarChart(
     const barHeight = Math.max((d.value / maxValue) * height, d.value > 0 ? 6 : 0);
     const barX = x + slot * i + (slot - barWidth) / 2;
 
-    doc.rect(barX, baseY - barHeight, barWidth, barHeight).fill(d.color || COLORS.primary);
+    doc.rect(barX, baseY - barHeight, barWidth, barHeight).fill(d.color || COLORS.accent);
     doc.fillColor(COLORS.gray).fontSize(8).text(String(d.value), barX, baseY - barHeight - 12, { width: barWidth, align: "center" });
     doc.fillColor(COLORS.dark).fontSize(8).text(d.label, barX, baseY + 4, { width: barWidth, align: "center" });
   });
@@ -221,18 +234,29 @@ function drawTable(
   const totalWidth = cols.reduce((s, c) => s + c.width, 0);
   const headerH = 20;
   const rowH = 18;
-  let y = startY;
+  const tableH = headerH + rows.length * rowH;
 
-  doc.rect(x, startY, totalWidth, headerH).fill(COLORS.primary);
+  // Panel-style table: fills are clipped to a rounded table outline so the whole
+  // table (not just the header) carries the corner radius.
+  doc.save();
+  doc.roundedRect(x, startY, totalWidth, tableH, RADIUS).clip();
+  doc.rect(x, startY, totalWidth, headerH).fill(COLORS.border);
+  let y = startY + headerH;
+  rows.forEach((r, i) => {
+    if (i % 2 === 1) doc.rect(x, y, totalWidth, rowH).fill(COLORS.light);
+    y += rowH;
+  });
+  doc.restore();
+  doc.roundedRect(x, startY, totalWidth, tableH, RADIUS).stroke(COLORS.border);
+
   let cx = x;
   cols.forEach((c) => {
     doc.fillColor(COLORS.white).fontSize(9).font("Helvetica-Bold").text(c.label, cx + 6, startY + 5, { width: c.width - 12 });
     cx += c.width;
   });
-  y += headerH;
+  y = startY + headerH;
 
   rows.forEach((r, i) => {
-    if (i % 2 === 1) doc.rect(x, y, totalWidth, rowH).fill(COLORS.light);
     cx = x;
     r.forEach((cell, j) => {
       doc.fillColor(COLORS.dark).fontSize(9).font("Helvetica").text(cell, cx + 6, y + 4, { width: cols[j].width - 12 });
@@ -253,7 +277,7 @@ function generateYearlyPdf(data: {
   byArea: AreaBreakdown[];
 }): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    const doc = newDoc();
     const chunks: Buffer[] = [];
 
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -268,33 +292,46 @@ function generateYearlyPdf(data: {
       .text(`Generated on ${new Date().toLocaleString("en-US")}`, 50, y0 + 24, { width: 495, align: "center" });
 
     const summary = [
-      { label: "Total Incidents", value: data.total, color: COLORS.primary },
+      { label: "Total Incidents", value: data.total, color: COLORS.accent },
       { label: "Attempted", value: data.attempted, color: "#f59e0b" },
       { label: "Positive", value: data.positive, color: "#10b981" },
     ];
     const boxWidth = 150;
-    const boxGap = 22;
+    const boxGap = 22.5;
     let boxX = 50;
     const boxY = y0 + 48;
-    summary.forEach((s, i) => {
-      doc.roundedRect(boxX, boxY, boxWidth, 52, 6).fillAndStroke(COLORS.light, COLORS.border);
+    summary.forEach((s) => {
+      // Shadow: this card's strip colour at 50%, offset behind it. The page-colour
+      // fill on the card itself masks the overlap so only the outer band shows.
+      doc.fillColor(s.color, 0.5);
+      doc.roundedRect(boxX + 3, boxY + 3, boxWidth, 52, RADIUS).fill();
+      // Strip clipped to the card so its corners follow the card radius, not stick out square.
+      doc.save();
+      doc.roundedRect(boxX, boxY, boxWidth, 52, RADIUS).clip();
       doc.rect(boxX, boxY, boxWidth, 4).fill(s.color);
+      doc.restore();
+      doc.fillColor(COLORS.page, 1);
+      doc.roundedRect(boxX, boxY, boxWidth, 52, RADIUS).fillAndStroke(COLORS.page, COLORS.border);
       doc.fillColor(COLORS.gray).fontSize(8).text(s.label.toUpperCase(), boxX + 10, boxY + 12, { width: boxWidth - 20 });
       doc.fillColor(COLORS.dark).fontSize(20).font("Helvetica-Bold").text(String(s.value), boxX + 10, boxY + 24);
       boxX += boxWidth + boxGap;
-      if (i === 0) boxX += 10;
     });
 
     doc.font("Helvetica");
 
-    let y = drawSection(doc, "Incidents by Year", boxY + 75);
-    if (data.byYear.length === 0) {
-      doc.fontSize(9).fillColor(COLORS.gray).text("No incident data available.", 60, y);
-    } else {
-      const yearData = data.byYear.map((b) => ({ label: String(b.year), value: b.count }));
-      drawBarChart(doc, yearData, 60, y + 10, 480, 120);
-      y += 150;
-    }
+    const yearRows = data.byYear.map((b) => [String(b.year), String(b.count)]);
+    let y = pageSpace(doc, boxY + 95, 40 + yearRows.length * 18);
+    y = drawSection(doc, "Incidents by Year", y);
+    y = drawTable(
+      doc,
+      [
+        { label: "Year", width: 375 },
+        { label: "Incidents", width: 120 },
+      ],
+      yearRows,
+      50,
+      y,
+    );
 
     const typeRows = data.byType.map((t) => [t.type, String(t.count)]);
     y = pageSpace(doc, y + 20, 40 + typeRows.length * 18);
@@ -302,11 +339,11 @@ function generateYearlyPdf(data: {
     y = drawTable(
       doc,
       [
-        { label: "Type", width: 380 },
+        { label: "Type", width: 375 },
         { label: "Incidents", width: 120 },
       ],
       typeRows,
-      60,
+      50,
       y,
     );
 
@@ -321,13 +358,13 @@ function generateYearlyPdf(data: {
     y = drawTable(
       doc,
       [
-        { label: "Area", width: 170 },
+        { label: "Area", width: 165 },
         { label: "Incidents", width: 70 },
         { label: "Avg Response", width: 130 },
         { label: "Longest Response", width: 130 },
       ],
       areaRows,
-      60,
+      50,
       y,
     );
 
@@ -345,7 +382,7 @@ function generateResponseTimePdf(data: {
   overall: { count: number; avgMs: number; medianMs: number; p90Ms: number };
 }): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50, size: "A4" });
+    const doc = newDoc();
     const chunks: Buffer[] = [];
 
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -361,21 +398,29 @@ function generateResponseTimePdf(data: {
       .text(`Last ${data.months} months (${longDate(data.from)} - ${longDate(new Date())})`, 50, y0 + 24, { width: 495, align: "center" });
 
     const summary = [
-      { label: "Avg Response", value: formatDuration(data.overall.avgMs), color: COLORS.primary },
+      { label: "Avg Response", value: formatDuration(data.overall.avgMs), color: COLORS.accent },
       { label: "Median Response", value: formatDuration(data.overall.medianMs), color: "#10b981" },
       { label: "90th Percentile", value: formatDuration(data.overall.p90Ms), color: "#f59e0b" },
     ];
     const boxWidth = 150;
-    const boxGap = 22;
+    const boxGap = 22.5;
     let boxX = 50;
     const boxY = y0 + 48;
-    summary.forEach((s, i) => {
-      doc.roundedRect(boxX, boxY, boxWidth, 52, 6).fillAndStroke(COLORS.light, COLORS.border);
+    summary.forEach((s) => {
+      // Shadow: this card's strip colour at 50%, offset behind it. The page-colour
+      // fill on the card itself masks the overlap so only the outer band shows.
+      doc.fillColor(s.color, 0.5);
+      doc.roundedRect(boxX + 3, boxY + 3, boxWidth, 52, RADIUS).fill();
+      // Strip clipped to the card so its corners follow the card radius, not stick out square.
+      doc.save();
+      doc.roundedRect(boxX, boxY, boxWidth, 52, RADIUS).clip();
       doc.rect(boxX, boxY, boxWidth, 4).fill(s.color);
+      doc.restore();
+      doc.fillColor(COLORS.page, 1);
+      doc.roundedRect(boxX, boxY, boxWidth, 52, RADIUS).fillAndStroke(COLORS.page, COLORS.border);
       doc.fillColor(COLORS.gray).fontSize(8).text(s.label.toUpperCase(), boxX + 10, boxY + 12, { width: boxWidth - 20 });
       doc.fillColor(COLORS.dark).fontSize(20).font("Helvetica-Bold").text(s.value, boxX + 10, boxY + 24);
       boxX += boxWidth + boxGap;
-      if (i === 0) boxX += 10;
     });
 
     doc.font("Helvetica");
@@ -388,9 +433,9 @@ function generateResponseTimePdf(data: {
       // Bar heights use minutes to one decimal so a sub-minute month still shows a bar;
       // the table below carries the exact seconds.
       data.perMonth.map((m) => ({ label: m.month.slice(2), value: Math.round((m.avgMs / 60000) * 10) / 10 })),
-      60,
+      50,
       y + 10,
-      480,
+      495,
       120,
     );
     y += 150;
@@ -409,10 +454,10 @@ function generateResponseTimePdf(data: {
         { label: "Incidents", width: 80 },
         { label: "Avg Response", width: 100 },
         { label: "Median", width: 90 },
-        { label: "90th Percentile", width: 110 },
+        { label: "90th Percentile", width: 105 },
       ],
       monthRows,
-      60,
+      50,
       y,
     );
 
@@ -517,7 +562,7 @@ export const ExportController = {
       return;
     }
 
-    const byYearMap: Record<string, YearBreakdown> = {};
+    const byYearMap: Record<number, number> = {};
     const byTypeMap: Record<string, number> = {};
     const byAreaMap: Record<string, { count: number; responded: number; totalMs: number; maxMs: number }> = {};
     let attempted = 0;
@@ -530,10 +575,7 @@ export const ExportController = {
       if (isAttempted) attempted++;
       if (isPositive) positive++;
 
-      byYearMap[year] = byYearMap[year] || { year, count: 0, attempted: 0, positive: 0 };
-      byYearMap[year].count++;
-      if (isAttempted) byYearMap[year].attempted++;
-      if (isPositive) byYearMap[year].positive++;
+      byYearMap[year] = (byYearMap[year] || 0) + 1;
 
       byTypeMap[inc.type] = (byTypeMap[inc.type] || 0) + 1;
 
@@ -551,7 +593,9 @@ export const ExportController = {
       byAreaMap[area] = entry;
     }
 
-    const byYear = Object.values(byYearMap).sort((a, b) => b.year - a.year);
+    const byYear = Object.entries(byYearMap)
+      .sort((a, b) => Number(a[0]) - Number(b[0]))
+      .map(([year, count]) => ({ year: Number(year), count }));
     const byType = Object.entries(byTypeMap)
       .sort((a, b) => b[1] - a[1])
       .map(([type, count]) => ({ type, count }));
@@ -582,33 +626,35 @@ export const ExportController = {
     reply.code(200).send(pdfBuffer);
   },
 
-  /** Export incidents as a PDF file download. Accepts optional `incidentId` query param for a single incident. */
+  /** Export one incident as a PDF file download. */
   async pdf(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
 
     const query = request.query as { incidentId?: string };
-    const where: any = { companyId: request.user!.companyId };
-    if (query.incidentId) {
-      where.id = query.incidentId;
-    }
-
-    const incidents = await prisma.incident.findMany({
-      where,
-      include: {
-        reporter: { select: { name: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    if (incidents.length === 0) {
-      reply.code(404).send({ success: false, error: { code: "NOT_FOUND", message: "No incidents found" } });
+    if (!query.incidentId) {
+      reply.code(400).send({
+        success: false,
+        error: { code: "VALIDATION_ERROR", message: "incidentId is required" },
+      });
       return;
     }
 
-    const pdfBuffer = await generatePdf(incidents as IncidentForExport[]);
+    const incident = await prisma.incident.findFirst({
+      where: { id: query.incidentId, companyId: request.user!.companyId },
+      include: {
+        reporter: { select: { name: true } },
+      },
+    });
+
+    if (!incident) {
+      reply.code(404).send({ success: false, error: { code: "NOT_FOUND", message: "Incident not found" } });
+      return;
+    }
+
+    const pdfBuffer = await generatePdf([incident as IncidentForExport]);
 
     reply.header("Content-Type", "application/pdf");
-    reply.header("Content-Disposition", `attachment; filename=incident${incidents.length === 1 ? "" : "s"}.pdf`);
+    reply.header("Content-Disposition", `attachment; filename=incident-${incident.referenceNumber}.pdf`);
     reply.code(200).send(pdfBuffer);
   },
 
@@ -616,22 +662,10 @@ export const ExportController = {
   async batchEmail(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
 
-    const { email, type, format } = request.body as { email: string; type: string; format: "csv" | "pdf" };
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Invalid email address" } });
-      return;
-    }
-
-    if (type !== "attempted" && type !== "positive") {
-      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Type must be 'attempted' or 'positive'" } });
-      return;
-    }
-
-    if (format !== "csv" && format !== "pdf") {
-      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Format must be 'csv' or 'pdf'" } });
-      return;
-    }
+    const parsed = batchEmailSchema.safeParse(request.body);
+    if (!parsed.success)
+      throw new ValidationError("Invalid input", parsed.error.flatten());
+    const { email, type, format } = parsed.data;
 
     const incidents = await prisma.incident.findMany({
       where: {
@@ -640,6 +674,8 @@ export const ExportController = {
       },
       include: { reporter: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
+      // ponytail: hard cap so a large company can't stall PDF rendering or blow past mail limits
+      take: 500,
     });
 
     if (incidents.length === 0) {
@@ -731,17 +767,10 @@ export const ExportController = {
   async email(request: FastifyRequest, reply: FastifyReply) {
     await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
 
-    const { incidentId, email, format } = request.body as { incidentId: string; email: string; format: "csv" | "pdf" };
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Invalid email address" } });
-      return;
-    }
-
-    if (format !== "csv" && format !== "pdf") {
-      reply.code(400).send({ success: false, error: { code: "VALIDATION_ERROR", message: "Format must be 'csv' or 'pdf'" } });
-      return;
-    }
+    const parsed = emailReportSchema.safeParse(request.body);
+    if (!parsed.success)
+      throw new ValidationError("Invalid input", parsed.error.flatten());
+    const { incidentId, email, format } = parsed.data;
 
     const incident = await prisma.incident.findFirst({
       where: { id: incidentId, companyId: request.user!.companyId },

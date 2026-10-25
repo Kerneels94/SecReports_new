@@ -6,6 +6,7 @@ import {
   reportService,
   userService,
   adminLedgerService,
+  adminAuditService,
   formatDurationMs,
 } from "./index";
 
@@ -191,5 +192,14 @@ describe("adminLedgerService", () => {
   it("voidEntry calls api.patch with the void path", () => {
     adminLedgerService.voidEntry("entry1");
     expect(mockApi.patch).toHaveBeenCalledWith("/admin/ledger/entry1/void");
+  });
+});
+
+describe("adminAuditService", () => {
+  it("listAll calls api.get with superadmin audit logs path", () => {
+    adminAuditService.listAll({ page: 2, companyId: "c1", search: "acme" });
+    expect(mockApi.get).toHaveBeenCalledWith(
+      "/admin/audit-logs?page=2&companyId=c1&search=acme",
+    );
   });
 });

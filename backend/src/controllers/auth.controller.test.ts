@@ -85,9 +85,9 @@ describe("AuthController", () => {
       await expect(AuthController.login(mockRequest, mockReply)).rejects.toThrow(ValidationError);
     });
 
-    // The SPA and API sit on different sites, so a SameSite=Strict cookie is
-    // never sent cross-origin and every refresh/logout 400s in production.
-    it("sets the refresh cookie as SameSite=None; Secure so it survives cross-site", async () => {
+    // Golden rule #28: the refresh cookie must be SameSite=Strict regardless
+    // of environment to prevent CSRF on /auth/refresh and /auth/logout.
+    it("sets the refresh cookie as SameSite=Strict, Secure, and HttpOnly", async () => {
       const body = { email: "test@test.com", password: "secret" };
       mockRequest.body = body;
       (loginSchema.safeParse as jest.Mock).mockReturnValue({ success: true, data: body });
@@ -98,7 +98,7 @@ describe("AuthController", () => {
       expect(mockReply.setCookie).toHaveBeenCalledWith(
         "refreshToken",
         "rt",
-        expect.objectContaining({ sameSite: "none", secure: true, httpOnly: true, path: "/" }),
+        expect.objectContaining({ sameSite: "strict", secure: true, httpOnly: true, path: "/" }),
       );
     });
   });
@@ -170,17 +170,27 @@ describe("AuthController", () => {
 
       await AuthController.createUser(mockRequest, mockReply);
 
-      expect(AuthService.createUser).toHaveBeenCalledWith({ ...validBody, companyId: "1", createdBy: "1" });
+      expect(AuthService.createUser).toHaveBeenCalledWith({
+        ...validBody,
+        companyId: "1",
+        createdBy: "1",
+        actorRole: "admin",
+      });
       expect(mockReply.code).toHaveBeenCalledWith(201);
     });
 
-    it("invalid input: throws ValidationError", async () => {
+    it("invalid input: throws ValidationError with the first issue's message", async () => {
       (createUserSchema.safeParse as jest.Mock).mockReturnValue({
         success: false,
-        error: { flatten: () => ({}) },
+        error: {
+          issues: [{ message: "Password must contain at least one special character" }],
+          flatten: () => ({}),
+        },
       });
 
-      await expect(AuthController.createUser(mockRequest, mockReply)).rejects.toThrow(ValidationError);
+      await expect(AuthController.createUser(mockRequest, mockReply)).rejects.toThrow(
+        new ValidationError("Password must contain at least one special character"),
+      );
     });
   });
 
@@ -221,13 +231,18 @@ describe("AuthController", () => {
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 
-    it("invalid input: throws ValidationError", async () => {
+    it("invalid input: throws ValidationError with the first issue's message", async () => {
       (resetPasswordSchema.safeParse as jest.Mock).mockReturnValue({
         success: false,
-        error: { flatten: () => ({}) },
+        error: {
+          issues: [{ message: "Password must contain at least one uppercase letter" }],
+          flatten: () => ({}),
+        },
       });
 
-      await expect(AuthController.resetPassword(mockRequest, mockReply)).rejects.toThrow(ValidationError);
+      await expect(AuthController.resetPassword(mockRequest, mockReply)).rejects.toThrow(
+        new ValidationError("Password must contain at least one uppercase letter"),
+      );
     });
   });
 
@@ -317,7 +332,7 @@ describe("AuthController", () => {
 
       await AuthController.deleteUser(mockRequest, mockReply);
 
-      expect(AuthService.deleteUser).toHaveBeenCalledWith("1", "2", "1");
+      expect(AuthService.deleteUser).toHaveBeenCalledWith("1", "2", "1", "admin");
       expect(mockReply.code).toHaveBeenCalledWith(200);
       expect(mockReply.send).toHaveBeenCalledWith({ success: true, message: "User deleted successfully." });
     });

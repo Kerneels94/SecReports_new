@@ -49,10 +49,21 @@ function VerifyEmailContent() {
 
   const icon = {
     loading: (
-      <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <svg
+        className="h-7 w-7 animate-pulse text-gray-900"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect width="20" height="16" x="2" y="4" rx="2" />
+        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+      </svg>
     ),
     success: (
-      <svg className="h-7 w-7 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="h-7 w-7 text-gray-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
         <polyline points="22 4 12 14.01 9 11.01" />
       </svg>
@@ -84,14 +95,14 @@ function VerifyEmailContent() {
           {state === "success" ? (
             <Link
               href="/login"
-              className="block w-full rounded-lg bg-primary py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
+              className="cursor-pointer block w-full rounded-lg bg-primary py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
             >
               Go to Login
             </Link>
           ) : (
             <Link
               href="/"
-              className="text-primary hover:underline transition-colors text-sm"
+              className="cursor-pointer text-primary hover:underline transition-colors text-sm"
             >
               Back to Homepage
             </Link>

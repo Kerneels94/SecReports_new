@@ -1,10 +1,20 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { InvoiceService } from "../services/invoice.service";
+import { createInvoiceSchema } from "../validators/invoice.schema";
+import { ValidationError } from "../lib/errors";
 
 export const InvoiceController = {
   async listInvoices(request: FastifyRequest, reply: FastifyReply) {
-    const { status, companyId, dateFrom, dateTo } = request.query as Record<string, string | undefined>;
-    const data = await InvoiceService.getInvoices({ status, companyId, dateFrom, dateTo });
+    const { status, companyId, dateFrom, dateTo } = request.query as Record<
+      string,
+      string | undefined
+    >;
+    const data = await InvoiceService.getInvoices({
+      status,
+      companyId,
+      dateFrom,
+      dateTo,
+    });
     reply.code(200).send({ success: true, data });
   },
 
@@ -15,21 +25,10 @@ export const InvoiceController = {
   },
 
   async createInvoice(request: FastifyRequest, reply: FastifyReply) {
-    const body = request.body as {
-      companyId: string;
-      amount: number;
-      currency?: string;
-      dueDate: string;
-      periodStart?: string;
-      periodEnd?: string;
-      description?: string;
-    };
-    const data = await InvoiceService.createInvoice({
-      ...body,
-      dueDate: new Date(body.dueDate),
-      periodStart: body.periodStart ? new Date(body.periodStart) : undefined,
-      periodEnd: body.periodEnd ? new Date(body.periodEnd) : undefined,
-    });
+    const parsed = createInvoiceSchema.safeParse(request.body);
+    if (!parsed.success)
+      throw new ValidationError("Invalid input", parsed.error.flatten());
+    const data = await InvoiceService.createInvoice(parsed.data);
     reply.code(201).send({ success: true, data });
   },
 

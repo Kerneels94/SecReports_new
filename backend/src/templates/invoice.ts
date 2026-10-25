@@ -5,12 +5,20 @@
  */
 import { escapeHtml } from "./escape";
 import { BRAND, emailLayout, greeting, ctaButton, mutedNote } from "./layout";
+import {
+  BUSINESS_NAME,
+  BUSINESS_EMAIL,
+  BUSINESS_ADDRESS,
+  BANK_DETAILS,
+  DEFAULT_ITEM_DESCRIPTION,
+} from "./invoice-details";
 
 interface InvoiceData {
   companyName: string;
   amount: number;
   invoiceNumber: string;
   dueDate?: string;
+  description?: string;
   invoiceLink?: string;
 }
 
@@ -53,26 +61,34 @@ export default function invoiceTemplate(data: InvoiceData): string {
     maximumFractionDigits: 2,
   })}`;
 
+  const addressLine = BUSINESS_ADDRESS.map(
+    (line) =>
+      `<div style="font-size: 14px; color: ${BRAND.body};">${escapeHtml(line)}</div>`,
+  ).join("");
+
+  const itemDescription = escapeHtml(data.description || DEFAULT_ITEM_DESCRIPTION);
+
   const rows = `
         <tr>
           <td colspan="2" style="padding: 20px 24px; border-bottom: 1px solid ${BRAND.border};">
             <div style="font-size: 12px; color: ${BRAND.muted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">From Company</div>
-            <div style="font-size: 18px; font-weight: 700; color: ${BRAND.navy}; margin-bottom: 4px;">SecReports</div>
-            <div style="font-size: 14px; color: ${BRAND.body};">support@secreports.co.za</div>
+            <div style="font-size: 18px; font-weight: 700; color: ${BRAND.heading}; margin-bottom: 4px;">${BUSINESS_NAME}</div>
+            <div style="font-size: 14px; color: ${BRAND.body}; margin-bottom: 4px;">${BUSINESS_EMAIL}</div>
+            ${addressLine}
           </td>
         </tr>
         <tr>
           <td colspan="2" style="padding: 20px 24px; border-bottom: 1px solid ${BRAND.border};">
             <div style="font-size: 12px; color: ${BRAND.muted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">To Company</div>
-            <div style="font-size: 18px; font-weight: 700; color: ${BRAND.navy}; margin-bottom: 4px;">${companyName}</div>
+            <div style="font-size: 18px; font-weight: 700; color: ${BRAND.heading}; margin-bottom: 4px;">${companyName}</div>
           </td>
         </tr>
         ${detailRow("Invoice Date", invoiceDate)}
         ${detailRow("Due Date", formattedDueDate)}
         ${detailRow("Invoice", `#${invoiceNumber}`)}
-        ${detailRow("Item", "Standard Package payment")}
+        ${detailRow("Item", itemDescription)}
         <tr>
-          <td colspan="2" style="padding: 18px 24px; background: ${BRAND.navy};">
+          <td colspan="2" style="padding: 18px 24px; background: ${BRAND.surface}; border-top: 4px solid ${BRAND.success};">
             <div style="font-size: 12px; color: ${BRAND.muted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Amount Due</div>
             <div style="font-size: 22px; font-weight: 700; color: #ffffff;">${formattedAmount}</div>
           </td>
@@ -81,9 +97,10 @@ export default function invoiceTemplate(data: InvoiceData): string {
           <td colspan="2" style="padding: 16px 24px;">
             <div style="font-size: 12px; color: ${BRAND.muted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Banking Details</div>
             <div style="font-size: 14px; color: ${BRAND.body}; line-height: 1.7;">
-              <div>Bank: Your Bank</div>
-              <div>Account Holder: SecReports (Pty) Ltd</div>
-              <div>Account No: 0000000000</div>
+              <div>Bank: ${escapeHtml(BANK_DETAILS.bankName)}</div>
+              <div>Account Holder: ${escapeHtml(BANK_DETAILS.accountHolder)}</div>
+              <div>Account No: ${escapeHtml(BANK_DETAILS.accountNumber)}</div>
+              ${BANK_DETAILS.branchCode ? `<div>Branch Code: ${escapeHtml(BANK_DETAILS.branchCode)}</div>` : ""}
               <div>Reference: #${invoiceNumber}</div>
             </div>
           </td>
@@ -91,11 +108,12 @@ export default function invoiceTemplate(data: InvoiceData): string {
       `;
 
   const body = `
+        <h2 style="margin: 0 0 20px 0; text-align: center; font-size: 22px; font-weight: 700; color: #ffffff; letter-spacing: 1px; text-transform: uppercase;">Invoice</h2>
         ${greeting(data.companyName)}
         ${invoiceTable(rows)}
         ${invoiceLink ? ctaButton(invoiceLink, "View Invoice") : ""}
         ${mutedNote("If you have any questions, please contact our support team.")}
       `;
 
-  return emailLayout({ title: "Invoice from SecReports", body });
+  return emailLayout({ title: "Invoice", body });
 }
