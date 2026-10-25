@@ -10,7 +10,10 @@ import { ReportService } from "../services/report.service";
 import { SubscriptionService } from "../services/subscription.service";
 import { sendMail } from "../services/email.service";
 import { BRAND } from "../templates/layout";
-import { emailReportSchema, batchEmailSchema } from "../validators/export.schema";
+import {
+  emailReportSchema,
+  batchEmailSchema,
+} from "../validators/export.schema";
 import { ValidationError } from "../lib/errors";
 
 interface IncidentForExport {
@@ -55,15 +58,24 @@ const RADIUS = 8;
 /** Zinc-800 page background on the first page and every page added later. */
 function newDoc(): typeof PDFDocument.prototype {
   const doc = new PDFDocument({ margin: 50, size: "A4" });
-  const paint = () => doc.rect(0, 0, doc.page.width, doc.page.height).fill(COLORS.page);
+  const paint = () =>
+    doc.rect(0, 0, doc.page.width, doc.page.height).fill(COLORS.page);
   paint();
   doc.on("pageAdded", paint);
   return doc;
 }
 
 const INCIDENT_CSV_HEADERS = [
-  "Reference", "Title", "Type", "Report",
-  "Date", "Location", "Operator", "Dispatcher", "Reporter", "Created",
+  "Reference",
+  "Title",
+  "Type",
+  "Report",
+  "Date",
+  "Location",
+  "Operator",
+  "Dispatcher",
+  "Reporter",
+  "Created",
 ];
 
 function sanitizeCsv(val: string): string {
@@ -74,10 +86,20 @@ function sanitizeCsv(val: string): string {
 /** Brand header: zinc block, wordmark, uppercase tagline, 4px rule. */
 function drawHeader(doc: typeof PDFDocument.prototype): number {
   doc.rect(50, 40, 495, 64).fill(COLORS.page);
-  doc.fillColor(COLORS.white).fontSize(22).font("Helvetica-Bold")
+  doc
+    .fillColor(COLORS.white)
+    .fontSize(22)
+    .font("Helvetica-Bold")
     .text("SecReports", 50, 54, { width: 495, align: "center" });
-  doc.fillColor(COLORS.muted).fontSize(9).font("Helvetica")
-    .text("INCIDENT MANAGEMENT PLATFORM", 50, 82, { width: 495, align: "center", characterSpacing: 1.2 });
+  doc
+    .fillColor(COLORS.muted)
+    .fontSize(9)
+    .font("Helvetica")
+    .text("INCIDENT MANAGEMENT PLATFORM", 50, 82, {
+      width: 495,
+      align: "center",
+      characterSpacing: 1.2,
+    });
   doc.rect(50, 104, 495, 4).fill(COLORS.border);
   doc.fillColor(COLORS.dark);
   return 130;
@@ -87,20 +109,53 @@ function drawHeader(doc: typeof PDFDocument.prototype): number {
 function drawFooter(doc: typeof PDFDocument.prototype) {
   const y = doc.page.height - 85;
   doc.rect(50, y, 495, 3).fill(COLORS.success);
-  doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted)
-    .text(`© ${new Date().getFullYear()} SecReports. All rights reserved.`, 50, y + 10, { width: 495, align: "center" })
+  doc
+    .font("Helvetica")
+    .fontSize(8)
+    .fillColor(COLORS.muted)
+    .text(
+      `© ${new Date().getFullYear()} SecReports. All rights reserved.`,
+      50,
+      y + 10,
+      { width: 495, align: "center" },
+    )
     .fillColor(COLORS.faint)
-    .text("This is an automated notification. Please do not reply directly.", 50, y + 22, { width: 495, align: "center" });
+    .text(
+      "This is an automated notification. Please do not reply directly.",
+      50,
+      y + 22,
+      { width: 495, align: "center" },
+    );
 }
 
-function drawSection(doc: typeof PDFDocument.prototype, title: string, y: number): number {
-  doc.fillColor(COLORS.dark).fontSize(11).font("Helvetica-Bold").text(title, 50, y + 5, { width: 495, align: "center" });
+function drawSection(
+  doc: typeof PDFDocument.prototype,
+  title: string,
+  y: number,
+): number {
+  doc
+    .fillColor(COLORS.dark)
+    .fontSize(11)
+    .font("Helvetica-Bold")
+    .text(title, 50, y + 5, { width: 495, align: "center" });
   return y + 30;
 }
 
-function drawField(doc: typeof PDFDocument.prototype, label: string, value: string, y: number): number {
-  doc.fontSize(9).font("Helvetica-Bold").fillColor(COLORS.gray).text(label, 60, y);
-  doc.font("Helvetica").fillColor(COLORS.dark).text(value || "-", 175, y);
+function drawField(
+  doc: typeof PDFDocument.prototype,
+  label: string,
+  value: string,
+  y: number,
+): number {
+  doc
+    .fontSize(9)
+    .font("Helvetica-Bold")
+    .fillColor(COLORS.gray)
+    .text(label, 60, y);
+  doc
+    .font("Helvetica")
+    .fillColor(COLORS.dark)
+    .text(value || "-", 175, y);
   return y + 16;
 }
 
@@ -119,13 +174,31 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
 
       let y = drawHeader(doc) + 10;
 
-      doc.fontSize(18).font("Helvetica-Bold").fillColor(COLORS.dark).text(inc.title, 50, y, { width: 495, align: "center" });
+      doc
+        .fontSize(18)
+        .font("Helvetica-Bold")
+        .fillColor(COLORS.dark)
+        .text(inc.title, 50, y, { width: 495, align: "center" });
       y += 24;
-      doc.fontSize(9).font("Helvetica").fillColor(COLORS.muted).text(`Ref: ${inc.referenceNumber}`, 50, y, { width: 495, align: "center" });
+      doc
+        .fontSize(9)
+        .font("Helvetica")
+        .fillColor(COLORS.muted)
+        .text(`Ref: ${inc.referenceNumber}`, 50, y, {
+          width: 495,
+          align: "center",
+        });
       y += 20;
 
       y = drawSection(doc, "Description", y);
-      doc.fontSize(9).font("Helvetica").fillColor(COLORS.dark).text(inc.description || "No description", 60, y, { width: 475, align: "left" });
+      doc
+        .fontSize(9)
+        .font("Helvetica")
+        .fillColor(COLORS.dark)
+        .text(inc.description || "No description", 60, y, {
+          width: 475,
+          align: "left",
+        });
       y += doc.y - y + 12;
 
       y = drawSection(doc, "Controllers", y);
@@ -134,12 +207,44 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
 
       if (inc.dispatchTime || inc.arrivalTime || inc.callSign) {
         y = drawSection(doc, "Response", y + 4);
-        if (inc.dispatchTime) y = drawField(doc, "Dispatch Time", new Date(inc.dispatchTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Johannesburg" }), y);
-        if (inc.arrivalTime) y = drawField(doc, "Arrival Time", new Date(inc.arrivalTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Johannesburg" }), y);
+        if (inc.dispatchTime)
+          y = drawField(
+            doc,
+            "Dispatch Time",
+            new Date(inc.dispatchTime).toLocaleString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "Africa/Johannesburg",
+            }),
+            y,
+          );
+        if (inc.arrivalTime)
+          y = drawField(
+            doc,
+            "Arrival Time",
+            new Date(inc.arrivalTime).toLocaleString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "Africa/Johannesburg",
+            }),
+            y,
+          );
         y = drawField(doc, "Call Sign", inc.callSign || "-", y);
       }
 
-      if (inc.propertyAddress || inc.clientName || inc.clientCode || inc.businessOrComplex || inc.sapsReference) {
+      if (
+        inc.propertyAddress ||
+        inc.clientName ||
+        inc.clientCode ||
+        inc.businessOrComplex ||
+        inc.sapsReference
+      ) {
         y = drawSection(doc, "Client & Property", y + 4);
         y = drawField(doc, "Property Address", inc.propertyAddress || "-", y);
         y = drawField(doc, "Client Name", inc.clientName || "-", y);
@@ -152,10 +257,42 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
       y = drawField(doc, "Type", inc.type, y);
       y = drawField(doc, "Status", inc.status.replace(/_/g, " "), y);
       y = drawField(doc, "Location", inc.location || "-", y);
-      y = drawField(doc, "Incident Date", new Date(inc.incidentDate).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" }), y);
+      y = drawField(
+        doc,
+        "Incident Date",
+        new Date(inc.incidentDate).toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+        y,
+      );
       y = drawField(doc, "Reporter", inc.reporter?.name || "Unknown", y);
-      y = drawField(doc, "Created", new Date(inc.createdAt).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }), y);
-      y = drawField(doc, "Updated", new Date(inc.updatedAt).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }), y);
+      y = drawField(
+        doc,
+        "Created",
+        new Date(inc.createdAt).toLocaleString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        y,
+      );
+      y = drawField(
+        doc,
+        "Updated",
+        new Date(inc.updatedAt).toLocaleString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        y,
+      );
 
       drawFooter(doc);
     }
@@ -195,15 +332,34 @@ function drawBarChart(
   const barWidth = Math.min(slot * 0.6, 60);
   const baseY = y + height;
 
-  doc.lineWidth(1).strokeColor(COLORS.border).moveTo(x, baseY).lineTo(x + width, baseY).stroke();
+  doc
+    .lineWidth(1)
+    .strokeColor(COLORS.border)
+    .moveTo(x, baseY)
+    .lineTo(x + width, baseY)
+    .stroke();
 
   data.forEach((d, i) => {
-    const barHeight = Math.max((d.value / maxValue) * height, d.value > 0 ? 6 : 0);
+    const barHeight = Math.max(
+      (d.value / maxValue) * height,
+      d.value > 0 ? 6 : 0,
+    );
     const barX = x + slot * i + (slot - barWidth) / 2;
 
-    doc.rect(barX, baseY - barHeight, barWidth, barHeight).fill(d.color || COLORS.accent);
-    doc.fillColor(COLORS.gray).fontSize(8).text(String(d.value), barX, baseY - barHeight - 12, { width: barWidth, align: "center" });
-    doc.fillColor(COLORS.dark).fontSize(8).text(d.label, barX, baseY + 4, { width: barWidth, align: "center" });
+    doc
+      .rect(barX, baseY - barHeight, barWidth, barHeight)
+      .fill(d.color || COLORS.accent);
+    doc
+      .fillColor(COLORS.gray)
+      .fontSize(8)
+      .text(String(d.value), barX, baseY - barHeight - 12, {
+        width: barWidth,
+        align: "center",
+      });
+    doc
+      .fillColor(COLORS.dark)
+      .fontSize(8)
+      .text(d.label, barX, baseY + 4, { width: barWidth, align: "center" });
   });
 }
 
@@ -216,7 +372,11 @@ function formatDuration(ms: number | null): string {
 }
 
 /** Returns y on a new page if content would overflow, otherwise unchanged. */
-function pageSpace(doc: typeof PDFDocument.prototype, y: number, needed: number): number {
+function pageSpace(
+  doc: typeof PDFDocument.prototype,
+  y: number,
+  needed: number,
+): number {
   if (y + needed > doc.page.height - 60) {
     doc.addPage();
     return 50;
@@ -251,7 +411,11 @@ function drawTable(
 
   let cx = x;
   cols.forEach((c) => {
-    doc.fillColor(COLORS.white).fontSize(9).font("Helvetica-Bold").text(c.label, cx + 6, startY + 5, { width: c.width - 12 });
+    doc
+      .fillColor(COLORS.white)
+      .fontSize(9)
+      .font("Helvetica-Bold")
+      .text(c.label, cx + 6, startY + 5, { width: c.width - 12 });
     cx += c.width;
   });
   y = startY + headerH;
@@ -259,7 +423,11 @@ function drawTable(
   rows.forEach((r, i) => {
     cx = x;
     r.forEach((cell, j) => {
-      doc.fillColor(COLORS.dark).fontSize(9).font("Helvetica").text(cell, cx + 6, y + 4, { width: cols[j].width - 12 });
+      doc
+        .fillColor(COLORS.dark)
+        .fontSize(9)
+        .font("Helvetica")
+        .text(cell, cx + 6, y + 4, { width: cols[j].width - 12 });
       cx += cols[j].width;
     });
     y += rowH;
@@ -286,10 +454,19 @@ function generateYearlyPdf(data: {
 
     const y0 = drawHeader(doc);
 
-    doc.fillColor(COLORS.dark).fontSize(18).font("Helvetica-Bold")
+    doc
+      .fillColor(COLORS.dark)
+      .fontSize(18)
+      .font("Helvetica-Bold")
       .text("Crime Statistics Report", 50, y0, { width: 495, align: "center" });
-    doc.fillColor(COLORS.muted).fontSize(9).font("Helvetica")
-      .text(`Generated on ${new Date().toLocaleString("en-US")}`, 50, y0 + 24, { width: 495, align: "center" });
+    doc
+      .fillColor(COLORS.muted)
+      .fontSize(9)
+      .font("Helvetica")
+      .text(`Generated on ${new Date().toLocaleString("en-US")}`, 50, y0 + 24, {
+        width: 495,
+        align: "center",
+      });
 
     const summary = [
       { label: "Total Incidents", value: data.total, color: COLORS.accent },
@@ -311,9 +488,20 @@ function generateYearlyPdf(data: {
       doc.rect(boxX, boxY, boxWidth, 4).fill(s.color);
       doc.restore();
       doc.fillColor(COLORS.page, 1);
-      doc.roundedRect(boxX, boxY, boxWidth, 52, RADIUS).fillAndStroke(COLORS.page, COLORS.border);
-      doc.fillColor(COLORS.gray).fontSize(8).text(s.label.toUpperCase(), boxX + 10, boxY + 12, { width: boxWidth - 20 });
-      doc.fillColor(COLORS.dark).fontSize(20).font("Helvetica-Bold").text(String(s.value), boxX + 10, boxY + 24);
+      doc
+        .roundedRect(boxX, boxY, boxWidth, 52, RADIUS)
+        .fillAndStroke(COLORS.page, COLORS.border);
+      doc
+        .fillColor(COLORS.gray)
+        .fontSize(8)
+        .text(s.label.toUpperCase(), boxX + 10, boxY + 12, {
+          width: boxWidth - 20,
+        });
+      doc
+        .fillColor(COLORS.dark)
+        .fontSize(20)
+        .font("Helvetica-Bold")
+        .text(String(s.value), boxX + 10, boxY + 24);
       boxX += boxWidth + boxGap;
     });
 
@@ -378,7 +566,13 @@ function generateYearlyPdf(data: {
 function generateResponseTimePdf(data: {
   months: number;
   from: Date;
-  perMonth: { month: string; count: number; avgMs: number; medianMs: number; p90Ms: number }[];
+  perMonth: {
+    month: string;
+    count: number;
+    avgMs: number;
+    medianMs: number;
+    p90Ms: number;
+  }[];
   overall: { count: number; avgMs: number; medianMs: number; p90Ms: number };
 }): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -390,17 +584,48 @@ function generateResponseTimePdf(data: {
     doc.on("error", reject);
 
     const y0 = drawHeader(doc);
-    const longDate = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+    const longDate = (d: Date) =>
+      d.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
 
-    doc.fillColor(COLORS.dark).fontSize(18).font("Helvetica-Bold")
-      .text("Average Response Time Report", 50, y0, { width: 495, align: "center" });
-    doc.fillColor(COLORS.muted).fontSize(9).font("Helvetica")
-      .text(`Last ${data.months} months (${longDate(data.from)} - ${longDate(new Date())})`, 50, y0 + 24, { width: 495, align: "center" });
+    doc
+      .fillColor(COLORS.dark)
+      .fontSize(18)
+      .font("Helvetica-Bold")
+      .text("Average Response Time Report", 50, y0, {
+        width: 495,
+        align: "center",
+      });
+    doc
+      .fillColor(COLORS.muted)
+      .fontSize(9)
+      .font("Helvetica")
+      .text(
+        `Last ${data.months} months (${longDate(data.from)} - ${longDate(new Date())})`,
+        50,
+        y0 + 24,
+        { width: 495, align: "center" },
+      );
 
     const summary = [
-      { label: "Avg Response", value: formatDuration(data.overall.avgMs), color: COLORS.accent },
-      { label: "Median Response", value: formatDuration(data.overall.medianMs), color: "#10b981" },
-      { label: "90th Percentile", value: formatDuration(data.overall.p90Ms), color: "#f59e0b" },
+      {
+        label: "Avg Response",
+        value: formatDuration(data.overall.avgMs),
+        color: COLORS.accent,
+      },
+      {
+        label: "Median Response",
+        value: formatDuration(data.overall.medianMs),
+        color: "#10b981",
+      },
+      {
+        label: "90th Percentile",
+        value: formatDuration(data.overall.p90Ms),
+        color: "#f59e0b",
+      },
     ];
     const boxWidth = 150;
     const boxGap = 22.5;
@@ -417,9 +642,20 @@ function generateResponseTimePdf(data: {
       doc.rect(boxX, boxY, boxWidth, 4).fill(s.color);
       doc.restore();
       doc.fillColor(COLORS.page, 1);
-      doc.roundedRect(boxX, boxY, boxWidth, 52, RADIUS).fillAndStroke(COLORS.page, COLORS.border);
-      doc.fillColor(COLORS.gray).fontSize(8).text(s.label.toUpperCase(), boxX + 10, boxY + 12, { width: boxWidth - 20 });
-      doc.fillColor(COLORS.dark).fontSize(20).font("Helvetica-Bold").text(s.value, boxX + 10, boxY + 24);
+      doc
+        .roundedRect(boxX, boxY, boxWidth, 52, RADIUS)
+        .fillAndStroke(COLORS.page, COLORS.border);
+      doc
+        .fillColor(COLORS.gray)
+        .fontSize(8)
+        .text(s.label.toUpperCase(), boxX + 10, boxY + 12, {
+          width: boxWidth - 20,
+        });
+      doc
+        .fillColor(COLORS.dark)
+        .fontSize(20)
+        .font("Helvetica-Bold")
+        .text(s.value, boxX + 10, boxY + 24);
       boxX += boxWidth + boxGap;
     });
 
@@ -432,7 +668,10 @@ function generateResponseTimePdf(data: {
       // year wraps across two lines. The exact range is spelled out under the title.
       // Bar heights use minutes to one decimal so a sub-minute month still shows a bar;
       // the table below carries the exact seconds.
-      data.perMonth.map((m) => ({ label: m.month.slice(2), value: Math.round((m.avgMs / 60000) * 10) / 10 })),
+      data.perMonth.map((m) => ({
+        label: m.month.slice(2),
+        value: Math.round((m.avgMs / 60000) * 10) / 10,
+      })),
       50,
       y + 10,
       495,
@@ -441,9 +680,21 @@ function generateResponseTimePdf(data: {
     y += 150;
 
     const monthRows = [
-      ...data.perMonth.map((m) => [m.month, String(m.count), formatDuration(m.avgMs), formatDuration(m.medianMs), formatDuration(m.p90Ms)]),
+      ...data.perMonth.map((m) => [
+        m.month,
+        String(m.count),
+        formatDuration(m.avgMs),
+        formatDuration(m.medianMs),
+        formatDuration(m.p90Ms),
+      ]),
       // Trailing total so the headline figures are checkable against the month rows.
-      ["All months", String(data.overall.count), formatDuration(data.overall.avgMs), formatDuration(data.overall.medianMs), formatDuration(data.overall.p90Ms)],
+      [
+        "All months",
+        String(data.overall.count),
+        formatDuration(data.overall.avgMs),
+        formatDuration(data.overall.medianMs),
+        formatDuration(data.overall.p90Ms),
+      ],
     ];
     y = pageSpace(doc, y + 20, 40 + monthRows.length * 18);
     y = drawSection(doc, "Monthly Breakdown", y + 20);
@@ -470,7 +721,10 @@ function generateResponseTimePdf(data: {
 export const ExportController = {
   /** Export all company incidents as a CSV file download. */
   async csv(request: FastifyRequest, reply: FastifyReply) {
-    await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
+    await SubscriptionService.requireFeature(
+      request.user!.companyId,
+      "export_csv_pdf",
+    );
 
     const incidents = await prisma.incident.findMany({
       where: { companyId: request.user!.companyId },
@@ -493,7 +747,10 @@ export const ExportController = {
       sanitizeCsv(i.createdAt.toISOString().split("T")[0]),
     ]);
 
-    const csv = [INCIDENT_CSV_HEADERS.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csv = [
+      INCIDENT_CSV_HEADERS.join(","),
+      ...rows.map((r) => r.join(",")),
+    ].join("\n");
 
     reply.header("Content-Type", "text/csv");
     reply.header("Content-Disposition", "attachment; filename=incidents.csv");
@@ -505,7 +762,8 @@ export const ExportController = {
     const companyId = request.user!.companyId;
     await SubscriptionService.requireFeature(companyId, "export_csv_pdf");
 
-    const months = Number((request.query as { months?: string | number }).months) || 12;
+    const months =
+      Number((request.query as { months?: string | number }).months) || 12;
     const report = await ReportService.responseTimeReport(companyId, months);
 
     // Guard on overall, not perMonth: overall is what the PDF dereferences, so checking it
@@ -513,13 +771,21 @@ export const ExportController = {
     if (report.perMonth.length === 0 || !report.overall) {
       reply.code(404).send({
         success: false,
-        error: { code: "NOT_FOUND", message: "No response time data for the selected period" },
+        error: {
+          code: "NOT_FOUND",
+          message: "No response time data for the selected period",
+        },
       });
       return;
     }
 
-    const company = await prisma.company.findUnique({ where: { id: companyId } });
-    const companySlug = (company?.name || "SecReports").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+    });
+    const companySlug = (company?.name || "SecReports")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
     const date = new Date().toISOString().split("T")[0];
 
     let pdfBuffer: Buffer;
@@ -531,7 +797,10 @@ export const ExportController = {
         overall: report.overall,
       });
     } catch {
-      reply.code(500).send({ success: false, error: { code: "PDF_FAILED", message: "Failed to generate PDF" } });
+      reply.code(500).send({
+        success: false,
+        error: { code: "PDF_FAILED", message: "Failed to generate PDF" },
+      });
       return;
     }
 
@@ -544,27 +813,45 @@ export const ExportController = {
     });
 
     reply.header("Content-Type", "application/pdf");
-    reply.header("Content-Disposition", `attachment; filename=avg-response-time-${months}m-${companySlug}-${date}.pdf`);
+    reply.header(
+      "Content-Disposition",
+      `attachment; filename=avg-response-time-${months}m-${companySlug}-${date}.pdf`,
+    );
     reply.code(200).send(pdfBuffer);
   },
 
   /** Export a visual yearly crime statistics report as a PDF download. */
   async yearlyPdf(request: FastifyRequest, reply: FastifyReply) {
-    await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
+    await SubscriptionService.requireFeature(
+      request.user!.companyId,
+      "export_csv_pdf",
+    );
 
     const incidents = await prisma.incident.findMany({
       where: { companyId: request.user!.companyId },
-      select: { incidentDate: true, type: true, propertyAddress: true, dispatchTime: true, arrivalTime: true },
+      select: {
+        incidentDate: true,
+        type: true,
+        propertyAddress: true,
+        dispatchTime: true,
+        arrivalTime: true,
+      },
     });
 
     if (incidents.length === 0) {
-      reply.code(404).send({ success: false, error: { code: "NOT_FOUND", message: "No incidents found" } });
+      reply.code(404).send({
+        success: false,
+        error: { code: "NOT_FOUND", message: "No incidents found" },
+      });
       return;
     }
 
     const byYearMap: Record<number, number> = {};
     const byTypeMap: Record<string, number> = {};
-    const byAreaMap: Record<string, { count: number; responded: number; totalMs: number; maxMs: number }> = {};
+    const byAreaMap: Record<
+      string,
+      { count: number; responded: number; totalMs: number; maxMs: number }
+    > = {};
     let attempted = 0;
     let positive = 0;
 
@@ -580,7 +867,12 @@ export const ExportController = {
       byTypeMap[inc.type] = (byTypeMap[inc.type] || 0) + 1;
 
       const area = inc.propertyAddress || "Unknown";
-      const entry = byAreaMap[area] || { count: 0, responded: 0, totalMs: 0, maxMs: 0 };
+      const entry = byAreaMap[area] || {
+        count: 0,
+        responded: 0,
+        totalMs: 0,
+        maxMs: 0,
+      };
       entry.count++;
       if (inc.dispatchTime && inc.arrivalTime) {
         const ms = inc.arrivalTime.getTime() - inc.dispatchTime.getTime();
@@ -617,18 +909,29 @@ export const ExportController = {
       byArea,
     });
 
-    const company = await prisma.company.findUnique({ where: { id: request.user!.companyId } });
-    const companySlug = (company?.name || "SecReports").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const company = await prisma.company.findUnique({
+      where: { id: request.user!.companyId },
+    });
+    const companySlug = (company?.name || "SecReports")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
     const date = new Date().toISOString().split("T")[0];
 
     reply.header("Content-Type", "application/pdf");
-    reply.header("Content-Disposition", `attachment; filename=yearly-crime-stats-${companySlug}-${date}.pdf`);
+    reply.header(
+      "Content-Disposition",
+      `attachment; filename=yearly-crime-stats-${companySlug}-${date}.pdf`,
+    );
     reply.code(200).send(pdfBuffer);
   },
 
   /** Export one incident as a PDF file download. */
   async pdf(request: FastifyRequest, reply: FastifyReply) {
-    await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
+    await SubscriptionService.requireFeature(
+      request.user!.companyId,
+      "export_csv_pdf",
+    );
 
     const query = request.query as { incidentId?: string };
     if (!query.incidentId) {
@@ -647,20 +950,29 @@ export const ExportController = {
     });
 
     if (!incident) {
-      reply.code(404).send({ success: false, error: { code: "NOT_FOUND", message: "Incident not found" } });
+      reply.code(404).send({
+        success: false,
+        error: { code: "NOT_FOUND", message: "Incident not found" },
+      });
       return;
     }
 
     const pdfBuffer = await generatePdf([incident as IncidentForExport]);
 
     reply.header("Content-Type", "application/pdf");
-    reply.header("Content-Disposition", `attachment; filename=incident-${incident.referenceNumber}.pdf`);
+    reply.header(
+      "Content-Disposition",
+      `attachment; filename=incident-${incident.referenceNumber}.pdf`,
+    );
     reply.code(200).send(pdfBuffer);
   },
 
   /** Email all incidents matching a type pattern (attempted/positive) as a batch CSV or PDF attachment. */
   async batchEmail(request: FastifyRequest, reply: FastifyReply) {
-    await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
+    await SubscriptionService.requireFeature(
+      request.user!.companyId,
+      "export_csv_pdf",
+    );
 
     const parsed = batchEmailSchema.safeParse(request.body);
     if (!parsed.success)
@@ -679,11 +991,16 @@ export const ExportController = {
     });
 
     if (incidents.length === 0) {
-      reply.code(404).send({ success: false, error: { code: "NOT_FOUND", message: `No ${type} incidents found` } });
+      reply.code(404).send({
+        success: false,
+        error: { code: "NOT_FOUND", message: `No ${type} incidents found` },
+      });
       return;
     }
 
-    const company = await prisma.company.findUnique({ where: { id: request.user!.companyId! } });
+    const company = await prisma.company.findUnique({
+      where: { id: request.user!.companyId! },
+    });
     const companyName = company?.name || "SecReports";
 
     if (format === "pdf") {
@@ -691,7 +1008,10 @@ export const ExportController = {
       try {
         pdfBuffer = await generatePdf(incidents as IncidentForExport[]);
       } catch {
-        reply.code(500).send({ success: false, error: { code: "PDF_FAILED", message: "Failed to generate PDF" } });
+        reply.code(500).send({
+          success: false,
+          error: { code: "PDF_FAILED", message: "Failed to generate PDF" },
+        });
         return;
       }
       const result = await sendMail({
@@ -702,23 +1022,42 @@ export const ExportController = {
           incidentAddress: `${incidents.length} incidents`,
           incidentType: type,
         },
-        attachments: [{ filename: `${type}-incidents.pdf`, content: pdfBuffer }],
+        attachments: [
+          {
+            filename: `${type}-incidents.pdf`,
+            content: pdfBuffer,
+            applicationType: "application/pdf",
+          },
+        ],
       });
 
       if (result.error) {
-        reply.code(500).send({ success: false, error: { code: "EMAIL_FAILED", message: "Failed to send email" } });
+        reply.code(500).send({
+          success: false,
+          error: { code: "EMAIL_FAILED", message: "Failed to send email" },
+        });
         return;
       }
 
       await AuditLogService.create({
-          entityType: "incident",
-          entityId: "batch",
-          action: "report_batch_email_sent",
-          newValues: JSON.stringify({ recipient: email, type, format, count: incidents.length }),
-          performedBy: request.user!.userId,
-        });
+        entityType: "incident",
+        entityId: "batch",
+        action: "report_batch_email_sent",
+        newValues: JSON.stringify({
+          recipient: email,
+          type,
+          format,
+          count: incidents.length,
+        }),
+        performedBy: request.user!.userId,
+      });
 
-      reply.code(200).send({ success: true, data: { message: `Report for ${incidents.length} ${type} incidents sent successfully` } });
+      reply.code(200).send({
+        success: true,
+        data: {
+          message: `Report for ${incidents.length} ${type} incidents sent successfully`,
+        },
+      });
     } else {
       const rows = incidents.map((i) => [
         sanitizeCsv(i.referenceNumber),
@@ -733,7 +1072,10 @@ export const ExportController = {
         sanitizeCsv(i.createdAt.toISOString().split("T")[0]),
       ]);
 
-      const csv = [INCIDENT_CSV_HEADERS.join(","), ...rows.map((r) => r.join(","))].join("\n");
+      const csv = [
+        INCIDENT_CSV_HEADERS.join(","),
+        ...rows.map((r) => r.join(",")),
+      ].join("\n");
 
       const result = await sendMail({
         to: email,
@@ -743,29 +1085,51 @@ export const ExportController = {
           incidentAddress: `${incidents.length} incidents`,
           incidentType: type,
         },
-        attachments: [{ filename: `${type}-incidents.csv`, content: csv }],
+        attachments: [
+          {
+            filename: `${type}-incidents.csv`,
+            content: csv,
+            applicationType: "application/csv",
+          },
+        ],
       });
 
       if (result.error) {
-        reply.code(500).send({ success: false, error: { code: "EMAIL_FAILED", message: "Failed to send email" } });
+        reply.code(500).send({
+          success: false,
+          error: { code: "EMAIL_FAILED", message: "Failed to send email" },
+        });
         return;
       }
 
       await AuditLogService.create({
-          entityType: "incident",
-          entityId: "batch",
-          action: "report_batch_email_sent",
-          newValues: JSON.stringify({ recipient: email, type, format, count: incidents.length }),
-          performedBy: request.user!.userId,
-        });
+        entityType: "incident",
+        entityId: "batch",
+        action: "report_batch_email_sent",
+        newValues: JSON.stringify({
+          recipient: email,
+          type,
+          format,
+          count: incidents.length,
+        }),
+        performedBy: request.user!.userId,
+      });
 
-      reply.code(200).send({ success: true, data: { message: `Report for ${incidents.length} ${type} incidents sent successfully` } });
+      reply.code(200).send({
+        success: true,
+        data: {
+          message: `Report for ${incidents.length} ${type} incidents sent successfully`,
+        },
+      });
     }
   },
 
   /** Email an incident report as a CSV or PDF attachment to a given email address. */
   async email(request: FastifyRequest, reply: FastifyReply) {
-    await SubscriptionService.requireFeature(request.user!.companyId, "export_csv_pdf");
+    await SubscriptionService.requireFeature(
+      request.user!.companyId,
+      "export_csv_pdf",
+    );
 
     const parsed = emailReportSchema.safeParse(request.body);
     if (!parsed.success)
@@ -778,13 +1142,18 @@ export const ExportController = {
     });
 
     if (!incident) {
-      reply.code(404).send({ success: false, error: { code: "NOT_FOUND", message: "Incident not found" } });
+      reply.code(404).send({
+        success: false,
+        error: { code: "NOT_FOUND", message: "Incident not found" },
+      });
       return;
     }
 
     const incidentForExport = incident as IncidentForExport;
 
-    const company = await prisma.company.findUnique({ where: { id: request.user!.companyId! } });
+    const company = await prisma.company.findUnique({
+      where: { id: request.user!.companyId! },
+    });
     const companyName = company?.name || "SecReports";
 
     if (format === "pdf") {
@@ -794,26 +1163,38 @@ export const ExportController = {
         subject: "report",
         data: {
           companyName,
-          incidentAddress: incident.propertyAddress || incident.location || "N/A",
+          incidentAddress:
+            incident.propertyAddress || incident.location || "N/A",
           incidentType: incident.type || "N/A",
         },
-        attachments: [{ filename: `incident-${incidentId}.pdf`, content: pdfBuffer }],
+        attachments: [
+          {
+            filename: `incident-${incidentId}.pdf`,
+            content: pdfBuffer,
+            applicationType: "application/pdf",
+          },
+        ],
       });
 
       if (result.error) {
-        reply.code(500).send({ success: false, error: { code: "EMAIL_FAILED", message: "Failed to send email" } });
+        reply.code(500).send({
+          success: false,
+          error: { code: "EMAIL_FAILED", message: "Failed to send email" },
+        });
         return;
       }
 
       await AuditLogService.create({
-          entityType: "incident",
-          entityId: incidentId,
-          action: "report_email_sent",
-          newValues: JSON.stringify({ recipient: email, format }),
-          performedBy: request.user!.userId,
-        });
+        entityType: "incident",
+        entityId: incidentId,
+        action: "report_email_sent",
+        newValues: JSON.stringify({ recipient: email, format }),
+        performedBy: request.user!.userId,
+      });
 
-      reply.code(200).send({ success: true, data: { message: "Report sent successfully" } });
+      reply
+        .code(200)
+        .send({ success: true, data: { message: "Report sent successfully" } });
     } else {
       const row = [
         sanitizeCsv(incident.referenceNumber),
@@ -835,26 +1216,38 @@ export const ExportController = {
         subject: "report",
         data: {
           companyName,
-          incidentAddress: incident.propertyAddress || incident.location || "N/A",
+          incidentAddress:
+            incident.propertyAddress || incident.location || "N/A",
           incidentType: incident.type || "N/A",
         },
-        attachments: [{ filename: `incident-${incidentId}.csv`, content: csv }],
+        attachments: [
+          {
+            filename: `incident-${incidentId}.csv`,
+            content: csv,
+            applicationType: "application/csv",
+          },
+        ],
       });
 
       if (result.error) {
-        reply.code(500).send({ success: false, error: { code: "EMAIL_FAILED", message: "Failed to send email" } });
+        reply.code(500).send({
+          success: false,
+          error: { code: "EMAIL_FAILED", message: "Failed to send email" },
+        });
         return;
       }
 
       await AuditLogService.create({
-          entityType: "incident",
-          entityId: incidentId,
-          action: "report_email_sent",
-          newValues: JSON.stringify({ recipient: email, format }),
-          performedBy: request.user!.userId,
-        });
+        entityType: "incident",
+        entityId: incidentId,
+        action: "report_email_sent",
+        newValues: JSON.stringify({ recipient: email, format }),
+        performedBy: request.user!.userId,
+      });
 
-      reply.code(200).send({ success: true, data: { message: "Report sent successfully" } });
+      reply
+        .code(200)
+        .send({ success: true, data: { message: "Report sent successfully" } });
     }
   },
 };
