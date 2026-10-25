@@ -21,7 +21,8 @@ const COLORS = {
 
 function newDoc(): PDFKit.PDFDocument {
   const doc = new PDFDocument({ margin: 50, size: "A4" });
-  const paint = () => doc.rect(0, 0, doc.page.width, doc.page.height).fill(COLORS.page);
+  const paint = () =>
+    doc.rect(0, 0, doc.page.width, doc.page.height).fill(COLORS.page);
   paint();
   doc.on("pageAdded", paint);
   return doc;
@@ -38,7 +39,11 @@ function drawHeader(doc: PDFKit.PDFDocument): number {
     .fillColor(COLORS.muted)
     .fontSize(9)
     .font("Helvetica")
-    .text("INCIDENT MANAGEMENT PLATFORM", 50, 82, { width: 495, align: "center", characterSpacing: 1.2 });
+    .text("INCIDENT MANAGEMENT PLATFORM", 50, 82, {
+      width: 495,
+      align: "center",
+      characterSpacing: 1.2,
+    });
   doc.rect(50, 104, 495, 4).fill(COLORS.border);
   doc.fillColor(COLORS.dark);
   return 130;
@@ -51,9 +56,19 @@ function drawFooter(doc: PDFKit.PDFDocument) {
     .font("Helvetica")
     .fontSize(8)
     .fillColor(COLORS.muted)
-    .text(`© ${new Date().getFullYear()} SecReports. All rights reserved.`, 50, y + 10, { width: 495, align: "center" })
+    .text(
+      `© ${new Date().getFullYear()} SecReports. All rights reserved.`,
+      50,
+      y + 10,
+      { width: 495, align: "center" },
+    )
     .fillColor(COLORS.faint)
-    .text("This is an automated notification. Please do not reply directly.", 50, y + 22, { width: 495, align: "center" });
+    .text(
+      "This is an automated notification. Please do not reply directly.",
+      50,
+      y + 22,
+      { width: 495, align: "center" },
+    );
 }
 
 function formatDate(d: Date | string) {
@@ -67,7 +82,10 @@ function formatDate(d: Date | string) {
   });
 }
 
-async function generateAuditLogsPdf(companyName: string, entries: any[]): Promise<Buffer> {
+async function generateAuditLogsPdf(
+  companyName: string,
+  entries: any[],
+): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = newDoc();
     const chunks: Buffer[] = [];
@@ -78,11 +96,28 @@ async function generateAuditLogsPdf(companyName: string, entries: any[]): Promis
 
     let y = drawHeader(doc) + 10;
 
-    doc.fontSize(16).font("Helvetica-Bold").fillColor(COLORS.white).text("Audit Log Export", 50, y, { width: 495, align: "center" });
+    doc
+      .fontSize(16)
+      .font("Helvetica-Bold")
+      .fillColor(COLORS.white)
+      .text("Audit Log Export", 50, y, { width: 495, align: "center" });
     y += 22;
-    doc.fontSize(9).font("Helvetica").fillColor(COLORS.muted).text(companyName, 50, y, { width: 495, align: "center" });
+    doc
+      .fontSize(9)
+      .font("Helvetica")
+      .fillColor(COLORS.muted)
+      .text(companyName, 50, y, { width: 495, align: "center" });
     y += 16;
-    doc.fontSize(8).font("Helvetica").fillColor(COLORS.faint).text(`Generated: ${new Date().toISOString()} | Entries: ${entries.length}`, 50, y, { width: 495, align: "center" });
+    doc
+      .fontSize(8)
+      .font("Helvetica")
+      .fillColor(COLORS.faint)
+      .text(
+        `Generated: ${new Date().toISOString()} | Entries: ${entries.length}`,
+        50,
+        y,
+        { width: 495, align: "center" },
+      );
     y += 30;
 
     doc.fontSize(8).font("Helvetica-Bold").fillColor(COLORS.white);
@@ -118,8 +153,12 @@ async function generateAuditLogsPdf(companyName: string, entries: any[]): Promis
 
       doc.fontSize(7).fillColor(COLORS.faint);
       doc.text(formatDate(e.createdAt), 50, y, { width: 75 });
-      doc.text((e.performedByUser?.name || "").substring(0, 28), 130, y, { width: 95 });
-      doc.text((e.performedByUser?.email || "").substring(0, 32), 230, y, { width: 95 });
+      doc.text((e.performedByUser?.name || "").substring(0, 28), 130, y, {
+        width: 95,
+      });
+      doc.text((e.performedByUser?.email || "").substring(0, 32), 230, y, {
+        width: 95,
+      });
       doc.text((e.action || "").substring(0, 20), 330, y, { width: 65 });
       doc.text((e.entityType || "").substring(0, 18), 400, y, { width: 65 });
       doc.text((e.ipAddress || "").substring(0, 20), 470, y, { width: 75 });
@@ -137,7 +176,8 @@ export const AuditLogController = {
       request.query as Record<string, string | undefined>;
 
     const parsed = paginationSchema.safeParse(request.query);
-    if (!parsed.success) throw new ValidationError("Invalid query", parsed.error.flatten());
+    if (!parsed.success)
+      throw new ValidationError("Invalid query", parsed.error.flatten());
     const { page, perPage } = parsed.data;
 
     const data = await AuditLogService.list({
@@ -160,7 +200,8 @@ export const AuditLogController = {
       request.query as Record<string, string | undefined>;
 
     const parsed = paginationSchema.safeParse(request.query);
-    if (!parsed.success) throw new ValidationError("Invalid query", parsed.error.flatten());
+    if (!parsed.success)
+      throw new ValidationError("Invalid query", parsed.error.flatten());
     const { page, perPage } = parsed.data;
 
     const data = await AuditLogService.list({
@@ -180,17 +221,24 @@ export const AuditLogController = {
   /** Export audit logs for a specific company to superadmin and the client. */
   async exportCompany(request: FastifyRequest, reply: FastifyReply) {
     const { companyId } = request.params as { companyId?: string };
-    
+
     // If no companyId provided or empty, export all logs
     if (!companyId || companyId === "all") {
       const { entries } = await AuditLogService.exportAll();
-      const companies = await prisma.company.findMany({ select: { email: true, name: true } });
+      const companies = await prisma.company.findMany({
+        select: { email: true, name: true },
+      });
       const superadmins = await prisma.user.findMany({
         where: { role: "superadmin", status: "active" },
         select: { email: true },
       });
       const recipients = Array.from(
-        new Set([...companies.map((c) => c.email).filter(Boolean), ...superadmins.map((u) => u.email)].filter(Boolean)),
+        new Set(
+          [
+            ...companies.map((c) => c.email).filter(Boolean),
+            ...superadmins.map((u) => u.email),
+          ].filter(Boolean),
+        ),
       ) as string[];
 
       const pdf = await generateAuditLogsPdf("All Companies", entries);
@@ -201,13 +249,21 @@ export const AuditLogController = {
           subject: "audit_export",
           data: { companyName: "All Companies", entryCount: entries.length },
           from: ADMIN_FROM_EMAIL,
-          attachments: [{ filename, content: pdf, contentType: "application/pdf" }],
+          attachments: [
+            { filename, content: pdf, applicationType: "application/pdf" },
+          ],
         });
       }
-      return reply.code(200).send({ success: true, data: { emailedTo: recipients, count: entries.length } });
+      return reply
+        .code(200)
+        .send({
+          success: true,
+          data: { emailedTo: recipients, count: entries.length },
+        });
     }
 
-    const { company, entries } = await AuditLogService.exportForCompany(companyId);
+    const { company, entries } =
+      await AuditLogService.exportForCompany(companyId);
     if (!company) throw new ValidationError("Company not found");
 
     const superadmins = await prisma.user.findMany({
@@ -215,7 +271,9 @@ export const AuditLogController = {
       select: { email: true },
     });
     const recipients = Array.from(
-      new Set([company.email, ...superadmins.map((u) => u.email)].filter(Boolean)),
+      new Set(
+        [company.email, ...superadmins.map((u) => u.email)].filter(Boolean),
+      ),
     ) as string[];
 
     const pdf = await generateAuditLogsPdf(company.name, entries);
@@ -226,10 +284,17 @@ export const AuditLogController = {
         subject: "audit_export",
         data: { companyName: company.name, entryCount: entries.length },
         from: ADMIN_FROM_EMAIL,
-        attachments: [{ filename, content: pdf, contentType: "application/pdf" }],
+        attachments: [
+          { filename, content: pdf, applicationType: "application/pdf" },
+        ],
       });
     }
 
-    reply.code(200).send({ success: true, data: { emailedTo: recipients, count: entries.length } });
+    reply
+      .code(200)
+      .send({
+        success: true,
+        data: { emailedTo: recipients, count: entries.length },
+      });
   },
 };
