@@ -45,7 +45,11 @@ async function sendEmail({
   to: string[];
   subject: string;
   html: string;
-  attachments?: { filename: string; content: string | Buffer }[];
+  attachments?: {
+    filename: string;
+    content: string | Buffer;
+    contentType?: string;
+  }[];
   replyTo?: string;
 }) {
   try {
@@ -87,11 +91,12 @@ async function sendEmail({
       html,
       replyTo,
       // Resend takes base64 content only; Buffer attachments must be encoded.
-      attachments: attachments?.map(({ filename, content }) => ({
+      attachments: attachments?.map(({ filename, content, contentType }) => ({
         filename,
         content: Buffer.isBuffer(content)
           ? content.toString("base64")
           : content,
+        contentType,
       })),
     });
 
@@ -110,7 +115,7 @@ async function sendEmail({
 interface Attachment {
   filename: string;
   content: string | Buffer;
-  applicationType: string;
+  contentType?: string;
 }
 
 /** Parameters for sending a transactional email. */

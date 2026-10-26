@@ -41,21 +41,34 @@ describe("email.service Resend transport", () => {
     await sendMail({
       to: "someone@example.com",
       subject: "report",
-      data: { companyName: "Acme", incidentAddress: "Main St", incidentType: "theft" },
-      attachments: [{ filename: "theft.csv", content }],
+      data: {
+        companyName: "Acme",
+        incidentAddress: "Main St",
+        incidentType: "theft",
+      },
+      attachments: [
+        { filename: "theft.csv", content, contentType: "text/csv" },
+      ],
     });
 
     expect(send).toHaveBeenCalledWith(
       expect.objectContaining({
         attachments: [
-          { filename: "theft.csv", content: content.toString("base64") },
+          {
+            filename: "theft.csv",
+            content: content.toString("base64"),
+            contentType: "text/csv",
+          },
         ],
       }),
     );
   });
 
   it("returns the error Resend resolves with instead of throwing", async () => {
-    const apiError = { message: "Rate limit exceeded", name: "validation_error" };
+    const apiError = {
+      message: "Rate limit exceeded",
+      name: "validation_error",
+    };
     send.mockResolvedValue({ data: null, error: apiError });
 
     const result = await sendMail({

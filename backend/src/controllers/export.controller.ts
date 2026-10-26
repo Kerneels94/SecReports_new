@@ -1026,7 +1026,7 @@ export const ExportController = {
           {
             filename: `${type}-incidents.pdf`,
             content: pdfBuffer,
-            applicationType: "application/pdf",
+            contentType: "application/pdf",
           },
         ],
       });
@@ -1089,7 +1089,7 @@ export const ExportController = {
           {
             filename: `${type}-incidents.csv`,
             content: csv,
-            applicationType: "application/csv",
+            contentType: "application/csv",
           },
         ],
       });
@@ -1171,7 +1171,7 @@ export const ExportController = {
           {
             filename: `incident-${incidentId}.pdf`,
             content: pdfBuffer,
-            applicationType: "application/pdf",
+            contentType: "application/pdf",
           },
         ],
       });
@@ -1224,7 +1224,7 @@ export const ExportController = {
           {
             filename: `incident-${incidentId}.csv`,
             content: csv,
-            applicationType: "application/csv",
+            contentType: "application/csv",
           },
         ],
       });
