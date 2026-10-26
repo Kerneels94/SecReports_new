@@ -218,27 +218,19 @@ export const AuditLogController = {
     reply.code(200).send({ success: true, data });
   },
 
-  /** Export audit logs for a specific company to superadmin and the client. */
+  /** Export audit logs for a specific company to superadmins only. */
   async exportCompany(request: FastifyRequest, reply: FastifyReply) {
     const { companyId } = request.params as { companyId?: string };
 
     // If no companyId provided or empty, export all logs
     if (!companyId || companyId === "all") {
       const { entries } = await AuditLogService.exportAll();
-      const companies = await prisma.company.findMany({
-        select: { email: true, name: true },
-      });
       const superadmins = await prisma.user.findMany({
         where: { role: "superadmin", status: "active" },
         select: { email: true },
       });
       const recipients = Array.from(
-        new Set(
-          [
-            ...companies.map((c) => c.email).filter(Boolean),
-            ...superadmins.map((u) => u.email),
-          ].filter(Boolean),
-        ),
+        new Set(superadmins.map((u) => u.email).filter(Boolean)),
       ) as string[];
 
       const pdf = await generateAuditLogsPdf("All Companies", entries);
@@ -271,9 +263,7 @@ export const AuditLogController = {
       select: { email: true },
     });
     const recipients = Array.from(
-      new Set(
-        [company.email, ...superadmins.map((u) => u.email)].filter(Boolean),
-      ),
+      new Set(superadmins.map((u) => u.email).filter(Boolean)),
     ) as string[];
 
     const pdf = await generateAuditLogsPdf(company.name, entries);
