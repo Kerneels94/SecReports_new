@@ -19,7 +19,7 @@ export default function auditExportTemplate({
           `Please find attached the audit log export for <strong>${escapeHtml(companyName)}</strong>.`,
         )}
         ${paragraph(`Total entries: <strong>${entryCount}</strong>.`)}
-        ${mutedNote("The full log is attached as a CSV file.")}
+        ${mutedNote("The full log is attached as a PDF file.")}
       `;
 
   return emailLayout({ title: "Audit Log Export", body });
