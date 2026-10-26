@@ -115,6 +115,7 @@ describe("ApiClient", () => {
       expect(mockFetch).toHaveBeenCalledTimes(3);
       expect(mockFetch.mock.calls[1][0]).toContain("/auth/refresh");
       expect(mockFetch.mock.calls[1][1].body).toBeUndefined();
+      expect(mockFetch.mock.calls[1][1].headers).toBeUndefined();
     });
 
     it("routes refresh through navigator.locks when available", async () => {
