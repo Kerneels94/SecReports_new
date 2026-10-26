@@ -250,7 +250,7 @@ export const AuditLogController = {
           data: { companyName: "All Companies", entryCount: entries.length },
           from: ADMIN_FROM_EMAIL,
           attachments: [
-            { filename, content: pdf, applicationType: "application/pdf" },
+            { filename, content: pdf, contentType: "application/pdf" },
           ],
         });
       }
@@ -285,7 +285,7 @@ export const AuditLogController = {
         data: { companyName: company.name, entryCount: entries.length },
         from: ADMIN_FROM_EMAIL,
         attachments: [
-          { filename, content: pdf, applicationType: "application/pdf" },
+          { filename, content: pdf, contentType: "application/pdf" },
         ],
       });
     }
