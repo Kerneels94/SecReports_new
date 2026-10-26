@@ -5,18 +5,19 @@ import { paginationSchema } from "../validators/incident.schema";
 import { ValidationError } from "../lib/errors";
 import { ADMIN_FROM_EMAIL, sendMail } from "../services/email.service";
 import { prisma } from "../lib/db";
+import { BRAND } from "../templates/layout";
 
 const COLORS = {
-  gray: "#71717a",
-  dark: "#09090b",
-  light: "#fafafa",
-  border: "#e4e4e7",
-  muted: "#a1a1aa",
-  faint: "#d4d4d8",
+  gray: BRAND.label,
+  dark: BRAND.heading,
+  light: BRAND.surface,
+  border: BRAND.border,
+  muted: BRAND.muted,
+  faint: BRAND.faint,
   white: "#ffffff",
-  page: "#18181b",
-  accent: "#22c55e",
-  success: "#22c55e",
+  page: BRAND.background,
+  accent: BRAND.accent,
+  success: BRAND.success,
 };
 
 function newDoc(): PDFKit.PDFDocument {
