@@ -113,29 +113,36 @@ async function persistRefreshToken(
 
 /** Checks whether the account is currently locked and increments on failure. */
 async function handleLoginFailure(userId: string): Promise<never> {
-  const user = await prisma.user.update({
-    where: { id: userId },
-    data: { loginAttempts: { increment: 1 } },
-  });
+  const result = await prisma.$transaction(
+    async (tx) => {
+      const user = await tx.user.update({
+        where: { id: userId },
+        data: { loginAttempts: { increment: 1 } },
+      });
 
-  if (user.loginAttempts >= MAX_LOGIN_ATTEMPTS) {
-    const duration = lockoutDuration(user.lockoutCount);
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        loginAttempts: 0,
-        lockoutCount: { increment: 1 },
-        lockedUntil: new Date(Date.now() + duration),
-      },
-    });
-  }
+      if (user.loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+        const duration = lockoutDuration(user.lockoutCount);
+        const locked = await tx.user.update({
+          where: { id: userId },
+          data: {
+            loginAttempts: 0,
+            lockoutCount: { increment: 1 },
+            lockedUntil: new Date(Date.now() + duration),
+          },
+        });
+        return { user: locked, attempts: 0 };
+      }
+      return { user, attempts: user.loginAttempts };
+    },
+    { timeout: 10000, maxWait: 5000 },
+  );
 
   await createAuditLog({
     entityType: "user",
     entityId: userId,
     action: "login_failed",
     performedBy: userId,
-    newValues: JSON.stringify({ loginAttempts: user.loginAttempts }),
+    newValues: JSON.stringify({ loginAttempts: result.attempts }),
   });
 
   throw new UnauthorizedError("Invalid email or password");
