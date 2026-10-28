@@ -124,7 +124,7 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
             </svg>
           </button>
         </div>
-        <nav className="flex flex-col gap-0.5 p-3 flex-1 overflow-y-auto">
+        <nav className="flex flex-col gap-0.5 p-3 flex-1 overflow-y-auto text-[18px]">
           <div className="px-3 py-1.5">
             <p className="text-[10px] text-text-secondary/50 tracking-wider uppercase font-semibold">
               Incidents

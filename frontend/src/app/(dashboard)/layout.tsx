@@ -55,7 +55,7 @@ function DashboardShell({ children }: { children: ReactNode }) {
       <div className="relative flex flex-1 flex-col lg:pl-64">
         <MobileHeader user={user} onToggleSidebar={() => setSidebarOpen((prev) => !prev)} onLogout={logout} />
         <Header user={user} onLogout={logout} />
-        <main className="flex-1 animate-fade-in p-4 pt-6 lg:p-8">
+        <main className="flex-1 animate-fade-in p-4 pt-6 lg:p-8 text-[16px]">
           {(() => {
             const permission = requiredPermission(pathname);
             return permission && !user.permissions?.includes(permission) ? (
