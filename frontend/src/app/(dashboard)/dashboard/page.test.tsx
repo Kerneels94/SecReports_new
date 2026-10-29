@@ -71,6 +71,20 @@ describe("DashboardPage", () => {
     expect(document.querySelector(".animate-spin")).toBeInTheDocument();
   });
 
+  it("shows zinc skeleton blocks for response cards while they load", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockMonthlyResponse.mockReturnValue(new Promise(() => {}));
+    mockResponseByArea.mockReturnValue(new Promise(() => {}));
+    render(<DashboardPage />);
+
+    expect(
+      await screen.findByText("Loading area response data"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Loading response time data")).toBeInTheDocument();
+    expect(document.querySelectorAll(".bg-zinc-600").length).toBeGreaterThan(0);
+    expect(screen.queryByText("No area response data yet.")).not.toBeInTheDocument();
+  });
+
   it("renders stat cards with correct labels", async () => {
     mockSummary.mockResolvedValue({ data: mockData });
     render(<DashboardPage />);
@@ -158,6 +172,29 @@ describe("DashboardPage", () => {
     expect(screen.getByText("North CBD")).toBeInTheDocument();
     expect(screen.getByText("30m 0s")).toBeInTheDocument();
     expect(screen.getByText("2 incidents")).toBeInTheDocument();
+  });
+
+  it("paginates the response time by area list", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockResponseByArea.mockResolvedValue({
+      data: Array.from({ length: 25 }, (_, i) => ({
+        area: `Area ${String(i + 1).padStart(2, "0")}`,
+        avgMs: 60000,
+        count: 1,
+      })),
+    });
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Page 1 of 3")).toBeInTheDocument();
+    });
+    expect(screen.getByText("Area 01")).toBeInTheDocument();
+    expect(screen.queryByText("Area 11")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByText("Next"));
+
+    expect(screen.getByText("Area 11")).toBeInTheDocument();
+    expect(screen.queryByText("Area 01")).not.toBeInTheDocument();
   });
 
   it("shows a sub-minute area average as seconds rather than zero", async () => {

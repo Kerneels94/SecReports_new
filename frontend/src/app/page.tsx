@@ -2,8 +2,6 @@
  * Landing / home page — marketing page with features, pricing tiers, and a hero section.
  * @route /
  */
-"use client";
-
 import Link from "next/link";
 import { Header } from "@/components/header/Header";
 import { Footer } from "@/components/footer/Footer";

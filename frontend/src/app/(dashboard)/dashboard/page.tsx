@@ -17,6 +17,9 @@ import type { Incident, TrialStatus } from "@/types";
 /** Periods the avg response time report can be downloaded over. */
 const RESPONSE_PERIODS: ResponsePeriod[] = [3, 6, 9, 12];
 
+/** Rows per page in the Response Time by Area card. */
+const AREA_PAGE_SIZE = 10;
+
 const monthNames = [
   "Jan",
   "Feb",
@@ -74,10 +77,12 @@ export default function DashboardPage() {
   >([]);
   const [responseData, setResponseData] = useState<MonthlyResponseStat[]>([]);
   const [areaData, setAreaData] = useState<AreaResponseStat[]>([]);
+  const [areaPage, setAreaPage] = useState(1);
   const [chartMode, setChartMode] = useState<"monthly" | "yearly">("monthly");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [responseError, setResponseError] = useState(false);
+  const [responseLoading, setResponseLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [downloadingPeriod, setDownloadingPeriod] = useState<ResponsePeriod | null>(null);
   // Download failures are reported next to the buttons, not via `error`: that one replaces the
@@ -107,6 +112,7 @@ export default function DashboardPage() {
 
   const fetchResponseMetrics = useCallback(async () => {
     setResponseError(false);
+    setResponseLoading(true);
     try {
       const [responseRes, areaRes] = await Promise.all([
         reportService.monthlyResponse(),
@@ -114,8 +120,11 @@ export default function DashboardPage() {
       ]);
       setResponseData(responseRes.data);
       setAreaData(areaRes.data ?? []);
+      setAreaPage(1);
     } catch {
       setResponseError(true);
+    } finally {
+      setResponseLoading(false);
     }
   }, []);
 
@@ -127,6 +136,16 @@ export default function DashboardPage() {
   const chartData = useMemo(() => {
     return chartMode === "yearly" ? aggregateYearly(monthlyData) : monthlyData;
   }, [monthlyData, chartMode]);
+
+  const areaTotalPages = Math.max(
+    1,
+    Math.ceil(areaData.length / AREA_PAGE_SIZE),
+  );
+  const areaPageRows = areaData.slice(
+    (areaPage - 1) * AREA_PAGE_SIZE,
+    areaPage * AREA_PAGE_SIZE,
+  );
+  const maxAreaAvgMs = areaData[0]?.avgMs || 1;
 
   const latestMonth = useMemo(() => {
     const last = monthlyData[monthlyData.length - 1];
@@ -182,7 +201,7 @@ export default function DashboardPage() {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
           <p className="text-lg text-text-secondary">Loading dashboard...</p>
         </div>
       </div>
@@ -438,7 +457,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle>Avg Response Time</CardTitle>
@@ -466,8 +485,18 @@ export default function DashboardPage() {
               </p>
             )}
           </CardHeader>
-          <CardContent>
-            {responseError ? (
+          <CardContent className="flex-1 min-h-0">
+            {responseLoading ? (
+              <>
+                <p className="sr-only" role="status">
+                  Loading response time data
+                </p>
+                <div
+                  className="h-full min-h-64 animate-pulse rounded-lg bg-zinc-600"
+                  aria-hidden="true"
+                />
+              </>
+            ) : responseError ? (
               <div className="flex flex-col items-center gap-3 py-8">
                 <p className="text-lg text-danger">
                   Failed to load response time data
@@ -495,7 +524,26 @@ export default function DashboardPage() {
             <CardTitle>Response Time by Area</CardTitle>
           </CardHeader>
           <CardContent>
-            {responseError ? (
+            {responseLoading ? (
+              <>
+                <p className="sr-only" role="status">
+                  Loading area response data
+                </p>
+                <div
+                  className="flex h-full flex-col justify-center gap-4"
+                  aria-hidden="true"
+                >
+                  {Array.from({ length: AREA_PAGE_SIZE }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-4 py-2.5">
+                      <div className="h-5 w-32 shrink-0 animate-pulse rounded bg-zinc-600" />
+                      <div className="h-2 min-w-0 flex-1 max-w-48 animate-pulse rounded-full bg-zinc-600" />
+                      <div className="ml-auto h-5 w-20 shrink-0 animate-pulse rounded bg-zinc-600" />
+                      <div className="h-5 w-28 shrink-0 animate-pulse rounded bg-zinc-600" />
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : responseError ? (
               <div className="flex h-full items-center justify-center py-8">
                 <p className="text-lg text-danger">
                   Failed to load response time data
@@ -506,32 +554,62 @@ export default function DashboardPage() {
                 No area response data yet.
               </p>
             ) : (
-              <div className="flex h-full flex-col justify-center divide-y divide-border-light/50">
-                {areaData.map((area) => {
-                  const max = areaData[0]?.avgMs || 1;
-                  return (
-                    <div
-                      key={area.area}
-                      className="flex items-center gap-4 py-2.5"
-                    >
-                      <span className="w-32 shrink-0 truncate text-lg text-text-secondary">
-                        {area.area}
-                      </span>
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-secondary">
-                        <div
-                          className="h-full rounded-full bg-warning/80"
-                          style={{ width: `${(area.avgMs / max) * 100}%` }}
-                        />
+              <div className="flex h-full flex-col justify-center gap-4">
+                <div className="divide-y divide-border-light/50">
+                  {areaPageRows.map((area) => {
+                    return (
+                      <div
+                        key={area.area}
+                        className="flex items-center gap-4 py-2.5"
+                      >
+                        <span className="w-32 shrink-0 truncate text-lg text-text-secondary">
+                          {area.area}
+                        </span>
+                        <div className="h-2 min-w-0 flex-1 max-w-48 overflow-hidden rounded-full bg-surface-secondary">
+                          <div
+                            className="h-full rounded-full bg-warning/80"
+                            style={{
+                              width: `${(area.avgMs / maxAreaAvgMs) * 100}%`,
+                            }}
+                          />
+                        </div>
+                        <div className="ml-auto flex shrink-0 items-center gap-4">
+                          <span className="w-20 whitespace-nowrap text-right text-lg font-medium text-text">
+                            {formatDurationMs(area.avgMs)}
+                          </span>
+                          <span className="w-28 whitespace-nowrap text-right text-lg text-text-secondary">
+                            {area.count} incidents
+                          </span>
+                        </div>
                       </div>
-                      <span className="w-16 shrink-0 text-right text-lg font-medium text-text">
-                        {formatDurationMs(area.avgMs)}
-                      </span>
-                      <span className="w-16 shrink-0 text-right text-lg text-text-secondary">
-                        {area.count} incidents
-                      </span>
+                    );
+                  })}
+                </div>
+                {areaTotalPages > 1 && (
+                  <div className="flex items-center justify-between">
+                    <p className="text-lg text-text-secondary">
+                      Page {areaPage} of {areaTotalPages}
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        disabled={areaPage <= 1}
+                        onClick={() => setAreaPage((p) => Math.max(1, p - 1))}
+                      >
+                        Previous
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        disabled={areaPage >= areaTotalPages}
+                        onClick={() => setAreaPage((p) => p + 1)}
+                      >
+                        Next
+                      </Button>
                     </div>
-                  );
-                })}
+                  </div>
+                )}
               </div>
             )}
           </CardContent>

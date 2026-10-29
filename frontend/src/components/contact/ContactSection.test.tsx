@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import ContactSection from "./ContactSection";
+import ContactSection, { validateContact } from "./ContactSection";
 import { contactService } from "@/services";
 
 jest.mock("@/services", () => ({
@@ -30,6 +30,40 @@ const fillForm = async (
 
 beforeEach(() => {
   jest.clearAllMocks();
+});
+
+describe("validateContact", () => {
+  const valid = {
+    name: "Thabo Mokoena",
+    email: "thabo@acme.co.za",
+    company: "Acme Security",
+    message: "Pricing for 20 users please.",
+  };
+
+  it("accepts a valid form", () => {
+    expect(validateContact(valid)).toEqual({});
+  });
+
+  it("requires a name and message and a valid email", () => {
+    expect(validateContact({ ...valid, name: " ", email: "nope", message: "" }))
+      .toEqual({
+        name: "Name is required",
+        email: "Invalid email address",
+        message: "Message is required",
+      });
+  });
+
+  it("rejects over-long name, company, and message", () => {
+    const errors = validateContact({
+      ...valid,
+      name: "a".repeat(256),
+      company: "a".repeat(256),
+      message: "a".repeat(5001),
+    });
+    expect(errors.name).toBe("Name is too long");
+    expect(errors.company).toBe("Company name is too long");
+    expect(errors.message).toBe("Message must be under 5000 characters");
+  });
 });
 
 describe("ContactSection", () => {

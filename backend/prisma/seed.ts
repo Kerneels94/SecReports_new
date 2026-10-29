@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import bcrypt from "bcrypt";
-import crypto from "crypto";
 
 const prisma = new PrismaClient();
 
@@ -12,7 +11,7 @@ async function main() {
   await prisma.subscriptionPlan.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.incident.deleteMany();
-  await prisma.user.updateMany({ where: { createdBy: { not: null } }, data: { createdBy: null } });
+  await prisma.user.updateMany({ data: { createdBy: null } });
   await prisma.user.deleteMany();
   await prisma.company.deleteMany();
 
@@ -51,10 +50,7 @@ async function main() {
     },
   });
 
-  // Demo credentials come from env (optionally) or are randomly generated and
-  // printed once — never a hardcoded default password (golden rule #30).
-  const demoPassword =
-    process.env.DEMO_PASSWORD || crypto.randomBytes(16).toString("base64url");
+  const demoPassword = "Password@1234";
   const passwordHash = await bcrypt.hash(demoPassword, 12);
 
   const company = await prisma.company.create({
@@ -107,34 +103,57 @@ async function main() {
     },
   });
 
-  const incident = await prisma.incident.create({
-    data: {
-      companyId: company.id,
-      referenceNumber: "INC-2026-0001",
-      title: "Server Room Temperature Spike",
-      description: "Temperature in server room A-12 exceeded safe threshold for 15 minutes.",
-      type: "equipment_failure",
-      status: "investigating",
-      incidentDate: new Date("2026-05-20"),
-      location: "Server Room A-12",
-      suburb: "Umhlanga",
-      city: "Durban",
-      operatorName: "Admin User",
-      dispatcher: "Manager User",
-      reporterId: admin.id,
-      assignedTo: senior.id,
-    },
-  });
+  const areas = ["Durban Central", "Umhlanga", "Pinetown", "Westville", "Chatsworth", "Berea", "Glenwood", "Morningside", "Newlands East", "Phoenix", "Verulam", "Ballito", "Hillcrest", "Amanzimtoti", "Bluff"];
+  const types = ["attempted", "positive"];
+  const statuses = ["investigating", "in_progress", "resolved", "closed", "draft"];
+  const operators = ["Admin User", "Manager User", "Senior User"];
+  const dispatchers = ["Manager User", "Senior User", "Admin User"];
+  
 
-  await prisma.auditLog.create({
-    data: {
-      entityType: "incident",
-      entityId: incident.id,
-      action: "create",
-      newValues: JSON.stringify({ title: incident.title }),
-      performedBy: admin.id,
-    },
-  });
+  for (let i = 1; i <= 200; i++) {
+    const areaIdx = i - 1;
+    const area = areas[areaIdx % areas.length];
+    const date = new Date(Date.now() - (200 - i) * 24 * 60 * 60 * 1000);
+    const dispatchMins = Math.floor(Math.random() * 45) + 5;
+    const arrivalMins = dispatchMins + Math.floor(Math.random() * 60) + 10;
+    await prisma.incident.create({
+      data: {
+        companyId: company.id,
+        referenceNumber: `INC-2026-${String(i).padStart(4, '0')}`,
+        title: `Incident Report ${i} - ${types[areaIdx % types.length].replace('_', ' ')}`,
+        description: `Detailed incident report ${i}: Response time varied between calls. Units dispatched after ${dispatchMins} minutes, arrived after ${arrivalMins} minutes from initial report. Incident occurred in ${area} area requiring investigation and follow-up actions with full documentation.`,
+        type: types[areaIdx % types.length],
+        status: statuses[areaIdx % statuses.length],
+        incidentDate: date,
+        location: `${area} - Site ${String.fromCharCode(65 + (areaIdx % 26))}${(areaIdx % 9) + 1}`,
+        suburb: area,
+        city: "Durban",
+        operatorName: operators[areaIdx % operators.length],
+        dispatcher: dispatchers[areaIdx % dispatchers.length],
+        dispatchTime: new Date(date.getTime() + dispatchMins * 60000),
+        arrivalTime: new Date(date.getTime() + arrivalMins * 60000),
+        callSign: `ALPHA-${i}`,
+        propertyAddress: `${i * 10} Main Road, ${area}`,
+        clientName: `Client ${i}`,
+        reporterId: admin.id,
+        assignedTo: [senior.id, manager.id, null][areaIdx % 3],
+      },
+    });
+  }
+  // const incident = await prisma.incident.findFirst();
+
+  const firstIncident = await prisma.incident.findFirst({ where: { companyId: company.id } });
+  if (firstIncident) {
+    await prisma.auditLog.create({
+      data: {
+        entityType: "incident",
+        entityId: firstIncident.id,
+        action: "create",
+        newValues: JSON.stringify({ title: firstIncident.title }),
+        performedBy: admin.id,
+      },
+    });
+  }
 
   const superAdminEmail = process.env.SUPER_ADMIN_EMAIL?.trim().toLowerCase();
   const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;

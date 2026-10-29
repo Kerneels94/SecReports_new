@@ -197,6 +197,24 @@ describe("ExportController.yearlyPdf", () => {
     for (const y of ["2024", "2025", "2026"]) expect(text).toContain(y);
   });
 
+  it("paginates large area tables instead of emitting one page per row", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue(
+      Array.from({ length: 200 }, (_, i) => ({
+        incidentDate: new Date("2026-05-01"),
+        type: "attempted",
+        propertyAddress: `Site ${i}`,
+      })),
+    );
+
+    await ExportController.yearlyPdf(request, reply as any);
+
+    const pdf = reply.send.mock.calls[0][0].toString("latin1");
+    const pages = (pdf.match(/\/Type\s*\/Page(?!s)/g) || []).length;
+    expect(pages).toBeGreaterThan(1);
+    // 200 distinct areas must wrap onto a few pages, not render one page per row.
+    expect(pages).toBeLessThan(40);
+  });
+
   it("keeps every drawn block inside the 50-545 content grid", async () => {
     (prisma.incident.findMany as jest.Mock).mockResolvedValue([
       {
