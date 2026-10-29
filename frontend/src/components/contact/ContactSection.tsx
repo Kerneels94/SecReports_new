@@ -1,60 +1,89 @@
 /**
  * ContactSection — landing-page enquiry form that emails the support inbox.
- * Uses the shared design system (Card, Input, Button) and validates with Zod
- * before submitting through contactService.
+ * Uses the shared design system (Card, Input, Button) and lightweight local
+ * validation so the landing page does not ship react-hook-form or Zod.
  */
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { contactService } from "@/services";
 
-const contactSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
-  email: z.string().email("Invalid email address"),
-  company: z.string().max(255, "Company name is too long").optional(),
-  message: z
-    .string()
-    .min(1, "Message is required")
-    .max(5000, "Message must be under 5000 characters"),
-});
+type ContactValues = {
+  name: string;
+  email: string;
+  company: string;
+  message: string;
+};
 
-type ContactFormData = z.infer<typeof contactSchema>;
+type ContactErrors = Partial<Record<keyof ContactValues, string>>;
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Validates the contact form and returns per-field error messages. */
+export function validateContact(values: ContactValues): ContactErrors {
+  const errors: ContactErrors = {};
+
+  if (!values.name.trim()) errors.name = "Name is required";
+  else if (values.name.length > 255) errors.name = "Name is too long";
+
+  if (!EMAIL_PATTERN.test(values.email)) {
+    errors.email = "Invalid email address";
+  }
+
+  if (values.company.length > 255) {
+    errors.company = "Company name is too long";
+  }
+
+  if (!values.message.trim()) errors.message = "Message is required";
+  else if (values.message.length > 5000) {
+    errors.message = "Message must be under 5000 characters";
+  }
+
+  return errors;
+}
 
 /** Contact form section for the marketing landing page. */
 export default function ContactSection() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<ContactErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<ContactFormData>({
-    resolver: zodResolver(contactSchema),
-  });
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const values: ContactValues = {
+      name: String(data.get("name") ?? ""),
+      email: String(data.get("email") ?? ""),
+      company: String(data.get("company") ?? ""),
+      message: String(data.get("message") ?? ""),
+    };
 
-  const onSubmit = async (data: ContactFormData) => {
+    const nextErrors = validateContact(values);
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
+    setIsSubmitting(true);
     try {
       setError(null);
       await contactService.send({
-        name: data.name,
-        email: data.email,
-        company: data.company || undefined,
-        message: data.message,
+        name: values.name,
+        email: values.email,
+        company: values.company || undefined,
+        message: values.message,
       });
-      reset();
+      form.reset();
       setSent(true);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to send your message",
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -126,7 +155,7 @@ export default function ContactSection() {
                 </div>
               ) : (
                 <form
-                  onSubmit={handleSubmit(onSubmit)}
+                  onSubmit={onSubmit}
                   noValidate
                   className="flex flex-col gap-4"
                 >
@@ -140,22 +169,22 @@ export default function ContactSection() {
                   )}
                   <Input
                     label="Name"
+                    name="name"
                     placeholder="John Doe"
-                    error={errors.name?.message}
-                    {...register("name")}
+                    error={errors.name}
                   />
                   <Input
                     label="Email"
+                    name="email"
                     type="email"
                     placeholder="you@company.co.za"
-                    error={errors.email?.message}
-                    {...register("email")}
+                    error={errors.email}
                   />
                   <Input
                     label="Company"
+                    name="company"
                     placeholder="Your Security Company"
-                    error={errors.company?.message}
-                    {...register("company")}
+                    error={errors.company}
                   />
                   <div className="flex flex-col gap-1.5">
                     <label
@@ -166,6 +195,7 @@ export default function ContactSection() {
                     </label>
                     <textarea
                       id="contact-message"
+                      name="message"
                       rows={5}
                       placeholder="How can we help?"
                       aria-invalid={!!errors.message}
@@ -173,7 +203,6 @@ export default function ContactSection() {
                         errors.message ? "contact-message-error" : undefined
                       }
                       className="w-full resize-y rounded-lg border border-border-light bg-surface px-3 py-2.5 text-sm text-text placeholder:text-text-secondary/60 outline-none transition-all duration-150 focus:ring-2 focus:ring-primary"
-                      {...register("message")}
                     />
                     {errors.message && (
                       <p
@@ -181,7 +210,7 @@ export default function ContactSection() {
                         className="text-sm text-danger"
                         role="alert"
                       >
-                        {errors.message.message}
+                        {errors.message}
                       </p>
                     )}
                   </div>

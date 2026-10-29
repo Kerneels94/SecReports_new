@@ -80,7 +80,7 @@ export function ResponseTimeChart({ data }: { data: { month: string; avgMs: numb
   const series = data.map((d) => ({ month: d.month, avgMinutes: d.avgMs / 60000 }));
 
   return (
-    <div className="h-64">
+    <div className="h-full min-h-64">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={series} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />

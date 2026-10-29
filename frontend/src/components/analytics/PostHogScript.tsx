@@ -8,7 +8,7 @@ export default function PostHogScript() {
   return (
     <Script
       id="posthog"
-      strategy="beforeInteractive"
+      strategy="afterInteractive"
       dangerouslySetInnerHTML={{
         __html: `${POSTHOG_SNIPPET}
 if (typeof window !== 'undefined') {

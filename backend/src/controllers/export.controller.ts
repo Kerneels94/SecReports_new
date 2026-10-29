@@ -394,44 +394,68 @@ function drawTable(
   const totalWidth = cols.reduce((s, c) => s + c.width, 0);
   const headerH = 20;
   const rowH = 18;
-  const tableH = headerH + rows.length * rowH;
-
-  // Panel-style table: fills are clipped to a rounded table outline so the whole
-  // table (not just the header) carries the corner radius.
-  doc.save();
-  doc.roundedRect(x, startY, totalWidth, tableH, RADIUS).clip();
-  doc.rect(x, startY, totalWidth, headerH).fill(COLORS.border);
-  let y = startY + headerH;
-  rows.forEach((r, i) => {
-    if (i % 2 === 1) doc.rect(x, y, totalWidth, rowH).fill(COLORS.light);
-    y += rowH;
+  // Keep rows one line high: a wrapping cell would push PDFKit's text cursor past
+  // the page bottom and silently add an extra page per row.
+  const cellOpts = (width: number) => ({
+    width: width - 12,
+    lineBreak: false,
+    ellipsis: true,
   });
-  doc.restore();
-  doc.roundedRect(x, startY, totalWidth, tableH, RADIUS).stroke(COLORS.border);
+  const pageBottom = doc.page.height - 60;
 
-  let cx = x;
-  cols.forEach((c) => {
-    doc
-      .fillColor(COLORS.white)
-      .fontSize(9)
-      .font("Helvetica-Bold")
-      .text(c.label, cx + 6, startY + 5, { width: c.width - 12 });
-    cx += c.width;
-  });
-  y = startY + headerH;
+  let index = 0;
+  let top = startY;
+  let y = startY;
 
-  rows.forEach((r, i) => {
-    cx = x;
-    r.forEach((cell, j) => {
-      doc
-        .fillColor(COLORS.dark)
-        .fontSize(9)
-        .font("Helvetica")
-        .text(cell, cx + 6, y + 4, { width: cols[j].width - 12 });
-      cx += cols[j].width;
+  // Split the table into page-sized chunks, repeating the header on each page.
+  do {
+    const fit = Math.max(1, Math.floor((pageBottom - top - headerH) / rowH));
+    const chunk = rows.slice(index, index + fit);
+    const tableH = headerH + chunk.length * rowH;
+
+    // Panel-style table: fills are clipped to a rounded table outline so the whole
+    // table (not just the header) carries the corner radius.
+    doc.save();
+    doc.roundedRect(x, top, totalWidth, tableH, RADIUS).clip();
+    doc.rect(x, top, totalWidth, headerH).fill(COLORS.border);
+    let fillY = top + headerH;
+    chunk.forEach((_r, i) => {
+      if (i % 2 === 1) doc.rect(x, fillY, totalWidth, rowH).fill(COLORS.light);
+      fillY += rowH;
     });
-    y += rowH;
-  });
+    doc.restore();
+    doc.roundedRect(x, top, totalWidth, tableH, RADIUS).stroke(COLORS.border);
+
+    let cx = x;
+    cols.forEach((c) => {
+      doc
+        .fillColor(COLORS.white)
+        .fontSize(9)
+        .font("Helvetica-Bold")
+        .text(c.label, cx + 6, top + 5, cellOpts(c.width));
+      cx += c.width;
+    });
+
+    y = top + headerH;
+    chunk.forEach((r) => {
+      cx = x;
+      r.forEach((cell, j) => {
+        doc
+          .fillColor(COLORS.dark)
+          .fontSize(9)
+          .font("Helvetica")
+          .text(cell, cx + 6, y + 4, cellOpts(cols[j].width));
+        cx += cols[j].width;
+      });
+      y += rowH;
+    });
+
+    index += chunk.length;
+    if (index < rows.length) {
+      doc.addPage();
+      top = 50;
+    }
+  } while (index < rows.length);
 
   return y;
 }
