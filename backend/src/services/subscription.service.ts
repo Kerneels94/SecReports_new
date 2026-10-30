@@ -64,13 +64,16 @@ export const SubscriptionService = {
     });
     if (!sub) throw new NotFoundError("Subscription");
 
-    const userCount = await prisma.user.count({
-      where: { companyId, status: "active" },
-    });
+    const [userCount, reportCount] = await Promise.all([
+      prisma.user.count({
+        where: { companyId, status: "active" },
+      }),
+      prisma.incident.count({ where: { companyId } }),
+    ]);
 
     return {
       ...sub,
-      usage: { users: userCount },
+      usage: { users: userCount, reports: reportCount },
     };
   },
 
@@ -303,11 +306,30 @@ export const SubscriptionService = {
   /** Throws ForbiddenError when the company's free-plan trial has ended, blocking all feature access. */
   async assertActive(companyId: string | null): Promise<void> {
     if (!companyId) return;
-    const trial = await this.getTrialStatus(companyId);
-    if (trial?.isTrial && trial.isExpired) {
+    const sub = await prisma.companySubscription.findUnique({
+      where: { companyId },
+      include: { plan: true },
+    });
+    if (!sub) return;
+
+    if (
+      sub.plan.price === 0 &&
+      sub.trialEndsAt &&
+      new Date() >= sub.trialEndsAt
+    ) {
       throw new ForbiddenError(
         "Your organisation's free trial has ended. Please upgrade your subscription to continue using SecReports.",
       );
+    }
+
+    const reportLimit = sub.plan.reportLimit ?? 0;
+    if (reportLimit > 0) {
+      const reports = await prisma.incident.count({ where: { companyId } });
+      if (reports >= reportLimit) {
+        throw new ForbiddenError(
+          `Your organisation has reached its ${reportLimit}-report limit. Please upgrade your subscription to continue.`,
+        );
+      }
     }
   },
 

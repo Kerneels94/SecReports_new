@@ -20,6 +20,10 @@ export interface SubscriptionModalProps {
   open: boolean;
   onClose: () => void;
   onPlanChanged?: () => void;
+  /** Why the upgrade is being requested; changes the intro copy. */
+  reason?: "trial" | "reports";
+  /** Plan the company is already on, hidden from the choices. */
+  excludePlanId?: string;
 }
 
 interface PlanWithStatus extends SubscriptionPlan {
@@ -30,6 +34,8 @@ export function SubscriptionModal({
   open,
   onClose,
   onPlanChanged,
+  reason = "trial",
+  excludePlanId,
 }: SubscriptionModalProps) {
   const [plans, setPlans] = useState<PlanWithStatus[]>([]);
   const [confirming, setConfirming] = useState<PlanWithStatus | null>(null);
@@ -74,9 +80,9 @@ export function SubscriptionModal({
         className="max-w-3xl"
       >
         <p className="text-sm text-text-secondary mb-5">
-          Your free trial has come to an end. Choose a plan below to continue
-          using your account. Selecting a paid plan starts a monthly
-          subscription.
+          {reason === "reports"
+            ? "Your organisation has reached its report limit. Choose an upgraded plan to keep creating and viewing reports."
+            : "Your free trial has come to an end. Choose a plan below to continue using your account. Selecting a paid plan starts a monthly subscription."}
         </p>
 
         {error && (
@@ -92,7 +98,7 @@ export function SubscriptionModal({
         ) : (
           <div className="flex justify-center gap-5">
             {plans
-              .filter((plan) => plan.price > 0)
+              .filter((plan) => plan.price > 0 && plan.id !== excludePlanId)
               .map((plan) => (
                 <div key={plan.id} className="mt-3">
                   <PlanSelectCard

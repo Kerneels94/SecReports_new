@@ -29,12 +29,14 @@ export type AggregateSubscriptionPlan = {
 export type SubscriptionPlanAvgAggregateOutputType = {
   price: number | null
   userLimit: number | null
+  reportLimit: number | null
   trialPeriodDays: number | null
 }
 
 export type SubscriptionPlanSumAggregateOutputType = {
   price: number | null
   userLimit: number | null
+  reportLimit: number | null
   trialPeriodDays: number | null
 }
 
@@ -43,6 +45,7 @@ export type SubscriptionPlanMinAggregateOutputType = {
   name: string | null
   price: number | null
   userLimit: number | null
+  reportLimit: number | null
   trialPeriodDays: number | null
   features: string | null
   highlighted: boolean | null
@@ -55,6 +58,7 @@ export type SubscriptionPlanMaxAggregateOutputType = {
   name: string | null
   price: number | null
   userLimit: number | null
+  reportLimit: number | null
   trialPeriodDays: number | null
   features: string | null
   highlighted: boolean | null
@@ -67,6 +71,7 @@ export type SubscriptionPlanCountAggregateOutputType = {
   name: number
   price: number
   userLimit: number
+  reportLimit: number
   trialPeriodDays: number
   features: number
   highlighted: number
@@ -79,12 +84,14 @@ export type SubscriptionPlanCountAggregateOutputType = {
 export type SubscriptionPlanAvgAggregateInputType = {
   price?: true
   userLimit?: true
+  reportLimit?: true
   trialPeriodDays?: true
 }
 
 export type SubscriptionPlanSumAggregateInputType = {
   price?: true
   userLimit?: true
+  reportLimit?: true
   trialPeriodDays?: true
 }
 
@@ -93,6 +100,7 @@ export type SubscriptionPlanMinAggregateInputType = {
   name?: true
   price?: true
   userLimit?: true
+  reportLimit?: true
   trialPeriodDays?: true
   features?: true
   highlighted?: true
@@ -105,6 +113,7 @@ export type SubscriptionPlanMaxAggregateInputType = {
   name?: true
   price?: true
   userLimit?: true
+  reportLimit?: true
   trialPeriodDays?: true
   features?: true
   highlighted?: true
@@ -117,6 +126,7 @@ export type SubscriptionPlanCountAggregateInputType = {
   name?: true
   price?: true
   userLimit?: true
+  reportLimit?: true
   trialPeriodDays?: true
   features?: true
   highlighted?: true
@@ -216,6 +226,7 @@ export type SubscriptionPlanGroupByOutputType = {
   name: string
   price: number
   userLimit: number
+  reportLimit: number
   trialPeriodDays: number | null
   features: string
   highlighted: boolean
@@ -251,6 +262,7 @@ export type SubscriptionPlanWhereInput = {
   name?: Prisma.StringFilter<"SubscriptionPlan"> | string
   price?: Prisma.IntFilter<"SubscriptionPlan"> | number
   userLimit?: Prisma.IntFilter<"SubscriptionPlan"> | number
+  reportLimit?: Prisma.IntFilter<"SubscriptionPlan"> | number
   trialPeriodDays?: Prisma.IntNullableFilter<"SubscriptionPlan"> | number | null
   features?: Prisma.StringFilter<"SubscriptionPlan"> | string
   highlighted?: Prisma.BoolFilter<"SubscriptionPlan"> | boolean
@@ -264,6 +276,7 @@ export type SubscriptionPlanOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   price?: Prisma.SortOrder
   userLimit?: Prisma.SortOrder
+  reportLimit?: Prisma.SortOrder
   trialPeriodDays?: Prisma.SortOrder
   features?: Prisma.SortOrder
   highlighted?: Prisma.SortOrder
@@ -280,6 +293,7 @@ export type SubscriptionPlanWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"SubscriptionPlan"> | string
   price?: Prisma.IntFilter<"SubscriptionPlan"> | number
   userLimit?: Prisma.IntFilter<"SubscriptionPlan"> | number
+  reportLimit?: Prisma.IntFilter<"SubscriptionPlan"> | number
   trialPeriodDays?: Prisma.IntNullableFilter<"SubscriptionPlan"> | number | null
   features?: Prisma.StringFilter<"SubscriptionPlan"> | string
   highlighted?: Prisma.BoolFilter<"SubscriptionPlan"> | boolean
@@ -293,6 +307,7 @@ export type SubscriptionPlanOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   price?: Prisma.SortOrder
   userLimit?: Prisma.SortOrder
+  reportLimit?: Prisma.SortOrder
   trialPeriodDays?: Prisma.SortOrder
   features?: Prisma.SortOrder
   highlighted?: Prisma.SortOrder
@@ -313,6 +328,7 @@ export type SubscriptionPlanScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"SubscriptionPlan"> | string
   price?: Prisma.IntWithAggregatesFilter<"SubscriptionPlan"> | number
   userLimit?: Prisma.IntWithAggregatesFilter<"SubscriptionPlan"> | number
+  reportLimit?: Prisma.IntWithAggregatesFilter<"SubscriptionPlan"> | number
   trialPeriodDays?: Prisma.IntNullableWithAggregatesFilter<"SubscriptionPlan"> | number | null
   features?: Prisma.StringWithAggregatesFilter<"SubscriptionPlan"> | string
   highlighted?: Prisma.BoolWithAggregatesFilter<"SubscriptionPlan"> | boolean
@@ -325,6 +341,7 @@ export type SubscriptionPlanCreateInput = {
   name: string
   price: number
   userLimit: number
+  reportLimit?: number
   trialPeriodDays?: number | null
   features: string
   highlighted?: boolean
@@ -338,6 +355,7 @@ export type SubscriptionPlanUncheckedCreateInput = {
   name: string
   price: number
   userLimit: number
+  reportLimit?: number
   trialPeriodDays?: number | null
   features: string
   highlighted?: boolean
@@ -350,6 +368,7 @@ export type SubscriptionPlanUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   userLimit?: Prisma.IntFieldUpdateOperationsInput | number
+  reportLimit?: Prisma.IntFieldUpdateOperationsInput | number
   trialPeriodDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   features?: Prisma.StringFieldUpdateOperationsInput | string
   highlighted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -362,6 +381,7 @@ export type SubscriptionPlanUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   userLimit?: Prisma.IntFieldUpdateOperationsInput | number
+  reportLimit?: Prisma.IntFieldUpdateOperationsInput | number
   trialPeriodDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   features?: Prisma.StringFieldUpdateOperationsInput | string
   highlighted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -375,6 +395,7 @@ export type SubscriptionPlanCreateManyInput = {
   name: string
   price: number
   userLimit: number
+  reportLimit?: number
   trialPeriodDays?: number | null
   features: string
   highlighted?: boolean
@@ -386,6 +407,7 @@ export type SubscriptionPlanUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   userLimit?: Prisma.IntFieldUpdateOperationsInput | number
+  reportLimit?: Prisma.IntFieldUpdateOperationsInput | number
   trialPeriodDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   features?: Prisma.StringFieldUpdateOperationsInput | string
   highlighted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -397,6 +419,7 @@ export type SubscriptionPlanUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   userLimit?: Prisma.IntFieldUpdateOperationsInput | number
+  reportLimit?: Prisma.IntFieldUpdateOperationsInput | number
   trialPeriodDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   features?: Prisma.StringFieldUpdateOperationsInput | string
   highlighted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -409,6 +432,7 @@ export type SubscriptionPlanCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   price?: Prisma.SortOrder
   userLimit?: Prisma.SortOrder
+  reportLimit?: Prisma.SortOrder
   trialPeriodDays?: Prisma.SortOrder
   features?: Prisma.SortOrder
   highlighted?: Prisma.SortOrder
@@ -419,6 +443,7 @@ export type SubscriptionPlanCountOrderByAggregateInput = {
 export type SubscriptionPlanAvgOrderByAggregateInput = {
   price?: Prisma.SortOrder
   userLimit?: Prisma.SortOrder
+  reportLimit?: Prisma.SortOrder
   trialPeriodDays?: Prisma.SortOrder
 }
 
@@ -427,6 +452,7 @@ export type SubscriptionPlanMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   price?: Prisma.SortOrder
   userLimit?: Prisma.SortOrder
+  reportLimit?: Prisma.SortOrder
   trialPeriodDays?: Prisma.SortOrder
   features?: Prisma.SortOrder
   highlighted?: Prisma.SortOrder
@@ -439,6 +465,7 @@ export type SubscriptionPlanMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   price?: Prisma.SortOrder
   userLimit?: Prisma.SortOrder
+  reportLimit?: Prisma.SortOrder
   trialPeriodDays?: Prisma.SortOrder
   features?: Prisma.SortOrder
   highlighted?: Prisma.SortOrder
@@ -449,6 +476,7 @@ export type SubscriptionPlanMinOrderByAggregateInput = {
 export type SubscriptionPlanSumOrderByAggregateInput = {
   price?: Prisma.SortOrder
   userLimit?: Prisma.SortOrder
+  reportLimit?: Prisma.SortOrder
   trialPeriodDays?: Prisma.SortOrder
 }
 
@@ -485,6 +513,7 @@ export type SubscriptionPlanCreateWithoutSubscriptionsInput = {
   name: string
   price: number
   userLimit: number
+  reportLimit?: number
   trialPeriodDays?: number | null
   features: string
   highlighted?: boolean
@@ -497,6 +526,7 @@ export type SubscriptionPlanUncheckedCreateWithoutSubscriptionsInput = {
   name: string
   price: number
   userLimit: number
+  reportLimit?: number
   trialPeriodDays?: number | null
   features: string
   highlighted?: boolean
@@ -524,6 +554,7 @@ export type SubscriptionPlanUpdateWithoutSubscriptionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   userLimit?: Prisma.IntFieldUpdateOperationsInput | number
+  reportLimit?: Prisma.IntFieldUpdateOperationsInput | number
   trialPeriodDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   features?: Prisma.StringFieldUpdateOperationsInput | string
   highlighted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -535,6 +566,7 @@ export type SubscriptionPlanUncheckedUpdateWithoutSubscriptionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   userLimit?: Prisma.IntFieldUpdateOperationsInput | number
+  reportLimit?: Prisma.IntFieldUpdateOperationsInput | number
   trialPeriodDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   features?: Prisma.StringFieldUpdateOperationsInput | string
   highlighted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -578,6 +610,7 @@ export type SubscriptionPlanSelect<ExtArgs extends runtime.Types.Extensions.Inte
   name?: boolean
   price?: boolean
   userLimit?: boolean
+  reportLimit?: boolean
   trialPeriodDays?: boolean
   features?: boolean
   highlighted?: boolean
@@ -594,6 +627,7 @@ export type SubscriptionPlanSelectScalar = {
   name?: boolean
   price?: boolean
   userLimit?: boolean
+  reportLimit?: boolean
   trialPeriodDays?: boolean
   features?: boolean
   highlighted?: boolean
@@ -601,7 +635,7 @@ export type SubscriptionPlanSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SubscriptionPlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "price" | "userLimit" | "trialPeriodDays" | "features" | "highlighted" | "createdAt" | "updatedAt", ExtArgs["result"]["subscriptionPlan"]>
+export type SubscriptionPlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "price" | "userLimit" | "reportLimit" | "trialPeriodDays" | "features" | "highlighted" | "createdAt" | "updatedAt", ExtArgs["result"]["subscriptionPlan"]>
 export type SubscriptionPlanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   subscriptions?: boolean | Prisma.SubscriptionPlan$subscriptionsArgs<ExtArgs>
   _count?: boolean | Prisma.SubscriptionPlanCountOutputTypeDefaultArgs<ExtArgs>
@@ -617,6 +651,7 @@ export type $SubscriptionPlanPayload<ExtArgs extends runtime.Types.Extensions.In
     name: string
     price: number
     userLimit: number
+    reportLimit: number
     trialPeriodDays: number | null
     features: string
     highlighted: boolean
@@ -1019,6 +1054,7 @@ export interface SubscriptionPlanFieldRefs {
   readonly name: Prisma.FieldRef<"SubscriptionPlan", 'String'>
   readonly price: Prisma.FieldRef<"SubscriptionPlan", 'Int'>
   readonly userLimit: Prisma.FieldRef<"SubscriptionPlan", 'Int'>
+  readonly reportLimit: Prisma.FieldRef<"SubscriptionPlan", 'Int'>
   readonly trialPeriodDays: Prisma.FieldRef<"SubscriptionPlan", 'Int'>
   readonly features: Prisma.FieldRef<"SubscriptionPlan", 'String'>
   readonly highlighted: Prisma.FieldRef<"SubscriptionPlan", 'Boolean'>

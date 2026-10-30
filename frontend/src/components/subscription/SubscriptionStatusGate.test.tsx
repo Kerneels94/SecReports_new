@@ -31,6 +31,7 @@ function futureDate(daysFromNow: number): string {
 describe("SubscriptionStatusGate", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUser.role = "admin";
     listPlans.mockResolvedValue({ data: [] });
   });
 
@@ -81,5 +82,72 @@ describe("SubscriptionStatusGate", () => {
       expect(screen.getByText(/trial has ended/i)).toBeInTheDocument();
     });
     expect(mockLogout).toHaveBeenCalled();
+  });
+
+  it("shows the upgrade modal for an admin when the report limit is reached", async () => {
+    getSubscription.mockResolvedValue({
+      data: {
+        planId: "pro",
+        plan: {
+          id: "pro",
+          price: 150000,
+          reportLimit: 100,
+        },
+        usage: { users: 3, reports: 200 },
+      },
+    });
+
+    render(
+      <SubscriptionStatusGate>
+        <div>Dashboard content</div>
+      </SubscriptionStatusGate>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Update Your Subscription")).toBeInTheDocument();
+    });
+    expect(screen.getAllByText(/report limit/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText("Dashboard content")).not.toBeInTheDocument();
+  });
+
+  it("blocks a manager without logging out when the report limit is reached", async () => {
+    mockUser.role = "manager";
+    getSubscription.mockResolvedValue({
+      data: {
+        planId: "pro",
+        plan: { id: "pro", price: 150000, reportLimit: 100 },
+        usage: { users: 3, reports: 200 },
+      },
+    });
+
+    render(
+      <SubscriptionStatusGate>
+        <div>Dashboard content</div>
+      </SubscriptionStatusGate>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Report limit reached")).toBeInTheDocument();
+    });
+    expect(mockLogout).not.toHaveBeenCalled();
+    expect(screen.queryByText("Dashboard content")).not.toBeInTheDocument();
+  });
+
+  it("renders children when the report count is under the limit", async () => {
+    getSubscription.mockResolvedValue({
+      data: {
+        planId: "pro",
+        plan: { id: "pro", price: 150000, reportLimit: 100 },
+        usage: { users: 3, reports: 99 },
+      },
+    });
+
+    render(
+      <SubscriptionStatusGate>
+        <div>Dashboard content</div>
+      </SubscriptionStatusGate>,
+    );
+
+    expect(await screen.findByText("Dashboard content")).toBeInTheDocument();
   });
 });

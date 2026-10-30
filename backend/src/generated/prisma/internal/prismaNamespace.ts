@@ -1517,6 +1517,7 @@ export const SubscriptionPlanScalarFieldEnum = {
   name: 'name',
   price: 'price',
   userLimit: 'userLimit',
+  reportLimit: 'reportLimit',
   trialPeriodDays: 'trialPeriodDays',
   features: 'features',
   highlighted: 'highlighted',
