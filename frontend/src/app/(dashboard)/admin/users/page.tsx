@@ -231,7 +231,7 @@ if (!canManageUsers) {
           <CardContent className="p-0">
             {usersLoading ? (
               <div className="flex items-center justify-center py-8">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
               </div>
             ) : users.length === 0 ? (
               <p className="px-6 py-8 text-sm text-text-secondary text-center">No employees yet.</p>

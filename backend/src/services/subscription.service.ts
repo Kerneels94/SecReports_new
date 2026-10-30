@@ -352,6 +352,12 @@ export const SubscriptionService = {
       );
     }
 
+    if (plan.price < sub.plan.price) {
+      throw new ForbiddenError(
+        "You cannot downgrade to a lower-priced plan. Please contact support if you need to change your subscription.",
+      );
+    }
+
     // canAddUser only guards new users, so a downgrade must not leave the company over the new limit.
     if (plan.userLimit > 0) {
       const count = await prisma.user.count({

@@ -9,6 +9,7 @@ import {
   ResponseTimeChart,
   YearlyTrendChart,
 } from "./components/DashboardCharts";
+import { DashboardBubbles } from "./components/DashboardBubbles";
 import type { AreaResponseStat, MonthlyResponseStat, ResponsePeriod } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 import { hasPermission } from "@/lib/permissions";
@@ -264,7 +265,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="relative isolate">
+      <DashboardBubbles />
+      <div className="relative z-10 flex flex-col gap-8">
       {trial?.isTrial && trial.daysRemaining <= 2 && !trial.isExpired && (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 flex items-center gap-3">
           <svg
@@ -562,7 +565,7 @@ export default function DashboardPage() {
                         key={area.area}
                         className="flex items-center gap-4 py-2.5"
                       >
-                        <span className="w-32 shrink-0 truncate text-lg text-text-secondary">
+                        <span className="shrink-0 whitespace-nowrap text-lg text-text-secondary">
                           {area.area}
                         </span>
                         <div className="h-2 min-w-0 flex-1 max-w-48 overflow-hidden rounded-full bg-surface-secondary">
@@ -614,6 +617,7 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

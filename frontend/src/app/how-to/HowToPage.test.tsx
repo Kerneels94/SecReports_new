@@ -12,8 +12,9 @@ describe("HowToPage", () => {
 
   it("renders the header and footer with the back-to-home navigation", () => {
     render(<HowToPage />);
-    expect(screen.getByAltText("SecReports")).toBeInTheDocument();
-    expect(screen.getAllByText("SecReports")).toHaveLength(1);
+    expect(
+      screen.getByRole("link", { name: /secreports home/i }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/terms & conditions/i)).toBeInTheDocument();
   });
 

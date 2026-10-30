@@ -217,7 +217,7 @@ export default function PermissionsPage() {
         <CardContent className="p-0">
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
             </div>
           ) : !matrix ? (
             <p className="px-6 py-12 text-sm text-text-secondary text-center">

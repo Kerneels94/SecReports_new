@@ -9,7 +9,6 @@ import { useState, useEffect, type ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "@/components/layout/Sidebar";
-import { Header } from "@/components/layout/Header";
 import { MobileHeader } from "@/components/layout/MobileHeader";
 import { SubscriptionStatusGate } from "@/components/subscription/SubscriptionStatusGate";
 import { NoAccess } from "@/components/access/NoAccess";
@@ -35,38 +34,35 @@ function DashboardShell({ children }: { children: ReactNode }) {
     if (!user) router.push("/login");
   }, [isLoading, user, router]);
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-surface-secondary">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-sm text-text-secondary">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) return null;
+  if (!isLoading && !user) return null;
 
   return (
     <div className="flex min-h-screen">
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(134,239,172,0.03),transparent_50%)] pointer-events-none" />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={logout} />
       <div className="relative flex flex-1 flex-col lg:pl-64">
-        <MobileHeader user={user} onToggleSidebar={() => setSidebarOpen((prev) => !prev)} onLogout={logout} />
-        <Header user={user} onLogout={logout} />
+        <MobileHeader onToggleSidebar={() => setSidebarOpen((prev) => !prev)} />
         <main className="flex-1 animate-fade-in p-4 pt-6 lg:p-8 text-[16px]">
-          {(() => {
-            const permission = requiredPermission(pathname);
-            return permission && !user.permissions?.includes(permission) ? (
-              <NoAccess
-                title="No access"
-                message="Your role doesn't have permission to view this section."
-              />
-            ) : (
-              <SubscriptionStatusGate>{children}</SubscriptionStatusGate>
-            );
-          })()}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-24">
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
+                <p className="text-lg text-text-secondary">Loading dashboard...</p>
+              </div>
+            </div>
+          ) : (
+            (() => {
+              const permission = requiredPermission(pathname);
+              return permission && !user?.permissions?.includes(permission) ? (
+                <NoAccess
+                  title="No access"
+                  message="Your role doesn't have permission to view this section."
+                />
+              ) : (
+                <SubscriptionStatusGate>{children}</SubscriptionStatusGate>
+              );
+            })()
+          )}
         </main>
       </div>
     </div>

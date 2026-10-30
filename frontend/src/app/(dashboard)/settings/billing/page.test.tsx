@@ -36,6 +36,15 @@ const plans = [
     features: "[\"15 sites\"]",
     highlighted: true,
   },
+  {
+    id: "ent",
+    name: "Enterprise",
+    price: 450000,
+    userLimit: 0,
+    trialPeriodDays: null,
+    features: "[\"Unlimited reports\"]",
+    highlighted: false,
+  },
 ];
 
 const currentSub = {
@@ -84,6 +93,18 @@ describe("BillingPage", () => {
       expect(screen.getAllByText("Professional").length).toBeGreaterThan(0);
     });
     expect(screen.getByText(/current: professional/i)).toBeInTheDocument();
+    expect(screen.queryByText("Free")).not.toBeInTheDocument();
+  });
+
+  it("does not offer lower-priced plans once on the highest plan", async () => {
+    getSubscription.mockResolvedValue({
+      data: { ...currentSub, planId: "ent", plan: plans[2] },
+    });
+    render(<BillingPage />);
+    await waitFor(() => {
+      expect(screen.getByText(/current: enterprise/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByText("Professional")).not.toBeInTheDocument();
     expect(screen.queryByText("Free")).not.toBeInTheDocument();
   });
 

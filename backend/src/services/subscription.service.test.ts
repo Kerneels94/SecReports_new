@@ -412,6 +412,25 @@ describe("SubscriptionService.changePlan", () => {
     expect(prisma.companySubscription.update).not.toHaveBeenCalled();
   });
 
+  it("rejects downgrading from the highest plan", async () => {
+    const enterprise = {
+      id: "ent",
+      name: "Enterprise",
+      price: 450000,
+      userLimit: 0,
+      reportLimit: 0,
+    };
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(paidPlan);
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: enterprise.id, plan: enterprise }),
+    );
+
+    await expect(
+      SubscriptionService.changePlan("company1", paidPlan.id),
+    ).rejects.toThrow(/cannot downgrade/i);
+    expect(prisma.companySubscription.update).not.toHaveBeenCalled();
+  });
+
   it("throws NotFoundError when the plan does not exist", async () => {
     (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(null);
     await expect(SubscriptionService.changePlan("company1", "nope")).rejects.toThrow(
@@ -428,10 +447,9 @@ describe("SubscriptionService.changePlan", () => {
   });
 
   it("rejects a plan whose user limit is below the active user count", async () => {
-    const enterprise = { id: "ent", name: "Enterprise", price: 450000, userLimit: 0 };
     (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(paidPlan);
     (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
-      sub({ planId: enterprise.id, plan: enterprise }),
+      sub({ planId: freePlan.id, plan: freePlan }),
     );
     (prisma.user.count as jest.Mock).mockResolvedValue(12);
 

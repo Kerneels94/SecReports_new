@@ -4,15 +4,14 @@
  */
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { useAuth } from "@/hooks/useAuth";
+import { AuthShell } from "@/components/auth/AuthShell";
 
 const schema = z.object({
   email: z.string().email("Invalid email address"),
@@ -27,6 +26,7 @@ export default function LoginPage() {
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<"company" | "senior">("company");
+  const [showPassword, setShowPassword] = useState(false);
 
   const isCompany = tab === "company";
 
@@ -49,95 +49,129 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-surface-secondary px-4 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(134,239,172,0.06),transparent_50%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(134,239,172,0.03),transparent_50%)] pointer-events-none" />
-      <Card variant="elevated" className="w-full max-w-sm animate-slide-up">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
-            <svg
-              className="h-7 w-7 text-gray-900"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-          </div>
-          <CardTitle>Welcome Back</CardTitle>
-          <p className="mt-1 text-sm text-text-secondary">
-            Sign in to your account
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4 flex rounded-xl bg-surface-elevated/40 p-1">
-            <button
-              type="button"
-              className={`cursor-pointer flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${tab === "company" ? "bg-primary text-gray-900 shadow-sm" : "text-text-secondary hover:text-text"}`}
-              onClick={() => setTab("company")}
-            >
-              Admin/Manager
-            </button>
-            <button
-              type="button"
-              className={`cursor-pointer flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${tab === "senior" ? "bg-primary text-gray-900 shadow-sm" : "text-text-secondary hover:text-text"}`}
-              onClick={() => setTab("senior")}
-            >
-              Senior
-            </button>
-          </div>
+    <AuthShell
+      eyebrow="Incident reporting for private security"
+      title={
+        <>
+          Your control room&apos;s record of{" "}
+          <span className="grad">every incident.</span>
+        </>
+      }
+      lead="Pick up where your team left off — every report, response time and client export in one place."
+      ticks={[
+        "Log call-outs with operator, dispatcher and call sign",
+        "Track dispatch-to-arrival response times",
+        "Send clients a PDF report in one click",
+      ]}
+    >
+      <div className="auth-icon">
+        <svg className="icon" aria-hidden="true">
+          <use href="#i-lock" />
+        </svg>
+      </div>
+      <h1 className="auth-title">Welcome back</h1>
+      <p className="auth-sub">Sign in to your SecReports account.</p>
 
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-4"
+      <form className="form" onSubmit={handleSubmit(onSubmit)}>
+        <div className="segmented" role="group" aria-label="Sign in as">
+          <button
+            type="button"
+            aria-pressed={isCompany}
+            onClick={() => setTab("company")}
           >
-            {error && (
-              <div
-                className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20"
-                role="alert"
-              >
-                {error}
-              </div>
-            )}
+            Admin/Manager
+          </button>
+          <button
+            type="button"
+            aria-pressed={!isCompany}
+            onClick={() => setTab("senior")}
+          >
+            Senior
+          </button>
+        </div>
 
-            <Input
-              label="Email"
-              type="email"
-              placeholder={isCompany ? "company@example.com" : "you@example.com"}
-              error={(errors as any).email?.message}
-              {...register("email")}
-            />
+        {error && (
+          <div
+            className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20"
+            role="alert"
+          >
+            {error}
+          </div>
+        )}
 
-            <Input
-              label="Password"
-              type="password"
+        <div>
+          <label className="label" htmlFor="login-email">
+            Email
+          </label>
+          <input
+            className="input"
+            id="login-email"
+            type="email"
+            placeholder={isCompany ? "company@example.com" : "you@example.com"}
+            autoComplete="email"
+            aria-invalid={!!errors.email}
+            {...register("email")}
+          />
+          {errors.email && (
+            <p className="text-sm text-danger" role="alert">
+              {errors.email.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <div className="label-row">
+            <label className="label" htmlFor="login-password">
+              Password
+            </label>
+            <a href="/forgot-password">Forgot password?</a>
+          </div>
+          <div className="pw">
+            <input
+              className="input"
+              id="login-password"
+              type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
-              error={errors.password?.message}
+              autoComplete="current-password"
+              aria-invalid={!!errors.password}
               {...register("password")}
             />
-            <Button type="submit" loading={isSubmitting} className="w-full">
-              {isCompany ? "Sign In as Admin/Manager" : "Sign In as Senior"}
-            </Button>
-          </form>
-          <div className="mt-4 flex items-center justify-center gap-3 text-sm text-text-secondary">
-            <a
-              href="/forgot-password"
-              className="cursor-pointer text-primary hover:underline transition-colors"
+            <button
+              className="pw-toggle"
+              type="button"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              onClick={() => setShowPassword((visible) => !visible)}
             >
-              Forgot password?
-            </a>
-            <span className="text-border-light">|</span>
-            <a
-              href="/"
-              className="cursor-pointer text-primary hover:underline transition-colors"
-            >
-              Back to Homepage
-            </a>
+              <svg className="icon" aria-hidden="true">
+                <use href={showPassword ? "#i-eye-off" : "#i-eye"} />
+              </svg>
+            </button>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          {errors.password && (
+            <p className="text-sm text-danger" role="alert">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
+
+        <button className="btn btn-primary btn-block" type="submit">
+          {isSubmitting
+            ? "Signing in..."
+            : `Sign in as ${isCompany ? "Admin/Manager" : "Senior"}`}
+        </button>
+      </form>
+
+      <p className="auth-links">
+        New to SecReports? <Link href="/register">Start a free trial</Link>
+      </p>
+      <p style={{ textAlign: "center" }}>
+        <Link className="auth-back" href="/">
+          <svg className="icon" aria-hidden="true">
+            <use href="#i-arrow" />
+          </svg>
+          Back to homepage
+        </Link>
+      </p>
+    </AuthShell>
   );
 }

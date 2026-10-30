@@ -109,6 +109,12 @@ describe("Sidebar", () => {
     expect(screen.getByText("Incident System")).toBeInTheDocument();
   });
 
+  it("renders a view profile link in the sidebar footer", () => {
+    mockUsePathname.mockReturnValue("/dashboard");
+    render(<Sidebar />);
+    expect(getNavLink("View Profile")).toHaveAttribute("href", "/profile");
+  });
+
   it("renders a logout button in the sidebar footer", () => {
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar onLogout={jest.fn()} />);

@@ -13,7 +13,7 @@ describe("PrivacyPage", () => {
     render(<PrivacyPage />);
 
     expect(
-      screen.getByRole("heading", { name: /4\. Password Policy/i }),
+      screen.getByRole("heading", { name: /password policy/i }),
     ).toBeInTheDocument();
     expect(screen.getByText("At least 8 characters")).toBeInTheDocument();
     expect(screen.getByText("At least one lowercase letter")).toBeInTheDocument();

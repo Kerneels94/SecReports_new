@@ -23,7 +23,7 @@ describe("Header", () => {
 
   it("mobile menu section links match the landing page ids", async () => {
     render(<Header />);
-    await userEvent.click(screen.getByRole("button", { name: /toggle menu/i }));
+    await userEvent.click(screen.getByLabelText("Open menu"));
     const hrefs = screen.getAllByRole("link").map((l) => l.getAttribute("href"));
     expect(hrefs).toContain("/#features");
     expect(hrefs).toContain("/#pricing");

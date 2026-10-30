@@ -115,12 +115,7 @@ export default function BillingPage() {
           <div className="flex flex-wrap justify-center gap-4">
             {plans
               .filter(
-                (plan) =>
-                  !(
-                    subscription &&
-                    plan.price === 0 &&
-                    subscription.plan.price > 0
-                  ),
+                (plan) => !subscription || plan.price >= subscription.plan.price,
               )
               .map((plan) => (
                 <div

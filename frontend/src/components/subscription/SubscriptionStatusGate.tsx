@@ -85,8 +85,8 @@ export function SubscriptionStatusGate({ children }: SubscriptionStatusGateProps
 
   if (checking) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div className="flex items-center justify-center py-24">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
       </div>
     );
   }

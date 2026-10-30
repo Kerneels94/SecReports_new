@@ -32,6 +32,13 @@ jest.mock("@/hooks/useAuth", () => {
 
 const { __authState: authState } = jest.requireMock("@/hooks/useAuth");
 
+jest.mock("@basmilius/sparkle", () => ({
+  createBubbles: () => ({
+    mount: () => ({ start: jest.fn() }),
+    destroy: jest.fn(),
+  }),
+}));
+
 jest.mock("@/services", () => ({
   ...jest.requireActual("@/services"),
   reportService: { summary: jest.fn(), monthlyStats: jest.fn(), monthlyResponse: jest.fn(), responseByArea: jest.fn() },

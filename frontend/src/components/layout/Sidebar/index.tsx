@@ -146,6 +146,16 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
           )}
         </nav>
         <div className="flex flex-col gap-2 p-3 border-t border-border-light">
+          <Link
+            href="/profile"
+            onClick={onClose}
+            className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-elevated/50 transition-all duration-150"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
+            </svg>
+            View Profile
+          </Link>
           <button
             onClick={() => { onClose?.(); onLogout?.(); }}
             className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-danger/80 hover:text-danger hover:bg-red-500/10 transition-all duration-150"
