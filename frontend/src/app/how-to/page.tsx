@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { Header } from "@/components/header/Header";
 import { Footer } from "@/components/footer/Footer";
+import { SiteIcons } from "@/components/site/SiteIcons";
 
 const steps = [
   {
-    title: "1. Create your account",
+    id: "guide-account",
+    num: "1",
+    title: "Create your account",
     items: [
       "Click Start Free Trial or Get Started in the top navigation.",
       "Fill in your company name, your name, a valid email address, and a strong password (at least 8 characters with an uppercase letter, lowercase letter, number, and special character).",
@@ -13,7 +16,9 @@ const steps = [
     ],
   },
   {
-    title: "2. Log in",
+    id: "guide-login",
+    num: "2",
+    title: "Log in",
     items: [
       "Click Sign In in the top navigation.",
       "Enter your verified email address and password.",
@@ -22,20 +27,24 @@ const steps = [
     ],
   },
   {
-    title: "3. Understand the dashboard",
+    id: "guide-dashboard",
+    num: "3",
+    title: "Understand the dashboard",
+    intro: "The dashboard gives you a snapshot of your security operations.",
     items: [
-      "The dashboard gives you a snapshot of your security operations.",
       "Stat cards show total, attempted, and positive incidents, plus current-month activity.",
-      "The Incident Trends chart shows monthly or yearly activity - use the toggle to switch.",
+      "The Incident Trends chart shows monthly or yearly activity — use the toggle to switch.",
       "Incidents by Type and response-time charts help you spot problem areas fast.",
       "Use the Yearly / PDF button to download the crime statistics report.",
     ],
   },
   {
-    title: "4. Report an incident",
+    id: "guide-report",
+    num: "4",
+    title: "Report an incident",
     items: [
       "From the sidebar, click Report Incident.",
-      "Select the incident Type - Attempted or Positive.",
+      "Select the incident Type — Attempted or Positive.",
       "Enter the operator name and dispatcher for the response, plus dispatch and arrival times if available.",
       "Enter the call sign, property address, suburb, city, and client details.",
       "Add any SAPS reference number if one was opened.",
@@ -44,7 +53,9 @@ const steps = [
     ],
   },
   {
-    title: "5. Manage incidents",
+    id: "guide-manage",
+    num: "5",
+    title: "Manage incidents",
     items: [
       "Open Incidents from the sidebar to see every report in a table.",
       "Filter by date range or incident type, or click Clear to reset.",
@@ -54,10 +65,12 @@ const steps = [
     ],
   },
   {
-    title: "6. Admin tools and billing",
+    id: "guide-admin",
+    num: "6",
+    title: "Admin tools and billing",
     items: [
       "Admins see an Admin Tools section in the sidebar: Permissions, Users, Audit Logs, and Billing.",
-      "Permissions control what each role can do - assign them to users as needed.",
+      "Permissions control what each role can do — assign them to users as needed.",
       "Users lists every account in your company so you can manage access.",
       "Audit Logs records every change and login event for compliance and review.",
       "Billing lets you view your plan and upgrade when your trial ends.",
@@ -67,53 +80,65 @@ const steps = [
 
 export default function HowToPage() {
   return (
-    <div className="min-h-screen bg-surface-secondary">
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(134,239,172,0.04),transparent_50%)] pointer-events-none" />
+    <div className="site-redesign">
+      <SiteIcons />
       <Header />
-
-      <section className="mx-auto max-w-5xl px-6 py-24 sm:py-32 lg:px-8">
-        <h1 className="text-3xl font-bold text-text sm:text-4xl">
-          How to use SecReports
-        </h1>
-        <p className="mt-3 text-text-secondary">
-          A step-by-step guide to getting the most out of the platform, from
-          your first login to reporting incidents and managing your
-          account.
-        </p>
-
-        <div className="mt-12 space-y-6">
-          {steps.map((step) => (
-            <article
-              key={step.title}
-              className="rounded-2xl bg-surface p-6 ring-1 ring-border-light hover:ring-primary/20 transition-all duration-200"
-            >
-              <h2 className="text-lg font-semibold text-text">{step.title}</h2>
-              <ol className="mt-4 space-y-3 list-decimal list-inside">
-                {step.items.map((item) => (
-                  <li key={item} className="text-sm text-text-secondary leading-relaxed">
-                    {item}
-                  </li>
-                ))}
-              </ol>
-            </article>
-          ))}
+      <main>
+        <div className="page-hero grid-glow">
+          <div className="wrap">
+            <p className="kicker">Guide</p>
+            <h1>How to use SecReports</h1>
+            <p>
+              A step-by-step guide to getting the most out of the platform, from
+              your first login to reporting incidents and managing your account.
+            </p>
+          </div>
         </div>
-
-        <div className="mt-12 rounded-2xl bg-surface p-6 ring-1 ring-border-light text-center">
-          <h2 className="text-lg font-semibold text-text">Still need help?</h2>
-          <p className="mt-2 text-sm text-text-secondary">
-            Contact us at support@secreports.co.za and we will help you get set
-            up.
-          </p>
-          <Link
-            href="/register"
-            className="cursor-pointer mt-5 inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-gray-900 shadow-lg shadow-primary/20 hover:bg-primary-hover transition-all duration-150"
-          >
-            Get Started
-          </Link>
+        <div className="wrap docs">
+          <nav className="toc" aria-label="Guide steps">
+            <p className="toc-title">On this page</p>
+            {steps.map((step) => (
+              <a key={step.id} href={`#${step.id}`}>
+                {step.num}. {step.title}
+              </a>
+            ))}
+          </nav>
+          <div className="guide">
+            {steps.map((step) => (
+              <article className="card guide-step" id={step.id} key={step.id}>
+                <header>
+                  <span className="num">{step.num}</span>
+                  <h2>{step.title}</h2>
+                </header>
+                {step.intro && <p>{step.intro}</p>}
+                <ol>
+                  {step.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ol>
+              </article>
+            ))}
+            <div className="card help-card">
+              <div>
+                <h2>Still need help?</h2>
+                <p>
+                  Contact us at{" "}
+                  <a
+                    className="mail"
+                    href="mailto:support@secreports.co.za"
+                  >
+                    support@secreports.co.za
+                  </a>{" "}
+                  and we will help you get set up.
+                </p>
+              </div>
+              <Link className="btn btn-primary" href="/register">
+                Get started
+              </Link>
+            </div>
+          </div>
         </div>
-      </section>
-
+      </main>
       <Footer />
     </div>
   );

@@ -1,39 +1,76 @@
 import Link from "next/link";
 
+/** Marketing site footer with product, account and company links. */
 export function Footer() {
   return (
-    <>
-      <footer className="border-t border-border-light bg-surface/50">
-        <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-linear-to-br from-primary to-primary-hover text-gray-900 text-xs font-bold shadow-lg shadow-primary/25">
-                S
-              </div>
-              <span className="text-sm font-semibold text-text">
-                SecReports
-              </span>
-            </div>
-            <div className="flex items-center gap-6">
-              <Link
-                href="/privacy"
-                className="cursor-pointer text-xs text-text-secondary hover:text-text transition-colors"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                href="/terms"
-                className="cursor-pointer text-xs text-text-secondary hover:text-text transition-colors"
-              >
-                Terms & Conditions
-              </Link>
-            </div>
-            <p className="text-xs text-text-secondary">
-              &copy; {new Date().getFullYear()} SecReports. All rights reserved.
+    <footer className="site-footer">
+      <div className="wrap">
+        <div className="footer-grid">
+          <div>
+            <Link className="brand" href="/">
+              <svg className="logo-mark" aria-hidden="true">
+                <use href="#i-logo" />
+              </svg>
+              SecReports
+            </Link>
+            <p>
+              Incident reporting for security companies and the businesses they
+              protect.
             </p>
           </div>
+          <div>
+            <h4>Product</h4>
+            <ul>
+              <li>
+                <Link href="/#features">Features</Link>
+              </li>
+              <li>
+                <Link href="/#pricing">Pricing</Link>
+              </li>
+              <li>
+                <Link href="/how-to">How to</Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4>Account</h4>
+            <ul>
+              <li>
+                <Link href="/login">Sign in</Link>
+              </li>
+              <li>
+                <Link href="/register">Start free trial</Link>
+              </li>
+              <li>
+                <Link href="/forgot-password">Reset password</Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4>Company</h4>
+            <ul>
+              <li>
+                <Link href="/#contact">Contact</Link>
+              </li>
+              <li>
+                <Link href="/privacy">Privacy Policy</Link>
+              </li>
+              <li>
+                <Link href="/terms">Terms &amp; Conditions</Link>
+              </li>
+            </ul>
+          </div>
         </div>
-      </footer>
-    </>
+        <div className="footer-bottom">
+          <span>© 2026 SecReports. All rights reserved.</span>
+          <span>
+            <a href="mailto:support@secreports.co.za">
+              support@secreports.co.za
+            </a>{" "}
+            · <a href="tel:+27626496474">062 649 6474</a>
+          </span>
+        </div>
+      </div>
+    </footer>
   );
 }

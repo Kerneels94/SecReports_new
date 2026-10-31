@@ -8,9 +8,12 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
 import { permissionsService, type PermissionMatrix } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
+
+const PANEL = "rounded-[18px] border border-border-light bg-surface";
+const TH =
+  "px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.09em] text-text-secondary/70 whitespace-nowrap";
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Admin",
@@ -46,16 +49,14 @@ function Toggle({
       aria-checked={checked}
       aria-label={label}
       onClick={onChange}
-      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/40 ${
-        checked
-          ? "bg-green-700/90"
-          : "bg-surface-elevated ring-1 ring-inset ring-border-light"
+      className={`relative inline-flex h-6 w-[42px] shrink-0 cursor-pointer rounded-full transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary/40 ${
+        checked ? "bg-primary" : "bg-surface-elevated"
       }`}
     >
       <span
-        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${
-          checked ? "translate-x-[22px]" : "translate-x-0.5"
-        }`}
+        className={`inline-block h-[18px] w-[18px] transform rounded-full transition-transform duration-150 ${
+          checked ? "translate-x-[21px] bg-gray-900" : "translate-x-[3px] bg-text"
+        } mt-[3px]`}
       />
     </button>
   );
@@ -172,33 +173,35 @@ export default function PermissionsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 animate-fade-in">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+    <div className="animate-fade-in">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-text">Permissions</h1>
-          <p className="text-sm text-text-secondary mt-1">
-            Control which roles can access each feature. Changes take effect
-            immediately.
+          <h1 className="text-[clamp(26px,2.6vw,32px)] font-bold tracking-[-0.03em] text-text">
+            Permissions
+          </h1>
+          <p className="mt-1.5 text-sm text-text-secondary">
+            Choose what each role can do. Changes apply as soon as you save.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
-            variant="secondary"
+            variant="ghost"
+            size="sm"
             onClick={reset}
             disabled={!isDirty}
             aria-label="Reset permissions"
           >
             Reset
           </Button>
-          <Button onClick={save} loading={saving} disabled={!isDirty}>
-            Save Changes
+          <Button size="sm" onClick={save} loading={saving} disabled={!isDirty}>
+            Save changes
           </Button>
         </div>
       </div>
 
       {error && (
         <div
-          className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20"
+          className="mb-4 rounded-xl bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20"
           role="alert"
         >
           {error}
@@ -206,74 +209,65 @@ export default function PermissionsPage() {
       )}
       {success && (
         <div
-          className="rounded-lg bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20"
+          className="mb-4 rounded-xl bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20"
           role="alert"
         >
           {success}
         </div>
       )}
 
-      <Card className="overflow-hidden">
-        <CardContent className="p-0">
-          {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            </div>
-          ) : !matrix ? (
-            <p className="px-6 py-12 text-sm text-text-secondary text-center">
-              Failed to load permissions.
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border-light bg-surface-elevated/20">
-                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider min-w-[220px]">
-                      Permission
+      <div className={`${PANEL} overflow-hidden`}>
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
+          </div>
+        ) : !matrix ? (
+          <p className="px-6 py-12 text-center text-sm text-text-secondary">
+            Failed to load permissions.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border-light bg-surface-secondary/45">
+                  <th className={TH}>Permission</th>
+                  {matrix.roles.map((role) => (
+                    <th key={role} className={`${TH} w-[120px] text-center`}>
+                      {ROLE_LABELS[role] ?? role}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {matrix.permissions.map((perm) => (
+                  <tr
+                    key={perm.key}
+                    className="border-b border-border-light/60 transition-colors last:border-b-0 hover:bg-surface-elevated/25"
+                  >
+                    <th scope="row" className="px-4 py-3.5 text-left font-medium">
+                      <span className="block text-sm font-medium text-text">
+                        {perm.label}
+                      </span>
+                      <span className="mt-0.5 block text-xs font-normal text-text-secondary/60">
+                        {perm.description}
+                      </span>
                     </th>
                     {matrix.roles.map((role) => (
-                      <th
-                        key={role}
-                        className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider"
-                      >
-                        {ROLE_LABELS[role] ?? role}
-                      </th>
+                      <td key={role} className="w-[120px] px-4 py-3.5 text-center">
+                        <Toggle
+                          checked={perm.roles.includes(role)}
+                          onChange={() => toggle(perm.key, role)}
+                          label={`${perm.label}: ${ROLE_LABELS[role] ?? role}`}
+                        />
+                      </td>
                     ))}
                   </tr>
-                </thead>
-                <tbody>
-                  {matrix.permissions.map((perm, idx) => (
-                    <tr
-                      key={perm.key}
-                      className={`border-b border-border-light/50 hover:bg-surface-elevated/20 transition-colors ${idx % 2 === 0 ? "bg-surface-elevated/10" : ""}`}
-                    >
-                      <td className="px-4 py-3">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-text">
-                            {perm.label}
-                          </span>
-                          <span className="text-xs text-text-secondary">
-                            {perm.description}
-                          </span>
-                        </div>
-                      </td>
-                      {matrix.roles.map((role) => (
-                        <td key={role} className="px-4 py-3">
-                          <Toggle
-                            checked={perm.roles.includes(role)}
-                            onChange={() => toggle(perm.key, role)}
-                            label={`${perm.label}: ${ROLE_LABELS[role] ?? role}`}
-                          />
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -20,11 +20,14 @@ jest.mock("../lib/db", () => ({
       findFirst: jest.fn(),
       count: jest.fn(),
     },
+    incident: {
+      count: jest.fn(),
+    },
   },
 }));
 
-const freePlan = { id: "free", name: "Free", price: 0, userLimit: 0, trialPeriodDays: 14 };
-const paidPlan = { id: "pro", name: "Professional", price: 150000, userLimit: 5 };
+const freePlan = { id: "free", name: "Free", price: 0, userLimit: 0, reportLimit: 0, trialPeriodDays: 14 };
+const paidPlan = { id: "pro", name: "Professional", price: 150000, userLimit: 5, reportLimit: 100 };
 
 const past = new Date(Date.now() - 24 * 60 * 60 * 1000);
 const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -232,8 +235,29 @@ describe("SubscriptionService.assertActive", () => {
     (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
       sub({ planId: paidPlan.id, plan: paidPlan }),
     );
+    (prisma.incident.count as jest.Mock).mockResolvedValue(0);
 
     await expect(SubscriptionService.assertActive("company1")).resolves.toBeUndefined();
+  });
+
+  it("passes when the paid plan's report count is below its limit", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: paidPlan.id, plan: paidPlan }),
+    );
+    (prisma.incident.count as jest.Mock).mockResolvedValue(99);
+
+    await expect(SubscriptionService.assertActive("company1")).resolves.toBeUndefined();
+  });
+
+  it("throws ForbiddenError when the report limit is reached", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: paidPlan.id, plan: paidPlan }),
+    );
+    (prisma.incident.count as jest.Mock).mockResolvedValue(100);
+
+    await expect(SubscriptionService.assertActive("company1")).rejects.toThrow(
+      /100-report limit/,
+    );
   });
 
   it("throws ForbiddenError when the free-plan trial has ended", async () => {
@@ -305,6 +329,27 @@ describe("SubscriptionService expired-trial feature blocking", () => {
   });
 });
 
+describe("SubscriptionService.getSubscription", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns user and report usage counts", async () => {
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: paidPlan.id, plan: paidPlan }),
+    );
+    (prisma.user.count as jest.Mock).mockResolvedValue(4);
+    (prisma.incident.count as jest.Mock).mockResolvedValue(200);
+
+    const result = await SubscriptionService.getSubscription("company1");
+
+    expect(result.usage).toEqual({ users: 4, reports: 200 });
+    expect(prisma.incident.count).toHaveBeenCalledWith({
+      where: { companyId: "company1" },
+    });
+  });
+});
+
 describe("SubscriptionService.getBillingDetails", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -367,6 +412,25 @@ describe("SubscriptionService.changePlan", () => {
     expect(prisma.companySubscription.update).not.toHaveBeenCalled();
   });
 
+  it("rejects downgrading from the highest plan", async () => {
+    const enterprise = {
+      id: "ent",
+      name: "Enterprise",
+      price: 450000,
+      userLimit: 0,
+      reportLimit: 0,
+    };
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(paidPlan);
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: enterprise.id, plan: enterprise }),
+    );
+
+    await expect(
+      SubscriptionService.changePlan("company1", paidPlan.id),
+    ).rejects.toThrow(/cannot downgrade/i);
+    expect(prisma.companySubscription.update).not.toHaveBeenCalled();
+  });
+
   it("throws NotFoundError when the plan does not exist", async () => {
     (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(null);
     await expect(SubscriptionService.changePlan("company1", "nope")).rejects.toThrow(
@@ -383,10 +447,9 @@ describe("SubscriptionService.changePlan", () => {
   });
 
   it("rejects a plan whose user limit is below the active user count", async () => {
-    const enterprise = { id: "ent", name: "Enterprise", price: 450000, userLimit: 0 };
     (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(paidPlan);
     (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
-      sub({ planId: enterprise.id, plan: enterprise }),
+      sub({ planId: freePlan.id, plan: freePlan }),
     );
     (prisma.user.count as jest.Mock).mockResolvedValue(12);
 

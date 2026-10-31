@@ -8,6 +8,7 @@ const plan: SubscriptionPlan = {
   name: "Professional",
   price: 150000,
   userLimit: 5,
+  reportLimit: 100,
   trialPeriodDays: null,
   features: "[\"5 users\"]",
   highlighted: true,

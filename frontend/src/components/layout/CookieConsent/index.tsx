@@ -29,41 +29,24 @@ export default function CookieConsent() {
           localStorage.removeItem(key);
         }
       });
-    } catch (e) {
+    } catch {
       // ignore
     }
     setVisible(false);
   };
 
   return (
-    <div
-      role="dialog"
-      aria-label="Cookie consent"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border-light bg-surface-elevated px-6 py-4 shadow-2xl"
-    >
-      <div className="mx-auto flex max-w-5xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-text-secondary">
-          We use cookies and analytics to improve your experience and secure
-          your account. See our{" "}
-          <Link href="/privacy" className="cursor-pointer text-primary underline">
-            Privacy Policy
-          </Link>{" "}
-          for details.
-        </p>
-        <div className="flex gap-2">
-          <button
-            onClick={reject}
-            className="cursor-pointer rounded-lg border border-border px-4 py-2 text-sm font-semibold text-text-secondary transition-colors hover:bg-surface-secondary"
-          >
-            Reject
-          </button>
-          <button
-            onClick={accept}
-            className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-gray-900 transition-colors hover:bg-primary-hover"
-          >
-            Accept
-          </button>
-        </div>
+    <div className="cookie" role="dialog" aria-label="Cookie consent">
+      We use cookies and analytics to improve your experience and secure your
+      account. See our{" "}
+      <Link href="/privacy">Privacy Policy</Link> for details.
+      <div className="cookie-actions">
+        <button className="btn btn-ghost btn-sm" type="button" onClick={reject}>
+          Reject
+        </button>
+        <button className="btn btn-primary btn-sm" type="button" onClick={accept}>
+          Accept
+        </button>
       </div>
     </div>
   );

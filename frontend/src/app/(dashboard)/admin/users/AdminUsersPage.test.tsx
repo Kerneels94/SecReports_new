@@ -63,7 +63,7 @@ describe("AdminUsersPage", () => {
     mockUseAuth.mockReturnValue({ user: nonAdminUser });
     render(<AdminUsersPage />);
     expect(screen.getByText("Admin access required.")).toBeInTheDocument();
-    expect(screen.queryByText("Manage Users")).not.toBeInTheDocument();
+    expect(screen.queryByText("Add an employee")).not.toBeInTheDocument();
   });
 
   it("shows admin access required when user is null", () => {
@@ -75,11 +75,11 @@ describe("AdminUsersPage", () => {
   it("renders form when user is admin", () => {
     mockUseAuth.mockReturnValue({ user: adminUser });
     render(<AdminUsersPage />);
-    expect(screen.getByRole("heading", { name: /manage users/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /create employee/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /users/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /add an employee/i })).toBeInTheDocument();
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
-    expect(screen.getByLabelText("Password")).toBeInTheDocument();
+    expect(screen.getByLabelText("Temporary password")).toBeInTheDocument();
     expect(screen.getByLabelText("Role")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /create user/i })).toBeInTheDocument();
   });
@@ -105,7 +105,7 @@ describe("AdminUsersPage", () => {
 
     await user.type(screen.getByLabelText("Name"), "Jane Doe");
     await user.type(screen.getByLabelText("Email"), "jane@example.com");
-    await user.type(screen.getByLabelText("Password"), "guardhouse1");
+    await user.type(screen.getByLabelText("Temporary password"), "guardhouse1");
     await user.click(screen.getByRole("button", { name: /create user/i }));
 
     await waitFor(() => {
@@ -122,7 +122,7 @@ describe("AdminUsersPage", () => {
 
     await user.type(screen.getByLabelText("Name"), "Jane Doe");
     await user.type(screen.getByLabelText("Email"), "jane@example.com");
-    await user.type(screen.getByLabelText("Password"), "Password1!");
+    await user.type(screen.getByLabelText("Temporary password"), "Password1!");
     await user.click(screen.getByRole("button", { name: /create user/i }));
 
     await waitFor(() => {
@@ -144,7 +144,7 @@ describe("AdminUsersPage", () => {
 
     await user.type(screen.getByLabelText("Name"), "Jane Doe");
     await user.type(screen.getByLabelText("Email"), "taken@example.com");
-    await user.type(screen.getByLabelText("Password"), "Password1!");
+    await user.type(screen.getByLabelText("Temporary password"), "Password1!");
     await user.click(screen.getByRole("button", { name: /create user/i }));
 
     await waitFor(() => {
@@ -160,7 +160,7 @@ describe("AdminUsersPage", () => {
 
     await user.type(screen.getByLabelText("Name"), "Jane Doe");
     await user.type(screen.getByLabelText("Email"), "jane@example.com");
-    await user.type(screen.getByLabelText("Password"), "Password1!");
+    await user.type(screen.getByLabelText("Temporary password"), "Password1!");
     await user.click(screen.getByRole("button", { name: /create user/i }));
 
     await waitFor(() => {

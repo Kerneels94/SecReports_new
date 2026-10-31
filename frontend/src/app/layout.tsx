@@ -7,6 +7,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ToastProvider } from "@/components/ui/Toast";
 import "./globals.css";
+import "./site.css";
 import PostHogScript from "@/components/analytics/PostHogScript";
 
 const geistSans = Geist({

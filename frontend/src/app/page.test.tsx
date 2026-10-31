@@ -10,17 +10,18 @@ describe("LandingPage", () => {
     render(<LandingPage />);
     expect(
       screen.getByRole("heading", {
-        name: /every incident, captured and searchable/i,
+        level: 1,
+        name: /every incident on record/i,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/focused incident reporting platform/i)).toBeInTheDocument();
+    expect(screen.getByText(/one place to log call-outs/i)).toBeInTheDocument();
   });
 
   it("renders the reporting-focused features heading", () => {
     render(<LandingPage />);
     expect(
       screen.getByRole("heading", {
-        name: /everything you need to report and track incidents/i,
+        name: /everything you need to report, track and prove/i,
       }),
     ).toBeInTheDocument();
   });
@@ -28,11 +29,11 @@ describe("LandingPage", () => {
   it("renders a How it works section linking to the full guide", () => {
     render(<LandingPage />);
     expect(
-      screen.getByRole("heading", { name: /how it works/i }),
+      screen.getByRole("heading", { name: /from call-out to client report/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText("1. Log the incident")).toBeInTheDocument();
+    expect(screen.getByText("Log the incident")).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: /see the full guide/i }),
+      screen.getByRole("link", { name: /read the full guide/i }),
     ).toHaveAttribute("href", "/how-to");
   });
 

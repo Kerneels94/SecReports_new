@@ -79,7 +79,6 @@ body {
     background-position: 200% 0;
   }
 }
-
 .animate-fade-in {
   animation: fadeIn 0.2s ease-out;
 }

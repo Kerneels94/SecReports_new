@@ -4,15 +4,13 @@
  */
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { authService } from "@/services";
+import { AuthShell } from "@/components/auth/AuthShell";
 
 const registerSchema = z
   .object({
@@ -35,7 +33,19 @@ const registerSchema = z
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-/** Registration page component with Zod-validated form and password match check. */
+const PASSWORD_RULES = [
+  { key: "length", label: "8+ characters", test: (v: string) => v.length >= 8 },
+  { key: "lower", label: "Lowercase letter", test: (v: string) => /[a-z]/.test(v) },
+  { key: "upper", label: "Uppercase letter", test: (v: string) => /[A-Z]/.test(v) },
+  { key: "digit", label: "Number", test: (v: string) => /\d/.test(v) },
+  {
+    key: "special",
+    label: "Special character",
+    test: (v: string) => /[^A-Za-z0-9]/.test(v),
+  },
+];
+
+/** Registration page component with Zod-validated form and live password policy. */
 export default function RegisterPage() {
   const [registered, setRegistered] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -44,10 +54,15 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
+
+  const password = watch("password") ?? "";
+  const confirmPassword = watch("confirmPassword") ?? "";
+  const passwordsMatch = !!confirmPassword && password === confirmPassword;
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
@@ -65,96 +80,48 @@ export default function RegisterPage() {
     }
   };
 
-  if (registered) {
-    return (
-      <div className="relative flex min-h-screen items-center justify-center bg-surface-secondary px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(134,239,172,0.06),transparent_50%)] pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(134,239,172,0.03),transparent_50%)] pointer-events-none" />
-        <Card variant="elevated" className="w-full max-w-sm animate-slide-up">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
-              <svg
-                className="h-7 w-7 text-gray-900"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-            </div>
-            <CardTitle>Check Your Email</CardTitle>
-            <p className="mt-1 text-sm text-text-secondary">
-              {successMessage || "Account created successfully"}
-            </p>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-sm text-text-secondary">
-              We sent a verification link to your email. Please check your inbox
-              and click the link to verify your account before logging in.
-            </p>
-            <div className="mt-6 space-y-3">
-              <Link
-                href="/login"
-                className="cursor-pointer block w-full rounded-lg bg-primary py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
-              >
-                Go to Login
-              </Link>
-              <a
-                href="/"
-                className="cursor-pointer inline-flex items-center justify-center gap-1.5 text-primary hover:underline transition-colors text-sm"
-              >
-                <svg
-                  className="h-4 w-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M19 12H5" />
-                  <path d="M12 19l-7-7 7-7" />
-                </svg>
-                Back to Homepage
-              </a>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-surface-secondary px-4 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(134,239,172,0.06),transparent_50%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(134,239,172,0.03),transparent_50%)] pointer-events-none" />
-      <Card variant="elevated" className="w-full max-w-sm animate-slide-up">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
-            <svg
-              className="h-7 w-7 text-gray-900"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+    <AuthShell
+      eyebrow="14-day free trial"
+      title={
+        <>
+          Put every incident <span className="grad">on record</span> — starting
+          today.
+        </>
+      }
+      ticks={[
+        "Full access to every feature",
+        "Up to 3 users during your trial",
+        "No credit card required",
+      ]}
+      nextSteps={[
+        "Create your company account",
+        "Verify your email address",
+        "Log your first incident",
+      ]}
+    >
+      {registered ? (
+        <div className="done">
+          <span className="icon-box">
+            <svg className="icon" aria-hidden="true">
+              <use href="#i-mail" />
             </svg>
-          </div>
-          <CardTitle>Create Account</CardTitle>
-          <p className="mt-1 text-sm text-text-secondary">
-            Register your company
+          </span>
+          <h3>Check your email</h3>
+          <p>{successMessage || "Account created successfully"}</p>
+          <p style={{ marginTop: 24 }}>
+            <Link className="btn btn-primary btn-block" href="/login">
+              Go to sign in
+            </Link>
           </p>
-        </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-4"
-          >
+        </div>
+      ) : (
+        <>
+          <h1 className="auth-title">Create your account</h1>
+          <p className="auth-sub">
+            Register your company and start your free trial.
+          </p>
+          <form className="form" onSubmit={handleSubmit(onSubmit)}>
             {error && (
               <div
                 className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20"
@@ -163,87 +130,167 @@ export default function RegisterPage() {
                 {error}
               </div>
             )}
-            <Input
-              label="Company Name"
-              placeholder="Your Security Company"
-              error={errors.companyName?.message}
-              {...register("companyName")}
-            />
-            <Input
-              label="Your Name"
-              placeholder="John Doe"
-              error={errors.name?.message}
-              {...register("name")}
-            />
-            <Input
-              label="Email"
-              type="email"
-              placeholder="company@example.com"
-              error={errors.email?.message}
-              {...register("email")}
-            />
-            <Input
-              label="Password"
-              type="password"
-              placeholder="Min. 8 characters"
-              error={errors.password?.message}
-              {...register("password")}
-            />
-            <p className="-mt-1 text-xs text-text-secondary">
-              Passwords must meet our{" "}
-              <Link
-                href="/privacy#password-policy"
-                className="cursor-pointer text-primary hover:underline transition-colors"
+
+            <div>
+              <label className="label" htmlFor="register-company">
+                Company Name
+              </label>
+              <input
+                className="input"
+                id="register-company"
+                autoComplete="organization"
+                placeholder="Your Security Company"
+                aria-invalid={!!errors.companyName}
+                {...register("companyName")}
+              />
+              {errors.companyName && (
+                <p className="text-sm text-danger" role="alert">
+                  {errors.companyName.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="label" htmlFor="register-name">
+                Your Name
+              </label>
+              <input
+                className="input"
+                id="register-name"
+                autoComplete="name"
+                placeholder="John Doe"
+                aria-invalid={!!errors.name}
+                {...register("name")}
+              />
+              {errors.name && (
+                <p className="text-sm text-danger" role="alert">
+                  {errors.name.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="label" htmlFor="register-email">
+                Email
+              </label>
+              <input
+                className="input"
+                id="register-email"
+                type="email"
+                autoComplete="email"
+                placeholder="company@example.com"
+                aria-invalid={!!errors.email}
+                {...register("email")}
+              />
+              {errors.email && (
+                <p className="text-sm text-danger" role="alert">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="label" htmlFor="register-password">
+                Password
+              </label>
+              <div className="pw">
+                <input
+                  className="input"
+                  id="register-password"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="Min. 8 characters"
+                  aria-describedby="password-rules"
+                  aria-invalid={!!errors.password}
+                  {...register("password")}
+                />
+              </div>
+              <ul
+                className="checklist"
+                id="password-rules"
+                aria-label="Password policy"
               >
-                Password Policy
-              </Link>
-              .
-            </p>
-            <Input
-              label="Confirm Password"
-              type="password"
-              placeholder="Repeat your password"
-              error={errors.confirmPassword?.message}
-              {...register("confirmPassword")}
-            />
-            <Button type="submit" loading={isSubmitting} className="w-full">
-              Create Account
-            </Button>
-            <p className="font-bold">
-              Note: The first account created is a admin account.
+                {PASSWORD_RULES.map((rule) => (
+                  <li
+                    key={rule.key}
+                    className={rule.test(password) ? "met" : undefined}
+                  >
+                    {rule.label}
+                  </li>
+                ))}
+              </ul>
+              {errors.password && (
+                <p className="text-sm text-danger" role="alert">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="label" htmlFor="register-confirm">
+                Confirm Password
+              </label>
+              <div className="pw">
+                <input
+                  className="input"
+                  id="register-confirm"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="Repeat your password"
+                  aria-describedby="confirm-message"
+                  aria-invalid={!!errors.confirmPassword}
+                  {...register("confirmPassword")}
+                />
+              </div>
+              <p
+                className={`match ${
+                  confirmPassword ? (passwordsMatch ? "ok" : "bad") : ""
+                }`}
+                id="confirm-message"
+                aria-live="polite"
+              >
+                {confirmPassword
+                  ? passwordsMatch
+                    ? "Passwords match"
+                    : "Passwords do not match"
+                  : ""}
+              </p>
+              {errors.confirmPassword && !confirmPassword && (
+                <p className="text-sm text-danger" role="alert">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+
+            <button
+              className="btn btn-primary btn-block"
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Creating account..." : "Create account"}
+            </button>
+            <p className="form-note">
+              The first account you create becomes your company&apos;s admin.
+              <br />
+              By signing up you agree to our{" "}
+              <Link href="/terms">Terms</Link> and <Link href="/privacy">Privacy Policy</Link>
+              . Passwords must meet our{" "}
+              <Link href="/privacy#password-policy">Password Policy</Link>.
             </p>
           </form>
-          <p className="mt-4 text-center text-sm text-text-secondary">
-            Already have an account?{" "}
-            <Link
-              href="/login"
-              className="cursor-pointer text-primary hover:underline transition-colors"
-            >
-              Sign in
-            </Link>
+          <p className="auth-links">
+            Already have an account? <Link href="/login">Sign in</Link>
           </p>
-          <div className="mt-3 text-center text-sm">
-            <a
-              href="/"
-              className="cursor-pointer inline-flex items-center gap-1.5 text-primary hover:underline transition-colors"
-            >
-              <svg
-                className="h-4 w-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M19 12H5" />
-                <path d="M12 19l-7-7 7-7" />
-              </svg>
-              Back to Homepage
-            </a>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        </>
+      )}
+      <p style={{ textAlign: "center" }}>
+        <Link className="auth-back" href="/">
+          <svg className="icon" aria-hidden="true">
+            <use href="#i-arrow" />
+          </svg>
+          Back to homepage
+        </Link>
+      </p>
+    </AuthShell>
   );
 }

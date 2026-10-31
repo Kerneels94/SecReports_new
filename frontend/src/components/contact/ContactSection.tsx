@@ -1,14 +1,11 @@
 /**
  * ContactSection — landing-page enquiry form that emails the support inbox.
- * Uses the shared design system (Card, Input, Button) and lightweight local
- * validation so the landing page does not ship react-hook-form or Zod.
+ * Uses lightweight local validation so the landing page does not ship
+ * react-hook-form or Zod.
  */
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { contactService } from "@/services";
 
 type ContactValues = {
@@ -88,145 +85,176 @@ export default function ContactSection() {
   };
 
   return (
-    <section id="contact" className="border-t border-border-light">
-      <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold text-text">Talk to our team</h2>
-          <p className="mt-4 text-text-secondary">
-            Tell us a bit about your team and reporting needs and we will come
-            back with a recommendation within one business day.
+    <div className="section" id="contact">
+      <div className="wrap contact">
+        <div>
+          <p className="kicker">Contact</p>
+          <h2 className="h2">Talk to our team</h2>
+          <p className="lead">
+            Tell us about your team and reporting needs. We&apos;ll come back
+            with a recommendation within one business day.
           </p>
+          <ul className="contact-list">
+            <li>
+              <span className="icon-box">
+                <svg className="icon" aria-hidden="true">
+                  <use href="#i-phone" />
+                </svg>
+              </span>
+              <span>
+                <small>Call us</small>
+                <a href="tel:+27626496474">062 649 6474</a>
+              </span>
+            </li>
+            <li>
+              <span className="icon-box">
+                <svg className="icon" aria-hidden="true">
+                  <use href="#i-mail" />
+                </svg>
+              </span>
+              <span>
+                <small>Email</small>
+                <a href="mailto:support@secreports.co.za">
+                  support@secreports.co.za
+                </a>
+              </span>
+            </li>
+            <li>
+              <span className="icon-box">
+                <svg className="icon" aria-hidden="true">
+                  <use href="#i-pin" />
+                </svg>
+              </span>
+              <span>
+                <small>Visit</small>
+                48B Rhyolite, Zwartkop
+              </span>
+            </li>
+          </ul>
         </div>
-
-        <div className="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-8 lg:grid-cols-2">
-          <div className="flex flex-col gap-6 justify-center">
-            <p className="text-sm text-text-secondary">Contact: 0626496474</p>
-            <p className="text-sm text-text-secondary">
-              Address: 48B Rhyolite, Zwartkop
-            </p>
-            <p className="text-sm text-text-secondary">
-              Prefer email?{" "}
-              <a
-                href="mailto:support@secreports.co.za"
-                className="cursor-pointer font-medium text-primary hover:underline transition-colors"
+        <div className="card">
+          {sent ? (
+            <div className="done">
+              <span className="icon-box">
+                <svg className="icon" aria-hidden="true">
+                  <use href="#i-check" />
+                </svg>
+              </span>
+              <h3>Message sent</h3>
+              <p>Thanks — we&apos;ll get back to you within one business day.</p>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                style={{ marginTop: 18 }}
+                onClick={() => setSent(false)}
               >
-                support@secreports.co.za
-              </a>
-            </p>
-          </div>
-
-          <Card variant="elevated" className="animate-slide-up">
-            <CardHeader>
-              <CardTitle>Send us a message</CardTitle>
-              <p className="mt-1 text-sm text-text-secondary">
-                We reply to every enquiry.
-              </p>
-            </CardHeader>
-            <CardContent>
-              {sent ? (
-                <div className="flex flex-col items-center py-6 text-center">
-                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
-                    <svg
-                      className="h-7 w-7 text-gray-900"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                      <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                  </div>
-                  <p className="text-base font-semibold text-text">
-                    Message sent
-                  </p>
-                  <p className="mt-1 text-sm text-text-secondary">
-                    Thanks — our team will be in touch shortly.
-                  </p>
-                  <Button
-                    variant="ghost"
-                    className="mt-4"
-                    onClick={() => setSent(false)}
-                  >
-                    Send another message
-                  </Button>
-                </div>
-              ) : (
-                <form
-                  onSubmit={onSubmit}
-                  noValidate
-                  className="flex flex-col gap-4"
+                Send another message
+              </button>
+            </div>
+          ) : (
+            <form className="form" onSubmit={onSubmit} noValidate>
+              <div>
+                <h3 style={{ fontSize: 20 }}>Send us a message</h3>
+                <p className="hint" style={{ marginTop: 6 }}>
+                  We reply to every enquiry.
+                </p>
+              </div>
+              {error && (
+                <div
+                  className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20"
+                  role="alert"
                 >
-                  {error && (
-                    <div
-                      className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20"
-                      role="alert"
-                    >
-                      {error}
-                    </div>
-                  )}
-                  <Input
-                    label="Name"
+                  {error}
+                </div>
+              )}
+              <div className="form-row">
+                <div>
+                  <label className="label" htmlFor="contact-name">
+                    Name
+                  </label>
+                  <input
+                    className="input"
+                    id="contact-name"
                     name="name"
+                    autoComplete="name"
                     placeholder="John Doe"
-                    error={errors.name}
+                    aria-invalid={!!errors.name}
                   />
-                  <Input
-                    label="Email"
+                  {errors.name && (
+                    <p className="text-sm text-danger" role="alert">
+                      {errors.name}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="label" htmlFor="contact-email">
+                    Email
+                  </label>
+                  <input
+                    className="input"
+                    id="contact-email"
                     name="email"
                     type="email"
+                    autoComplete="email"
                     placeholder="you@company.co.za"
-                    error={errors.email}
+                    aria-invalid={!!errors.email}
                   />
-                  <Input
-                    label="Company"
-                    name="company"
-                    placeholder="Your Security Company"
-                    error={errors.company}
-                  />
-                  <div className="flex flex-col gap-1.5">
-                    <label
-                      htmlFor="contact-message"
-                      className="text-sm font-medium text-text/90"
-                    >
-                      Message
-                    </label>
-                    <textarea
-                      id="contact-message"
-                      name="message"
-                      rows={5}
-                      placeholder="How can we help?"
-                      aria-invalid={!!errors.message}
-                      aria-describedby={
-                        errors.message ? "contact-message-error" : undefined
-                      }
-                      className="w-full resize-y rounded-lg border border-border-light bg-surface px-3 py-2.5 text-sm text-text placeholder:text-text-secondary/60 outline-none transition-all duration-150 focus:ring-2 focus:ring-primary"
-                    />
-                    {errors.message && (
-                      <p
-                        id="contact-message-error"
-                        className="text-sm text-danger"
-                        role="alert"
-                      >
-                        {errors.message}
-                      </p>
-                    )}
-                  </div>
-                  <Button
-                    type="submit"
-                    loading={isSubmitting}
-                    className="w-full"
-                  >
-                    Send Message
-                  </Button>
-                </form>
-              )}
-            </CardContent>
-          </Card>
+                  {errors.email && (
+                    <p className="text-sm text-danger" role="alert">
+                      {errors.email}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="label" htmlFor="contact-company">
+                  Company
+                </label>
+                <input
+                  className="input"
+                  id="contact-company"
+                  name="company"
+                  autoComplete="organization"
+                  placeholder="Your Security Company"
+                  aria-invalid={!!errors.company}
+                />
+                {errors.company && (
+                  <p className="text-sm text-danger" role="alert">
+                    {errors.company}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="label" htmlFor="contact-message">
+                  Message
+                </label>
+                <textarea
+                  className="input"
+                  id="contact-message"
+                  name="message"
+                  placeholder="How can we help?"
+                  aria-invalid={!!errors.message}
+                />
+                {errors.message && (
+                  <p className="text-sm text-danger" role="alert">
+                    {errors.message}
+                  </p>
+                )}
+              </div>
+              <button
+                className="btn btn-primary btn-block"
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Sending..." : "Send message"}
+                <svg className="icon icon-sm" aria-hidden="true">
+                  <use href="#i-send" />
+                </svg>
+              </button>
+            </form>
+          )}
         </div>
       </div>
-    </section>
+    </div>
   );
 }

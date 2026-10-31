@@ -90,22 +90,22 @@ describe("DashboardPage", () => {
     render(<DashboardPage />);
 
     await waitFor(() => {
-      expect(screen.getByText("Attempted incidents")).toBeInTheDocument();
+      expect(screen.getAllByText("Attempted")[0]).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Positive incidents")).toBeInTheDocument();
+    expect(screen.getAllByText("Positive")[0]).toBeInTheDocument();
     expect(screen.getByText("Total incidents")).toBeInTheDocument();
   });
 
-  it("renders stat labels at 18px and lets the trend card header wrap", async () => {
+  it("uses compact stat labels and lets the trend card header wrap", async () => {
     mockSummary.mockResolvedValue({ data: mockData });
     render(<DashboardPage />);
 
     const label = await screen.findByText("Total incidents");
-    expect(label.className).toContain("text-lg");
+    expect(label.className).toContain("text-sm");
 
-    const trendHeader = screen.getByText("Incident Trends").parentElement;
-    expect(trendHeader?.className).toContain("flex-wrap");
+    const trendHeader = screen.getByTestId("trend-header");
+    expect(trendHeader.className).toContain("flex-wrap");
   });
 
   it("renders stat card values", async () => {
@@ -113,11 +113,11 @@ describe("DashboardPage", () => {
     render(<DashboardPage />);
 
     await waitFor(() => {
-      expect(screen.getByText("3")).toBeInTheDocument();
+      expect(screen.getAllByText("3").length).toBeGreaterThan(0);
     });
 
-    expect(screen.getByText("2")).toBeInTheDocument();
-    expect(screen.getByText("25")).toBeInTheDocument();
+    expect(screen.getAllByText("2").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("25").length).toBeGreaterThan(0);
   });
 
   
@@ -136,8 +136,8 @@ describe("DashboardPage", () => {
       expect(screen.getByText("Apr 2026 incidents")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("7")).toBeInTheDocument();
-    expect(screen.getByText(/▼ 3 vs previous month/)).toBeInTheDocument();
+    expect(screen.getAllByText("7").length).toBeGreaterThan(0);
+    expect(screen.getByText(/3 fewer than Mar 2026/)).toBeInTheDocument();
   });
 
   it("renders avg response time chart", async () => {
@@ -151,7 +151,7 @@ describe("DashboardPage", () => {
     render(<DashboardPage />);
 
     await waitFor(() => {
-      expect(screen.getByText("Avg Response Time")).toBeInTheDocument();
+      expect(screen.getByText("Average response time")).toBeInTheDocument();
     });
   });
 
@@ -166,12 +166,35 @@ describe("DashboardPage", () => {
     render(<DashboardPage />);
 
     await waitFor(() => {
-      expect(screen.getByText("Response Time by Area")).toBeInTheDocument();
+      expect(screen.getByText("Response time by area")).toBeInTheDocument();
     });
 
     expect(screen.getByText("North CBD")).toBeInTheDocument();
     expect(screen.getByText("30m 0s")).toBeInTheDocument();
-    expect(screen.getByText("2 incidents")).toBeInTheDocument();
+    expect(screen.getAllByText("2").length).toBeGreaterThan(0);
+  });
+
+  it("paginates the response time by area list", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockResponseByArea.mockResolvedValue({
+      data: Array.from({ length: 25 }, (_, i) => ({
+        area: `Area ${String(i + 1).padStart(2, "0")}`,
+        avgMs: 60000,
+        count: 1,
+      })),
+    });
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Page 1 of 3")).toBeInTheDocument();
+    });
+    expect(screen.getByText("Area 01")).toBeInTheDocument();
+    expect(screen.queryByText("Area 11")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByText("Next"));
+
+    expect(screen.getByText("Area 11")).toBeInTheDocument();
+    expect(screen.queryByText("Area 01")).not.toBeInTheDocument();
   });
 
   it("paginates the response time by area list", async () => {
@@ -219,8 +242,8 @@ describe("DashboardPage", () => {
       expect(screen.getAllByText("Failed to load response time data").length).toBeGreaterThanOrEqual(1);
     });
 
-    expect(screen.getByText("Attempted incidents")).toBeInTheDocument();
-    expect(screen.getByText("Incident Trends")).toBeInTheDocument();
+    expect(screen.getAllByText("Attempted")[0]).toBeInTheDocument();
+    expect(screen.getByText("Incident trends")).toBeInTheDocument();
   });
 
   it("shows error state with retry", async () => {
@@ -238,7 +261,7 @@ describe("DashboardPage", () => {
     await userEvent.click(retryBtn);
 
     await waitFor(() => {
-      expect(screen.getByText("Attempted incidents")).toBeInTheDocument();
+      expect(screen.getAllByText("Attempted")[0]).toBeInTheDocument();
     });
   });
 
@@ -269,15 +292,15 @@ describe("DashboardPage", () => {
     render(<DashboardPage />);
 
     await waitFor(() => {
-      expect(screen.getByText("Incident Trends")).toBeInTheDocument();
+      expect(screen.getByText("Incident trends")).toBeInTheDocument();
     });
 
     const monthlyBtn = screen.getByText("monthly").closest("button")!;
     const yearlyBtn = screen.getByText("yearly").closest("button")!;
-    expect(monthlyBtn.className).toContain("text-primary");
+    expect(monthlyBtn.className).toContain("bg-primary");
 
     await userEvent.click(yearlyBtn);
-    expect(yearlyBtn.className).toContain("text-primary");
+    expect(yearlyBtn.className).toContain("bg-primary");
   });
 
   it("downloads yearly crime stats PDF on button click", async () => {
@@ -289,7 +312,7 @@ describe("DashboardPage", () => {
     render(<DashboardPage />);
 
     await waitFor(() => {
-      expect(screen.getByText("Incident Trends")).toBeInTheDocument();
+      expect(screen.getByText("Incident trends")).toBeInTheDocument();
     });
 
     await userEvent.click(screen.getByRole("button", { name: /pdf/i }));
@@ -310,7 +333,7 @@ describe("DashboardPage", () => {
       render(<DashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByText("Avg Response Time")).toBeInTheDocument();
+        expect(screen.getByText("Average response time")).toBeInTheDocument();
       });
 
       for (const months of [3, 6, 9, 12]) {
@@ -326,7 +349,7 @@ describe("DashboardPage", () => {
       render(<DashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByText("Avg Response Time")).toBeInTheDocument();
+        expect(screen.getByText("Average response time")).toBeInTheDocument();
       });
 
       await userEvent.click(
@@ -343,7 +366,7 @@ describe("DashboardPage", () => {
       render(<DashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByText("Avg Response Time")).toBeInTheDocument();
+        expect(screen.getByText("Average response time")).toBeInTheDocument();
       });
 
       expect(
@@ -358,7 +381,7 @@ describe("DashboardPage", () => {
       render(<DashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByText("Avg Response Time")).toBeInTheDocument();
+        expect(screen.getByText("Average response time")).toBeInTheDocument();
       });
 
       await userEvent.click(
@@ -379,7 +402,7 @@ describe("DashboardPage", () => {
       render(<DashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getByText("Avg Response Time")).toBeInTheDocument();
+        expect(screen.getByText("Average response time")).toBeInTheDocument();
       });
 
       await userEvent.click(
@@ -395,7 +418,7 @@ describe("DashboardPage", () => {
       });
       // a 404 or expired trial must not replace every chart with a Retry button
       expect(screen.queryByRole("button", { name: "Retry" })).not.toBeInTheDocument();
-      expect(screen.getByText("Response Time by Area")).toBeInTheDocument();
+      expect(screen.getByText("Response time by area")).toBeInTheDocument();
     });
   });
 });
@@ -431,14 +454,14 @@ describe("DashboardPage download failures and month gaps", () => {
     render(<DashboardPage />);
 
     await waitFor(() => {
-      expect(screen.getByText("Incident Trends")).toBeInTheDocument();
+      expect(screen.getByText("Incident trends")).toBeInTheDocument();
     });
 
     await userEvent.click(screen.getByRole("button", { name: /pdf/i }));
 
     expect(await screen.findByText("Failed to download PDF")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Retry" })).not.toBeInTheDocument();
-    expect(screen.getByText("Attempted incidents")).toBeInTheDocument();
+    expect(screen.getAllByText("Attempted")[0]).toBeInTheDocument();
   });
 
   it("compares the latest month with the calendar month before it when that month had no incidents", async () => {
@@ -452,7 +475,7 @@ describe("DashboardPage download failures and month gaps", () => {
     render(<DashboardPage />);
 
     expect(await screen.findByText("Aug 2026 incidents")).toBeInTheDocument();
-    expect(screen.getByText(/▲ 3 vs previous month/)).toBeInTheDocument();
+    expect(screen.getByText(/3 more than Jul 2026/)).toBeInTheDocument();
   });
 });
 

@@ -5,19 +5,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuth } from "@/hooks/useAuth";
 import { authService, userService } from "@/services";
 import { hasPermission } from "@/lib/permissions";
 
-/** Profile page component with account info display/edit and password change form. */
+const PANEL = "rounded-[18px] border border-border-light bg-surface p-[22px]";
+
+/** Profile page component with account info, name edit, and password change form. */
 export default function ProfilePage() {
   const { user, refreshUser, logout } = useAuth();
 
-  const [editing, setEditing] = useState(false);
-  const [editName, setEditName] = useState("");
+  const [editName, setEditName] = useState(user?.name ?? "");
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -42,18 +42,6 @@ export default function ProfilePage() {
   // PATCH /auth/users/:id needs users.update, so only offer the name field to users who can save it.
   const canEditName = hasPermission(user, "users.update");
 
-  const startEditing = () => {
-    setEditName(user.name);
-    setEditing(true);
-    setProfileError(null);
-    setProfileSuccess(null);
-  };
-
-  const cancelEditing = () => {
-    setEditing(false);
-    setProfileError(null);
-  };
-
   const handleProfileSave = async () => {
     setProfileError(null);
     setProfileSuccess(null);
@@ -63,12 +51,9 @@ export default function ProfilePage() {
     }
     setProfileLoading(true);
     try {
-      await userService.update(user.id, {
-        name: editName,
-      });
+      await userService.update(user.id, { name: editName });
       await refreshUser();
       setProfileSuccess("Profile updated");
-      setEditing(false);
     } catch (err) {
       setProfileError(err instanceof Error ? err.message : "Failed to update profile");
     } finally {
@@ -107,140 +92,130 @@ export default function ProfilePage() {
     }
   };
 
+  const avatarInitial = user.name.charAt(0).toUpperCase();
+
   return (
-    <div className="flex flex-col gap-6 max-w-2xl mx-auto animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-text">My Profile</h1>
-        <p className="text-sm text-text-secondary mt-1">View and manage your account information.</p>
+    <div className="animate-fade-in">
+      <div className="mb-6">
+        <h1 className="text-[clamp(26px,2.6vw,32px)] font-bold tracking-[-0.03em] text-text">
+          My Profile
+        </h1>
+        <p className="mt-1.5 text-sm text-text-secondary">
+          View and manage your account information.
+        </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Account Information</CardTitle>
-            {!editing && (
-              <Button variant="secondary" size="sm" onClick={startEditing}>
-                Edit Profile
-              </Button>
-            )}
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+        <div className={PANEL}>
+          <div className="mb-[22px] flex items-center gap-4">
+            <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full border border-primary/20 bg-primary/10 text-2xl font-bold text-primary">
+              {avatarInitial}
+            </div>
+            <div>
+              <b className="block text-xl font-semibold text-text">{user.name}</b>
+              <span className="mt-1.5 inline-block rounded-full border border-primary/20 bg-primary/[0.08] px-2 py-0.5 text-[11px] font-semibold capitalize text-primary">
+                {user.role}
+              </span>
+            </div>
           </div>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-5">
+
+          <dl className="mb-6 grid grid-cols-1 gap-x-5 gap-y-3.5 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <dt className="text-xs text-text-secondary/60">Email</dt>
+              <dd className="mt-0.5 text-sm text-text">{user.email}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-text-secondary/60">Role</dt>
+              <dd className="mt-0.5 text-sm capitalize text-text">{user.role}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-text-secondary/60">Status</dt>
+              <dd className="mt-0.5 text-sm capitalize text-text">{user.status}</dd>
+            </div>
+          </dl>
+
           {user.role !== "admin" && (
-            <div className="rounded-lg bg-blue-900/20 px-4 py-3 text-sm text-blue-300 ring-1 ring-blue-500/20" role="status">
+            <div className="mb-4 rounded-xl bg-blue-900/20 px-4 py-3 text-sm text-blue-300 ring-1 ring-blue-500/20" role="status">
               Your profile details can only be updated by an admin. Contact them to request changes.
             </div>
           )}
-
           {profileError && (
-            <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+            <div className="mb-4 rounded-xl bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
               {profileError}
             </div>
           )}
           {profileSuccess && (
-            <div className="rounded-lg bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20" role="status">
+            <div className="mb-4 rounded-xl bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20" role="status">
               {profileSuccess}
             </div>
           )}
 
-          <div className="flex items-center gap-4 pb-2 border-b border-border-light/30">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 text-2xl font-bold text-primary ring-2 ring-primary/20">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <p className="text-lg font-semibold text-text">{user.name}</p>
-              <p className="text-sm text-text-secondary capitalize">{user.role}</p>
-            </div>
-          </div>
-
-          {editing ? (
+          {canEditName && (
             <div className="flex flex-col gap-4">
-              {canEditName && (
-                <Input
-                  label="Name"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                />
-              )}
-
-              <div className="border-t border-border-light/30 pt-4 mt-2">
-                <p className="text-sm font-semibold text-text mb-3">Change Password</p>
-                {passwordError && (
-                  <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20 mb-3" role="alert">
-                    {passwordError}
-                  </div>
-                )}
-                {passwordSuccess && (
-                  <div className="rounded-lg bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20 mb-3" role="status">
-                    {passwordSuccess}
-                  </div>
-                )}
-                <Input
-                  label="Current Password"
-                  labelClassName="text-base"
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Enter current password"
-                />
-                <Input
-                  label="New Password"
-                  labelClassName="text-base"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Min. 8 characters"
-                />
-                <p className="text-base font-medium text-text/90 mt-2 mb-1">A strong password contains:</p>
-                <ul className="text-base text-text-secondary/60 space-y-0.5 ml-1 mb-3">
-                  <li>At least 8 characters</li>
-                  <li>At least one lowercase letter</li>
-                  <li>At least one uppercase letter</li>
-                  <li>At least one digit</li>
-                  <li>At least one special character</li>
-                </ul>
-                <Input
-                  label="Confirm New Password"
-                  labelClassName="text-base"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter new password"
-                />
-                <Button type="button" loading={passwordLoading} className="self-start mt-2" onClick={handlePasswordChange}>
-                  Update Password
-                </Button>
-              </div>
-
-              <div className="flex gap-3 justify-end">
-                {canEditName && (
-                  <Button onClick={handleProfileSave} loading={profileLoading}>
-                    Save
-                  </Button>
-                )}
-                <Button variant="secondary" onClick={cancelEditing}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col divide-y divide-border-light/30">
-              <div className="flex items-baseline justify-between gap-4 py-2.5">
-                <span className="text-sm font-medium text-text-secondary/70">Email</span>
-                <span className="text-sm text-text">{user.email}</span>
-              </div>
-              <div className="flex items-baseline justify-between gap-4 py-2.5">
-                <span className="text-sm font-medium text-text-secondary/70">Role</span>
-                <span className="text-sm text-text capitalize">{user.role}</span>
-              </div>
-              <div className="flex items-baseline justify-between gap-4 py-2.5">
-                <span className="text-sm font-medium text-text-secondary/70">Status</span>
-                <span className="text-sm text-text capitalize">{user.status}</span>
-              </div>
+              <Input
+                label="Name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder={user.name}
+              />
+              <Button variant="secondary" className="w-full" onClick={handleProfileSave} loading={profileLoading}>
+                Save
+              </Button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+
+        <div className={PANEL}>
+          <h2 className="mb-[18px] text-[17px] font-semibold text-text">Change Password</h2>
+          {passwordError && (
+            <div className="mb-3 rounded-xl bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+              {passwordError}
+            </div>
+          )}
+          {passwordSuccess && (
+            <div className="mb-3 rounded-xl bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20" role="status">
+              {passwordSuccess}
+            </div>
+          )}
+          <div className="flex flex-col gap-4">
+            <Input
+              label="Current Password"
+              labelClassName="text-base"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Enter current password"
+            />
+            <Input
+              label="New Password"
+              labelClassName="text-base"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Min. 8 characters"
+            />
+            <p className="text-base font-medium text-text/90">A strong password contains:</p>
+            <ul className="ml-1 list-disc space-y-0.5 pl-4 text-sm text-text-secondary/60">
+              <li>At least 8 characters</li>
+              <li>At least one lowercase letter</li>
+              <li>At least one uppercase letter</li>
+              <li>At least one digit</li>
+              <li>At least one special character</li>
+            </ul>
+            <Input
+              label="Confirm New Password"
+              labelClassName="text-base"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Re-enter new password"
+            />
+            <Button type="button" loading={passwordLoading} className="w-full" onClick={handlePasswordChange}>
+              Update Password
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

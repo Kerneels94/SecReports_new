@@ -245,6 +245,7 @@ export interface SubscriptionPlan {
   name: string;
   price: number;
   userLimit: number;
+  reportLimit: number;
   trialPeriodDays: number | null;
   features: string;
   highlighted: boolean;
@@ -264,6 +265,7 @@ export interface CompanySubscription {
   plan: SubscriptionPlan;
   usage?: {
     users: number;
+    reports: number;
   };
 }
 

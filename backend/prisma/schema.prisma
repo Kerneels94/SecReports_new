@@ -164,6 +164,7 @@ model SubscriptionPlan {
   name         String
   price        Int      @map("price")
   userLimit      Int      @map("user_limit")
+  reportLimit    Int      @default(0) @map("report_limit")
   trialPeriodDays Int?    @map("trial_period_days")
   features       String
   highlighted    Boolean  @default(false)

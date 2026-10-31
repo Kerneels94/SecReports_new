@@ -28,7 +28,7 @@ describe("RegisterPage", () => {
 
   it("renders the registration form with correct labels", () => {
     render(<RegisterPage />);
-    expect(screen.getByRole("heading", { name: /create account/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /create your account/i })).toBeInTheDocument();
     expect(screen.getByLabelText("Company Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Your Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();

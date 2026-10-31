@@ -26,6 +26,7 @@ async function main() {
       name: "Free",
       price: 0,
       userLimit: 0,
+      reportLimit: 0,
       trialPeriodDays: 14,
       features: allFeatures,
     },
@@ -36,6 +37,7 @@ async function main() {
       name: "Professional",
       price: 150000,
       userLimit: 5,
+      reportLimit: 100,
       features: allFeatures,
       highlighted: true,
     },
@@ -46,6 +48,7 @@ async function main() {
       name: "Enterprise",
       price: 450000,
       userLimit: 0,
+      reportLimit: 0,
       features: allFeatures,
     },
   });
