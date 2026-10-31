@@ -10,7 +10,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { authService, userService, type UserListItem } from "@/services";
@@ -33,7 +32,24 @@ const createUserSchema = z.object({
 
 type CreateUserForm = z.infer<typeof createUserSchema>;
 
-/** Admin users page component with create form, employee list table, and inline edit modal. */
+const PANEL = "rounded-[18px] border border-border-light bg-surface p-[22px]";
+
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("");
+}
+
+function roleChip(role: string) {
+  return role === "admin"
+    ? "bg-primary/[0.08] text-primary border border-primary/20"
+    : "bg-surface-elevated text-text-secondary border border-zinc-500";
+}
+
+/** Admin users page component with create form, employee list, and inline edit modal. */
 export default function AdminUsersPage() {
   const { user } = useAuth();
   const canManageUsers = hasPermission(user, "users.manage");
@@ -81,16 +97,16 @@ export default function AdminUsersPage() {
     defaultValues: { role: "senior" },
   });
 
-if (!canManageUsers) {
+  if (!canManageUsers) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="flex flex-col items-center gap-3 px-6 py-8 rounded-xl bg-surface ring-1 ring-border-light">
+        <div className="flex flex-col items-center gap-3 rounded-xl bg-surface px-6 py-8 ring-1 ring-border-light">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-900/30 ring-1 ring-red-500/20">
             <svg className="h-5 w-5 text-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 9v2m0 4h.01m21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
             </svg>
           </div>
-          <p className="text-sm text-danger font-medium">Admin access required.</p>
+          <p className="text-sm font-medium text-danger">Admin access required.</p>
         </div>
       </div>
     );
@@ -160,123 +176,131 @@ if (!canManageUsers) {
   };
 
   return (
-    <div className="flex flex-col gap-8 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-text">Manage Users</h1>
-        <p className="text-sm text-text-secondary mt-1">Create and manage employee accounts for your company.</p>
+    <div className="animate-fade-in">
+      <div className="mb-6">
+        <h1 className="text-[clamp(26px,2.6vw,32px)] font-bold tracking-[-0.03em] text-text">
+          Users
+        </h1>
+        <p className="mt-1.5 text-sm text-text-secondary">
+          Create and manage employee accounts for your company.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Create Employee</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-              {success && (
-                <div className="rounded-lg bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20" role="alert">
-                  {success}
-                </div>
-              )}
-              {error && (
-                <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
-                  {error}
-                </div>
-              )}
-              <Input
-                label="Name"
-                placeholder="Employee name"
-                error={errors.name?.message}
-                {...register("name")}
-              />
-              <Input
-                label="Email"
-                type="email"
-                placeholder="employee@example.com"
-                error={errors.email?.message}
-                {...register("email")}
-              />
-              <Input
-                label="Password"
-                type="password"
-                placeholder="8+ chars: upper, lower, number, symbol"
-                error={errors.password?.message}
-                {...register("password")}
-              />
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="role" className="text-sm font-medium text-text/90">Role</label>
-                <select
-                  id="role"
-                  className="rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
-                  {...register("role")}
-                >
-                  <option value="manager" className="bg-surface text-text">Manager</option>
-                  <option value="senior" className="bg-surface text-text">Senior</option>
-                </select>
-                {errors.role && (
-                  <p className="text-sm text-danger" role="alert">{errors.role.message}</p>
-                )}
-              </div>
-              <Button type="submit" loading={isSubmitting} className="w-full">
-                Create User
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Employees ({users.length})</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            {usersLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
-              </div>
-            ) : users.length === 0 ? (
-              <p className="px-6 py-8 text-sm text-text-secondary text-center">No employees yet.</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border-light bg-surface-elevated/20">
-                      <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Name</th>
-                      <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Role</th>
-                      <th className="px-4 py-3 text-right font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((u, idx) => (
-                      <tr key={u.id} className={`border-b border-border-light/50 hover:bg-surface-elevated/20 transition-colors ${idx % 2 === 0 ? 'bg-surface-elevated/10' : ''}`}>
-                        <td className="px-4 py-3">
-                          <div className="flex flex-col">
-                            <span className="font-medium text-text">{u.name}</span>
-                            <span className="text-xs text-text-secondary/60">{u.email}</span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <Badge variant={u.role === "admin" ? "info" : "default"}>{u.role}</Badge>
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button variant="ghost" size="sm" onClick={() => openEdit(u)}>
-                              Edit
-                            </Button>
-                            {u.role !== "admin" && user?.id !== u.id && (
-                              <Button variant="danger" size="sm" onClick={() => { setDeleteUser(u); setDeleteError(null); }}>
-                                Remove
-                              </Button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+        <div className={PANEL}>
+          <h2 className="mb-[18px] text-[17px] font-semibold text-text">Add an employee</h2>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            {success && (
+              <div className="rounded-xl bg-green-900/20 px-4 py-3 text-sm text-success ring-1 ring-green-500/20" role="alert">
+                {success}
               </div>
             )}
-          </CardContent>
-        </Card>
+            {error && (
+              <div className="rounded-xl bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+                {error}
+              </div>
+            )}
+            <Input
+              label="Name"
+              placeholder="Employee name"
+              error={errors.name?.message}
+              {...register("name")}
+            />
+            <Input
+              label="Email"
+              type="email"
+              placeholder="employee@example.com"
+              error={errors.email?.message}
+              {...register("email")}
+            />
+            <Input
+              label="Temporary password"
+              type="password"
+              placeholder="Min. 8 characters"
+              error={errors.password?.message}
+              {...register("password")}
+            />
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="role" className="text-sm font-medium text-text/90">Role</label>
+              <select
+                id="role"
+                className="h-10 rounded-[9px] border border-border bg-surface-secondary px-3 text-sm text-text transition-colors focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                {...register("role")}
+              >
+                <option value="manager" className="bg-surface text-text">Manager</option>
+                <option value="senior" className="bg-surface text-text">Senior</option>
+              </select>
+              {errors.role && (
+                <p className="text-sm text-danger" role="alert">{errors.role.message}</p>
+              )}
+            </div>
+            <Button type="submit" loading={isSubmitting} className="w-full">
+              Create user
+            </Button>
+          </form>
+        </div>
+
+        <div className={PANEL}>
+          <h2 className="mb-[18px] text-[17px] font-semibold text-text">
+            Employees ({users.length})
+          </h2>
+          {usersLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
+            </div>
+          ) : users.length === 0 ? (
+            <p className="py-8 text-center text-sm text-text-secondary">No employees yet.</p>
+          ) : (
+            <ul className="m-0 list-none p-0">
+              {users.map((u) => (
+                <li
+                  key={u.id}
+                  className="flex items-center gap-3.5 border-t border-border-light/60 py-3.5 first:border-t-0 first:pt-0"
+                >
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-primary/20 bg-primary/10 text-[13px] font-semibold text-primary">
+                    {initials(u.name)}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <b className="block truncate text-sm font-medium text-text">
+                      {u.name}
+                      {user?.id === u.id && (
+                        <em className="ml-1 font-normal not-italic text-text-secondary/60">(you)</em>
+                      )}
+                    </b>
+                    <small className="block truncate text-[13px] text-text-secondary/60">{u.email}</small>
+                  </span>
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize ${roleChip(u.role)}`}>
+                    {u.role}
+                  </span>
+                  <span className="flex justify-end gap-0.5">
+                    <button
+                      type="button"
+                      onClick={() => openEdit(u)}
+                      aria-label={`Edit ${u.name}`}
+                      className="grid h-[34px] w-[34px] cursor-pointer place-items-center rounded-lg text-text-secondary transition-colors hover:bg-surface-elevated hover:text-text"
+                    >
+                      <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+                      </svg>
+                    </button>
+                    {u.role !== "admin" && user?.id !== u.id && (
+                      <button
+                        type="button"
+                        onClick={() => { setDeleteUser(u); setDeleteError(null); }}
+                        aria-label={`Remove ${u.name}`}
+                        className="grid h-[34px] w-[34px] cursor-pointer place-items-center rounded-lg text-text-secondary transition-colors hover:bg-red-300/10 hover:text-red-300"
+                      >
+                        <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m2 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6" />
+                        </svg>
+                      </button>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       <Modal
@@ -285,7 +309,7 @@ if (!canManageUsers) {
         title={`Edit ${editUser?.name || "User"}`}
       >
         {editError && (
-          <div className="mb-4 rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+          <div className="mb-4 rounded-xl bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
             {editError}
           </div>
         )}
@@ -303,7 +327,7 @@ if (!canManageUsers) {
               <select
                 value={editRole}
                 onChange={(e) => setEditRole(e.target.value)}
-                className="rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/20 transition-all duration-150"
+                className="h-10 rounded-[9px] border border-border bg-surface-secondary px-3 text-sm text-text transition-colors focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="manager" className="bg-surface text-text">Manager</option>
                 <option value="senior" className="bg-surface text-text">Senior</option>
@@ -320,10 +344,10 @@ if (!canManageUsers) {
       <Modal
         open={!!deleteUser}
         onClose={() => setDeleteUser(null)}
-        title={`Remove user`}
+        title="Remove user"
       >
         {deleteError && (
-          <div className="mb-4 rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+          <div className="mb-4 rounded-xl bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
             {deleteError}
           </div>
         )}

@@ -77,11 +77,9 @@ describe("BillingPage", () => {
 
   it("renders available plans including the current one", async () => {
     render(<BillingPage />);
-    expect(await screen.findByText("Available Plans")).toBeInTheDocument();
-    await waitFor(() => {
-      expect(screen.getByText("Professional")).toBeInTheDocument();
-    });
-    expect(screen.getByText(/current: free/i)).toBeInTheDocument();
+    expect(await screen.findByText("Professional")).toBeInTheDocument();
+    expect(screen.getByText("Current plan")).toBeInTheDocument();
+    expect(screen.getAllByText("Free").length).toBeGreaterThan(0);
   });
 
   it("does not offer the free trial plan once the company is on a paid plan", async () => {
@@ -92,7 +90,7 @@ describe("BillingPage", () => {
     await waitFor(() => {
       expect(screen.getAllByText("Professional").length).toBeGreaterThan(0);
     });
-    expect(screen.getByText(/current: professional/i)).toBeInTheDocument();
+    expect(screen.getAllByText("Professional").length).toBeGreaterThan(1);
     expect(screen.queryByText("Free")).not.toBeInTheDocument();
   });
 
@@ -102,7 +100,7 @@ describe("BillingPage", () => {
     });
     render(<BillingPage />);
     await waitFor(() => {
-      expect(screen.getByText(/current: enterprise/i)).toBeInTheDocument();
+      expect(screen.getAllByText("Enterprise").length).toBeGreaterThan(0);
     });
     expect(screen.queryByText("Professional")).not.toBeInTheDocument();
     expect(screen.queryByText("Free")).not.toBeInTheDocument();

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, Fragment } from "react";
-import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
@@ -32,6 +31,11 @@ const ACTION_LABELS: Record<string, string> = {
   report_batch_email_sent: "Batch Report Emailed",
   report_response_time_exported: "Response Time Report Exported",
 };
+
+const PANEL = "rounded-[18px] border border-border-light bg-surface";
+const TH =
+  "px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.09em] text-text-secondary/70 whitespace-nowrap";
+const TD = "px-4 py-3.5 text-sm align-middle";
 
 function ActionBadge({ action }: { action: string }) {
   const variant =
@@ -114,134 +118,144 @@ export default function AuditLogsPage() {
   const totalPages = data ? Math.ceil(data.total / data.perPage) : 0;
 
   return (
-    <div className="flex flex-col gap-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-text">Audit Logs</h1>
-        <p className="text-sm text-text-secondary mt-1">Track activity and changes across your company.</p>
+    <div className="animate-fade-in">
+      <div className="mb-6">
+        <h1 className="text-[clamp(26px,2.6vw,32px)] font-bold tracking-[-0.03em] text-text">
+          Audit Logs
+        </h1>
+        <p className="mt-1.5 text-sm text-text-secondary">
+          Track activity and changes across your company.
+        </p>
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+        <div className="mb-4 rounded-xl bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
           {error}
         </div>
       )}
 
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="flex gap-2 flex-wrap">
-              {ENTITY_TYPES.map((et) => (
-                <button
-                  key={et.value}
-                  onClick={() => { setEntityType(et.value); setPage(1); }}
-                  className={`cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                    entityType === et.value
-                      ? "bg-primary text-gray-900"
-                      : "bg-surface-elevated/50 text-text-secondary hover:text-text hover:bg-surface-elevated"
-                  }`}
-                >
-                  {et.label}
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <select
-                value={action}
-                onChange={(e) => { setAction(e.target.value); setPage(1); }}
-                className="rounded-lg border border-border-light bg-surface-elevated/50 px-3 py-1.5 text-xs font-medium text-text-secondary"
-              >
-                <option value="" className="bg-surface-elevated text-text-secondary">All Actions</option>
-                {Object.entries(ACTION_LABELS).map(([val, label]) => (
-                  <option key={val} value={val} className="bg-surface-elevated text-text-secondary">{label}</option>
-                ))}
-              </select>
-            </div>
-            <div className="sm:ml-auto">
-              <Input
-                placeholder="Search by user, email, or action..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="w-64"
-              />
-            </div>
+      <div className={`${PANEL} mb-4 flex flex-wrap items-end gap-x-4 gap-y-3 px-5 py-[18px]`}>
+        <div className="inline-grid grid-flow-col rounded-xl border border-border bg-surface-secondary p-1" role="group" aria-label="Entity type">
+          {ENTITY_TYPES.map((et) => (
+            <button
+              key={et.value}
+              onClick={() => { setEntityType(et.value); setPage(1); }}
+              aria-pressed={entityType === et.value}
+              className={`h-8 cursor-pointer rounded-lg px-3 text-[13px] font-medium transition-colors ${
+                entityType === et.value
+                  ? "bg-primary text-gray-900"
+                  : "text-text-secondary hover:text-text"
+              }`}
+            >
+              {et.label}
+            </button>
+          ))}
+        </div>
+        <div className="min-w-[150px]">
+          <select
+            value={action}
+            onChange={(e) => { setAction(e.target.value); setPage(1); }}
+            className="h-10 w-full cursor-pointer rounded-[9px] border border-border bg-surface-secondary px-3 text-sm text-text-secondary transition-colors focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="" className="bg-surface text-text-secondary">All Actions</option>
+            {Object.entries(ACTION_LABELS).map(([val, label]) => (
+              <option key={val} value={val} className="bg-surface text-text-secondary">{label}</option>
+            ))}
+          </select>
+        </div>
+        <div className="relative ml-auto min-w-[260px]">
+          <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
+          </svg>
+          <Input
+            placeholder="Search by user, email, or action..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="h-10 pl-9"
+          />
+        </div>
+      </div>
+
+      <div className={`${PANEL} overflow-hidden`}>
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
           </div>
-        </CardContent>
-      </Card>
-
-      <Card className="overflow-hidden">
-        <CardContent className="p-0">
-          {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
-            </div>
-          ) : !data || data.data.length === 0 ? (
-            <p className="px-6 py-12 text-sm text-text-secondary text-center">No audit log entries found.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border-light bg-surface-elevated/20">
-                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Date</th>
-                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">User</th>
-                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Action</th>
-                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Entity Type</th>
-                    <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">Details</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.data.map((entry, idx) => {
-                    let details = "";
-                    try {
-                      if (entry.newValues && entry.oldValues) {
-                        const newParsed = JSON.parse(entry.newValues);
-                        const oldParsed = JSON.parse(entry.oldValues);
-                        const changes: string[] = [];
-                        for (const key of Object.keys(newParsed)) {
-                          if (key === "userName") continue;
-                          if (oldParsed[key] !== undefined && oldParsed[key] !== newParsed[key]) {
-                            const label = key.charAt(0).toUpperCase() + key.slice(1);
-                            changes.push(`${label}: ${oldParsed[key]} → ${newParsed[key]}`);
-                          }
+        ) : !data || data.data.length === 0 ? (
+          <p className="px-6 py-12 text-center text-sm text-text-secondary">No audit log entries found.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-border-light bg-surface-secondary/45">
+                  <th className={TH}>Date</th>
+                  <th className={TH}>User</th>
+                  <th className={TH}>Action</th>
+                  <th className={`${TH} hidden md:table-cell`}>Entity</th>
+                  <th className={TH}>Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.data.map((entry) => {
+                  let details = "";
+                  try {
+                    if (entry.newValues && entry.oldValues) {
+                      const newParsed = JSON.parse(entry.newValues);
+                      const oldParsed = JSON.parse(entry.oldValues);
+                      const changes: string[] = [];
+                      for (const key of Object.keys(newParsed)) {
+                        if (key === "userName") continue;
+                        if (oldParsed[key] !== undefined && oldParsed[key] !== newParsed[key]) {
+                          const label = key.charAt(0).toUpperCase() + key.slice(1);
+                          changes.push(`${label}: ${oldParsed[key]} → ${newParsed[key]}`);
                         }
-                        details = changes.join(", ");
-                      } else if (entry.newValues) {
-                        const parsed = JSON.parse(entry.newValues);
-                        details = Object.entries(parsed)
-                          .map(([k, v]) => `${k}: ${v}`)
-                          .join(", ");
                       }
-                    } catch {
-                      details = entry.newValues || "";
+                      details = changes.join(", ");
+                    } else if (entry.newValues) {
+                      const parsed = JSON.parse(entry.newValues);
+                      details = Object.entries(parsed)
+                        .map(([k, v]) => `${k}: ${v}`)
+                        .join(", ");
                     }
+                  } catch {
+                    details = entry.newValues || "";
+                  }
 
-                    return (
-                      <Fragment key={entry.id}>
-                      <tr className={`border-b border-border-light/50 hover:bg-surface-elevated/20 transition-colors cursor-pointer select-none ${idx % 2 === 0 ? "bg-surface-elevated/10" : ""}`} onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}>
-                        <td className="px-4 py-3 text-text-secondary whitespace-nowrap" style={{ fontSize: "16px" }}>{formatDateTime(entry.createdAt)}</td>
-                        <td className="px-4 py-3" style={{ fontSize: "16px" }}>
+                  return (
+                    <Fragment key={entry.id}>
+                      <tr
+                        className="cursor-pointer select-none border-b border-border-light/60 transition-colors last:border-b-0 hover:bg-surface-elevated/25"
+                        onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
+                      >
+                        <td className={`${TD} whitespace-nowrap font-mono text-text-secondary`}>
+                          {formatDateTime(entry.createdAt)}
+                        </td>
+                        <td className={TD}>
                           <div>
                             <p className="font-medium text-text">{entry.performedByUser.name}</p>
-                            <p className="text-text-secondary/70" style={{ fontSize: "13px" }}>{entry.performedByUser.email}</p>
+                            <p className="mt-0.5 text-xs text-text-secondary/60">{entry.performedByUser.email}</p>
                           </div>
                         </td>
-                        <td className="px-4 py-3" style={{ fontSize: "16px" }}><ActionBadge action={entry.action} /></td>
-                        <td className="px-4 py-3 text-text-secondary capitalize" style={{ fontSize: "16px" }}>{entry.entityType.replace(/_/g, " ")}</td>
-                        <td className="px-4 py-3 text-text-secondary/70 max-w-[200px] truncate" style={{ fontSize: "16px" }}>{details || "—"}</td>
+                        <td className={TD}><ActionBadge action={entry.action} /></td>
+                        <td className={`${TD} hidden capitalize text-text-secondary md:table-cell`}>
+                          {entry.entityType.replace(/_/g, " ")}
+                        </td>
+                        <td className={`${TD} max-w-[200px] truncate text-text-secondary/70`}>{details || "—"}</td>
                       </tr>
                       {expandedId === entry.id && (
-                        <tr className="border-b border-border-light/50 bg-surface-elevated/5">
+                        <tr className="border-b border-border-light/60 bg-surface-secondary/40">
                           <td colSpan={5} className="px-4 py-4">
                             <div className="flex flex-wrap gap-6 text-sm">
                               <div>
-                                <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary/70">IP Address</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.09em] text-text-secondary/70">IP Address</p>
                                 <p className="mt-1 font-mono text-text">{entry.ipAddress || "—"}</p>
                               </div>
                               <div>
-                                <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary/70">Browser</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.09em] text-text-secondary/70">Browser</p>
                                 <p className="mt-1 text-text">{parseBrowser(entry.userAgent)}</p>
                               </div>
                               <div className="min-w-[200px] flex-1">
-                                <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary/70">User Agent</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.09em] text-text-secondary/70">User Agent</p>
                                 <p className="mt-1 break-all text-text-secondary">{entry.userAgent || "—"}</p>
                               </div>
                             </div>
@@ -250,29 +264,27 @@ export default function AuditLogsPage() {
                       )}
                     </Fragment>
                   );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {data && data.total > data.perPage && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-text-secondary">
-            Showing {(data.page - 1) * data.perPage + 1}–{Math.min(data.page * data.perPage, data.total)} of {data.total}
-          </p>
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <div className="flex items-center justify-between gap-3 border-t border-border-light px-4 py-3.5 text-[13px] text-text-secondary/60">
+          <span>
+            {data
+              ? `Page ${data.page}${data.total > data.perPage ? ` · ${data.total} entries` : ""}`
+              : "Page 1"}
+          </span>
           <div className="flex gap-2">
-            <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+            <Button variant="ghost" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
               Previous
             </Button>
-            <Button variant="secondary" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
+            <Button variant="ghost" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
               Next
             </Button>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

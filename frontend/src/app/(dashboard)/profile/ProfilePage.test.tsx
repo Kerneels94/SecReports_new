@@ -70,39 +70,6 @@ describe("ProfilePage", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows Edit Profile button for admin users", () => {
-    mockUseAuth.mockReturnValue({
-      user: { ...mockUser, role: "admin" },
-    });
-    render(<ProfilePage />);
-
-    expect(screen.getByText("Edit Profile")).toBeInTheDocument();
-  });
-
-  it("shows Edit Profile button for all users", () => {
-    mockUseAuth.mockReturnValue({ user: mockUser });
-    render(<ProfilePage />);
-
-    expect(screen.getByText("Edit Profile")).toBeInTheDocument();
-  });
-
-  it("hides Change Password section until editing", () => {
-    mockUseAuth.mockReturnValue({ user: mockUser });
-    render(<ProfilePage />);
-
-    expect(screen.queryByText("Change Password")).not.toBeInTheDocument();
-  });
-
-  it("shows Change Password section after clicking Edit Profile", async () => {
-    mockUseAuth.mockReturnValue({ user: mockUser });
-    render(<ProfilePage />);
-
-    await userEvent.click(screen.getByText("Edit Profile"));
-
-    expect(screen.getByText("Change Password")).toBeInTheDocument();
-    expect(screen.getByText("Update Password")).toBeInTheDocument();
-  });
-
   it("returns null when user is null", () => {
     mockUseAuth.mockReturnValue({ user: null });
     const { container } = render(<ProfilePage />);
@@ -116,12 +83,19 @@ describe("ProfilePage", () => {
     expect(screen.getByText("A")).toBeInTheDocument();
   });
 
+  it("always shows the change password form", () => {
+    mockUseAuth.mockReturnValue({ user: mockUser });
+    render(<ProfilePage />);
+
+    expect(screen.getByText("Change Password")).toBeInTheDocument();
+    expect(screen.getByText("Update Password")).toBeInTheDocument();
+  });
+
   describe("password change", () => {
     it("validates new password length", async () => {
       mockUseAuth.mockReturnValue({ user: mockUser });
       render(<ProfilePage />);
 
-      await userEvent.click(screen.getByText("Edit Profile"));
       await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
       await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "short");
       await userEvent.click(screen.getByText("Update Password"));
@@ -133,7 +107,6 @@ describe("ProfilePage", () => {
       mockUseAuth.mockReturnValue({ user: mockUser });
       render(<ProfilePage />);
 
-      await userEvent.click(screen.getByText("Edit Profile"));
       await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
       await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "newpassword123");
       await userEvent.type(screen.getByPlaceholderText("Re-enter new password"), "different");
@@ -148,7 +121,6 @@ describe("ProfilePage", () => {
 
       render(<ProfilePage />);
 
-      await userEvent.click(screen.getByText("Edit Profile"));
       await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
       await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "newpassword123");
       await userEvent.type(screen.getByPlaceholderText("Re-enter new password"), "newpassword123");
@@ -167,7 +139,6 @@ describe("ProfilePage", () => {
 
       render(<ProfilePage />);
 
-      await userEvent.click(screen.getByText("Edit Profile"));
       await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
       await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "newpassword123");
       await userEvent.type(screen.getByPlaceholderText("Re-enter new password"), "newpassword123");
@@ -181,22 +152,18 @@ describe("ProfilePage", () => {
 });
 
 describe("ProfilePage name field and session", () => {
-  it("does not offer the name field to users who cannot update users", async () => {
+  it("does not offer the name field to users who cannot update users", () => {
     mockUseAuth.mockReturnValue({ user: { ...mockUser, permissions: ["incidents.view"] } });
     render(<ProfilePage />);
-
-    await userEvent.click(screen.getByText("Edit Profile"));
 
     expect(screen.queryByLabelText("Name")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Save" })).not.toBeInTheDocument();
     expect(screen.getByText("Update Password")).toBeInTheDocument();
   });
 
-  it("offers the name field to users with users.update", async () => {
+  it("offers the name field to users with users.update", () => {
     mockUseAuth.mockReturnValue({ user: { ...mockUser, role: "manager", permissions: ["users.update"] } });
     render(<ProfilePage />);
-
-    await userEvent.click(screen.getByText("Edit Profile"));
 
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
@@ -208,7 +175,6 @@ describe("ProfilePage name field and session", () => {
     (authService.changePassword as jest.Mock).mockResolvedValue({});
     render(<ProfilePage />);
 
-    await userEvent.click(screen.getByText("Edit Profile"));
     await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
     await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "NewPassword1!");
     await userEvent.type(screen.getByPlaceholderText("Re-enter new password"), "NewPassword1!");

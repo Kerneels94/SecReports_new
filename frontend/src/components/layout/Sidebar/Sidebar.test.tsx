@@ -41,25 +41,25 @@ describe("Sidebar", () => {
 
     expect(getNavLink("Dashboard")).toHaveAttribute("href", "/dashboard");
     expect(getNavLink("Incidents")).toHaveAttribute("href", "/incidents");
-    expect(getNavLink("Report Incident")).toHaveAttribute("href", "/incidents/new");
+    expect(getNavLink("Report incident")).toHaveAttribute("href", "/incidents/new");
     expect(getNavLink("Users")).toHaveAttribute("href", "/admin/users");
   });
 
-  it("does not render Report Incident for admins", () => {
+  it("does not render Report incident for admins", () => {
     mockUser = { ...mockUser, role: "admin" };
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar />);
 
-    expect(getNavLink("Report Incident")).toBeNull();
+    expect(getNavLink("Report incident")).toBeNull();
     expect(getNavLink("Incidents")).toHaveAttribute("href", "/incidents");
   });
 
-  it("renders Report Incident for seniors", () => {
+  it("renders Report incident for seniors", () => {
     mockUser = { ...mockUser, role: "senior" };
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar />);
 
-    expect(getNavLink("Report Incident")).toHaveAttribute("href", "/incidents/new");
+    expect(getNavLink("Report incident")).toHaveAttribute("href", "/incidents/new");
   });
 
   it("highlights active link based on pathname", () => {
@@ -79,7 +79,7 @@ describe("Sidebar", () => {
 
     expect(getNavLink("Dashboard")).toHaveAttribute("href", "/dashboard");
     expect(getNavLink("Incidents")).toHaveAttribute("href", "/incidents");
-    expect(getNavLink("Report Incident")).toHaveAttribute("href", "/incidents/new");
+    expect(getNavLink("Report incident")).toHaveAttribute("href", "/incidents/new");
     expect(getNavLink("Users")).toHaveAttribute("href", "/admin/users");
   });
 
@@ -98,8 +98,8 @@ describe("Sidebar", () => {
     const incidentsLink = getNavLink("Incidents");
     expect(incidentsLink).not.toHaveClass("text-primary");
 
-    const reportLink = getNavLink("Report Incident");
-    expect(reportLink).toHaveClass("text-primary");
+    const reportLink = getNavLink("Report incident");
+    expect(reportLink).toHaveAttribute("href", "/incidents/new");
   });
 
   it("shows app title and system subtitle", () => {

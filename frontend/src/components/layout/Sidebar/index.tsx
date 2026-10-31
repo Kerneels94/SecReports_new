@@ -3,7 +3,6 @@
 /**
  * Sidebar - The persistent left-side navigation.
  * Renders nav items filtered by user role and highlights the active route.
- * Filters nav items based on user role.
  */
 
 import Link from "next/link";
@@ -15,7 +14,6 @@ const incidentNavItems = [
   { href: "/dashboard", label: "Dashboard", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6", permission: "reports.view" },
   { href: "/incidents", label: "Incidents", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", permission: "incidents.view" },
   { href: "/incidents/new", label: "Report Incident", icon: "M12 4v16m8-8H4", hideFromAdmin: true, permission: "incidents.create" },
-
 ];
 
 const adminToolsItems = [
@@ -25,7 +23,6 @@ const adminToolsItems = [
   { href: "/settings/billing", label: "Billing", icon: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z", permission: "billing.manage" },
 ];
 
-/** Props for the Sidebar component */
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -49,6 +46,7 @@ function NavItemsList({ items, onClose }: { items: NavItem[]; onClose?: () => vo
         const isActive =
           pathname === item.href ||
           (item.href !== "/" &&
+            !pathname.startsWith("/incidents/new") &&
             pathname.startsWith(item.href + "/") &&
             !items.some(
               (other) =>
@@ -61,16 +59,13 @@ function NavItemsList({ items, onClose }: { items: NavItem[]; onClose?: () => vo
             href={item.href}
             onClick={onClose}
             className={cn(
-              "cursor-pointer flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 relative",
+              "flex cursor-pointer items-center gap-3 rounded-[10px] px-3 py-[9px] text-sm font-medium transition-colors duration-150",
               isActive
-                ? "text-primary bg-gradient-to-r from-primary/[0.08] to-transparent"
-                : "text-text-secondary hover:text-text hover:bg-surface-elevated/50",
+                ? "text-primary bg-primary/[0.08] shadow-[inset_2px_0_0_var(--color-primary)]"
+                : "text-text-secondary hover:text-text hover:bg-surface-elevated",
             )}
           >
-            {isActive && (
-              <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-r-full bg-gradient-to-b from-primary to-primary-hover" />
-            )}
-            <svg className={cn("h-5 w-5 shrink-0 transition-colors", isActive ? "text-primary" : "text-text-secondary")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className={cn("h-[18px] w-[18px] shrink-0", isActive ? "text-primary" : "text-text-secondary")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d={item.icon} />
             </svg>
             {item.label}
@@ -86,6 +81,8 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
   const { user } = useAuth();
   const pathname = usePathname();
   const isAdmin = user?.role === "admin" || user?.role === "manager";
+  const canReport =
+    user?.role !== "admin" && user?.permissions?.includes("incidents.create");
 
   return (
     <>
@@ -98,25 +95,25 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
       />
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-full w-64 bg-surface border-r border-border-light transition-transform duration-200 lg:translate-x-0 flex flex-col",
+          "fixed left-0 top-0 z-40 flex h-full w-[264px] flex-col gap-[18px] overflow-y-auto border-r border-border-light bg-surface px-3.5 py-[18px] transition-transform duration-200 lg:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex h-16 items-center justify-between px-6 border-b border-border-light">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-hover text-gray-900 text-sm font-bold shadow-lg shadow-primary/25">
+        <div className="flex items-center justify-between px-2">
+          <Link href="/dashboard" onClick={onClose} className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-gradient-to-br from-primary to-primary-hover text-sm font-bold text-gray-900 shadow-lg shadow-primary/25">
               S
             </div>
-            <div>
-              <span className="text-sm font-semibold text-text">SecReports</span>
-              <p className="text-[10px] text-text-secondary/70 tracking-wide uppercase">
+            <span className="leading-tight">
+              <span className="block text-sm font-semibold text-text">SecReports</span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-text-secondary/60">
                 Incident System
-              </p>
-            </div>
-          </div>
+              </span>
+            </span>
+          </Link>
           <button
             onClick={onClose}
-            className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:text-text hover:bg-surface-elevated transition-colors lg:hidden"
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-surface-elevated hover:text-text lg:hidden"
             aria-label="Close sidebar"
           >
             <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -124,52 +121,75 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
             </svg>
           </button>
         </div>
-        <nav className="flex flex-col gap-0.5 p-3 flex-1 overflow-y-auto text-[18px]">
-          <div className="px-3 py-1.5">
-            <p className="text-[10px] text-text-secondary/50 tracking-wider uppercase font-semibold">
-              Incidents
-            </p>
-          </div>
-          <NavItemsList items={incidentNavItems} onClose={onClose} />
+
+        {canReport && (
+          <Link
+            href="/incidents/new"
+            onClick={onClose}
+            className={cn(
+              "flex cursor-pointer items-center justify-center gap-2 rounded-[10px] px-3 py-2 text-sm font-medium transition-colors duration-150",
+              pathname === "/incidents/new"
+                ? "bg-primary text-gray-900"
+                : "bg-primary text-gray-900 shadow-lg shadow-primary/20 hover:bg-primary-hover",
+            )}
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Report incident
+          </Link>
+        )}
+
+        <nav className="grid content-start gap-0.5">
+          <p className="px-3 pb-1.5 pt-3.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-text-secondary/60">
+            Incidents
+          </p>
+          <NavItemsList items={incidentNavItems.filter((i) => i.href !== "/incidents/new")} onClose={onClose} />
           {(isAdmin ||
             ["auditLogs.view", "billing.manage"].some((p) =>
               user?.permissions?.includes(p),
             )) && (
             <>
-              <div className="px-3 py-1.5 mt-3">
-                <p className="text-[10px] text-text-secondary/50 tracking-wider uppercase font-semibold">
-                  Admin Tools
-                </p>
-              </div>
+              <p className="px-3 pb-1.5 pt-3.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-text-secondary/60">
+                Admin tools
+              </p>
               <NavItemsList items={adminToolsItems} onClose={onClose} />
             </>
           )}
         </nav>
-        <div className="flex flex-col gap-2 p-3 border-t border-border-light">
+
+        <div className="mt-auto grid gap-1.5">
+          <Link
+            href="/settings/billing"
+            onClick={onClose}
+            className="grid gap-1.5 rounded-xl border border-border-light bg-surface-secondary p-3 text-[13px] text-text-secondary transition-colors hover:border-primary/20"
+          >
+            <span className="w-max rounded-full border border-primary/20 bg-primary/[0.08] px-2 py-0.5 text-[11px] font-semibold text-primary">
+              Billing
+            </span>
+            View your plan and invoices
+          </Link>
           <Link
             href="/profile"
             onClick={onClose}
-            className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-elevated/50 transition-all duration-150"
+            className="flex cursor-pointer items-center gap-3 rounded-[10px] px-3 py-[9px] text-sm font-medium text-text-secondary transition-colors duration-150 hover:bg-surface-elevated hover:text-text"
           >
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
             </svg>
             View Profile
           </Link>
           <button
             onClick={() => { onClose?.(); onLogout?.(); }}
-            className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-danger/80 hover:text-danger hover:bg-red-500/10 transition-all duration-150"
+            className="flex cursor-pointer items-center gap-3 rounded-[10px] px-3 py-[9px] text-sm font-medium text-red-300 transition-colors duration-150 hover:bg-red-300/[0.08]"
             aria-label="Logout"
           >
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
             </svg>
-            Logout
+            Log out
           </button>
-          <div className="rounded-lg bg-gradient-to-r from-primary/[0.04] to-transparent px-3 py-2.5">
-            <p className="text-[10px] text-text-secondary/50 tracking-wider uppercase">Version</p>
-            <p className="text-xs text-text-secondary">1.0.0</p>
-          </div>
+          <p className="px-3 pt-1 text-xs text-text-secondary/50">Version 1.0.0</p>
         </div>
       </aside>
     </>

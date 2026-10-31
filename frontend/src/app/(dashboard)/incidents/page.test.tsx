@@ -77,7 +77,7 @@ describe("IncidentsPage", () => {
     render(<IncidentsPage />);
 
     await waitFor(() => {
-      expect(screen.getByText("Total Incidents")).toBeInTheDocument();
+      expect(screen.getByText("Total incidents")).toBeInTheDocument();
       expect(screen.getByText("42")).toBeInTheDocument();
       expect(screen.getAllByText("Attempted").length).toBeGreaterThanOrEqual(1);
       expect(screen.getAllByText("Positive").length).toBeGreaterThanOrEqual(1);
@@ -90,7 +90,7 @@ describe("IncidentsPage", () => {
     render(<IncidentsPage />);
 
     await waitFor(() => {
-      expect(screen.getAllByText("Email All")).toHaveLength(2);
+      expect(screen.getAllByText("Email all")).toHaveLength(2);
     });
   });
 
@@ -107,13 +107,13 @@ describe("IncidentsPage", () => {
     });
   });
 
-  it("uses 18px table text inside a horizontally scrollable wrapper", async () => {
+  it("uses compact table text inside a horizontally scrollable wrapper", async () => {
     mockList.mockResolvedValue({ data: mockPaginated });
     mockSummary.mockResolvedValue({ data: mockSummaryData });
     render(<IncidentsPage />);
 
     const table = await screen.findByRole("table");
-    expect(table.className).toContain("text-lg");
+    expect(table.className).toContain("text-sm");
     expect(table.parentElement?.className).toContain("overflow-x-auto");
     expect(table.querySelector("th")?.className).toContain("whitespace-nowrap");
   });
@@ -230,7 +230,7 @@ describe("IncidentsPage", () => {
     render(<IncidentsPage />);
 
     await waitFor(() => {
-      const reportBtn = screen.getByText("Report Incident");
+      const reportBtn = screen.getByText("Report incident");
       expect(reportBtn.closest("a")).toHaveAttribute("href", "/incidents/new");
     });
   });
@@ -244,8 +244,8 @@ describe("IncidentsPage", () => {
       expect(screen.getByText("SEC-001")).toBeInTheDocument();
     });
 
-    await userEvent.type(screen.getByLabelText("Date From"), "2026-05-01");
-    await userEvent.type(screen.getByLabelText("Date To"), "2026-05-31");
+    await userEvent.type(screen.getByLabelText("Date from"), "2026-05-01");
+    await userEvent.type(screen.getByLabelText("Date to"), "2026-05-31");
     await userEvent.selectOptions(screen.getByLabelText("Type"), "attempted");
 
     await waitFor(() => {
@@ -291,9 +291,8 @@ describe("IncidentsPage dates and downloads", () => {
     mockSummary.mockResolvedValue({ data: mockSummaryData });
     render(<IncidentsPage />);
 
-    const incidentDay = new Date("2026-04-28T00:00:00Z").toLocaleDateString(undefined, { timeZone: "UTC" });
-    expect(await screen.findByText(incidentDay)).toBeInTheDocument();
-    expect(screen.queryByText(new Date("2026-05-01T06:10:00Z").toLocaleDateString())).not.toBeInTheDocument();
+    expect(await screen.findByText("28/04/2026")).toBeInTheDocument();
+    expect(screen.queryByText("01/05/2026")).not.toBeInTheDocument();
   });
 
   it("keeps the incident table when a PDF download fails", async () => {

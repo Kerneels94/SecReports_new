@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { reportService, exportService, formatDurationMs } from "@/services";
 import {
@@ -9,11 +9,10 @@ import {
   ResponseTimeChart,
   YearlyTrendChart,
 } from "./components/DashboardCharts";
-import { DashboardBubbles } from "./components/DashboardBubbles";
 import type { AreaResponseStat, MonthlyResponseStat, ResponsePeriod } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 import { hasPermission } from "@/lib/permissions";
-import type { Incident, TrialStatus } from "@/types";
+import type { TrialStatus } from "@/types";
 
 /** Periods the avg response time report can be downloaded over. */
 const RESPONSE_PERIODS: ResponsePeriod[] = [3, 6, 9, 12];
@@ -35,6 +34,86 @@ const monthNames = [
   "Nov",
   "Dec",
 ];
+
+/** Short month label for a "YYYY-MM" key, falling back to the raw key. */
+const shortMonth = (key: string) => {
+  const m = Number(key.slice(5, 7));
+  return monthNames[m - 1] ?? key;
+};
+
+/** "2026-04" -> "Apr 2026"; anything else passes through. */
+const longMonth = (key: string) => {
+  const [year, m] = key.split("-");
+  return monthNames[Number(m) - 1] ? `${monthNames[Number(m) - 1]} ${year}` : key;
+};
+
+/** Compact range for the stat note: "Apr – Oct 2026" or "Nov 2025 – Feb 2026". */
+const monthRange = (data: { month: string }[]) => {
+  if (data.length === 0) return "";
+  const first = data[0].month;
+  const last = data[data.length - 1].month;
+  const sameYear = first.slice(0, 4) === last.slice(0, 4);
+  const start = sameYear ? shortMonth(first) : longMonth(first);
+  return `${start} – ${longMonth(last)}`;
+};
+
+/** Collapsible "View as table" fallback for a chart. */
+function ChartTable({
+  head,
+  rows,
+}: {
+  head: [string, string];
+  rows: [string, string | number][];
+}) {
+  const cell = "border-t border-border px-2 py-1.5 text-left font-normal";
+  return (
+    <details className="mt-3 text-[13px] text-text-secondary">
+      <summary className="w-max cursor-pointer text-text-secondary/80 hover:text-text">
+        View as table
+      </summary>
+      <table className="mt-2 w-full border-collapse">
+        <thead>
+          <tr>
+            <th className={cell}>{head[0]}</th>
+            <th className={cell}>{head[1]}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([label, value]) => (
+            <tr key={label}>
+              <td className={cell}>{label}</td>
+              <td className={cell}>{value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </details>
+  );
+}
+
+const ICONS = {
+  calendar: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+  file: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+  alert: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z",
+  octagon: "M7.86 2h8.28L22 7.86v8.28L16.14 22H7.86L2 16.14V7.86L7.86 2z",
+};
+
+const PANEL = "rounded-[18px] border border-border-light bg-surface p-[22px]";
+const CARD_HEAD = "mb-4 flex flex-wrap items-start justify-between gap-3";
+const CARD_TITLE = "text-base font-semibold tracking-tight text-text";
+const CARD_SUB = "mt-0.5 text-[13px] text-text-secondary/80";
+
+const TONE = {
+  accent: {
+    box: "bg-primary/10 text-primary border-primary/25",
+  },
+  amber: {
+    box: "bg-amber-600/15 text-amber-300 border-amber-600/40",
+  },
+  rose: {
+    box: "bg-rose-600/15 text-rose-300 border-rose-600/40",
+  },
+} as const;
 
 export function aggregateYearly(
   data: { month: string; count: number }[],
@@ -155,10 +234,19 @@ export default function DashboardPage() {
     const [y, m] = last.month.split("-");
     return {
       label: `${monthNames[Number(m) - 1]} ${y}`,
+      prevLabel: prev ? longMonth(prev.month) : null,
       count: last.count,
       delta: prev ? last.count - prev.count : null,
     };
   }, [monthlyData]);
+
+  const responseStats = useMemo(() => {
+    if (responseData.length === 0) return null;
+    const avg = responseData.reduce((sum, d) => sum + d.avgMs, 0) / responseData.length;
+    const fastest = responseData.reduce((a, b) => (b.avgMs < a.avgMs ? b : a));
+    const slowest = responseData.reduce((a, b) => (b.avgMs > a.avgMs ? b : a));
+    return { avg, fastest, slowest };
+  }, [responseData]);
 
   const saveBlob = (blob: Blob & { filename?: string }, fallback: string) => {
     const url = URL.createObjectURL(blob);
@@ -223,174 +311,248 @@ export default function DashboardPage() {
     );
   }
 
+  const attemptedPct = total ? Math.round((attemptedCount / total) * 100) : 0;
+  const positivePct = total ? Math.round((positiveCount / total) * 100) : 0;
+
   const statCards: {
+    key: string;
     label: string;
     value: number;
-    color: string;
-    gradient: string;
+    tone: keyof typeof TONE;
     icon: string;
-    delta?: number | null;
-  }[] = [
-    {
-      label: "Total incidents",
-      value: total,
-      color: "text-text",
-      gradient: "from-primary/10 to-primary/5",
-      icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-    },
-    {
-      label: "Attempted incidents",
-      value: attemptedCount,
-      color: "text-warning",
-      gradient: "from-amber-500/10 to-amber-500/5",
-      icon: "M12 9v2m0 4h.01m21 12a9 9 0 11-18 0 9 9 0 0118 0z",
-    },
-    {
-      label: "Positive incidents",
-      value: positiveCount,
-      color: "text-success",
-      gradient: "from-emerald-500/10 to-emerald-500/5",
-      icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
-    },
-  ];
+    note: React.ReactNode;
+  }[] = [];
+
   if (latestMonth) {
-    statCards.unshift({
+    statCards.push({
+      key: "latest",
       label: `${latestMonth.label} incidents`,
       value: latestMonth.count,
-      color: "text-primary",
-      gradient: "from-sky-500/10 to-sky-500/5",
-      icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
-      delta: latestMonth.delta,
+      tone: "accent",
+      icon: ICONS.calendar,
+      note:
+        latestMonth.delta === null ? (
+          "No previous month"
+        ) : (
+          <span
+            className={`inline-flex items-center gap-1.5 ${latestMonth.delta > 0 ? "text-rose-300" : "text-primary"}`}
+          >
+            <svg
+              className="h-[15px] w-[15px]"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m22 17-8.5-8.5-5 5L2 7" />
+              <path d="M16 17h6v-6" />
+            </svg>
+            {Math.abs(latestMonth.delta)}{" "}
+            {latestMonth.delta >= 0 ? "more" : "fewer"} than{" "}
+            {latestMonth.prevLabel}
+          </span>
+        ),
     });
   }
 
+  statCards.push(
+    {
+      key: "total",
+      label: "Total incidents",
+      value: total,
+      tone: "accent",
+      icon: ICONS.file,
+      note: monthRange(monthlyData),
+    },
+    {
+      key: "attempted",
+      label: "Attempted",
+      value: attemptedCount,
+      tone: "amber",
+      icon: ICONS.alert,
+      note: `${attemptedPct}% of all incidents`,
+    },
+    {
+      key: "positive",
+      label: "Positive",
+      value: positiveCount,
+      tone: "rose",
+      icon: ICONS.octagon,
+      note: `${positivePct}% of all incidents`,
+    },
+  );
+
   return (
     <div className="relative isolate">
-      <DashboardBubbles />
-      <div className="relative z-10 flex flex-col gap-8">
-      {trial?.isTrial && trial.daysRemaining <= 2 && !trial.isExpired && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 flex items-center gap-3">
-          <svg
-            className="h-5 w-5 shrink-0 text-amber-400"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <div className="text-lg text-amber-200">
-            Your free trial ends in{" "}
-            <strong>
-              {trial.daysRemaining} day{trial.daysRemaining === 1 ? "" : "s"}
-            </strong>
-            .{" "}
-            <a
-              href="/settings/billing"
-              className="cursor-pointer underline font-medium hover:text-amber-100"
+      <div className="relative z-10 flex flex-col gap-6">
+        {trial?.isTrial && trial.daysRemaining <= 2 && !trial.isExpired && (
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 flex items-center gap-3">
+            <svg
+              className="h-5 w-5 shrink-0 text-amber-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              Upgrade now
-            </a>{" "}
-            to keep full access.
+              <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="text-lg text-amber-200">
+              Your free trial ends in{" "}
+              <strong>
+                {trial.daysRemaining} day{trial.daysRemaining === 1 ? "" : "s"}
+              </strong>
+              .{" "}
+              <Link
+                href="/settings/billing"
+                className="cursor-pointer underline font-medium hover:text-amber-100"
+              >
+                Upgrade now
+              </Link>{" "}
+              to keep full access.
+            </div>
+          </div>
+        )}
+
+        {trial?.isExpired && (
+          <div className="rounded-xl border border-danger/30 bg-danger/10 p-4 flex items-center gap-3">
+            <svg
+              className="h-5 w-5 shrink-0 text-danger"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="text-lg text-red-200">
+              Your free trial has ended. Some features may be limited.{" "}
+              <Link
+                href="/settings/billing"
+                className="cursor-pointer underline font-medium hover:text-red-100"
+              >
+                Upgrade now
+              </Link>{" "}
+              to restore full access.
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-[28px] font-semibold tracking-tight text-text">
+              Dashboard
+            </h1>
+            <p className="mt-1 text-text-secondary">
+              Overview of incident reports
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {canExportReports && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleDownloadPdf}
+                loading={downloading}
+              >
+                <svg
+                  className="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Yearly PDF
+              </Button>
+            )}
+            <Link
+              href="/incidents/new"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary-hover px-3.5 text-sm font-medium text-gray-900 shadow-lg shadow-primary/25 transition-all duration-150 hover:shadow-primary/40"
+            >
+              <svg
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              Report incident
+            </Link>
           </div>
         </div>
-      )}
 
-      {trial?.isExpired && (
-        <div className="rounded-xl border border-danger/30 bg-danger/10 p-4 flex items-center gap-3">
-          <svg
-            className="h-5 w-5 shrink-0 text-danger"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <div className="text-lg text-red-200">
-            Your free trial has ended. Some features may be limited.{" "}
-            <a
-              href="/settings/billing"
-              className="cursor-pointer underline font-medium hover:text-red-100"
-            >
-              Upgrade now
-            </a>{" "}
-            to restore full access.
-          </div>
-        </div>
-      )}
-
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-text">Dashboard</h1>
-          <p className="text-lg text-text-secondary mt-1">
-            Overview of incident reports
+        {yearlyError && (
+          <p role="alert" className="text-lg text-danger">
+            {yearlyError}
           </p>
-        </div>
-      </div>
+        )}
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        {statCards.map((stat) => (
-          <Card key={stat.label} className="relative overflow-hidden">
-            <div
-              className={`absolute inset-0 bg-gradient-to-br ${stat.gradient}`}
-            />
-            <CardContent className="relative">
-              <div className="flex items-center justify-between">
-                <p className="text-lg text-text-secondary">{stat.label}</p>
-                <div
-                  className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient}`}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {statCards.map((stat) => (
+            <div key={stat.key} className={PANEL}>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-medium text-text-secondary">
+                  {stat.label}
+                </p>
+                <span
+                  className={`grid h-9 w-9 place-items-center rounded-[10px] border ${TONE[stat.tone].box}`}
                 >
                   <svg
-                    className={`h-5 w-5 ${stat.color}`}
+                    className="h-[18px] w-[18px]"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="1.5"
+                    strokeWidth="1.7"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
                     <path d={stat.icon} />
                   </svg>
-                </div>
+                </span>
               </div>
-              <p
-                className={`mt-3 text-3xl font-bold tracking-tight ${stat.color}`}
-              >
+              <p className="mt-4 font-mono text-4xl font-semibold leading-none tracking-tight text-text">
                 {stat.value}
               </p>
-              {stat.delta !== undefined && stat.delta !== null && (
-                <p
-                  className={`mt-1 text-lg font-medium ${stat.delta >= 0 ? "text-danger" : "text-success"}`}
-                >
-                  {stat.delta >= 0 ? "▲" : "▼"} {Math.abs(stat.delta)} vs
-                  previous month
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              <div className="mt-2.5 flex items-center gap-1.5 text-[13px] text-text-secondary">
+                {stat.note}
+              </div>
+            </div>
+          ))}
+        </div>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <CardTitle>Incident Trends</CardTitle>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-6">
+          <div className={`${PANEL} lg:col-span-4`}>
+            <div data-testid="trend-header" className={CARD_HEAD}>
+              <div>
+                <h2 className={CARD_TITLE}>Incident trends</h2>
+                <p className={CARD_SUB}>Incidents per month</p>
+              </div>
               <div className="flex items-center gap-2">
-                <div className="flex rounded-lg bg-surface-secondary p-0.5 ring-1 ring-border-light">
+                <div className="inline-flex rounded-lg border border-border-light bg-surface-secondary p-0.5">
                   {(["monthly", "yearly"] as const).map((m) => (
                     <button
                       key={m}
                       type="button"
                       onClick={() => setChartMode(m)}
-                      className={`cursor-pointer rounded-md px-3 py-1 text-lg font-medium capitalize transition-colors ${
+                      className={`cursor-pointer rounded-md px-3 py-1 text-sm font-medium capitalize transition-colors ${
                         chartMode === m
-                          ? "bg-surface-elevated text-primary"
+                          ? "bg-primary text-gray-900"
                           : "text-text-secondary hover:text-text"
                       }`}
                     >
@@ -398,72 +560,51 @@ export default function DashboardPage() {
                     </button>
                   ))}
                 </div>
-                {canExportReports && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleDownloadPdf}
-                    loading={downloading}
-                  >
-                    <svg
-                      className="h-4 w-4"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                    PDF
-                  </Button>
-                )}
               </div>
             </div>
-            {yearlyError && (
-              <p role="alert" className="text-lg text-danger">
-                {yearlyError}
-              </p>
-            )}
-          </CardHeader>
-          <CardContent>
             {monthlyData.length === 0 ? (
-              <p className="text-lg text-text-secondary">
-                No incident data yet.
-              </p>
+              <p className="text-lg text-text-secondary">No incident data yet.</p>
             ) : (
-              <YearlyTrendChart data={chartData} />
+              <>
+                <YearlyTrendChart data={chartData} />
+                <ChartTable
+                  head={["Month", "Incidents"]}
+                  rows={chartData.map((d) => [
+                    chartMode === "yearly" ? d.month : longMonth(d.month),
+                    d.count,
+                  ])}
+                />
+              </>
             )}
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Incidents by Type</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {total === 0 ? (
-              <p className="text-lg text-text-secondary">
-                No incidents reported yet.
-              </p>
-            ) : (
-              <IncidentPieChart
-                attempted={attemptedCount}
-                positive={positiveCount}
-              />
-            )}
-          </CardContent>
-        </Card>
-      </div>
+          <div className={`${PANEL} flex flex-col lg:col-span-2`}>
+            <div className={CARD_HEAD}>
+              <div>
+                <h2 className={CARD_TITLE}>Incidents by Type</h2>
+                <p className={CARD_SUB}>All incidents</p>
+              </div>
+            </div>
+            <div className="flex flex-1 flex-col justify-center">
+              {total === 0 ? (
+                <p className="text-lg text-text-secondary">
+                  No incidents reported yet.
+                </p>
+              ) : (
+                <IncidentPieChart
+                  attempted={attemptedCount}
+                  positive={positiveCount}
+                />
+              )}
+            </div>
+          </div>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <Card className="flex flex-col">
-          <CardHeader>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <CardTitle>Avg Response Time</CardTitle>
+          <div className={`${PANEL} flex flex-col lg:col-span-3`}>
+            <div className={CARD_HEAD}>
+              <div>
+                <h2 className={CARD_TITLE}>Average response time</h2>
+                <p className={CARD_SUB}>Dispatch to arrival, per month</p>
+              </div>
               {canExportReports && (
                 <div className="flex items-center gap-1">
                   {RESPONSE_PERIODS.map((months) => (
@@ -487,46 +628,77 @@ export default function DashboardPage() {
                 {downloadError}
               </p>
             )}
-          </CardHeader>
-          <CardContent className="flex-1 min-h-0">
-            {responseLoading ? (
-              <>
-                <p className="sr-only" role="status">
-                  Loading response time data
+            <div className="flex-1 min-h-0">
+              {responseLoading ? (
+                <>
+                  <p className="sr-only" role="status">
+                    Loading response time data
+                  </p>
+                  <div
+                    className="h-full min-h-64 animate-pulse rounded-lg bg-zinc-600"
+                    aria-hidden="true"
+                  />
+                </>
+              ) : responseError ? (
+                <div className="flex flex-col items-center gap-3 py-8">
+                  <p className="text-lg text-danger">
+                    Failed to load response time data
+                  </p>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={fetchResponseMetrics}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              ) : responseData.length === 0 ? (
+                <p className="text-lg text-text-secondary">
+                  No response time data yet (dispatch/arrival times not recorded).
                 </p>
-                <div
-                  className="h-full min-h-64 animate-pulse rounded-lg bg-zinc-600"
-                  aria-hidden="true"
-                />
-              </>
-            ) : responseError ? (
-              <div className="flex flex-col items-center gap-3 py-8">
-                <p className="text-lg text-danger">
-                  Failed to load response time data
-                </p>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={fetchResponseMetrics}
-                >
-                  Retry
-                </Button>
+              ) : (
+                <>
+                  <ResponseTimeChart data={responseData} />
+                  <ChartTable
+                    head={["Month", "Average response"]}
+                    rows={responseData.map((d) => [
+                      longMonth(d.month),
+                      formatDurationMs(d.avgMs),
+                    ])}
+                  />
+                </>
+              )}
+            </div>
+            {!responseLoading && !responseError && responseStats && (
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {[
+                  { v: responseStats.avg, l: "7-month average" },
+                  { v: responseStats.fastest.avgMs, l: `Fastest · ${shortMonth(responseStats.fastest.month)}` },
+                  { v: responseStats.slowest.avgMs, l: `Slowest · ${shortMonth(responseStats.slowest.month)}` },
+                ].map((s) => (
+                  <div
+                    key={s.l}
+                    className="rounded-lg border border-border-light bg-surface-secondary px-3 py-2.5"
+                  >
+                    <b className="block font-mono text-lg font-semibold text-text">
+                      {formatDurationMs(s.v)}
+                    </b>
+                    <span className="text-[11px] text-text-secondary">
+                      {s.l}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ) : responseData.length === 0 ? (
-              <p className="text-lg text-text-secondary">
-                No response time data yet (dispatch/arrival times not recorded).
-              </p>
-            ) : (
-              <ResponseTimeChart data={responseData} />
             )}
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Response Time by Area</CardTitle>
-          </CardHeader>
-          <CardContent>
+          <div className={`${PANEL} flex flex-col lg:col-span-3`}>
+            <div className={CARD_HEAD}>
+              <div>
+                <h2 className={CARD_TITLE}>Response time by area</h2>
+                <p className={CARD_SUB}>Slowest areas first</p>
+              </div>
+            </div>
             {responseLoading ? (
               <>
                 <p className="sr-only" role="status">
@@ -558,66 +730,68 @@ export default function DashboardPage() {
               </p>
             ) : (
               <div className="flex h-full flex-col justify-center gap-4">
-                <div className="divide-y divide-border-light/50">
-                  {areaPageRows.map((area) => {
-                    return (
-                      <div
-                        key={area.area}
-                        className="flex items-center gap-4 py-2.5"
-                      >
-                        <span className="shrink-0 whitespace-nowrap text-lg text-text-secondary">
-                          {area.area}
-                        </span>
-                        <div className="h-2 min-w-0 flex-1 max-w-48 overflow-hidden rounded-full bg-surface-secondary">
-                          <div
-                            className="h-full rounded-full bg-warning/80"
-                            style={{
-                              width: `${(area.avgMs / maxAreaAvgMs) * 100}%`,
-                            }}
-                          />
-                        </div>
-                        <div className="ml-auto flex shrink-0 items-center gap-4">
-                          <span className="w-20 whitespace-nowrap text-right text-lg font-medium text-text">
-                            {formatDurationMs(area.avgMs)}
-                          </span>
-                          <span className="w-28 whitespace-nowrap text-right text-lg text-text-secondary">
-                            {area.count} incidents
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                {areaTotalPages > 1 && (
-                  <div className="flex items-center justify-between">
-                    <p className="text-lg text-text-secondary">
-                      Page {areaPage} of {areaTotalPages}
-                    </p>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        disabled={areaPage <= 1}
-                        onClick={() => setAreaPage((p) => Math.max(1, p - 1))}
-                      >
-                        Previous
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        disabled={areaPage >= areaTotalPages}
-                        onClick={() => setAreaPage((p) => p + 1)}
-                      >
-                        Next
-                      </Button>
-                    </div>
+                <div className="grid">
+                  <div
+                    className="grid grid-cols-[minmax(0,1.2fr)_minmax(48px,1fr)_72px_34px] items-center gap-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.09em] text-text-secondary/70"
+                    aria-hidden="true"
+                  >
+                    <span>Area</span>
+                    <span />
+                    <span className="text-right">Average</span>
+                    <span className="text-right">Inc.</span>
                   </div>
-                )}
+                  {areaPageRows.map((area) => (
+                    <div
+                      key={area.area}
+                      className="grid grid-cols-[minmax(0,1.2fr)_minmax(48px,1fr)_72px_34px] items-center gap-3 border-t border-border py-2.5"
+                    >
+                      <span className="truncate text-sm text-text-secondary">
+                        {area.area}
+                      </span>
+                      <span className="h-1.5 overflow-hidden rounded-full bg-surface-elevated">
+                        <span
+                          className="block h-full rounded-full bg-primary"
+                          style={{
+                            width: `${(area.avgMs / maxAreaAvgMs) * 100}%`,
+                          }}
+                        />
+                      </span>
+                      <span className="text-right font-mono text-[13px] font-medium text-text">
+                        {formatDurationMs(area.avgMs)}
+                      </span>
+                      <span className="text-right text-[13px] text-text-secondary">
+                        {area.count}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-auto flex items-center justify-between border-t border-border pt-3.5 text-[13px] text-text-secondary">
+                  <span>
+                    Page {areaPage} of {areaTotalPages}
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      disabled={areaPage <= 1}
+                      onClick={() => setAreaPage((p) => Math.max(1, p - 1))}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      disabled={areaPage >= areaTotalPages}
+                      onClick={() => setAreaPage((p) => p + 1)}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
               </div>
             )}
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
       </div>
     </div>
   );
