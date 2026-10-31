@@ -197,6 +197,29 @@ describe("DashboardPage", () => {
     expect(screen.queryByText("Area 01")).not.toBeInTheDocument();
   });
 
+  it("paginates the response time by area list", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockResponseByArea.mockResolvedValue({
+      data: Array.from({ length: 25 }, (_, i) => ({
+        area: `Area ${String(i + 1).padStart(2, "0")}`,
+        avgMs: 60000,
+        count: 1,
+      })),
+    });
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Page 1 of 3")).toBeInTheDocument();
+    });
+    expect(screen.getByText("Area 01")).toBeInTheDocument();
+    expect(screen.queryByText("Area 11")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByText("Next"));
+
+    expect(screen.getByText("Area 11")).toBeInTheDocument();
+    expect(screen.queryByText("Area 01")).not.toBeInTheDocument();
+  });
+
   it("shows a sub-minute area average as seconds rather than zero", async () => {
     mockSummary.mockResolvedValue({ data: mockData });
     mockResponseByArea.mockResolvedValue({
