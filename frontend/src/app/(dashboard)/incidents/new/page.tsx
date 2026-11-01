@@ -4,14 +4,14 @@
  */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch, type UseFormRegister } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Card, CardContent } from "@/components/ui/Card";
 import { cn } from "@/lib/cn";
 import { incidentService } from "@/services";
 
@@ -36,35 +36,105 @@ const createIncidentSchema = z.object({
 
 type CreateIncidentForm = z.infer<typeof createIncidentSchema>;
 
+const CARD = "rounded-[18px] border border-border-light bg-surface p-6";
+
+function SectionHeader({ step, title, description }: { step: number; title: string; description: string }) {
+  return (
+    <header className="flex items-start gap-3.5">
+      <span className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-primary/25 bg-primary/[0.06] font-mono text-[13px] text-primary">
+        {step}
+      </span>
+      <div>
+        <h2 className="text-[17px] font-semibold text-text">{title}</h2>
+        <p className="mt-0.5 text-sm text-text-subtle">{description}</p>
+      </div>
+    </header>
+  );
+}
+
+function TypeOption({
+  value,
+  label,
+  tone,
+  icon,
+  register,
+}: {
+  value: string;
+  label: string;
+  tone: "attempted" | "positive";
+  icon: React.ReactNode;
+  register: UseFormRegister<CreateIncidentForm>;
+}) {
+  return (
+    <label className="relative cursor-pointer">
+      <input
+        type="radio"
+        value={value}
+        className="peer absolute inset-0 cursor-pointer opacity-0"
+        {...register("type")}
+      />
+      <span className="flex items-center gap-3 rounded-xl border border-border bg-surface-secondary/85 px-4 py-3.5 font-medium text-text transition-all peer-checked:border-primary peer-checked:ring-[3px] peer-checked:ring-primary/15 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary">
+        <span
+          className={cn(
+            "grid h-[34px] w-[34px] shrink-0 place-items-center rounded-[10px] border",
+            tone === "attempted"
+              ? "border-[#fcd34d]/40 bg-[#fcd34d]/[0.12] text-[#fcd34d]"
+              : "border-[#fca5a5]/40 bg-[#fca5a5]/[0.12] text-[#fca5a5]",
+          )}
+        >
+          {icon}
+        </span>
+        {label}
+      </span>
+    </label>
+  );
+}
+
 /** New incident page component with Zod-validated form. */
 export default function NewIncidentPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [typePrefix, setTypePrefix] = useState("");
 
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CreateIncidentForm>({
     resolver: zodResolver(createIncidentSchema),
     defaultValues: {
+      type: "",
       incidentDate: new Date().toLocaleDateString("en-CA"),
     },
   });
 
-  const currentType = watch("type");
+  const dispatchTime = useWatch({ control, name: "dispatchTime" });
+  const arrivalTime = useWatch({ control, name: "arrivalTime" });
 
-  useEffect(() => {
-    const combined = [typePrefix].filter(Boolean).join(" ").trim();
-    if (combined !== currentType) {
-      setValue("type", combined, { shouldValidate: combined.length > 0 });
-    }
-  }, [typePrefix, setValue, currentType]);
+  let responseMinutes: number | null = null;
+  if (dispatchTime && arrivalTime) {
+    const diff = new Date(arrivalTime).getTime() - new Date(dispatchTime).getTime();
+    if (!Number.isNaN(diff)) responseMinutes = Math.round(diff / 60000);
+  }
+
+  const responseText =
+    responseMinutes === null
+      ? "Add dispatch and arrival times to see the response time"
+      : responseMinutes < 0
+        ? "Arrival is before dispatch"
+        : responseMinutes >= 60
+          ? `${Math.floor(responseMinutes / 60)} h ${responseMinutes % 60} min response time`
+          : `${responseMinutes} min response time`;
 
   const onSubmit = async (data: CreateIncidentForm) => {
+    if (
+      data.dispatchTime &&
+      data.arrivalTime &&
+      new Date(data.arrivalTime) < new Date(data.dispatchTime)
+    ) {
+      setError("Arrival time must be after the dispatch time.");
+      return;
+    }
     try {
       setError(null);
       // datetime-local has no offset; convert in the browser so the server gets a UTC instant.
@@ -82,222 +152,267 @@ export default function NewIncidentPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[70%] min-w-160">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-text">Report Incident</h1>
-        <p className="text-sm text-text-secondary mt-1">
-          Fill in the details of the incident.
+    <div className="animate-fade-in w-full">
+      <div className="mb-6">
+        <Link
+          href="/incidents"
+          className="mb-2.5 inline-flex items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-text"
+        >
+          <svg className="h-4 w-4 rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M5 12h14" />
+            <path d="m12 5 7 7-7 7" />
+          </svg>
+          Incidents
+        </Link>
+        <h1 className="text-[clamp(26px,2.6vw,32px)] font-bold tracking-[-0.03em] text-text">
+          Report incident
+        </h1>
+        <p className="mt-1.5 text-sm text-text-secondary">
+          Fill in the details of the incident. A reference number is assigned when you submit.
         </p>
       </div>
 
-      <Card className="w-full">
-        <CardContent className="p-8">
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-6"
-          >
-            {error && (
-              <div
-                className="rounded-lg bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20"
-                role="alert"
-              >
-                {error}
-              </div>
-            )}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]"
+      >
+        <div className="grid gap-4">
+          {error && (
+            <div
+              className="rounded-xl bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20"
+              role="alert"
+            >
+              {error}
+            </div>
+          )}
 
-            <div className="grid grid-cols-2 gap-6">
+          <section className={cn(CARD, "grid gap-[18px]")}>
+            <SectionHeader step={1} title="Incident" description="What happened and when." />
+            <fieldset className="min-w-0">
+              <legend className="mb-[7px] block text-sm font-medium text-text/90">Type</legend>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <TypeOption
+                  value="Attempted"
+                  label="Attempted"
+                  tone="attempted"
+                  register={register}
+                  icon={
+                    <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                      <path d="M12 9v4" />
+                      <path d="M12 17h.01" />
+                    </svg>
+                  }
+                />
+                <TypeOption
+                  value="Positive"
+                  label="Positive"
+                  tone="positive"
+                  register={register}
+                  icon={
+                    <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M7.86 2h8.28L22 7.86v8.28L16.14 22H7.86L2 16.14V7.86L7.86 2Z" />
+                      <path d="M12 8v4" />
+                      <path d="M12 16h.01" />
+                    </svg>
+                  }
+                />
+              </div>
+              {errors.type && (
+                <p className="mt-1.5 text-sm text-danger" role="alert">
+                  {errors.type.message}
+                </p>
+              )}
+            </fieldset>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Input
+                className="bg-surface-secondary"
+                label="Title"
+                placeholder="Brief title of the incident"
+                error={errors.title?.message}
+                {...register("title")}
+              />
+              <Input
+                className="scheme-dark bg-surface-secondary"
+                label="Incident Date"
+                type="date"
+                error={errors.incidentDate?.message}
+                {...register("incidentDate")}
+              />
+            </div>
+          </section>
+
+          <section className={cn(CARD, "grid gap-[18px]")}>
+            <SectionHeader
+              step={2}
+              title="Personnel & response"
+              description="Who handled it and how fast the vehicle arrived."
+            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input
+                className="bg-surface-secondary"
                 label="Operator Name"
                 placeholder="Person creating the report"
                 error={errors.operatorName?.message}
                 {...register("operatorName")}
               />
               <Input
+                className="bg-surface-secondary"
                 label="Dispatcher"
-                placeholder="Person at dispatch station"
+                placeholder="Person at the dispatch station"
                 error={errors.dispatcher?.message}
                 {...register("dispatcher")}
               />
             </div>
-
-            <h3 className="text-sm font-semibold text-text-secondary/80 uppercase tracking-wider pt-2">
-              Response Details
-            </h3>
-
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <Input
-                className="scheme-dark"
+                className="scheme-dark bg-surface-secondary"
                 label="Dispatch Time"
                 type="datetime-local"
                 error={errors.dispatchTime?.message}
                 {...register("dispatchTime")}
               />
               <Input
-                className="scheme-dark"
+                className="scheme-dark bg-surface-secondary"
                 label="Arrival Time"
                 type="datetime-local"
                 error={errors.arrivalTime?.message}
                 {...register("arrivalTime")}
               />
-            </div>
-
-            <Input
-              label="Call Sign"
-              placeholder="Call sign of the armed response vehicle"
-              error={errors.callSign?.message}
-              {...register("callSign")}
-            />
-
-            <h3 className="text-sm font-semibold text-text-secondary/80 uppercase tracking-wider pt-2">
-              Client &amp; Property
-            </h3>
-
-            <Input
-              label="Property Address"
-              placeholder="Address of the property"
-              error={errors.propertyAddress?.message}
-              {...register("propertyAddress")}
-            />
-
-            <div className="grid grid-cols-2 gap-6">
               <Input
+                className="bg-surface-secondary font-mono"
+                label="Call Sign"
+                placeholder="e.g. ALPHA-3"
+                error={errors.callSign?.message}
+                {...register("callSign")}
+              />
+            </div>
+          </section>
+
+          <section className={cn(CARD, "grid gap-[18px]")}>
+            <SectionHeader
+              step={3}
+              title="Client & property"
+              description="Where it happened and who the client is."
+            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <Input
+                  className="bg-surface-secondary"
+                  label="Property Address"
+                  placeholder="Street address of the property"
+                  error={errors.propertyAddress?.message}
+                  {...register("propertyAddress")}
+                />
+              </div>
+              <Input
+                className="bg-surface-secondary"
                 label="Suburb"
-                placeholder="Suburb of the incident"
+                placeholder="Suburb"
                 error={errors.suburb?.message}
                 {...register("suburb")}
               />
               <Input
+                className="bg-surface-secondary"
                 label="City"
-                placeholder="City of the incident"
+                placeholder="City"
                 error={errors.city?.message}
                 {...register("city")}
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
               <Input
+                className="bg-surface-secondary"
                 label="Client Name and Surname"
                 placeholder="Client full name"
                 error={errors.clientName?.message}
                 {...register("clientName")}
               />
               <Input
+                className="bg-surface-secondary font-mono"
                 label="Client Code"
                 placeholder="Client code"
                 error={errors.clientCode?.message}
                 {...register("clientCode")}
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
               <Input
+                className="bg-surface-secondary"
                 label="Business or Complex Name"
                 placeholder="Business or complex name"
                 error={errors.businessOrComplex?.message}
                 {...register("businessOrComplex")}
               />
               <Input
+                className="bg-surface-secondary font-mono"
                 label="SAPS Reference"
-                placeholder="SAPS reference number"
+                placeholder="e.g. CAS 214/10/2026"
                 error={errors.sapsReference?.message}
                 {...register("sapsReference")}
               />
             </div>
+          </section>
 
-            <h3 className="text-sm font-semibold text-text-secondary/80 uppercase tracking-wider pt-2">
-              Incident
-            </h3>
-            <div className="grid grid-cols-3 gap-6 items-start">
-              {/* Column 1: Type Field */}
-              <div className="flex flex-col gap-1.5">
-                {/* Label container with min-height or fixed h-5 ensures matching top spacing */}
-                <label className="text-sm font-medium text-text/90 h-5 flex items-center">
-                  Type
-                </label>
-
-                <select
-                  aria-label="Type"
-                  value={typePrefix}
-                  onChange={(e) => setTypePrefix(e.target.value)}
-                  className={cn(
-                    "h-11 w-full rounded-xl border bg-surface/60 backdrop-blur-sm px-3.5 py-2.5 text-sm text-text transition-all duration-150 focus:outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15",
-                    typePrefix ? "border-primary/20" : "border-border-light",
-                  )}
-                >
-                  <option value="">Select type</option>
-                  <option value="Attempted">Attempted</option>
-                  <option value="Positive">Positive</option>
-                </select>
-
-                {/* Error sits strictly BELOW the input without shifting the input's top position */}
-                {errors.type && (
-                  <p className="text-sm text-danger mt-1" role="alert">
-                    {errors.type.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Column 2: Title Field */}
-              <div className="flex flex-col gap-1.5">
-                {/* If using the custom Input component, wrap or ensure label height matches */}
-                <Input
-                  label="Title"
-                  placeholder="Brief title of the incident"
-                  error={errors.title?.message}
-                  {...register("title")}
-                />
-              </div>
-
-              {/* Column 3: Incident Date Field */}
-              <div className="flex flex-col gap-1.5">
-                <Input
-                  className="scheme-dark"
-                  label="Incident Date"
-                  type="date"
-                  error={errors.incidentDate?.message}
-                  {...register("incidentDate")}
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="description"
-                className="text-sm font-medium text-text/90"
-              >
+          <section className={cn(CARD, "grid gap-[18px]")}>
+            <SectionHeader
+              step={4}
+              title="Report"
+              description="Describe what happened in as much detail as you can."
+            />
+            <div>
+              <label htmlFor="description" className="mb-[7px] block text-sm font-medium text-text/90">
                 Report
               </label>
               <textarea
                 id="description"
-                rows={5}
+                rows={6}
                 placeholder="Detailed description of what happened"
-                className="w-full rounded-lg border border-border-light bg-surface px-3 py-2.5 text-sm text-text placeholder:text-text-secondary/60 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+                className="min-h-32 w-full resize-y rounded-[10px] border border-border-light bg-surface-secondary px-3.5 py-3 text-sm text-text placeholder:text-text-subtle outline-none transition-colors hover:border-[#52525b] focus:border-primary focus:ring-[3px] focus:ring-primary/15"
                 aria-invalid={!!errors.description}
                 {...register("description")}
               />
               {errors.description && (
-                <p className="text-sm text-danger" role="alert">
+                <p className="mt-1.5 text-sm text-danger" role="alert">
                   {errors.description.message}
                 </p>
               )}
             </div>
+          </section>
+        </div>
 
-            <div className="flex gap-3 pt-2">
-              <Button type="submit" loading={isSubmitting} size="lg">
-                Submit Report
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                size="lg"
-                onClick={() => router.push("/incidents")}
-              >
-                Cancel
-              </Button>
+        <aside className="lg:sticky lg:top-[88px]">
+          <div className={cn(CARD, "grid gap-3.5")}>
+            <div>
+              <p className="text-xs uppercase tracking-[0.1em] text-text-subtle">Reference</p>
+              <p className="mt-0.5 font-mono text-[15px] text-primary">Assigned on submit</p>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+            <p
+              className={cn(
+                "flex items-center gap-2 rounded-[10px] border border-border bg-surface-secondary px-3 py-3 text-sm",
+                responseMinutes === null
+                  ? "text-text-secondary"
+                  : responseMinutes < 0
+                    ? "text-[#fca5a5]"
+                    : "text-primary",
+              )}
+            >
+              <svg className="h-[18px] w-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+              <span aria-live="polite">{responseText}</span>
+            </p>
+            <Button type="submit" loading={isSubmitting} className="w-full">
+              Submit report
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full"
+              onClick={() => router.push("/incidents")}
+            >
+              Cancel
+            </Button>
+          </div>
+        </aside>
+      </form>
     </div>
   );
 }

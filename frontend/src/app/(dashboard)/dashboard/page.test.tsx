@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import DashboardPage, { aggregateYearly, fillMonthGaps } from "./page";
 import { reportService, exportService } from "@/services";
@@ -34,15 +34,18 @@ const { __authState: authState } = jest.requireMock("@/hooks/useAuth");
 
 jest.mock("@/services", () => ({
   ...jest.requireActual("@/services"),
-  reportService: { summary: jest.fn(), monthlyStats: jest.fn(), monthlyResponse: jest.fn(), responseByArea: jest.fn() },
-  exportService: { downloadYearlyPdf: jest.fn(), downloadResponseTimePdf: jest.fn() },
+  reportService: { summary: jest.fn(), monthlyStats: jest.fn(), monthlyResponse: jest.fn(), responseByArea: jest.fn(), topSites: jest.fn() },
+  exportService: { downloadYearlyPdf: jest.fn(), downloadTopSitesPdf: jest.fn(), downloadMonthlyCrimePdf: jest.fn(), downloadResponseTimePdf: jest.fn() },
 }));
 
 const mockSummary = reportService.summary as jest.Mock;
 const mockMonthly = reportService.monthlyStats as jest.Mock;
 const mockMonthlyResponse = reportService.monthlyResponse as jest.Mock;
 const mockResponseByArea = reportService.responseByArea as jest.Mock;
+const mockTopSites = reportService.topSites as jest.Mock;
 const mockDownloadPdf = exportService.downloadYearlyPdf as jest.Mock;
+const mockDownloadTopSites = exportService.downloadTopSitesPdf as jest.Mock;
+const mockDownloadMonthlyCrime = exportService.downloadMonthlyCrimePdf as jest.Mock;
 const mockDownloadResponseTime = exportService.downloadResponseTimePdf as jest.Mock;
 
 const mockData = {
@@ -61,6 +64,7 @@ beforeEach(() => {
   mockMonthly.mockResolvedValue({ data: [] });
   mockMonthlyResponse.mockResolvedValue({ data: [] });
   mockResponseByArea.mockResolvedValue({ data: [] });
+  mockTopSites.mockResolvedValue({ data: [] });
 });
 
 describe("DashboardPage", () => {
@@ -172,6 +176,24 @@ describe("DashboardPage", () => {
     expect(screen.getByText("North CBD")).toBeInTheDocument();
     expect(screen.getByText("30m 0s")).toBeInTheDocument();
     expect(screen.getAllByText("2").length).toBeGreaterThan(0);
+  });
+
+  it("renders sites with most incidents, busiest first", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockTopSites.mockResolvedValue({
+      data: [
+        { site: "1 Main Rd", count: 4 },
+        { site: "Mall", count: 2 },
+      ],
+    });
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Sites with most incidents")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("1 Main Rd")).toBeInTheDocument();
+    expect(screen.getByText("Mall")).toBeInTheDocument();
   });
 
   it("paginates the response time by area list", async () => {
@@ -315,9 +337,61 @@ describe("DashboardPage", () => {
       expect(screen.getByText("Incident trends")).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByRole("button", { name: /pdf/i }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Yearly Crime Stat report" }),
+    );
 
     expect(mockDownloadPdf).toHaveBeenCalledTimes(1);
+  });
+
+  it("downloads the sites report from the header", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockTopSites.mockResolvedValue({
+      data: [{ site: "1 Main Rd", count: 4 }],
+    });
+    URL.createObjectURL = jest.fn(() => "blob:mock-url");
+    mockDownloadTopSites.mockResolvedValue(
+      new Blob(["%PDF"], { type: "application/pdf" }),
+    );
+
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Sites with most incidents")).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: "Sites report" }));
+
+    expect(mockDownloadTopSites).toHaveBeenCalledTimes(1);
+  });
+
+  it("opens the monthly crime stat modal and downloads the chosen range", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    URL.createObjectURL = jest.fn(() => "blob:mock-url");
+    mockDownloadMonthlyCrime.mockResolvedValue(
+      new Blob(["%PDF"], { type: "application/pdf" }),
+    );
+
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Monthly Crime Stat report" }),
+      ).toBeInTheDocument();
+    });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Monthly Crime Stat report" }),
+    );
+
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Download" }),
+    );
+
+    expect(mockDownloadMonthlyCrime).toHaveBeenCalledTimes(1);
+    const [from, to] = mockDownloadMonthlyCrime.mock.calls[0];
+    expect(new Date(from).getTime()).toBeLessThan(new Date(to).getTime());
   });
 
   describe("average response time report downloads", () => {
@@ -457,7 +531,9 @@ describe("DashboardPage download failures and month gaps", () => {
       expect(screen.getByText("Incident trends")).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByRole("button", { name: /pdf/i }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Yearly Crime Stat report" }),
+    );
 
     expect(await screen.findByText("Failed to download PDF")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Retry" })).not.toBeInTheDocument();

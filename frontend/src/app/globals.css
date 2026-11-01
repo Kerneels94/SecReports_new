@@ -9,11 +9,13 @@
   --color-warning: #fbbf24;
   --color-surface: #27272a;
   --color-surface-secondary: #18181b;
+  --color-surface-raised: #1f1f23;
   --color-surface-elevated: #3f3f46;
   --color-border: #3f3f46;
   --color-border-light: rgba(134, 239, 172, 0.1);
   --color-text: #e8e8ec;
   --color-text-secondary: #bcbcc4;
+  --color-text-subtle: #9393a0;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

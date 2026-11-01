@@ -45,13 +45,21 @@ describe("Sidebar", () => {
     expect(getNavLink("Users")).toHaveAttribute("href", "/admin/users");
   });
 
-  it("does not render Report incident for admins", () => {
+  it("renders Report incident for admins with the create permission", () => {
     mockUser = { ...mockUser, role: "admin" };
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar />);
 
-    expect(getNavLink("Report incident")).toBeNull();
+    expect(getNavLink("Report incident")).toHaveAttribute("href", "/incidents/new");
     expect(getNavLink("Incidents")).toHaveAttribute("href", "/incidents");
+  });
+
+  it("hides Report incident when the user cannot create incidents", () => {
+    mockUser = { ...mockUser, permissions: ["incidents.view"] };
+    mockUsePathname.mockReturnValue("/dashboard");
+    render(<Sidebar />);
+
+    expect(getNavLink("Report incident")).toBeNull();
   });
 
   it("renders Report incident for seniors", () => {
@@ -106,7 +114,7 @@ describe("Sidebar", () => {
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar />);
     expect(screen.getByText("SecReports")).toBeInTheDocument();
-    expect(screen.getByText("Incident System")).toBeInTheDocument();
+    expect(screen.getByText("Incident system")).toBeInTheDocument();
   });
 
   it("renders a view profile link in the sidebar footer", () => {

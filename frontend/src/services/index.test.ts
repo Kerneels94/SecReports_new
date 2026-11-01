@@ -112,9 +112,26 @@ describe("reportService", () => {
     reportService.responseByArea();
     expect(mockApi.get).toHaveBeenCalledWith("/reports/response-by-area");
   });
+
+  it("topSites calls api.get with the top-sites path", () => {
+    reportService.topSites();
+    expect(mockApi.get).toHaveBeenCalledWith("/reports/top-sites");
+  });
 });
 
 describe("exportService", () => {
+  it("downloadTopSitesPdf requests the top-sites report", () => {
+    exportService.downloadTopSitesPdf();
+    expect(mockApi.downloadBlob).toHaveBeenCalledWith("/export/top-sites-pdf");
+  });
+
+  it("downloadMonthlyCrimePdf encodes the from/to range", () => {
+    exportService.downloadMonthlyCrimePdf("2026-01-01T00:00:00.000Z", "2026-02-01T00:00:00.000Z");
+    expect(mockApi.downloadBlob).toHaveBeenCalledWith(
+      "/export/monthly-crime-pdf?from=2026-01-01T00%3A00%3A00.000Z&to=2026-02-01T00%3A00%3A00.000Z",
+    );
+  });
+
   it.each([3, 6, 9, 12])("downloadResponseTimePdf requests the %i-month period", (months) => {
     exportService.downloadResponseTimePdf(months as 3 | 6 | 9 | 12);
     expect(mockApi.downloadBlob).toHaveBeenCalledWith(

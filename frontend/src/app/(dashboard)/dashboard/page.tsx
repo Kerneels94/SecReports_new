@@ -3,13 +3,14 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { MonthlyCrimeReportModal } from "@/components/reports/MonthlyCrimeReportModal";
 import { reportService, exportService, formatDurationMs } from "@/services";
 import {
   IncidentPieChart,
   ResponseTimeChart,
   YearlyTrendChart,
 } from "./components/DashboardCharts";
-import type { AreaResponseStat, MonthlyResponseStat, ResponsePeriod } from "@/services";
+import type { AreaResponseStat, MonthlyResponseStat, ResponsePeriod, SiteIncidentStat } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 import { hasPermission } from "@/lib/permissions";
 import type { TrialStatus } from "@/types";
@@ -157,6 +158,7 @@ export default function DashboardPage() {
   >([]);
   const [responseData, setResponseData] = useState<MonthlyResponseStat[]>([]);
   const [areaData, setAreaData] = useState<AreaResponseStat[]>([]);
+  const [sitesData, setSitesData] = useState<SiteIncidentStat[]>([]);
   const [areaPage, setAreaPage] = useState(1);
   const [chartMode, setChartMode] = useState<"monthly" | "yearly">("monthly");
   const [loading, setLoading] = useState(true);
@@ -164,11 +166,14 @@ export default function DashboardPage() {
   const [responseError, setResponseError] = useState(false);
   const [responseLoading, setResponseLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [downloadingSites, setDownloadingSites] = useState(false);
+  const [monthlyOpen, setMonthlyOpen] = useState(false);
   const [downloadingPeriod, setDownloadingPeriod] = useState<ResponsePeriod | null>(null);
   // Download failures are reported next to the buttons, not via `error`: that one replaces the
   // whole dashboard with a Retry button, so a 404 or expired trial would blank every chart.
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [yearlyError, setYearlyError] = useState<string | null>(null);
+  const [sitesError, setSitesError] = useState<string | null>(null);
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -194,12 +199,14 @@ export default function DashboardPage() {
     setResponseError(false);
     setResponseLoading(true);
     try {
-      const [responseRes, areaRes] = await Promise.all([
+      const [responseRes, areaRes, sitesRes] = await Promise.all([
         reportService.monthlyResponse(),
         reportService.responseByArea(),
+        reportService.topSites(),
       ]);
       setResponseData(responseRes.data);
       setAreaData(areaRes.data ?? []);
+      setSitesData(sitesRes.data ?? []);
       setAreaPage(1);
     } catch {
       setResponseError(true);
@@ -283,6 +290,21 @@ export default function DashboardPage() {
       setDownloadError(`Failed to download ${months}-month response time report`);
     } finally {
       setDownloadingPeriod(null);
+    }
+  };
+
+  const handleDownloadSites = async () => {
+    setDownloadingSites(true);
+    setSitesError(null);
+    try {
+      saveBlob(
+        await exportService.downloadTopSitesPdf(),
+        "sites-with-most-incidents.pdf",
+      );
+    } catch {
+      setSitesError("Failed to download the site report");
+    } finally {
+      setDownloadingSites(false);
     }
   };
 
@@ -455,51 +477,81 @@ export default function DashboardPage() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {canExportReports && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleDownloadPdf}
-                loading={downloading}
-              >
-                <svg
-                  className="h-4 w-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+              <>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleDownloadPdf}
+                  loading={downloading}
                 >
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Yearly PDF
-              </Button>
+                  <svg
+                    className="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Yearly Crime Stat report
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleDownloadSites}
+                  loading={downloadingSites}
+                >
+                  <svg
+                    className="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Sites report
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setMonthlyOpen(true)}
+                >
+                  <svg
+                    className="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Monthly Crime Stat report
+                </Button>
+              </>
             )}
-            <Link
-              href="/incidents/new"
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary-hover px-3.5 text-sm font-medium text-gray-900 shadow-lg shadow-primary/25 transition-all duration-150 hover:shadow-primary/40"
-            >
-              <svg
-                className="h-4 w-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              Report incident
-            </Link>
           </div>
         </div>
 
         {yearlyError && (
           <p role="alert" className="text-lg text-danger">
             {yearlyError}
+          </p>
+        )}
+
+        {sitesError && (
+          <p role="alert" className="text-lg text-danger">
+            {sitesError}
           </p>
         )}
 
@@ -791,8 +843,58 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
+
+          <div className={`${PANEL} flex flex-col lg:col-span-6`}>
+            <div className={CARD_HEAD}>
+              <div>
+                <h2 className={CARD_TITLE}>Sites with most incidents</h2>
+                <p className={CARD_SUB}>Top 10 by incident count</p>
+              </div>
+            </div>
+            {responseLoading ? (
+              <>
+                <p className="sr-only" role="status">
+                  Loading site data
+                </p>
+                <div className="flex flex-col gap-3" aria-hidden="true">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="h-5 animate-pulse rounded bg-zinc-600" />
+                  ))}
+                </div>
+              </>
+            ) : responseError ? (
+              <p className="text-lg text-danger">Failed to load site data</p>
+            ) : sitesData.length === 0 ? (
+              <p className="text-lg text-text-secondary">No site data yet.</p>
+            ) : (
+              <div className="flex flex-col">
+                {sitesData.map((s) => (
+                  <div
+                    key={s.site}
+                    className="flex items-center justify-between gap-4 border-t border-border py-2.5"
+                  >
+                    <span
+                      className="truncate text-sm text-text-secondary"
+                      title={s.site}
+                    >
+                      {s.site}
+                    </span>
+                    <span className="shrink-0 font-mono text-[13px] font-medium text-text">
+                      {s.count}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      <MonthlyCrimeReportModal
+        open={monthlyOpen}
+        onClose={() => setMonthlyOpen(false)}
+        onDownloaded={(blob) => saveBlob(blob, "monthly-crime-stats.pdf")}
+      />
     </div>
   );
 }
