@@ -58,7 +58,7 @@ jest.mock("../services/subscription.service", () => ({
 }));
 
 jest.mock("../services/report.service", () => ({
-  ReportService: { responseTimeReport: jest.fn() },
+  ReportService: { responseTimeReport: jest.fn(), topSites: jest.fn() },
 }));
 
 jest.mock("../services/auditLog.service", () => ({
@@ -288,6 +288,130 @@ describe("ExportController.yearlyPdf", () => {
     expect(reply.send).toHaveBeenCalledWith(
       expect.objectContaining({ success: false }),
     );
+  });
+});
+
+describe("ExportController.topSitesPdf", () => {
+  const reply = {
+    header: jest.fn(),
+    code: jest.fn().mockReturnThis(),
+    send: jest.fn(),
+  };
+  const request = {
+    user: { companyId: "company1", userId: "user1" },
+  } as any;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.company.findUnique as jest.Mock).mockResolvedValue({ name: "Acme Security" });
+  });
+
+  it("generates a PDF of the site ranking", async () => {
+    (ReportService.topSites as jest.Mock).mockResolvedValue([
+      { site: "1 Main Rd", count: 4 },
+      { site: "Mall", count: 2 },
+    ]);
+
+    await ExportController.topSitesPdf(request, reply as any);
+
+    expect(SubscriptionService.requireFeature).toHaveBeenCalledWith("company1", "export_csv_pdf");
+    expect(ReportService.topSites).toHaveBeenCalledWith("company1", 1000);
+    expect(reply.header).toHaveBeenCalledWith("Content-Type", "application/pdf");
+    expect(reply.header).toHaveBeenCalledWith(
+      "Content-Disposition",
+      expect.stringMatching(/^attachment; filename=sites-with-most-incidents-acme-security-\d{4}-\d{2}-\d{2}\.pdf$/),
+    );
+    expect(reply.send.mock.calls[0][0]).toBeInstanceOf(Buffer);
+
+    const text = pdfText(reply.send.mock.calls[0][0]).replace(/\s+/g, "");
+    expect(text).toContain("SiteswithMostIncidents");
+    expect(text).toContain("1MainRd");
+    expect(text).toContain("Site");
+  });
+
+  it("returns 404 when there are no sites", async () => {
+    (ReportService.topSites as jest.Mock).mockResolvedValue([]);
+
+    await ExportController.topSitesPdf(request, reply as any);
+
+    expect(reply.code).toHaveBeenCalledWith(404);
+    expect(reply.send).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
+  });
+});
+
+describe("ExportController.monthlyCrimePdf", () => {
+  const reply = {
+    header: jest.fn(),
+    code: jest.fn().mockReturnThis(),
+    send: jest.fn(),
+  };
+  const request = {
+    user: { companyId: "company1", userId: "user1" },
+    query: {
+      from: "2026-01-01T00:00:00.000Z",
+      to: "2026-02-01T00:00:00.000Z",
+    },
+  } as any;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.company.findUnique as jest.Mock).mockResolvedValue({ name: "Acme Security" });
+  });
+
+  it("filters incidents to the chosen range and renders a monthly report", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+      {
+        incidentDate: new Date("2026-01-10T10:00:00Z"),
+        type: "attempted",
+        propertyAddress: "1 Main Rd",
+        dispatchTime: new Date("2026-01-10T10:00:00Z"),
+        arrivalTime: new Date("2026-01-10T10:05:00Z"),
+      },
+    ]);
+
+    await ExportController.monthlyCrimePdf(request, reply as any);
+
+    expect(prisma.incident.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          companyId: "company1",
+          incidentDate: {
+            gte: new Date("2026-01-01T00:00:00.000Z"),
+            lte: new Date("2026-02-01T00:00:00.000Z"),
+          },
+        },
+      }),
+    );
+    expect(reply.header).toHaveBeenCalledWith("Content-Type", "application/pdf");
+    expect(reply.header).toHaveBeenCalledWith(
+      "Content-Disposition",
+      expect.stringMatching(/^attachment; filename=monthly-crime-stats-acme-security-\d{4}-\d{2}-\d{2}\.pdf$/),
+    );
+
+    const text = pdfText(reply.send.mock.calls[0][0]).replace(/\s+/g, "");
+    expect(text).toContain("MonthlyCrimeStatisticsReport");
+    expect(text).toContain("IncidentsbyMonth");
+    expect(text).toContain("Jan2026");
+  });
+
+  it("rejects a missing or inverted range", async () => {
+    await ExportController.monthlyCrimePdf({ ...request, query: {} } as any, reply as any);
+    expect(reply.code).toHaveBeenCalledWith(400);
+
+    jest.clearAllMocks();
+    await ExportController.monthlyCrimePdf(
+      { ...request, query: { from: "2026-02-01T00:00:00.000Z", to: "2026-01-01T00:00:00.000Z" } } as any,
+      reply as any,
+    );
+    expect(reply.code).toHaveBeenCalledWith(400);
+  });
+
+  it("returns 404 when the range has no incidents", async () => {
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
+
+    await ExportController.monthlyCrimePdf(request, reply as any);
+
+    expect(reply.code).toHaveBeenCalledWith(404);
   });
 });
 

@@ -6,6 +6,7 @@ jest.mock("../services/report.service", () => ({
     summary: jest.fn(),
     monthlyResponse: jest.fn(),
     responseByArea: jest.fn(),
+    topSites: jest.fn(),
   },
 }));
 
@@ -71,6 +72,22 @@ describe("ReportController", () => {
       await ReportController.responseByArea(mockRequest, mockReply);
 
       expect(ReportService.responseByArea).toHaveBeenCalledWith("5");
+      expect(mockReply.code).toHaveBeenCalledWith(200);
+      expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: mockData });
+    });
+  });
+
+  describe("topSites", () => {
+    it("calls ReportService.topSites with companyId and sends result", async () => {
+      const mockData = [
+        { site: "1 Main Rd", count: 4 },
+        { site: "Mall", count: 2 },
+      ];
+      (ReportService.topSites as jest.Mock).mockResolvedValue(mockData);
+
+      await ReportController.topSites(mockRequest, mockReply);
+
+      expect(ReportService.topSites).toHaveBeenCalledWith("5");
       expect(mockReply.code).toHaveBeenCalledWith(200);
       expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: mockData });
     });

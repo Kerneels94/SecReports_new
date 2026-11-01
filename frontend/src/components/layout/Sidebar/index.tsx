@@ -65,7 +65,7 @@ function NavItemsList({ items, onClose }: { items: NavItem[]; onClose?: () => vo
                 : "text-text-secondary hover:text-text hover:bg-surface-elevated",
             )}
           >
-            <svg className={cn("h-[18px] w-[18px] shrink-0", isActive ? "text-primary" : "text-text-secondary")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className={cn("h-[18px] w-[18px] shrink-0", isActive ? "text-primary" : "text-text-secondary")} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d={item.icon} />
             </svg>
             {item.label}
@@ -81,8 +81,7 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
   const { user } = useAuth();
   const pathname = usePathname();
   const isAdmin = user?.role === "admin" || user?.role === "manager";
-  const canReport =
-    user?.role !== "admin" && user?.permissions?.includes("incidents.create");
+  const canReport = user?.permissions?.includes("incidents.create");
 
   return (
     <>
@@ -95,19 +94,22 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
       />
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 flex h-full w-[264px] flex-col gap-[18px] overflow-y-auto border-r border-border-light bg-surface px-3.5 py-[18px] transition-transform duration-200 lg:translate-x-0",
+          "fixed left-0 top-0 z-40 flex h-full w-[264px] flex-col gap-[18px] overflow-y-auto border-r border-border-light bg-surface-raised px-3.5 py-[18px] transition-transform duration-200 lg:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex items-center justify-between px-2">
-          <Link href="/dashboard" onClick={onClose} className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-gradient-to-br from-primary to-primary-hover text-sm font-bold text-gray-900 shadow-lg shadow-primary/25">
-              S
-            </div>
+          <Link href="/dashboard" onClick={onClose} className="flex items-center gap-[10px]">
+            <svg className="h-[30px] w-[30px] shrink-0" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M32 8 L52 15.5 V33 c0 12.4-8.6 21.2-20 24-11.4-2.8-20-11.6-20-24V15.5 Z" fill="none" stroke="#86efac" strokeWidth="4" strokeLinejoin="round" />
+              <rect x="24" y="25" width="16" height="4" rx="2" fill="#86efac" />
+              <rect x="24" y="33" width="16" height="4" rx="2" fill="#86efac" />
+              <rect x="24" y="41" width="9" height="4" rx="2" fill="#86efac" />
+            </svg>
             <span className="leading-tight">
-              <span className="block text-sm font-semibold text-text">SecReports</span>
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-text-secondary/60">
-                Incident System
+              <span className="block text-[19px] font-bold tracking-[-0.02em] text-text">SecReports</span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-text-subtle">
+                Incident system
               </span>
             </span>
           </Link>
@@ -127,10 +129,10 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
             href="/incidents/new"
             onClick={onClose}
             className={cn(
-              "flex cursor-pointer items-center justify-center gap-2 rounded-[10px] px-3 py-2 text-sm font-medium transition-colors duration-150",
+              "flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-3.5 text-sm font-medium transition-all duration-150",
               pathname === "/incidents/new"
                 ? "bg-primary text-gray-900"
-                : "bg-primary text-gray-900 shadow-lg shadow-primary/20 hover:bg-primary-hover",
+                : "bg-gradient-to-r from-primary to-primary-hover text-gray-900 shadow-[0_10px_30px_-12px_rgba(134,239,172,0.55)] hover:brightness-105",
             )}
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -141,7 +143,7 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
         )}
 
         <nav className="grid content-start gap-0.5">
-          <p className="px-3 pb-1.5 pt-3.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-text-secondary/60">
+          <p className="px-3 pb-1.5 pt-3.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-text-subtle">
             Incidents
           </p>
           <NavItemsList items={incidentNavItems.filter((i) => i.href !== "/incidents/new")} onClose={onClose} />
@@ -150,7 +152,7 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
               user?.permissions?.includes(p),
             )) && (
             <>
-              <p className="px-3 pb-1.5 pt-3.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-text-secondary/60">
+              <p className="px-3 pb-1.5 pt-3.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-text-subtle">
                 Admin tools
               </p>
               <NavItemsList items={adminToolsItems} onClose={onClose} />
@@ -162,9 +164,9 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
           <Link
             href="/settings/billing"
             onClick={onClose}
-            className="grid gap-1.5 rounded-xl border border-border-light bg-surface-secondary p-3 text-[13px] text-text-secondary transition-colors hover:border-primary/20"
+            className="grid gap-1.5 rounded-xl border border-border-light bg-surface p-3 text-[13px] text-text-secondary transition-colors hover:border-primary/20"
           >
-            <span className="w-max rounded-full border border-primary/20 bg-primary/[0.08] px-2 py-0.5 text-[11px] font-semibold text-primary">
+            <span className="w-max rounded-full border border-primary/20 bg-primary/[0.08] px-2.5 py-[3px] text-xs font-semibold text-primary">
               Billing
             </span>
             View your plan and invoices
@@ -174,7 +176,7 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
             onClick={onClose}
             className="flex cursor-pointer items-center gap-3 rounded-[10px] px-3 py-[9px] text-sm font-medium text-text-secondary transition-colors duration-150 hover:bg-surface-elevated hover:text-text"
           >
-            <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
             </svg>
             View Profile
@@ -184,12 +186,12 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
             className="flex cursor-pointer items-center gap-3 rounded-[10px] px-3 py-[9px] text-sm font-medium text-red-300 transition-colors duration-150 hover:bg-red-300/[0.08]"
             aria-label="Logout"
           >
-            <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
             </svg>
             Log out
           </button>
-          <p className="px-3 pt-1 text-xs text-text-secondary/50">Version 1.0.0</p>
+          <p className="px-3 pt-1 text-xs text-text-subtle">Version 1.0.0</p>
         </div>
       </aside>
     </>

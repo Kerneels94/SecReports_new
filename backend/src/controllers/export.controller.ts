@@ -318,6 +318,63 @@ interface AreaBreakdown {
   maxMs: number | null;
 }
 
+interface CrimeIncident {
+  type: string;
+  propertyAddress: string | null;
+  dispatchTime: Date | null;
+  arrivalTime: Date | null;
+}
+
+/** Shared type/area rollup for crime-statistics reports. */
+function aggregateCrimeStats(incidents: CrimeIncident[]) {
+  const byTypeMap: Record<string, number> = {};
+  const byAreaMap: Record<
+    string,
+    { count: number; responded: number; totalMs: number; maxMs: number }
+  > = {};
+  let attempted = 0;
+  let positive = 0;
+
+  for (const inc of incidents) {
+    if (inc.type.toLowerCase().includes("attempted")) attempted++;
+    if (inc.type.toLowerCase().includes("positive")) positive++;
+
+    byTypeMap[inc.type] = (byTypeMap[inc.type] || 0) + 1;
+
+    const area = inc.propertyAddress || "Unknown";
+    const entry = byAreaMap[area] || {
+      count: 0,
+      responded: 0,
+      totalMs: 0,
+      maxMs: 0,
+    };
+    entry.count++;
+    if (inc.dispatchTime && inc.arrivalTime) {
+      const ms = inc.arrivalTime.getTime() - inc.dispatchTime.getTime();
+      if (ms > 0) {
+        entry.responded++;
+        entry.totalMs += ms;
+        entry.maxMs = Math.max(entry.maxMs, ms);
+      }
+    }
+    byAreaMap[area] = entry;
+  }
+
+  const byType: TypeBreakdown[] = Object.entries(byTypeMap)
+    .sort((a, b) => b[1] - a[1])
+    .map(([type, count]) => ({ type, count }));
+  const byArea: AreaBreakdown[] = Object.entries(byAreaMap)
+    .sort((a, b) => b[1].count - a[1].count)
+    .map(([area, d]) => ({
+      area,
+      count: d.count,
+      avgMs: d.responded > 0 ? Math.round(d.totalMs / d.responded) : null,
+      maxMs: d.maxMs > 0 ? d.maxMs : null,
+    }));
+
+  return { attempted, positive, byType, byArea };
+}
+
 /** Draws a vertical bar chart with values above bars and labels below. */
 function drawBarChart(
   doc: typeof PDFDocument.prototype,
@@ -460,11 +517,58 @@ function drawTable(
   return y;
 }
 
-function generateYearlyPdf(data: {
+/** Draws the three counter cards under the report title; returns the cards' top y. */
+function drawSummaryCards(
+  doc: typeof PDFDocument.prototype,
+  summary: { label: string; value: number | string; color: string }[],
+  y0: number,
+): number {
+  const boxWidth = 150;
+  const boxGap = 22.5;
+  let boxX = 50;
+  const boxY = y0 + 48;
+  summary.forEach((s) => {
+    // Shadow: this card's strip colour at 50%, offset behind it. The page-colour
+    // fill on the card itself masks the overlap so only the outer band shows.
+    doc.fillColor(s.color, 0.5);
+    doc.roundedRect(boxX + 3, boxY + 3, boxWidth, 52, RADIUS).fill();
+    // Strip clipped to the card so its corners follow the card radius, not stick out square.
+    doc.save();
+    doc.roundedRect(boxX, boxY, boxWidth, 52, RADIUS).clip();
+    doc.rect(boxX, boxY, boxWidth, 4).fill(s.color);
+    doc.restore();
+    doc.fillColor(COLORS.page, 1);
+    doc
+      .roundedRect(boxX, boxY, boxWidth, 52, RADIUS)
+      .fillAndStroke(COLORS.page, COLORS.border);
+    doc
+      .fillColor(COLORS.gray)
+      .fontSize(8)
+      .text(s.label.toUpperCase(), boxX + 10, boxY + 12, {
+        width: boxWidth - 20,
+      });
+    doc
+      .fillColor(COLORS.dark)
+      .fontSize(20)
+      .font("Helvetica-Bold")
+      .text(String(s.value), boxX + 10, boxY + 24);
+    boxX += boxWidth + boxGap;
+  });
+
+  doc.font("Helvetica");
+  return boxY;
+}
+
+/** Shared crime-statistics PDF: header, counters, a period table, type and area tables. */
+function generateCrimeStatsPdf(data: {
+  title: string;
+  subtitle: string;
   total: number;
   attempted: number;
   positive: number;
-  byYear: YearBreakdown[];
+  periods: { label: string; count: number }[];
+  periodHeading: string;
+  periodColumn: string;
   byType: TypeBreakdown[];
   byArea: AreaBreakdown[];
 }): Promise<Buffer> {
@@ -482,65 +586,33 @@ function generateYearlyPdf(data: {
       .fillColor(COLORS.dark)
       .fontSize(18)
       .font("Helvetica-Bold")
-      .text("Crime Statistics Report", 50, y0, { width: 495, align: "center" });
+      .text(data.title, 50, y0, { width: 495, align: "center" });
     doc
       .fillColor(COLORS.muted)
       .fontSize(9)
       .font("Helvetica")
-      .text(`Generated on ${new Date().toLocaleString("en-US")}`, 50, y0 + 24, {
-        width: 495,
-        align: "center",
-      });
+      .text(data.subtitle, 50, y0 + 24, { width: 495, align: "center" });
 
-    const summary = [
-      { label: "Total Incidents", value: data.total, color: COLORS.accent },
-      { label: "Attempted", value: data.attempted, color: "#f59e0b" },
-      { label: "Positive", value: data.positive, color: "#10b981" },
-    ];
-    const boxWidth = 150;
-    const boxGap = 22.5;
-    let boxX = 50;
-    const boxY = y0 + 48;
-    summary.forEach((s) => {
-      // Shadow: this card's strip colour at 50%, offset behind it. The page-colour
-      // fill on the card itself masks the overlap so only the outer band shows.
-      doc.fillColor(s.color, 0.5);
-      doc.roundedRect(boxX + 3, boxY + 3, boxWidth, 52, RADIUS).fill();
-      // Strip clipped to the card so its corners follow the card radius, not stick out square.
-      doc.save();
-      doc.roundedRect(boxX, boxY, boxWidth, 52, RADIUS).clip();
-      doc.rect(boxX, boxY, boxWidth, 4).fill(s.color);
-      doc.restore();
-      doc.fillColor(COLORS.page, 1);
-      doc
-        .roundedRect(boxX, boxY, boxWidth, 52, RADIUS)
-        .fillAndStroke(COLORS.page, COLORS.border);
-      doc
-        .fillColor(COLORS.gray)
-        .fontSize(8)
-        .text(s.label.toUpperCase(), boxX + 10, boxY + 12, {
-          width: boxWidth - 20,
-        });
-      doc
-        .fillColor(COLORS.dark)
-        .fontSize(20)
-        .font("Helvetica-Bold")
-        .text(String(s.value), boxX + 10, boxY + 24);
-      boxX += boxWidth + boxGap;
-    });
+    const boxY = drawSummaryCards(
+      doc,
+      [
+        { label: "Total Incidents", value: data.total, color: COLORS.accent },
+        { label: "Attempted", value: data.attempted, color: "#f59e0b" },
+        { label: "Positive", value: data.positive, color: "#10b981" },
+      ],
+      y0,
+    );
 
-    doc.font("Helvetica");
-
-    const yearRows = data.byYear.map((b) => [String(b.year), String(b.count)]);
-    let y = pageSpace(doc, boxY + 95, 40 + yearRows.length * 18);
-    y = drawSection(doc, "Incidents by Year", y);
+    const periodRows = data.periods.map((p) => [p.label, String(p.count)]);
+    let y = pageSpace(doc, boxY + 95, 40 + periodRows.length * 18);
+    y = drawSection(doc, data.periodHeading, y);
     y = drawTable(
       doc,
       [
-        { label: "Year", width: 375 },
+        { label: data.periodColumn, width: 375 },
         { label: "Incidents", width: 120 },
       ],
-      yearRows,
+      periodRows,
       50,
       y,
     );
@@ -576,6 +648,72 @@ function generateYearlyPdf(data: {
         { label: "Longest Response", width: 130 },
       ],
       areaRows,
+      50,
+      y,
+    );
+
+    drawFooter(doc);
+
+    doc.end();
+  });
+}
+
+/** Sites-with-most-incidents PDF: headline counters and a ranked site table. */
+function generateTopSitesPdf(data: {
+  total: number;
+  sites: { site: string; count: number }[];
+}): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const doc = newDoc();
+    const chunks: Buffer[] = [];
+
+    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    const y0 = drawHeader(doc);
+
+    doc
+      .fillColor(COLORS.dark)
+      .fontSize(18)
+      .font("Helvetica-Bold")
+      .text("Sites with Most Incidents", 50, y0, {
+        width: 495,
+        align: "center",
+      });
+    doc
+      .fillColor(COLORS.muted)
+      .fontSize(9)
+      .font("Helvetica")
+      .text(`Generated on ${new Date().toLocaleString("en-US")}`, 50, y0 + 24, {
+        width: 495,
+        align: "center",
+      });
+
+    const boxY = drawSummaryCards(
+      doc,
+      [
+        { label: "Total Incidents", value: data.total, color: COLORS.accent },
+        { label: "Sites", value: data.sites.length, color: "#10b981" },
+        {
+          label: "Busiest Site",
+          value: data.sites[0]?.count ?? 0,
+          color: "#f59e0b",
+        },
+      ],
+      y0,
+    );
+
+    const rows = data.sites.map((s) => [s.site, String(s.count)]);
+    let y = pageSpace(doc, boxY + 95, 40 + rows.length * 18);
+    y = drawSection(doc, "Incidents by Site", y);
+    drawTable(
+      doc,
+      [
+        { label: "Site", width: 375 },
+        { label: "Incidents", width: 120 },
+      ],
+      rows,
       50,
       y,
     );
@@ -871,64 +1009,26 @@ export const ExportController = {
     }
 
     const byYearMap: Record<number, number> = {};
-    const byTypeMap: Record<string, number> = {};
-    const byAreaMap: Record<
-      string,
-      { count: number; responded: number; totalMs: number; maxMs: number }
-    > = {};
-    let attempted = 0;
-    let positive = 0;
-
     for (const inc of incidents) {
       const year = inc.incidentDate.getFullYear();
-      const isAttempted = inc.type.toLowerCase().includes("attempted");
-      const isPositive = inc.type.toLowerCase().includes("positive");
-      if (isAttempted) attempted++;
-      if (isPositive) positive++;
-
       byYearMap[year] = (byYearMap[year] || 0) + 1;
-
-      byTypeMap[inc.type] = (byTypeMap[inc.type] || 0) + 1;
-
-      const area = inc.propertyAddress || "Unknown";
-      const entry = byAreaMap[area] || {
-        count: 0,
-        responded: 0,
-        totalMs: 0,
-        maxMs: 0,
-      };
-      entry.count++;
-      if (inc.dispatchTime && inc.arrivalTime) {
-        const ms = inc.arrivalTime.getTime() - inc.dispatchTime.getTime();
-        if (ms > 0) {
-          entry.responded++;
-          entry.totalMs += ms;
-          entry.maxMs = Math.max(entry.maxMs, ms);
-        }
-      }
-      byAreaMap[area] = entry;
     }
 
-    const byYear = Object.entries(byYearMap)
+    const { attempted, positive, byType, byArea } = aggregateCrimeStats(incidents);
+
+    const byYear: YearBreakdown[] = Object.entries(byYearMap)
       .sort((a, b) => Number(a[0]) - Number(b[0]))
       .map(([year, count]) => ({ year: Number(year), count }));
-    const byType = Object.entries(byTypeMap)
-      .sort((a, b) => b[1] - a[1])
-      .map(([type, count]) => ({ type, count }));
-    const byArea = Object.entries(byAreaMap)
-      .sort((a, b) => b[1].count - a[1].count)
-      .map(([area, d]) => ({
-        area,
-        count: d.count,
-        avgMs: d.responded > 0 ? Math.round(d.totalMs / d.responded) : null,
-        maxMs: d.maxMs > 0 ? d.maxMs : null,
-      }));
 
-    const pdfBuffer = await generateYearlyPdf({
+    const pdfBuffer = await generateCrimeStatsPdf({
+      title: "Crime Statistics Report",
+      subtitle: `Generated on ${new Date().toLocaleString("en-US")}`,
       total: incidents.length,
       attempted,
       positive,
-      byYear,
+      periods: byYear.map((b) => ({ label: String(b.year), count: b.count })),
+      periodHeading: "Incidents by Year",
+      periodColumn: "Year",
       byType,
       byArea,
     });
@@ -946,6 +1046,145 @@ export const ExportController = {
     reply.header(
       "Content-Disposition",
       `attachment; filename=yearly-crime-stats-${companySlug}-${date}.pdf`,
+    );
+    reply.code(200).send(pdfBuffer);
+  },
+
+  /** Export the sites-with-most-incidents ranking as a PDF download. */
+  async topSitesPdf(request: FastifyRequest, reply: FastifyReply) {
+    const companyId = request.user!.companyId;
+    await SubscriptionService.requireFeature(companyId, "export_csv_pdf");
+
+    // 1000 = every site in practice; the dashboard card itself only shows the top 10.
+    const sites = await ReportService.topSites(companyId, 1000);
+
+    if (sites.length === 0) {
+      reply.code(404).send({
+        success: false,
+        error: { code: "NOT_FOUND", message: "No incidents found" },
+      });
+      return;
+    }
+
+    const pdfBuffer = await generateTopSitesPdf({
+      total: sites.reduce((sum, s) => sum + s.count, 0),
+      sites,
+    });
+
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+    });
+    const companySlug = (company?.name || "SecReports")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    const date = new Date().toISOString().split("T")[0];
+
+    reply.header("Content-Type", "application/pdf");
+    reply.header(
+      "Content-Disposition",
+      `attachment; filename=sites-with-most-incidents-${companySlug}-${date}.pdf`,
+    );
+    reply.code(200).send(pdfBuffer);
+  },
+
+  /** Export a crime statistics PDF for an explicit from/to date-time range. */
+  async monthlyCrimePdf(request: FastifyRequest, reply: FastifyReply) {
+    const companyId = request.user!.companyId;
+    await SubscriptionService.requireFeature(companyId, "export_csv_pdf");
+
+    const { from, to } = request.query as { from?: string; to?: string };
+    const fromDate = from ? new Date(from) : null;
+    const toDate = to ? new Date(to) : null;
+    if (
+      !fromDate ||
+      !toDate ||
+      Number.isNaN(fromDate.getTime()) ||
+      Number.isNaN(toDate.getTime()) ||
+      fromDate >= toDate
+    ) {
+      reply.code(400).send({
+        success: false,
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "A valid from/to date range is required",
+        },
+      });
+      return;
+    }
+
+    const incidents = await prisma.incident.findMany({
+      where: {
+        companyId,
+        incidentDate: { gte: fromDate, lte: toDate },
+      },
+      select: {
+        incidentDate: true,
+        type: true,
+        propertyAddress: true,
+        dispatchTime: true,
+        arrivalTime: true,
+      },
+    });
+
+    if (incidents.length === 0) {
+      reply.code(404).send({
+        success: false,
+        error: { code: "NOT_FOUND", message: "No incidents found" },
+      });
+      return;
+    }
+
+    const byMonthMap: Record<string, { label: string; count: number }> = {};
+    for (const inc of incidents) {
+      const key = `${inc.incidentDate.getUTCFullYear()}-${String(
+        inc.incidentDate.getUTCMonth() + 1,
+      ).padStart(2, "0")}`;
+      const entry =
+        byMonthMap[key] ||
+        {
+          label: inc.incidentDate.toLocaleDateString("en-US", {
+            month: "short",
+            year: "numeric",
+            timeZone: "UTC",
+          }),
+          count: 0,
+        };
+      entry.count++;
+      byMonthMap[key] = entry;
+    }
+
+    const { attempted, positive, byType, byArea } = aggregateCrimeStats(incidents);
+    const periods = Object.entries(byMonthMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([, v]) => v);
+
+    const pdfBuffer = await generateCrimeStatsPdf({
+      title: "Monthly Crime Statistics Report",
+      subtitle: `${fromDate.toLocaleString("en-US")} - ${toDate.toLocaleString("en-US")}`,
+      total: incidents.length,
+      attempted,
+      positive,
+      periods,
+      periodHeading: "Incidents by Month",
+      periodColumn: "Month",
+      byType,
+      byArea,
+    });
+
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+    });
+    const companySlug = (company?.name || "SecReports")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    const date = new Date().toISOString().split("T")[0];
+
+    reply.header("Content-Type", "application/pdf");
+    reply.header(
+      "Content-Disposition",
+      `attachment; filename=monthly-crime-stats-${companySlug}-${date}.pdf`,
     );
     reply.code(200).send(pdfBuffer);
   },

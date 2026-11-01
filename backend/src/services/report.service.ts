@@ -190,4 +190,34 @@ export const ReportService = {
       .map(([area, times]) => ({ area, avgMs: durationStats(times).avgMs, count: times.length }))
       .sort((a, b) => b.avgMs - a.avgMs);
   },
+
+  /** Incidents per site, busiest first. Site = property address, else business, client, or suburb/city. */
+  async topSites(companyId: string, limit = 10) {
+    const incidents = await prisma.incident.findMany({
+      where: { companyId },
+      select: {
+        propertyAddress: true,
+        businessOrComplex: true,
+        clientName: true,
+        suburb: true,
+        city: true,
+      },
+    });
+
+    const counts: Record<string, number> = {};
+    for (const inc of incidents) {
+      const site =
+        inc.propertyAddress ||
+        inc.businessOrComplex ||
+        inc.clientName ||
+        [inc.suburb, inc.city].filter(Boolean).join(", ");
+      if (!site) continue;
+      counts[site] = (counts[site] ?? 0) + 1;
+    }
+
+    return Object.entries(counts)
+      .map(([site, count]) => ({ site, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit);
+  },
 };

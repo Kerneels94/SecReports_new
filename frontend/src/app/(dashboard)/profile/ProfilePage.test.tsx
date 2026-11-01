@@ -43,7 +43,7 @@ describe("ProfilePage", () => {
     mockUseAuth.mockReturnValue({ user: mockUser });
     render(<ProfilePage />);
 
-    expect(screen.getByText("My Profile")).toBeInTheDocument();
+    expect(screen.getByText("My profile")).toBeInTheDocument();
     expect(screen.getByText("Alice")).toBeInTheDocument();
     expect(screen.getByText("alice@example.com")).toBeInTheDocument();
     expect(screen.getAllByText("senior").length).toBe(2);
@@ -87,8 +87,19 @@ describe("ProfilePage", () => {
     mockUseAuth.mockReturnValue({ user: mockUser });
     render(<ProfilePage />);
 
-    expect(screen.getByText("Change Password")).toBeInTheDocument();
-    expect(screen.getByText("Update Password")).toBeInTheDocument();
+    expect(screen.getByText("Change password")).toBeInTheDocument();
+    expect(screen.getByText("Update password")).toBeInTheDocument();
+  });
+
+  it("marks password rules as met while typing", async () => {
+    mockUseAuth.mockReturnValue({ user: mockUser });
+    render(<ProfilePage />);
+
+    await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "NewPassword1!");
+
+    expect(screen.getByText("8+ characters").closest("li")).toHaveClass("text-primary");
+    expect(screen.getByText("Number").closest("li")).toHaveClass("text-primary");
+    expect(screen.getByText("Special character").closest("li")).toHaveClass("text-primary");
   });
 
   describe("password change", () => {
@@ -98,7 +109,7 @@ describe("ProfilePage", () => {
 
       await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
       await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "short");
-      await userEvent.click(screen.getByText("Update Password"));
+      await userEvent.click(screen.getByText("Update password"));
 
       expect(screen.getByText("New password must be at least 8 characters")).toBeInTheDocument();
     });
@@ -110,7 +121,7 @@ describe("ProfilePage", () => {
       await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
       await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "newpassword123");
       await userEvent.type(screen.getByPlaceholderText("Re-enter new password"), "different");
-      await userEvent.click(screen.getByText("Update Password"));
+      await userEvent.click(screen.getByText("Update password"));
 
       expect(screen.getByText("Passwords do not match")).toBeInTheDocument();
     });
@@ -124,7 +135,7 @@ describe("ProfilePage", () => {
       await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
       await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "newpassword123");
       await userEvent.type(screen.getByPlaceholderText("Re-enter new password"), "newpassword123");
-      await userEvent.click(screen.getByText("Update Password"));
+      await userEvent.click(screen.getByText("Update password"));
 
       await waitFor(() => {
         expect(authService.changePassword).toHaveBeenCalledWith("oldpass123", "newpassword123");
@@ -142,7 +153,7 @@ describe("ProfilePage", () => {
       await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
       await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "newpassword123");
       await userEvent.type(screen.getByPlaceholderText("Re-enter new password"), "newpassword123");
-      await userEvent.click(screen.getByText("Update Password"));
+      await userEvent.click(screen.getByText("Update password"));
 
       await waitFor(() => {
         expect(screen.getByText("Failed to change password")).toBeInTheDocument();
@@ -157,8 +168,8 @@ describe("ProfilePage name field and session", () => {
     render(<ProfilePage />);
 
     expect(screen.queryByLabelText("Name")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Save" })).not.toBeInTheDocument();
-    expect(screen.getByText("Update Password")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Save name" })).not.toBeInTheDocument();
+    expect(screen.getByText("Update password")).toBeInTheDocument();
   });
 
   it("offers the name field to users with users.update", () => {
@@ -166,7 +177,7 @@ describe("ProfilePage name field and session", () => {
     render(<ProfilePage />);
 
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save name" })).toBeInTheDocument();
   });
 
   it("logs out after a successful password change, since the server ended every session", async () => {
@@ -178,7 +189,7 @@ describe("ProfilePage name field and session", () => {
     await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass123");
     await userEvent.type(screen.getByPlaceholderText("Min. 8 characters"), "NewPassword1!");
     await userEvent.type(screen.getByPlaceholderText("Re-enter new password"), "NewPassword1!");
-    await userEvent.click(screen.getByText("Update Password"));
+    await userEvent.click(screen.getByText("Update password"));
 
     await waitFor(() => {
       expect(logout).toHaveBeenCalledTimes(1);

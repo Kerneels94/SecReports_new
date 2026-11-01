@@ -24,9 +24,10 @@ describe("NewIncidentPage", () => {
   it("renders form with all section headings", () => {
     render(<NewIncidentPage />);
     expect(screen.getByRole("heading", { name: /report incident/i })).toBeInTheDocument();
-    expect(screen.getByText("Response Details")).toBeInTheDocument();
-    expect(screen.getByText("Client & Property")).toBeInTheDocument();
-    expect(screen.getByText("Incident")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Personnel & response" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Client & property" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Incident" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Report" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /submit report/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
   });
@@ -48,7 +49,8 @@ describe("NewIncidentPage", () => {
     expect(screen.getByLabelText("Title")).toBeInTheDocument();
     expect(screen.getByLabelText("Report")).toBeInTheDocument();
     expect(screen.getByText("Type")).toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: "Type" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Attempted" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Positive" })).toBeInTheDocument();
     expect(screen.getByLabelText("Incident Date")).toBeInTheDocument();
   });
 
@@ -90,7 +92,7 @@ describe("NewIncidentPage", () => {
     await user.type(screen.getByLabelText("SAPS Reference"), "SAPS-123");
     await user.type(screen.getByLabelText("Title"), "Server Down");
     await user.type(screen.getByLabelText("Report"), "Server is down");
-    await user.selectOptions(screen.getByRole("combobox", { name: "Type" }), "Attempted");
+    await user.click(screen.getByRole("radio", { name: "Attempted" }));
 
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
@@ -128,7 +130,7 @@ describe("NewIncidentPage", () => {
     fireEvent.change(screen.getByLabelText("Arrival Time"), { target: { value: "2026-10-17T00:05" } });
     await user.type(screen.getByLabelText("Title"), "Server Down");
     await user.type(screen.getByLabelText("Report"), "Server is down");
-    await user.selectOptions(screen.getByRole("combobox", { name: "Type" }), "Attempted");
+    await user.click(screen.getByRole("radio", { name: "Attempted" }));
 
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
@@ -151,13 +153,42 @@ describe("NewIncidentPage", () => {
     await user.type(screen.getByLabelText("Dispatcher"), "Jane");
     await user.type(screen.getByLabelText("Title"), "Server Down");
     await user.type(screen.getByLabelText("Report"), "Server is down");
-    await user.selectOptions(screen.getByRole("combobox", { name: "Type" }), "Attempted");
+    await user.click(screen.getByRole("radio", { name: "Attempted" }));
 
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
     await waitFor(() => {
       expect(screen.getByText("Creation failed")).toBeInTheDocument();
     });
+  });
+
+  it("shows the live response time once both times are set", () => {
+    render(<NewIncidentPage />);
+
+    fireEvent.change(screen.getByLabelText("Dispatch Time"), { target: { value: "2026-10-16T23:50" } });
+    fireEvent.change(screen.getByLabelText("Arrival Time"), { target: { value: "2026-10-17T00:05" } });
+
+    expect(screen.getByText("15 min response time")).toBeInTheDocument();
+  });
+
+  it("blocks submit when arrival is before dispatch", async () => {
+    render(<NewIncidentPage />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText("Operator Name"), "John");
+    await user.type(screen.getByLabelText("Dispatcher"), "Jane");
+    fireEvent.change(screen.getByLabelText("Dispatch Time"), { target: { value: "2026-10-17T00:05" } });
+    fireEvent.change(screen.getByLabelText("Arrival Time"), { target: { value: "2026-10-16T23:50" } });
+    await user.type(screen.getByLabelText("Title"), "Server Down");
+    await user.type(screen.getByLabelText("Report"), "Server is down");
+    await user.click(screen.getByRole("radio", { name: "Attempted" }));
+
+    await user.click(screen.getByRole("button", { name: /submit report/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Arrival time must be after the dispatch time.")).toBeInTheDocument();
+    });
+    expect(mockCreate).not.toHaveBeenCalled();
   });
 
   it("cancel button navigates back to incidents", async () => {
