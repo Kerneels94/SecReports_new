@@ -57,7 +57,7 @@ export default function LandingPage() {
                   <svg className="icon" aria-hidden="true">
                     <use href="#i-check" />
                   </svg>
-                  Up to 3 users on the trial
+                  Up to 3 users and 50 incident reports on the trial
                 </li>
                 <li>
                   <svg className="icon" aria-hidden="true">
@@ -605,8 +605,8 @@ export default function LandingPage() {
                   <h3>Free trial</h3>
                 </div>
                 <p className="price-desc">
-                  Full access to all features — with a 3-user limit during your
-                  trial.
+                  Full access to all features — with a 3-user and 50-report
+                  limit during your trial.
                 </p>
                 <p className="price">R 0</p>
                 <p className="price-note">for 14 days</p>
@@ -618,6 +618,14 @@ export default function LandingPage() {
                       </svg>
                     </span>
                     Up to 3 users
+                  </li>
+                  <li>
+                    <span className="tick">
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#i-check" />
+                      </svg>
+                    </span>
+                    50 incident reports
                   </li>
                   <li>
                     <span className="tick">
@@ -821,8 +829,9 @@ export default function LandingPage() {
                 <summary>How does the free trial work?</summary>
                 <p>
                   You get 14 days of full access to every feature for up to 3
-                  users, with no credit card required. When the trial ends, an
-                  admin can upgrade from the Billing page.
+                  users and 50 incident reports, with no credit card required.
+                  When the trial ends, an admin can upgrade from the Billing
+                  page.
                 </p>
               </details>
               <details>
