@@ -836,7 +836,7 @@ export const AuthService = {
         data: {
           userId,
           tokenHash: hashToken(rawToken),
-        expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+          expiresAt: new Date(Date.now() + 60 * 60 * 1000),
         },
       });
 

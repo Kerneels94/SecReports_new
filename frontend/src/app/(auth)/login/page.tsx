@@ -25,6 +25,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [tab, setTab] = useState<"company" | "senior">("company");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -42,6 +43,7 @@ export default function LoginPage() {
     try {
       setError(null);
       const user = await login(data);
+      setLoggedIn(true);
       router.push(user.role === "superadmin" ? "/portal" : "/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -154,8 +156,12 @@ export default function LoginPage() {
           )}
         </div>
 
-        <button className="btn btn-primary btn-block" type="submit">
-          {isSubmitting
+        <button
+          className="btn btn-primary btn-block"
+          type="submit"
+          disabled={isSubmitting || loggedIn}
+        >
+          {isSubmitting || loggedIn
             ? "Signing in..."
             : `Sign in as ${isCompany ? "Admin/Manager" : "Senior"}`}
         </button>

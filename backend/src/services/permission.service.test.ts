@@ -86,5 +86,20 @@ describe("PermissionService", () => {
       expect(mockUpsert).toHaveBeenCalledTimes(1);
       expect(mockDeleteMany).toHaveBeenCalledWith({ where: { companyId: "c1", permission: "users.manage" } });
     });
+
+    it("keeps admin on permissions where admin is a default", async () => {
+      mockFindMany.mockResolvedValue([]);
+
+      await PermissionService.updateForCompany("c1", [
+        { key: "incidents.view", roles: [] },
+      ]);
+
+      expect(mockUpsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          create: expect.objectContaining({ roles: ["admin"] }),
+          update: expect.objectContaining({ roles: ["admin"] }),
+        }),
+      );
+    });
   });
 });

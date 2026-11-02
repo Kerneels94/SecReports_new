@@ -3,7 +3,7 @@
  * Returns the catalog merged with per-company overrides, and persists override sets.
  */
 import { prisma } from "../lib/db";
-import { PERMISSIONS, ROLES } from "../lib/permissions";
+import { PERMISSIONS, ROLES, defaultRoles } from "../lib/permissions";
 import { ValidationError } from "../lib/errors";
 
 export const PermissionService = {
@@ -21,6 +21,7 @@ export const PermissionService = {
         label: p.label,
         description: p.description,
         roles: map.get(p.key) ?? p.defaults,
+        defaults: [...p.defaults],
         isDefault: !map.has(p.key),
       })),
     };
@@ -41,10 +42,14 @@ export const PermissionService = {
   },
 
   /** Replaces the overrides for a company with the supplied role lists. */
-  async updateForCompany(companyId: string, updates: { key: string; roles: string[] }[]) {
+  async updateForCompany(
+    companyId: string,
+    updates: { key: string; roles: string[] }[],
+  ) {
     const valid = PERMISSIONS.map((p) => p.key);
     for (const u of updates) {
-      if (!valid.includes(u.key)) throw new ValidationError(`Unknown permission: ${u.key}`);
+      if (!valid.includes(u.key))
+        throw new ValidationError(`Unknown permission: ${u.key}`);
       for (const role of u.roles) {
         if (!(ROLES as readonly string[]).includes(role)) {
           throw new ValidationError(`Unknown role: ${role}`);
@@ -52,7 +57,17 @@ export const PermissionService = {
       }
     }
 
-    for (const u of updates) {
+    // Admin is locked on for any permission it gets by default, so a company
+    // admin can never revoke their own baseline access.
+    const normalized = updates.map((u) => {
+      const roles = [...u.roles];
+      if (defaultRoles(u.key).includes("admin") && !roles.includes("admin")) {
+        roles.push("admin");
+      }
+      return { key: u.key, roles };
+    });
+
+    for (const u of normalized) {
       await prisma.companyPermission.upsert({
         where: { companyId_permission: { companyId, permission: u.key } },
         create: { companyId, permission: u.key, roles: u.roles },
@@ -61,8 +76,10 @@ export const PermissionService = {
     }
 
     // Drop overrides the admin reset back to catalog defaults.
-    const defaults = new Map(PERMISSIONS.map((p) => [p.key, JSON.stringify(p.defaults)]));
-    const toRemove = updates.filter(
+    const defaults = new Map(
+      PERMISSIONS.map((p) => [p.key, JSON.stringify(p.defaults)]),
+    );
+    const toRemove = normalized.filter(
       (u) => defaults.get(u.key) === JSON.stringify(u.roles.slice().sort()),
     );
     for (const u of toRemove) {

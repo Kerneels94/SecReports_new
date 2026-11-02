@@ -78,6 +78,20 @@ it("renders Admin/Manager and Senior tabs", () => {
     });
   });
 
+  it("disables the submit button once login succeeds", async () => {
+    render(<LoginPage />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText("Email"), "a@b.com");
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.click(screen.getByRole("button", { name: /sign in as admin\/manager/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /signing in/i })).toBeDisabled();
+    });
+    expect(mockLogin).toHaveBeenCalledTimes(1);
+  });
+
   it("shows error on failure", async () => {
     mockLogin.mockRejectedValue(new Error("Invalid credentials"));
     render(<LoginPage />);

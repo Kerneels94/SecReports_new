@@ -19,7 +19,6 @@ export function requirePermission(permissionKey: string) {
     if (!request.user) {
       throw new ForbiddenError("Authentication required");
     }
-
     const { companyId, role } = request.user;
     // Superadmins have no company; they use the /admin portal routes (requireRole)
     // instead of company-scoped permission routes.

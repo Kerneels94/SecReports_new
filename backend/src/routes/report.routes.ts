@@ -10,17 +10,45 @@ import { requirePermission } from "../middleware/requirePermission";
 export default async function reportRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
-  fastify.get("/reports/summary", { preHandler: [requirePermission("reports.view")] }, ReportController.summary);
-  fastify.get("/reports/monthly-stats", { preHandler: [requirePermission("reports.view")] }, ReportController.monthlyStats);
-  fastify.get("/reports/monthly-response", { preHandler: [requirePermission("reports.view")] }, ReportController.monthlyResponse);
-  fastify.get("/reports/response-by-area", { preHandler: [requirePermission("reports.view")] }, ReportController.responseByArea);
-  fastify.get("/reports/top-sites", { preHandler: [requirePermission("reports.view")] }, ReportController.topSites);
-  fastify.post("/reports/email", {
-    config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
-    preHandler: [requirePermission("export.reports")],
-  }, ExportController.email);
-  fastify.post("/reports/batch-email", {
-    config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
-    preHandler: [requirePermission("export.reports")],
-  }, ExportController.batchEmail);
+  fastify.get(
+    "/reports/summary",
+    { preHandler: [requirePermission("reports.view")] },
+    ReportController.summary,
+  );
+  fastify.get(
+    "/reports/monthly-stats",
+    { preHandler: [requirePermission("reports.view")] },
+    ReportController.monthlyStats,
+  );
+  fastify.get(
+    "/reports/monthly-response",
+    { preHandler: [requirePermission("reports.view")] },
+    ReportController.monthlyResponse,
+  );
+  fastify.get(
+    "/reports/response-by-area",
+    { preHandler: [requirePermission("reports.view")] },
+    ReportController.responseByArea,
+  );
+  fastify.get(
+    "/reports/top-sites",
+    { preHandler: [requirePermission("reports.view")] },
+    ReportController.topSites,
+  );
+  fastify.post(
+    "/reports/email",
+    {
+      config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
+      preHandler: [requirePermission("export.reports")],
+    },
+    ExportController.email,
+  );
+  fastify.post(
+    "/reports/batch-email",
+    {
+      config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
+      preHandler: [requirePermission("export.reports")],
+    },
+    ExportController.batchEmail,
+  );
 }
