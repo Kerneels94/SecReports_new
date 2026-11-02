@@ -48,7 +48,7 @@ describe("billing helpers", () => {
     it("returns the landing page wording for the Free plan", () => {
       const wording = planWording({ name: "Free", userLimit: 0, features: "[]" });
       expect(wording.description).toBe(
-        "Full access to all features — with a 3-user limit during your trial.",
+        "Full access to all features — with a 3-user and 50-report limit during your trial.",
       );
       expect(wording.limit).toBe("14-day trial");
       expect(wording.features).toEqual(PLAN_WORDING.Free.features);

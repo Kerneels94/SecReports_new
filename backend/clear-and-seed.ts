@@ -19,7 +19,7 @@ async function main() {
   const allFeatures = JSON.stringify(["basic_crud", "status_changes", "email_notifications", "export_csv_pdf", "priority_support", "api_access"]);
   let freePlan = await prisma.subscriptionPlan.findFirst({ where: { name: "Free" } });
   if (!freePlan) {
-    freePlan = await prisma.subscriptionPlan.create({ data: { name: "Free", price: 0, userLimit: 0, trialPeriodDays: 14, features: allFeatures } });
+    freePlan = await prisma.subscriptionPlan.create({ data: { name: "Free", price: 0, userLimit: 0, reportLimit: 50, trialPeriodDays: 14, features: allFeatures } });
   }
 
   const demoPassword = "Password@1234";

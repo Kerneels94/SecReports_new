@@ -27,7 +27,7 @@ async function main() {
       name: "Free",
       price: 0,
       userLimit: 0,
-      reportLimit: 0,
+      reportLimit: 50,
       trialPeriodDays: 14,
       features: allFeatures,
     },

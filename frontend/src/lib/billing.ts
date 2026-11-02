@@ -37,10 +37,11 @@ export function formatPrice(price: number): string {
 /** Per-plan wording (description, limit, features) matching the landing page pricing tiers. */
 export const PLAN_WORDING: Record<string, PlanWording> = {
   Free: {
-    description: "Full access to all features — with a 3-user limit during your trial.",
+    description: "Full access to all features — with a 3-user and 50-report limit during your trial.",
     limit: "14-day trial",
     features: [
       "Up to 3 users",
+      "50 incident reports",
       "All features included",
       "14-day free trial, no credit card",
     ],
