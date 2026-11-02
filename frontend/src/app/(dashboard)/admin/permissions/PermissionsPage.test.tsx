@@ -37,8 +37,8 @@ const nonAdminUser = {
 const matrix = {
   roles: ["admin", "manager", "senior"],
   permissions: [
-    { key: "users.manage", label: "Manage users", description: "Create, list, and remove employee accounts", roles: ["admin"] },
-    { key: "auditLogs.view", label: "View audit logs", description: "See activity and change tracking logs", roles: ["admin", "manager"] },
+    { key: "users.manage", label: "Manage users", description: "Create, list, and remove employee accounts", roles: ["admin"], defaults: ["admin"] },
+    { key: "auditLogs.view", label: "View audit logs", description: "See activity and change tracking logs", roles: ["admin", "manager"], defaults: ["admin", "manager"] },
   ],
 };
 
@@ -65,6 +65,18 @@ describe("PermissionsPage", () => {
     expect(await screen.findByRole("switch", { name: /view audit logs: senior/i })).toBeInTheDocument();
     expect(screen.getByRole("switch", { name: /manage users: senior/i })).toHaveAttribute("aria-checked", "false");
     expect(screen.getByRole("switch", { name: /manage users: admin/i })).toHaveAttribute("aria-checked", "true");
+  });
+
+  it("locks the admin toggle on permissions admin gets by default", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    render(<PermissionsPage />);
+
+    expect(
+      await screen.findByRole("switch", { name: /manage users: admin/i }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("switch", { name: /view audit logs: manager/i }),
+    ).not.toBeDisabled();
   });
 
   it("saves a toggled permission via permissionsService.update", async () => {

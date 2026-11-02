@@ -13,6 +13,7 @@ async function main() {
   await prisma.incident.deleteMany();
   await prisma.user.updateMany({ data: { createdBy: null } });
   await prisma.user.deleteMany();
+  await prisma.companyPermission.deleteMany();
   await prisma.company.deleteMany();
 
   const allFeatures = JSON.stringify([

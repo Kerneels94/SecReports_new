@@ -275,6 +275,7 @@ export interface PermissionMatrixItem {
   label: string;
   description: string;
   roles: string[];
+  defaults: string[];
   isDefault?: boolean;
 }
 

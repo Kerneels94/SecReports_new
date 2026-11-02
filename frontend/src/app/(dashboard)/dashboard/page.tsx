@@ -10,7 +10,12 @@ import {
   ResponseTimeChart,
   YearlyTrendChart,
 } from "./components/DashboardCharts";
-import type { AreaResponseStat, MonthlyResponseStat, ResponsePeriod, SiteIncidentStat } from "@/services";
+import type {
+  AreaResponseStat,
+  MonthlyResponseStat,
+  ResponsePeriod,
+  SiteIncidentStat,
+} from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 import { hasPermission } from "@/lib/permissions";
 import type { TrialStatus } from "@/types";
@@ -45,7 +50,9 @@ const shortMonth = (key: string) => {
 /** "2026-04" -> "Apr 2026"; anything else passes through. */
 const longMonth = (key: string) => {
   const [year, m] = key.split("-");
-  return monthNames[Number(m) - 1] ? `${monthNames[Number(m) - 1]} ${year}` : key;
+  return monthNames[Number(m) - 1]
+    ? `${monthNames[Number(m) - 1]} ${year}`
+    : key;
 };
 
 /** Compact range for the stat note: "Apr – Oct 2026" or "Nov 2025 – Feb 2026". */
@@ -93,9 +100,11 @@ function ChartTable({
 }
 
 const ICONS = {
-  calendar: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+  calendar:
+    "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
   file: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-  alert: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z",
+  alert:
+    "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z",
   octagon: "M7.86 2h8.28L22 7.86v8.28L16.14 22H7.86L2 16.14V7.86L7.86 2z",
 };
 
@@ -168,7 +177,8 @@ export default function DashboardPage() {
   const [downloading, setDownloading] = useState(false);
   const [downloadingSites, setDownloadingSites] = useState(false);
   const [monthlyOpen, setMonthlyOpen] = useState(false);
-  const [downloadingPeriod, setDownloadingPeriod] = useState<ResponsePeriod | null>(null);
+  const [downloadingPeriod, setDownloadingPeriod] =
+    useState<ResponsePeriod | null>(null);
   // Download failures are reported next to the buttons, not via `error`: that one replaces the
   // whole dashboard with a Retry button, so a 404 or expired trial would blank every chart.
   const [downloadError, setDownloadError] = useState<string | null>(null);
@@ -249,7 +259,8 @@ export default function DashboardPage() {
 
   const responseStats = useMemo(() => {
     if (responseData.length === 0) return null;
-    const avg = responseData.reduce((sum, d) => sum + d.avgMs, 0) / responseData.length;
+    const avg =
+      responseData.reduce((sum, d) => sum + d.avgMs, 0) / responseData.length;
     const fastest = responseData.reduce((a, b) => (b.avgMs < a.avgMs ? b : a));
     const slowest = responseData.reduce((a, b) => (b.avgMs > a.avgMs ? b : a));
     return { avg, fastest, slowest };
@@ -270,7 +281,10 @@ export default function DashboardPage() {
     setDownloading(true);
     setYearlyError(null);
     try {
-      saveBlob(await exportService.downloadYearlyPdf(), "yearly-crime-stats.pdf");
+      saveBlob(
+        await exportService.downloadYearlyPdf(),
+        "yearly-crime-stats.pdf",
+      );
     } catch {
       setYearlyError("Failed to download PDF");
     } finally {
@@ -287,7 +301,9 @@ export default function DashboardPage() {
         `avg-response-time-${months}m.pdf`,
       );
     } catch {
-      setDownloadError(`Failed to download ${months}-month response time report`);
+      setDownloadError(
+        `Failed to download ${months}-month response time report`,
+      );
     } finally {
       setDownloadingPeriod(null);
     }
@@ -615,7 +631,9 @@ export default function DashboardPage() {
               </div>
             </div>
             {monthlyData.length === 0 ? (
-              <p className="text-lg text-text-secondary">No incident data yet.</p>
+              <p className="text-lg text-text-secondary">
+                No incident data yet.
+              </p>
             ) : (
               <>
                 <YearlyTrendChart data={chartData} />
@@ -706,7 +724,8 @@ export default function DashboardPage() {
                 </div>
               ) : responseData.length === 0 ? (
                 <p className="text-lg text-text-secondary">
-                  No response time data yet (dispatch/arrival times not recorded).
+                  No response time data yet (dispatch/arrival times not
+                  recorded).
                 </p>
               ) : (
                 <>
@@ -725,8 +744,14 @@ export default function DashboardPage() {
               <div className="mt-4 grid grid-cols-3 gap-2">
                 {[
                   { v: responseStats.avg, l: "7-month average" },
-                  { v: responseStats.fastest.avgMs, l: `Fastest · ${shortMonth(responseStats.fastest.month)}` },
-                  { v: responseStats.slowest.avgMs, l: `Slowest · ${shortMonth(responseStats.slowest.month)}` },
+                  {
+                    v: responseStats.fastest.avgMs,
+                    l: `Fastest · ${shortMonth(responseStats.fastest.month)}`,
+                  },
+                  {
+                    v: responseStats.slowest.avgMs,
+                    l: `Slowest · ${shortMonth(responseStats.slowest.month)}`,
+                  },
                 ].map((s) => (
                   <div
                     key={s.l}
@@ -858,7 +883,10 @@ export default function DashboardPage() {
                 </p>
                 <div className="flex flex-col gap-3" aria-hidden="true">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="h-5 animate-pulse rounded bg-zinc-600" />
+                    <div
+                      key={i}
+                      className="h-5 animate-pulse rounded bg-zinc-600"
+                    />
                   ))}
                 </div>
               </>

@@ -37,10 +37,12 @@ function Toggle({
   checked,
   onChange,
   label,
+  disabled,
 }: {
   checked: boolean;
   onChange: () => void;
   label: string;
+  disabled?: boolean;
 }) {
   return (
     <button
@@ -49,13 +51,16 @@ function Toggle({
       aria-checked={checked}
       aria-label={label}
       onClick={onChange}
-      className={`relative inline-flex h-6 w-[42px] shrink-0 cursor-pointer rounded-full transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary/40 ${
-        checked ? "bg-primary" : "bg-surface-elevated"
-      }`}
+      disabled={disabled}
+      className={`relative inline-flex h-6 w-[42px] shrink-0 rounded-full transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-60 ${
+        disabled ? "" : "cursor-pointer"
+      } ${checked ? "bg-primary" : "bg-surface-elevated"}`}
     >
       <span
         className={`inline-block h-[18px] w-[18px] transform rounded-full transition-transform duration-150 ${
-          checked ? "translate-x-[21px] bg-gray-900" : "translate-x-[3px] bg-text"
+          checked
+            ? "translate-x-[21px] bg-gray-900"
+            : "translate-x-[3px] bg-text"
         } mt-[3px]`}
       />
     </button>
@@ -244,7 +249,10 @@ export default function PermissionsPage() {
                     key={perm.key}
                     className="border-b border-border-light/60 transition-colors last:border-b-0 hover:bg-surface-elevated/25"
                   >
-                    <th scope="row" className="px-4 py-3.5 text-left font-medium">
+                    <th
+                      scope="row"
+                      className="px-4 py-3.5 text-left font-medium"
+                    >
                       <span className="block text-sm font-medium text-text">
                         {perm.label}
                       </span>
@@ -253,10 +261,16 @@ export default function PermissionsPage() {
                       </span>
                     </th>
                     {matrix.roles.map((role) => (
-                      <td key={role} className="w-[120px] px-4 py-3.5 text-center">
+                      <td
+                        key={role}
+                        className="w-[120px] px-4 py-3.5 text-center"
+                      >
                         <Toggle
                           checked={perm.roles.includes(role)}
                           onChange={() => toggle(perm.key, role)}
+                          disabled={
+                            role === "admin" && perm.defaults.includes("admin")
+                          }
                           label={`${perm.label}: ${ROLE_LABELS[role] ?? role}`}
                         />
                       </td>

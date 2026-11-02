@@ -42,7 +42,10 @@ export const AuthController = {
       throw new ValidationError("Invalid input", parsed.error.flatten());
 
     const deviceInfo = (request.headers["user-agent"] as string) || undefined;
-    const { refreshToken: _rt1, ...safeResult } = await AuthService.login({ ...parsed.data, deviceInfo });
+    const { refreshToken: _rt1, ...safeResult } = await AuthService.login({
+      ...parsed.data,
+      deviceInfo,
+    });
     setRefreshCookie(reply, _rt1);
     reply.code(200).send({ success: true, data: safeResult });
   },
@@ -53,7 +56,10 @@ export const AuthController = {
     if (!refreshToken) throw new ValidationError("Refresh token is required");
 
     const deviceInfo = (request.headers["user-agent"] as string) || undefined;
-    const { refreshToken: _rt3, ...safeResult } = await AuthService.refresh(refreshToken, deviceInfo);
+    const { refreshToken: _rt3, ...safeResult } = await AuthService.refresh(
+      refreshToken,
+      deviceInfo,
+    );
     setRefreshCookie(reply, _rt3);
     reply.code(200).send({ success: true, data: safeResult });
   },
@@ -125,12 +131,10 @@ export const AuthController = {
 
     await AuthService.resetPassword(parsed.data.token, parsed.data.password);
     clearRefreshCookie(reply);
-    reply
-      .code(200)
-      .send({
-        success: true,
-        message: "Password has been reset successfully.",
-      });
+    reply.code(200).send({
+      success: true,
+      message: "Password has been reset successfully.",
+    });
   },
 
   /** Change the authenticated user's password. Invalidates all sessions. */
@@ -186,8 +190,15 @@ export const AuthController = {
   /** Delete a user and revoke their access (admin-only via route). */
   async deleteUser(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    await AuthService.deleteUser(request.user!.companyId, id, request.user!.userId, request.user!.role);
-    reply.code(200).send({ success: true, message: "User deleted successfully." });
+    await AuthService.deleteUser(
+      request.user!.companyId,
+      id,
+      request.user!.userId,
+      request.user!.role,
+    );
+    reply
+      .code(200)
+      .send({ success: true, message: "User deleted successfully." });
   },
 
   /** Log out by deleting the provided refresh token. */
