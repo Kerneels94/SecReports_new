@@ -53,12 +53,6 @@ export interface AreaResponseStat {
   count: number;
 }
 
-/** Incident count per site, busiest first. */
-export interface SiteIncidentStat {
-  site: string;
-  count: number;
-}
-
 /** Aggregated report summary data for the dashboard. */
 interface ReportSummary {
   total: number;
@@ -127,7 +121,6 @@ export const reportService = {
   monthlyStats: () => api.get<MonthlyStat[]>("/reports/monthly-stats"),
   monthlyResponse: () => api.get<MonthlyResponseStat[]>("/reports/monthly-response"),
   responseByArea: () => api.get<AreaResponseStat[]>("/reports/response-by-area"),
-  topSites: () => api.get<SiteIncidentStat[]>("/reports/top-sites"),
   batchEmail: (email: string, type: string, format: "csv" | "pdf") =>
     api.post<{ message: string }>("/reports/batch-email", {
       email,
@@ -153,7 +146,6 @@ export const exportService = {
     api.downloadBlob(`/export/pdf?incidentId=${encodeURIComponent(String(incidentId))}`),
   downloadCsv: () => api.downloadBlob("/export/csv"),
   downloadYearlyPdf: () => api.downloadBlob("/export/yearly-pdf"),
-  downloadTopSitesPdf: () => api.downloadBlob("/export/top-sites-pdf"),
   downloadMonthlyCrimePdf: (from: string, to: string) =>
     api.downloadBlob(
       `/export/monthly-crime-pdf?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,

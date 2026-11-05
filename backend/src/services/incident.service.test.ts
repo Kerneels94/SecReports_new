@@ -88,7 +88,7 @@ describe("IncidentService", () => {
       expect(where.incidentDate.lte).toBeUndefined();
     });
 
-    it("filters by search on title and referenceNumber", async () => {
+    it("filters by search on title, reference, address and reporter name", async () => {
       (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
       (prisma.incident.count as jest.Mock).mockResolvedValue(0);
 
@@ -97,8 +97,10 @@ describe("IncidentService", () => {
       const where = (prisma.incident.findMany as jest.Mock).mock.calls[0][0].where;
       expect(where.OR).toEqual(
         expect.arrayContaining([
-          { title: { contains: "INC-2026" } },
-          { referenceNumber: { contains: "INC-2026" } },
+          { title: { contains: "INC-2026", mode: "insensitive" } },
+          { referenceNumber: { contains: "INC-2026", mode: "insensitive" } },
+          { propertyAddress: { contains: "INC-2026", mode: "insensitive" } },
+          { reporter: { name: { contains: "INC-2026", mode: "insensitive" } } },
         ]),
       );
     });

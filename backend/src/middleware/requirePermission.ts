@@ -25,6 +25,9 @@ export function requirePermission(permissionKey: string) {
     if (!companyId) {
       throw new ForbiddenError("Insufficient permissions");
     }
+    // Admins are hardcoded to hold every permission, so a wiped or stale
+    // permission row can never lock them out.
+    if (role === "admin") return;
     const override = await prisma.companyPermission.findUnique({
       where: { companyId_permission: { companyId, permission: permissionKey } },
     });

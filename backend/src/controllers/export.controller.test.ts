@@ -58,7 +58,7 @@ jest.mock("../services/subscription.service", () => ({
 }));
 
 jest.mock("../services/report.service", () => ({
-  ReportService: { responseTimeReport: jest.fn(), topSites: jest.fn() },
+  ReportService: { responseTimeReport: jest.fn() },
 }));
 
 jest.mock("../services/auditLog.service", () => ({
@@ -288,54 +288,6 @@ describe("ExportController.yearlyPdf", () => {
     expect(reply.send).toHaveBeenCalledWith(
       expect.objectContaining({ success: false }),
     );
-  });
-});
-
-describe("ExportController.topSitesPdf", () => {
-  const reply = {
-    header: jest.fn(),
-    code: jest.fn().mockReturnThis(),
-    send: jest.fn(),
-  };
-  const request = {
-    user: { companyId: "company1", userId: "user1" },
-  } as any;
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    (prisma.company.findUnique as jest.Mock).mockResolvedValue({ name: "Acme Security" });
-  });
-
-  it("generates a PDF of the site ranking", async () => {
-    (ReportService.topSites as jest.Mock).mockResolvedValue([
-      { site: "1 Main Rd", count: 4 },
-      { site: "Mall", count: 2 },
-    ]);
-
-    await ExportController.topSitesPdf(request, reply as any);
-
-    expect(SubscriptionService.requireFeature).toHaveBeenCalledWith("company1", "export_csv_pdf");
-    expect(ReportService.topSites).toHaveBeenCalledWith("company1", 1000);
-    expect(reply.header).toHaveBeenCalledWith("Content-Type", "application/pdf");
-    expect(reply.header).toHaveBeenCalledWith(
-      "Content-Disposition",
-      expect.stringMatching(/^attachment; filename=sites-with-most-incidents-acme-security-\d{4}-\d{2}-\d{2}\.pdf$/),
-    );
-    expect(reply.send.mock.calls[0][0]).toBeInstanceOf(Buffer);
-
-    const text = pdfText(reply.send.mock.calls[0][0]).replace(/\s+/g, "");
-    expect(text).toContain("SiteswithMostIncidents");
-    expect(text).toContain("1MainRd");
-    expect(text).toContain("Site");
-  });
-
-  it("returns 404 when there are no sites", async () => {
-    (ReportService.topSites as jest.Mock).mockResolvedValue([]);
-
-    await ExportController.topSitesPdf(request, reply as any);
-
-    expect(reply.code).toHaveBeenCalledWith(404);
-    expect(reply.send).toHaveBeenCalledWith(expect.objectContaining({ success: false }));
   });
 });
 
@@ -620,21 +572,17 @@ describe("ExportController.pdf", () => {
     expect(content).not.toContain(fillOp("#0b1e33")); // no navy
   });
 
-  it("centres the incident title to mirror the yearly report", async () => {
+  it("does not print a title heading", async () => {
     (prisma.incident.findFirst as jest.Mock).mockResolvedValue(incident);
 
     await ExportController.pdf(request, reply as any);
 
     const buf = reply.send.mock.calls[0][0];
     const text = pdfText(buf).replace(/\s+/g, "");
-    expect(text).toContain("Break-in");
+    expect(text).not.toContain("Break-in");
+    expect(text).not.toContain("Status");
+    expect(text).not.toContain("Location");
     expect(text).toContain("Ref:INC-1");
-
-    // Font size 18 is unique to the centred title; a left-aligned title would start at x=50.
-    const content = pdfStreams(buf).join("\n");
-    const titleX = [...content.matchAll(/1 0 0 1 ([\d.]+) [\d.]+ Tm\s*\/F\d+ 18 Tf/g)].map((m) => parseFloat(m[1]));
-    expect(titleX.length).toBeGreaterThanOrEqual(1);
-    for (const x of titleX) expect(x).toBeGreaterThan(60);
   });
 
   // Only fails on a non-SAST host without the fix; run with TZ=UTC to prove it locally.

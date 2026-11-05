@@ -1,6 +1,12 @@
 import type { ApiResponse, ApiError, LoginResponse } from "@/types";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+// Production is served by Netlify, which proxies /api/* to the Render backend.
+// Same-origin API calls let the httpOnly SameSite=Strict refresh cookie work;
+// a cross-site cookie would be dropped and every token refresh would 401.
+const BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "/api"
+    : process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 class ApiClient {
   private baseUrl: string;

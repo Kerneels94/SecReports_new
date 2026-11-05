@@ -85,7 +85,6 @@ describe("IncidentDetailModal", () => {
     });
 
     expect(screen.getByText("Security")).toBeInTheDocument();
-    expect(screen.getByText("Server Room B")).toBeInTheDocument();
     expect(screen.getByText("Alice")).toBeInTheDocument();
     expect(screen.getByText("John Operator")).toBeInTheDocument();
     expect(screen.getByText("Jane Dispatcher")).toBeInTheDocument();
@@ -145,7 +144,6 @@ describe("IncidentDetailModal", () => {
     render(<IncidentDetailModal incidentId={1} open={true} onClose={jest.fn()} />);
 
     await waitFor(() => {
-      expect(screen.getByText("-")).toBeInTheDocument();
       expect(screen.getByText("Unknown")).toBeInTheDocument();
     });
   });

@@ -46,7 +46,6 @@ describe("NewIncidentPage", () => {
     expect(screen.getByLabelText("Client Code")).toBeInTheDocument();
     expect(screen.getByLabelText("Business or Complex Name")).toBeInTheDocument();
     expect(screen.getByLabelText("SAPS Reference")).toBeInTheDocument();
-    expect(screen.getByLabelText("Title")).toBeInTheDocument();
     expect(screen.getByLabelText("Report")).toBeInTheDocument();
     expect(screen.getByText("Type")).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: "Attempted" })).toBeInTheDocument();
@@ -67,7 +66,6 @@ describe("NewIncidentPage", () => {
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
     await waitFor(() => {
-      expect(screen.getByText("Title is required")).toBeInTheDocument();
       expect(screen.getByText("Description is required")).toBeInTheDocument();
       expect(screen.getByText("Type is required")).toBeInTheDocument();
       expect(screen.getByText("Operator name is required")).toBeInTheDocument();
@@ -90,7 +88,6 @@ describe("NewIncidentPage", () => {
     await user.type(screen.getByLabelText("Client Code"), "C-001");
     await user.type(screen.getByLabelText("Business or Complex Name"), "Biz Hub");
     await user.type(screen.getByLabelText("SAPS Reference"), "SAPS-123");
-    await user.type(screen.getByLabelText("Title"), "Server Down");
     await user.type(screen.getByLabelText("Report"), "Server is down");
     await user.click(screen.getByRole("radio", { name: "Attempted" }));
 
@@ -110,7 +107,7 @@ describe("NewIncidentPage", () => {
         clientCode: "C-001",
         businessOrComplex: "Biz Hub",
         sapsReference: "SAPS-123",
-        title: "Server Down",
+        title: "123 Main St",
         description: "Server is down",
         type: "Attempted",
         incidentDate: expect.any(String),
@@ -128,7 +125,6 @@ describe("NewIncidentPage", () => {
     await user.type(screen.getByLabelText("Dispatcher"), "Jane");
     fireEvent.change(screen.getByLabelText("Dispatch Time"), { target: { value: "2026-10-16T23:50" } });
     fireEvent.change(screen.getByLabelText("Arrival Time"), { target: { value: "2026-10-17T00:05" } });
-    await user.type(screen.getByLabelText("Title"), "Server Down");
     await user.type(screen.getByLabelText("Report"), "Server is down");
     await user.click(screen.getByRole("radio", { name: "Attempted" }));
 
@@ -151,7 +147,6 @@ describe("NewIncidentPage", () => {
 
     await user.type(screen.getByLabelText("Operator Name"), "John");
     await user.type(screen.getByLabelText("Dispatcher"), "Jane");
-    await user.type(screen.getByLabelText("Title"), "Server Down");
     await user.type(screen.getByLabelText("Report"), "Server is down");
     await user.click(screen.getByRole("radio", { name: "Attempted" }));
 
@@ -179,7 +174,6 @@ describe("NewIncidentPage", () => {
     await user.type(screen.getByLabelText("Dispatcher"), "Jane");
     fireEvent.change(screen.getByLabelText("Dispatch Time"), { target: { value: "2026-10-17T00:05" } });
     fireEvent.change(screen.getByLabelText("Arrival Time"), { target: { value: "2026-10-16T23:50" } });
-    await user.type(screen.getByLabelText("Title"), "Server Down");
     await user.type(screen.getByLabelText("Report"), "Server is down");
     await user.click(screen.getByRole("radio", { name: "Attempted" }));
 

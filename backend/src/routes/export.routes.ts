@@ -31,10 +31,6 @@ export default async function exportRoutes(fastify: FastifyInstance) {
       },
     },
   }, ExportController.responseTimePdf);
-  fastify.get("/export/top-sites-pdf", {
-    config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
-    preHandler: [requirePermission("export.reports")],
-  }, ExportController.topSitesPdf);
   fastify.get("/export/monthly-crime-pdf", {
     config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
     preHandler: [requirePermission("export.reports")],

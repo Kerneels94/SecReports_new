@@ -71,6 +71,8 @@ export default function IncidentsPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
   const [batchType, setBatchType] = useState<"attempted" | "positive" | null>(null);
   const [batchEmail, setBatchEmail] = useState("");
   const [batchFormat, setBatchFormat] = useState<"csv" | "pdf">("pdf");
@@ -78,6 +80,11 @@ export default function IncidentsPage() {
   const [batchSent, setBatchSent] = useState(false);
   const [batchError, setBatchError] = useState<string | null>(null);
   const perPage = 25;
+
+  useEffect(() => {
+    const id = setTimeout(() => setSearch(searchInput.trim()), 300);
+    return () => clearTimeout(id);
+  }, [searchInput]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -87,6 +94,7 @@ export default function IncidentsPage() {
       if (dateFrom) params.dateFrom = dateFrom;
       if (dateTo) params.dateTo = dateTo;
       if (typeFilter) params.type = typeFilter;
+      if (search) params.search = search;
 
       const summaryTask = canViewReports ? reportService.summary() : Promise.resolve(null);
       const [summaryRes, incidentsRes] = await Promise.all([
@@ -107,7 +115,7 @@ export default function IncidentsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, dateFrom, dateTo, typeFilter, canViewReports]);
+  }, [page, dateFrom, dateTo, typeFilter, search, canViewReports]);
 
   useEffect(() => {
     fetchData();
@@ -179,38 +187,38 @@ export default function IncidentsPage() {
       </div>
 
       {canViewReports && summary && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <article className={`${PANEL} flex flex-col p-[22px]`}>
+        <div className="grid grid-cols-3 gap-3">
+          <article className={`${PANEL} flex flex-col p-4`}>
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-text-secondary">Total incidents</p>
-              <span className="grid h-9 w-9 place-items-center rounded-[10px] border border-primary/25 bg-primary/10 text-primary">
-                <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <span className="grid h-8 w-8 place-items-center rounded-[10px] border border-primary/25 bg-primary/10 text-primary">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                   <path d={ICONS.file} />
                 </svg>
               </span>
             </div>
-            <p className="mt-[18px] font-mono text-4xl font-semibold leading-none tracking-tight text-text">
+            <p className="mt-2 font-mono text-2xl font-semibold leading-none tracking-tight text-text">
               {summary.total}
             </p>
           </article>
 
-          <article className={`${PANEL} flex flex-col p-[22px]`}>
+          <article className={`${PANEL} flex flex-col p-4`}>
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-text-secondary">Attempted</p>
-              <span className="grid h-9 w-9 place-items-center rounded-[10px] border border-amber-600/40 bg-amber-600/15 text-amber-300">
-                <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <span className="grid h-8 w-8 place-items-center rounded-[10px] border border-amber-600/40 bg-amber-600/15 text-amber-300">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                   <path d={ICONS.alert} />
                 </svg>
               </span>
             </div>
-            <p className="mt-[18px] font-mono text-4xl font-semibold leading-none tracking-tight text-text">
+            <p className="mt-2 font-mono text-2xl font-semibold leading-none tracking-tight text-text">
               {summary.attemptedCount}
             </p>
             {summary.attemptedCount > 0 && (
               <button
                 type="button"
                 onClick={() => openBatchModal("attempted")}
-                className="mt-4 inline-flex cursor-pointer items-center gap-2 self-start rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs font-medium text-text transition-colors hover:border-border-light hover:bg-surface-elevated"
+                className="mt-2 inline-flex cursor-pointer items-center gap-2 self-start rounded-lg border border-border bg-surface px-2.5 py-1 text-xs font-medium text-text transition-colors hover:border-border-light hover:bg-surface-elevated"
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d={ICONS.mail} />
@@ -220,23 +228,23 @@ export default function IncidentsPage() {
             )}
           </article>
 
-          <article className={`${PANEL} flex flex-col p-[22px]`}>
+          <article className={`${PANEL} flex flex-col p-4`}>
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-text-secondary">Positive</p>
-              <span className="grid h-9 w-9 place-items-center rounded-[10px] border border-rose-600/40 bg-rose-600/15 text-rose-300">
-                <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <span className="grid h-8 w-8 place-items-center rounded-[10px] border border-rose-600/40 bg-rose-600/15 text-rose-300">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                   <path d={ICONS.octagon} />
                 </svg>
               </span>
             </div>
-            <p className="mt-[18px] font-mono text-4xl font-semibold leading-none tracking-tight text-text">
+            <p className="mt-2 font-mono text-2xl font-semibold leading-none tracking-tight text-text">
               {summary.positiveCount}
             </p>
             {summary.positiveCount > 0 && (
               <button
                 type="button"
                 onClick={() => openBatchModal("positive")}
-                className="mt-4 inline-flex cursor-pointer items-center gap-2 self-start rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs font-medium text-text transition-colors hover:border-border-light hover:bg-surface-elevated"
+                className="mt-2 inline-flex cursor-pointer items-center gap-2 self-start rounded-lg border border-border bg-surface px-2.5 py-1 text-xs font-medium text-text transition-colors hover:border-border-light hover:bg-surface-elevated"
               >
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d={ICONS.mail} />
@@ -249,6 +257,17 @@ export default function IncidentsPage() {
       )}
 
       <div className={`${PANEL} flex flex-wrap items-end gap-3 px-5 py-[18px]`}>
+        <div className="min-w-[220px] flex-1">
+          <label htmlFor="filter-search" className="mb-1.5 block text-[13px] font-medium text-text-secondary">Search</label>
+          <input
+            id="filter-search"
+            type="search"
+            value={searchInput}
+            onChange={(e) => { setSearchInput(e.target.value); setPage(1); }}
+            placeholder="Address, reporter, title or reference"
+            className="h-10 w-full rounded-[9px] border border-border bg-surface-secondary px-3 text-sm text-text outline-none transition-colors placeholder:text-text-secondary/60 focus:border-primary"
+          />
+        </div>
         <div className="min-w-[150px]">
           <label htmlFor="filter-date-from" className="mb-1.5 block text-[13px] font-medium text-text-secondary">Date from</label>
           <input
@@ -286,7 +305,7 @@ export default function IncidentsPage() {
           variant="secondary"
           size="sm"
           className="h-10"
-          onClick={() => { setDateFrom(""); setDateTo(""); setTypeFilter(""); setPage(1); }}
+          onClick={() => { setSearchInput(""); setSearch(""); setDateFrom(""); setDateTo(""); setTypeFilter(""); setPage(1); }}
         >
           Clear
         </Button>
@@ -330,7 +349,7 @@ export default function IncidentsPage() {
                   <thead>
                     <tr className="border-b border-border bg-surface-secondary/45">
                       <th className={TH}>Reference</th>
-                      <th className={TH}>Title</th>
+                      <th className={TH}>Address</th>
                       <th className={TH}>Type</th>
                       <th className={`${TH} hidden md:table-cell`}>Reporter</th>
                       <th className={TH}>Date</th>
@@ -360,11 +379,11 @@ export default function IncidentsPage() {
                             onClick={() => setSelectedIncidentId(incident.id)}
                             className="cursor-pointer text-left font-medium text-text transition-colors hover:text-primary"
                           >
-                            {incident.title}
+                            {incident.propertyAddress || incident.location || incident.businessOrComplex || "-"}
                           </button>
-                          {(incident.suburb || incident.city || incident.location) && (
+                          {(incident.suburb || incident.city) && (
                             <small className="mt-0.5 block text-xs font-normal text-text-secondary/80">
-                              {incident.suburb || incident.city || incident.location}
+                              {[incident.suburb, incident.city].filter(Boolean).join(", ")}
                             </small>
                           )}
                         </td>

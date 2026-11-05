@@ -14,7 +14,6 @@ import type {
   AreaResponseStat,
   MonthlyResponseStat,
   ResponsePeriod,
-  SiteIncidentStat,
 } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 import { hasPermission } from "@/lib/permissions";
@@ -167,7 +166,6 @@ export default function DashboardPage() {
   >([]);
   const [responseData, setResponseData] = useState<MonthlyResponseStat[]>([]);
   const [areaData, setAreaData] = useState<AreaResponseStat[]>([]);
-  const [sitesData, setSitesData] = useState<SiteIncidentStat[]>([]);
   const [areaPage, setAreaPage] = useState(1);
   const [chartMode, setChartMode] = useState<"monthly" | "yearly">("monthly");
   const [loading, setLoading] = useState(true);
@@ -175,7 +173,6 @@ export default function DashboardPage() {
   const [responseError, setResponseError] = useState(false);
   const [responseLoading, setResponseLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
-  const [downloadingSites, setDownloadingSites] = useState(false);
   const [monthlyOpen, setMonthlyOpen] = useState(false);
   const [downloadingPeriod, setDownloadingPeriod] =
     useState<ResponsePeriod | null>(null);
@@ -183,7 +180,6 @@ export default function DashboardPage() {
   // whole dashboard with a Retry button, so a 404 or expired trial would blank every chart.
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [yearlyError, setYearlyError] = useState<string | null>(null);
-  const [sitesError, setSitesError] = useState<string | null>(null);
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -209,14 +205,12 @@ export default function DashboardPage() {
     setResponseError(false);
     setResponseLoading(true);
     try {
-      const [responseRes, areaRes, sitesRes] = await Promise.all([
+      const [responseRes, areaRes] = await Promise.all([
         reportService.monthlyResponse(),
         reportService.responseByArea(),
-        reportService.topSites(),
       ]);
       setResponseData(responseRes.data);
       setAreaData(areaRes.data ?? []);
-      setSitesData(sitesRes.data ?? []);
       setAreaPage(1);
     } catch {
       setResponseError(true);
@@ -306,21 +300,6 @@ export default function DashboardPage() {
       );
     } finally {
       setDownloadingPeriod(null);
-    }
-  };
-
-  const handleDownloadSites = async () => {
-    setDownloadingSites(true);
-    setSitesError(null);
-    try {
-      saveBlob(
-        await exportService.downloadTopSitesPdf(),
-        "sites-with-most-incidents.pdf",
-      );
-    } catch {
-      setSitesError("Failed to download the site report");
-    } finally {
-      setDownloadingSites(false);
     }
   };
 
@@ -518,27 +497,6 @@ export default function DashboardPage() {
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={handleDownloadSites}
-                  loading={downloadingSites}
-                >
-                  <svg
-                    className="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                  Sites report
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
                   onClick={() => setMonthlyOpen(true)}
                 >
                   <svg
@@ -562,12 +520,6 @@ export default function DashboardPage() {
         {yearlyError && (
           <p role="alert" className="text-lg text-danger">
             {yearlyError}
-          </p>
-        )}
-
-        {sitesError && (
-          <p role="alert" className="text-lg text-danger">
-            {sitesError}
           </p>
         )}
 
@@ -743,7 +695,7 @@ export default function DashboardPage() {
             {!responseLoading && !responseError && responseStats && (
               <div className="mt-4 grid grid-cols-3 gap-2">
                 {[
-                  { v: responseStats.avg, l: "7-month average" },
+                  { v: responseStats.avg, l: `${responseData.length}-month average` },
                   {
                     v: responseStats.fastest.avgMs,
                     l: `Fastest · ${shortMonth(responseStats.fastest.month)}`,
@@ -865,53 +817,6 @@ export default function DashboardPage() {
                     </Button>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-
-          <div className={`${PANEL} flex flex-col lg:col-span-6`}>
-            <div className={CARD_HEAD}>
-              <div>
-                <h2 className={CARD_TITLE}>Sites with most incidents</h2>
-                <p className={CARD_SUB}>Top 10 by incident count</p>
-              </div>
-            </div>
-            {responseLoading ? (
-              <>
-                <p className="sr-only" role="status">
-                  Loading site data
-                </p>
-                <div className="flex flex-col gap-3" aria-hidden="true">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="h-5 animate-pulse rounded bg-zinc-600"
-                    />
-                  ))}
-                </div>
-              </>
-            ) : responseError ? (
-              <p className="text-lg text-danger">Failed to load site data</p>
-            ) : sitesData.length === 0 ? (
-              <p className="text-lg text-text-secondary">No site data yet.</p>
-            ) : (
-              <div className="flex flex-col">
-                {sitesData.map((s) => (
-                  <div
-                    key={s.site}
-                    className="flex items-center justify-between gap-4 border-t border-border py-2.5"
-                  >
-                    <span
-                      className="truncate text-sm text-text-secondary"
-                      title={s.site}
-                    >
-                      {s.site}
-                    </span>
-                    <span className="shrink-0 font-mono text-[13px] font-medium text-text">
-                      {s.count}
-                    </span>
-                  </div>
-                ))}
               </div>
             )}
           </div>

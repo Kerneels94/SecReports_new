@@ -30,11 +30,6 @@ export default async function reportRoutes(fastify: FastifyInstance) {
     { preHandler: [requirePermission("reports.view")] },
     ReportController.responseByArea,
   );
-  fastify.get(
-    "/reports/top-sites",
-    { preHandler: [requirePermission("reports.view")] },
-    ReportController.topSites,
-  );
   fastify.post(
     "/reports/email",
     {

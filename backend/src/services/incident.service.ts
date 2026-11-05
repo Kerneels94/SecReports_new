@@ -143,9 +143,17 @@ export const IncidentService = {
     if (params.status) where.status = params.status;
     if (params.type) where.type = { contains: params.type, mode: "insensitive" };
     if (params.search) {
+      const contains = { contains: params.search, mode: "insensitive" as const };
       const or: Prisma.IncidentWhereInput[] = [
-        { title: { contains: params.search } },
-        { referenceNumber: { contains: params.search } },
+        { title: contains },
+        { referenceNumber: contains },
+        { propertyAddress: contains },
+        { businessOrComplex: contains },
+        { clientName: contains },
+        { suburb: contains },
+        { city: contains },
+        { location: contains },
+        { reporter: { name: contains } },
       ];
 
       const parsed = tryParseDate(params.search);

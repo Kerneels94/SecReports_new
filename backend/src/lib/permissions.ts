@@ -75,3 +75,6 @@ export const PERMISSIONS: Permission[] = [
 export function defaultRoles(key: string): string[] {
   return PERMISSIONS.find((p) => p.key === key)?.defaults ?? [];
 }
+
+/** Every permission key. Admins are hardcoded to always hold these. */
+export const ALL_PERMISSION_KEYS = PERMISSIONS.map((p) => p.key);
