@@ -239,7 +239,6 @@ export function IncidentDetailModal({
               Details
             </h3>
             <DetailRow label="Type">{incident.type}</DetailRow>
-            <DetailRow label="Location">{incident.location || "-"}</DetailRow>
             <DetailRow label="Incident Date">
               {new Date(incident.incidentDate).toLocaleDateString("en-US", {
                 weekday: "long",

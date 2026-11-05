@@ -3,7 +3,11 @@
  * Returns the catalog merged with per-company overrides, and persists override sets.
  */
 import { prisma } from "../lib/db";
-import { PERMISSIONS, ROLES, defaultRoles } from "../lib/permissions";
+import {
+  PERMISSIONS,
+  ROLES,
+  ALL_PERMISSION_KEYS,
+} from "../lib/permissions";
 import { ValidationError } from "../lib/errors";
 
 export const PermissionService = {
@@ -16,19 +20,25 @@ export const PermissionService = {
 
     return {
       roles: [...ROLES],
-      permissions: PERMISSIONS.map((p) => ({
-        key: p.key,
-        label: p.label,
-        description: p.description,
-        roles: map.get(p.key) ?? p.defaults,
-        defaults: [...p.defaults],
-        isDefault: !map.has(p.key),
-      })),
+      permissions: PERMISSIONS.map((p) => {
+        const roles = map.get(p.key) ?? p.defaults;
+        return {
+          key: p.key,
+          label: p.label,
+          description: p.description,
+          // Admins always hold every permission, regardless of stored rows.
+          roles: roles.includes("admin") ? roles : ["admin", ...roles],
+          defaults: [...p.defaults],
+          isDefault: !map.has(p.key),
+        };
+      }),
     };
   },
 
   /** Permission keys granted to a role for a company (overrides merged with defaults). */
   async grantsForRole(companyId: string, role: string): Promise<string[]> {
+    // Hardcoded: admins always hold every permission, even with an empty DB.
+    if (role === "admin") return [...ALL_PERMISSION_KEYS];
     const overrides = await prisma.companyPermission.findMany({
       where: { companyId },
     });
@@ -57,15 +67,12 @@ export const PermissionService = {
       }
     }
 
-    // Admin is locked on for any permission it gets by default, so a company
-    // admin can never revoke their own baseline access.
-    const normalized = updates.map((u) => {
-      const roles = [...u.roles];
-      if (defaultRoles(u.key).includes("admin") && !roles.includes("admin")) {
-        roles.push("admin");
-      }
-      return { key: u.key, roles };
-    });
+    // Admin is hardcoded on every permission, so nobody — not even an admin —
+    // can revoke admin access.
+    const normalized = updates.map((u) => ({
+      key: u.key,
+      roles: u.roles.includes("admin") ? [...u.roles] : ["admin", ...u.roles],
+    }));
 
     for (const u of normalized) {
       await prisma.companyPermission.upsert({

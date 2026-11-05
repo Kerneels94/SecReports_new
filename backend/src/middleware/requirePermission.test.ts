@@ -33,6 +33,20 @@ describe("requirePermission", () => {
     await expect(middleware(request, {} as any)).rejects.toThrow("Insufficient permissions");
   });
 
+  it("grants admins every permission without reading the database", async () => {
+    const middleware = requirePermission("billing.manage");
+    const request = { user: { role: "admin", companyId: "c1" } } as any;
+    await expect(middleware(request, {} as any)).resolves.toBeUndefined();
+    expect(mockFindUnique).not.toHaveBeenCalled();
+  });
+
+  it("grants admins even when a stored override omits them", async () => {
+    mockFindUnique.mockResolvedValue({ roles: ["senior"] });
+    const middleware = requirePermission("billing.manage");
+    const request = { user: { role: "admin", companyId: "c1" } } as any;
+    await expect(middleware(request, {} as any)).resolves.toBeUndefined();
+  });
+
   it("uses the company override instead of catalog defaults", async () => {
     mockFindUnique.mockResolvedValue({ roles: ["senior"] });
     const middleware = requirePermission("users.manage");

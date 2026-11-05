@@ -710,6 +710,24 @@ describe("updateUser", () => {
     ).rejects.toThrow("Only an admin can change a user's role");
   });
 
+  it("stops a manager from changing an admin's role", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue({ ...mockUser, id: "3", role: "admin" });
+
+    await expect(
+      AuthService.updateUser("1", "3", { role: "senior" }, "2", "manager"),
+    ).rejects.toThrow("Only an admin can change a user's role");
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it("stops an admin from changing their own role", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
+
+    await expect(
+      AuthService.updateUser("1", "1", { role: "manager" }, "1", "admin"),
+    ).rejects.toThrow("You cannot change your own role");
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
   it("throws ConflictError when email already in use", async () => {
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({ ...mockUser, id: "2", email: "other@test.com" });

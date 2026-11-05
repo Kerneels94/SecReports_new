@@ -321,45 +321,4 @@ describe("ReportService", () => {
       expect(result).toEqual([]);
     });
   });
-
-  describe("topSites", () => {
-    it("counts incidents per site using the property/business/client/suburb fallback chain, busiest first", async () => {
-      (prisma.incident.findMany as jest.Mock).mockResolvedValue([
-        { propertyAddress: "1 Main Rd", businessOrComplex: "Mall", clientName: "Acme", suburb: "North", city: "Joburg" },
-        { propertyAddress: "1 Main Rd", businessOrComplex: "Mall", clientName: "Acme", suburb: "North", city: "Joburg" },
-        { propertyAddress: null, businessOrComplex: "Mall", clientName: "Acme", suburb: "North", city: "Joburg" },
-        { propertyAddress: null, businessOrComplex: null, clientName: "Acme", suburb: "North", city: "Joburg" },
-        { propertyAddress: null, businessOrComplex: null, clientName: null, suburb: "South", city: "Joburg" },
-        { propertyAddress: null, businessOrComplex: null, clientName: null, suburb: null, city: null },
-      ]);
-
-      const result = await ReportService.topSites("company1");
-
-      expect(result).toEqual([
-        { site: "1 Main Rd", count: 2 },
-        { site: "Mall", count: 1 },
-        { site: "Acme", count: 1 },
-        { site: "South, Joburg", count: 1 },
-      ]);
-    });
-
-    it("caps the ranking at the limit", async () => {
-      (prisma.incident.findMany as jest.Mock).mockResolvedValue(
-        Array.from({ length: 5 }, (_, i) => ({
-          propertyAddress: `Site ${i + 1}`,
-          businessOrComplex: null,
-          clientName: null,
-          suburb: null,
-          city: null,
-        })),
-      );
-
-      expect(await ReportService.topSites("company1", 3)).toHaveLength(3);
-    });
-
-    it("returns an empty array when there are no incidents", async () => {
-      (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
-      expect(await ReportService.topSites("empty")).toEqual([]);
-    });
-  });
 });

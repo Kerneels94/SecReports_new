@@ -39,7 +39,7 @@ const plans = [
   {
     id: "ent",
     name: "Enterprise",
-    price: 450000,
+    price: 250000,
     userLimit: 0,
     trialPeriodDays: null,
     features: "[\"Unlimited reports\"]",

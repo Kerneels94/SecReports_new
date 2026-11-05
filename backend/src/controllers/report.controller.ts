@@ -25,9 +25,4 @@ export const ReportController = {
     const data = await ReportService.responseByArea(request.user!.companyId);
     reply.code(200).send({ success: true, data });
   },
-
-  async topSites(request: FastifyRequest, reply: FastifyReply) {
-    const data = await ReportService.topSites(request.user!.companyId);
-    reply.code(200).send({ success: true, data });
-  },
 };

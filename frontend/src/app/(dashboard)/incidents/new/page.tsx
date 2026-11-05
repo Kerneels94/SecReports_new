@@ -16,7 +16,6 @@ import { cn } from "@/lib/cn";
 import { incidentService } from "@/services";
 
 const createIncidentSchema = z.object({
-  title: z.string().min(1, "Title is required").max(255),
   description: z.string().min(1, "Description is required"),
   type: z.string().min(1, "Type is required").max(100),
   incidentDate: z.string().min(1, "Date is required"),
@@ -140,6 +139,10 @@ export default function NewIncidentPage() {
       // datetime-local has no offset; convert in the browser so the server gets a UTC instant.
       await incidentService.create({
         ...data,
+        title:
+          data.propertyAddress?.trim() ||
+          data.businessOrComplex?.trim() ||
+          data.type,
         dispatchTime: data.dispatchTime ? new Date(data.dispatchTime).toISOString() : undefined,
         arrivalTime: data.arrivalTime ? new Date(data.arrivalTime).toISOString() : undefined,
       });
@@ -225,13 +228,6 @@ export default function NewIncidentPage() {
               )}
             </fieldset>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input
-                className="bg-surface-secondary"
-                label="Title"
-                placeholder="Brief title of the incident"
-                error={errors.title?.message}
-                {...register("title")}
-              />
               <Input
                 className="scheme-dark bg-surface-secondary"
                 label="Incident Date"

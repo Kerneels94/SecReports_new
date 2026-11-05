@@ -436,7 +436,7 @@ describe("SubscriptionService.changePlan", () => {
     const enterprise = {
       id: "ent",
       name: "Enterprise",
-      price: 450000,
+      price: 250000,
       userLimit: 0,
       reportLimit: 0,
     };

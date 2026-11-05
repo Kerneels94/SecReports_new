@@ -175,12 +175,6 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
       let y = drawHeader(doc) + 10;
 
       doc
-        .fontSize(18)
-        .font("Helvetica-Bold")
-        .fillColor(COLORS.dark)
-        .text(inc.title, 50, y, { width: 495, align: "center" });
-      y += 24;
-      doc
         .fontSize(9)
         .font("Helvetica")
         .fillColor(COLORS.muted)
@@ -255,8 +249,6 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
 
       y = drawSection(doc, "Details", y + 4);
       y = drawField(doc, "Type", inc.type, y);
-      y = drawField(doc, "Status", inc.status.replace(/_/g, " "), y);
-      y = drawField(doc, "Location", inc.location || "-", y);
       y = drawField(
         doc,
         "Incident Date",
@@ -658,72 +650,6 @@ function generateCrimeStatsPdf(data: {
   });
 }
 
-/** Sites-with-most-incidents PDF: headline counters and a ranked site table. */
-function generateTopSitesPdf(data: {
-  total: number;
-  sites: { site: string; count: number }[];
-}): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const doc = newDoc();
-    const chunks: Buffer[] = [];
-
-    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-    doc.on("error", reject);
-
-    const y0 = drawHeader(doc);
-
-    doc
-      .fillColor(COLORS.dark)
-      .fontSize(18)
-      .font("Helvetica-Bold")
-      .text("Sites with Most Incidents", 50, y0, {
-        width: 495,
-        align: "center",
-      });
-    doc
-      .fillColor(COLORS.muted)
-      .fontSize(9)
-      .font("Helvetica")
-      .text(`Generated on ${new Date().toLocaleString("en-US")}`, 50, y0 + 24, {
-        width: 495,
-        align: "center",
-      });
-
-    const boxY = drawSummaryCards(
-      doc,
-      [
-        { label: "Total Incidents", value: data.total, color: COLORS.accent },
-        { label: "Sites", value: data.sites.length, color: "#10b981" },
-        {
-          label: "Busiest Site",
-          value: data.sites[0]?.count ?? 0,
-          color: "#f59e0b",
-        },
-      ],
-      y0,
-    );
-
-    const rows = data.sites.map((s) => [s.site, String(s.count)]);
-    let y = pageSpace(doc, boxY + 95, 40 + rows.length * 18);
-    y = drawSection(doc, "Incidents by Site", y);
-    drawTable(
-      doc,
-      [
-        { label: "Site", width: 375 },
-        { label: "Incidents", width: 120 },
-      ],
-      rows,
-      50,
-      y,
-    );
-
-    drawFooter(doc);
-
-    doc.end();
-  });
-}
-
 /** Average response time report over a 3/6/9/12-month window: headline boxes, monthly bar chart, per-month table. */
 function generateResponseTimePdf(data: {
   months: number;
@@ -1046,44 +972,6 @@ export const ExportController = {
     reply.header(
       "Content-Disposition",
       `attachment; filename=yearly-crime-stats-${companySlug}-${date}.pdf`,
-    );
-    reply.code(200).send(pdfBuffer);
-  },
-
-  /** Export the sites-with-most-incidents ranking as a PDF download. */
-  async topSitesPdf(request: FastifyRequest, reply: FastifyReply) {
-    const companyId = request.user!.companyId;
-    await SubscriptionService.requireFeature(companyId, "export_csv_pdf");
-
-    // 1000 = every site in practice; the dashboard card itself only shows the top 10.
-    const sites = await ReportService.topSites(companyId, 1000);
-
-    if (sites.length === 0) {
-      reply.code(404).send({
-        success: false,
-        error: { code: "NOT_FOUND", message: "No incidents found" },
-      });
-      return;
-    }
-
-    const pdfBuffer = await generateTopSitesPdf({
-      total: sites.reduce((sum, s) => sum + s.count, 0),
-      sites,
-    });
-
-    const company = await prisma.company.findUnique({
-      where: { id: companyId },
-    });
-    const companySlug = (company?.name || "SecReports")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-    const date = new Date().toISOString().split("T")[0];
-
-    reply.header("Content-Type", "application/pdf");
-    reply.header(
-      "Content-Disposition",
-      `attachment; filename=sites-with-most-incidents-${companySlug}-${date}.pdf`,
     );
     reply.code(200).send(pdfBuffer);
   },

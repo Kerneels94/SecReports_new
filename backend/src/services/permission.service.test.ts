@@ -1,5 +1,6 @@
 import { PermissionService } from "./permission.service";
 import { prisma } from "../lib/db";
+import { PERMISSIONS } from "../lib/permissions";
 import { ValidationError } from "../lib/errors";
 
 jest.mock("../lib/db", () => ({
@@ -40,11 +41,35 @@ describe("PermissionService", () => {
       mockFindMany.mockResolvedValue([{ permission: "users.manage", roles: ["senior"] }]);
       const res = await PermissionService.getForCompany("c1");
 
-      expect(res.permissions.find((p) => p.key === "users.manage")?.roles).toEqual(["senior"]);
+      expect(res.permissions.find((p) => p.key === "users.manage")?.roles).toEqual(["admin", "senior"]);
       expect(res.permissions.find((p) => p.key === "users.manage")?.isDefault).toBe(false);
       expect(res.permissions.find((p) => p.key === "incidents.view")?.roles).toEqual([
         "admin", "manager", "senior",
       ]);
+    });
+
+    it("always shows admin on every permission even if an override omits it", async () => {
+      mockFindMany.mockResolvedValue([{ permission: "incidents.view", roles: [] }]);
+      const res = await PermissionService.getForCompany("c1");
+
+      expect(res.permissions.every((p) => p.roles.includes("admin"))).toBe(true);
+    });
+  });
+
+  describe("grantsForRole", () => {
+    it("grants every permission to admin without reading the database", async () => {
+      const keys = await PermissionService.grantsForRole("c1", "admin");
+
+      expect(keys.length).toBe(PERMISSIONS.length);
+      expect(mockFindMany).not.toHaveBeenCalled();
+    });
+
+    it("uses defaults for non-admin roles when there are no overrides", async () => {
+      mockFindMany.mockResolvedValue([]);
+      const keys = await PermissionService.grantsForRole("c1", "senior");
+
+      expect(keys).toContain("incidents.view");
+      expect(keys).not.toContain("users.manage");
     });
   });
 

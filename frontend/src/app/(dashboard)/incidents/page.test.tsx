@@ -30,6 +30,7 @@ const mockIncidents = [
     id: 1,
     referenceNumber: "SEC-001",
     title: "Server Breach",
+    propertyAddress: "12 Main Road",
     status: "under_review",
     type: "security",
     reporter: { name: "Alice" },
@@ -39,6 +40,7 @@ const mockIncidents = [
     id: 2,
     referenceNumber: "SEC-002",
     title: "Phishing Attempt",
+    propertyAddress: "45 Church Street",
     status: "submitted",
     type: "phishing",
     reporter: null,
@@ -101,9 +103,9 @@ describe("IncidentsPage", () => {
 
     await waitFor(() => {
       expect(screen.getByText("SEC-001")).toBeInTheDocument();
-      expect(screen.getByText("Server Breach")).toBeInTheDocument();
+      expect(screen.getByText("12 Main Road")).toBeInTheDocument();
       expect(screen.getByText("SEC-002")).toBeInTheDocument();
-      expect(screen.getByText("Phishing Attempt")).toBeInTheDocument();
+      expect(screen.getByText("45 Church Street")).toBeInTheDocument();
     });
   });
 
@@ -255,6 +257,26 @@ describe("IncidentsPage", () => {
         dateFrom: "2026-05-01",
         dateTo: "2026-05-31",
         type: "attempted",
+      });
+    });
+  });
+
+  it("passes debounced search to the service", async () => {
+    mockList.mockResolvedValue({ data: mockPaginated });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
+    render(<IncidentsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("SEC-001")).toBeInTheDocument();
+    });
+
+    await userEvent.type(screen.getByLabelText("Search"), "alice");
+
+    await waitFor(() => {
+      expect(mockList).toHaveBeenLastCalledWith({
+        page: "1",
+        perPage: "25",
+        search: "alice",
       });
     });
   });
