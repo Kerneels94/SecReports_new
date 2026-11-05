@@ -253,8 +253,8 @@ export default function DashboardPage() {
 
   const responseStats = useMemo(() => {
     if (responseData.length === 0) return null;
-    const avg =
-      responseData.reduce((sum, d) => sum + d.avgMs, 0) / responseData.length;
+    const recent = responseData.slice(-3);
+    const avg = recent.reduce((sum, d) => sum + d.avgMs, 0) / recent.length;
     const fastest = responseData.reduce((a, b) => (b.avgMs < a.avgMs ? b : a));
     const slowest = responseData.reduce((a, b) => (b.avgMs > a.avgMs ? b : a));
     return { avg, fastest, slowest };
@@ -695,7 +695,7 @@ export default function DashboardPage() {
             {!responseLoading && !responseError && responseStats && (
               <div className="mt-4 grid grid-cols-3 gap-2">
                 {[
-                  { v: responseStats.avg, l: `${responseData.length}-month average` },
+                  { v: responseStats.avg, l: "3-month average" },
                   {
                     v: responseStats.fastest.avgMs,
                     l: `Fastest · ${shortMonth(responseStats.fastest.month)}`,
