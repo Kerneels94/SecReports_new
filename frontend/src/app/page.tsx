@@ -706,7 +706,7 @@ export default function LandingPage() {
                   For larger teams that need unlimited seats.
                 </p>
                 <p className="price">
-                  R 4,500<small> /month</small>
+                  R 2,500<small> /month</small>
                 </p>
                 <p className="price-note">Unlimited users</p>
                 <ul className="ticks">

@@ -47,7 +47,7 @@ async function main() {
   await prisma.subscriptionPlan.create({
     data: {
       name: "Enterprise",
-      price: 450000,
+      price: 250000,
       userLimit: 0,
       reportLimit: 0,
       features: allFeatures,
