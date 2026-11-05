@@ -155,7 +155,24 @@ describe("DashboardPage", () => {
       expect(screen.getByText("Average response time")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("2-month average")).toBeInTheDocument();
+    expect(screen.getByText("3-month average")).toBeInTheDocument();
+  });
+
+  it("averages only the latest 3 months for the headline response stat", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockMonthlyResponse.mockResolvedValue({
+      data: [
+        { month: "2026-01", avgMs: 6000000 },
+        { month: "2026-02", avgMs: 600000 },
+        { month: "2026-03", avgMs: 1200000 },
+        { month: "2026-04", avgMs: 2400000 },
+      ],
+    });
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("23m 20s")).toBeInTheDocument();
+    });
   });
 
   it("renders response time by area breakdown", async () => {

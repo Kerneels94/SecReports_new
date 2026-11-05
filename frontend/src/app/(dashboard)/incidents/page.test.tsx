@@ -31,6 +31,7 @@ const mockIncidents = [
     referenceNumber: "SEC-001",
     title: "Server Breach",
     propertyAddress: "12 Main Road",
+    operatorName: "Sipho Dlamini",
     status: "under_review",
     type: "security",
     reporter: { name: "Alice" },
@@ -41,6 +42,7 @@ const mockIncidents = [
     referenceNumber: "SEC-002",
     title: "Phishing Attempt",
     propertyAddress: "45 Church Street",
+    operatorName: "Thandi Nkosi",
     status: "submitted",
     type: "phishing",
     reporter: null,
@@ -106,6 +108,8 @@ describe("IncidentsPage", () => {
       expect(screen.getByText("12 Main Road")).toBeInTheDocument();
       expect(screen.getByText("SEC-002")).toBeInTheDocument();
       expect(screen.getByText("45 Church Street")).toBeInTheDocument();
+      expect(screen.getByText("Sipho Dlamini")).toBeInTheDocument();
+      expect(screen.getByText("Thandi Nkosi")).toBeInTheDocument();
     });
   });
 

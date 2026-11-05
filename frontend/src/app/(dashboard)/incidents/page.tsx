@@ -395,7 +395,7 @@ export default function IncidentsPage() {
                           </span>
                         </td>
                         <td className={`${TD} hidden border-b border-border text-text-secondary md:table-cell`}>
-                          {incident.reporter?.name || "-"}
+                          {incident.operatorName || "-"}
                         </td>
                         <td className={`${TD} whitespace-nowrap border-b border-border font-mono text-[13px] text-text-secondary`}>
                           {formatIncidentDate(incident.incidentDate)}
