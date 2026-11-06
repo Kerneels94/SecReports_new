@@ -63,6 +63,7 @@ interface RegisterParams {
 /** Data to create a new user within an existing company. */
 interface CreateUserParams {
   name: string;
+  surname?: string;
   email: string;
   password: string;
   role?: UserRole;
@@ -270,6 +271,7 @@ export const AuthService = {
       user: {
         id: user.id,
         name: user.name,
+        surname: user.surname,
         email: user.email,
         role: user.role,
         status: user.status,
@@ -351,6 +353,7 @@ export const AuthService = {
       user: {
         id: user.id,
         name: user.name,
+        surname: user.surname,
         email: user.email,
         role: user.role,
         status: user.status,
@@ -379,6 +382,7 @@ export const AuthService = {
     return {
       id: user.id,
       name: user.name,
+      surname: user.surname,
       email: user.email,
       role: user.role,
       status: user.status,
@@ -529,6 +533,7 @@ export const AuthService = {
       data: {
         companyId: params.companyId,
         name: params.name,
+        surname: params.surname,
         email: params.email,
         passwordHash,
         role: params.role || "senior",
@@ -560,6 +565,7 @@ export const AuthService = {
     return {
       id: user.id,
       name: user.name,
+      surname: user.surname,
       email: user.email,
       role: user.role,
       status: user.status,
@@ -689,6 +695,7 @@ export const AuthService = {
       select: {
         id: true,
         name: true,
+        surname: true,
         email: true,
         role: true,
         status: true,
@@ -705,6 +712,7 @@ export const AuthService = {
       select: {
         id: true,
         name: true,
+        surname: true,
         email: true,
         role: true,
         status: true,
@@ -720,7 +728,7 @@ export const AuthService = {
   async updateUser(
     companyId: string,
     userId: string,
-    data: { name?: string; email?: string; role?: UserRole },
+    data: { name?: string; surname?: string; email?: string; role?: UserRole },
     performedBy?: string,
     actorRole?: string,
   ) {
@@ -765,6 +773,7 @@ export const AuthService = {
       where: { id: userId },
       data: {
         ...(data.name !== undefined && { name: data.name }),
+        ...(data.surname !== undefined && { surname: data.surname }),
         ...(data.email !== undefined &&
           data.email !== user.email && {
             email: data.email,
@@ -775,6 +784,7 @@ export const AuthService = {
       select: {
         id: true,
         name: true,
+        surname: true,
         email: true,
         role: true,
         status: true,
@@ -787,6 +797,10 @@ export const AuthService = {
       if (data.name !== undefined && data.name !== user.name) {
         oldValues.name = user.name;
         newValues.name = data.name;
+      }
+      if (data.surname !== undefined && data.surname !== user.surname) {
+        oldValues.surname = user.surname || "";
+        newValues.surname = data.surname;
       }
       if (data.role !== undefined) {
         oldValues.role = user.role;
@@ -812,6 +826,15 @@ export const AuthService = {
         performedBy: performedBy || userId,
         oldValues: JSON.stringify({ name: user.name }),
         newValues: JSON.stringify({ name: data.name }),
+      });
+    } else if (data.surname !== undefined && data.surname !== user.surname) {
+      await createAuditLog({
+        entityType: "user",
+        entityId: userId,
+        action: "user_updated",
+        performedBy: performedBy || userId,
+        oldValues: JSON.stringify({ surname: user.surname || "" }),
+        newValues: JSON.stringify({ surname: data.surname }),
       });
     }
 

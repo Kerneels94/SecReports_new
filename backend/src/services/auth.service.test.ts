@@ -418,6 +418,25 @@ describe("AuthService", () => {
       expect(result).toEqual(expect.objectContaining({ email: "test@example.com" }));
     });
 
+    it("stores the surname when provided", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      (hash.hashPassword as jest.Mock).mockResolvedValue("$2b$12$hashed");
+      (prisma.user.create as jest.Mock).mockResolvedValue({ ...mockUser, surname: "Doe" });
+
+      await AuthService.createUser({
+        name: "Jane",
+        surname: "Doe",
+        email: "jane@example.com",
+        password: "password123",
+        companyId: "1",
+        createdBy: "1",
+      });
+
+      expect(prisma.user.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({ name: "Jane", surname: "Doe" }),
+      });
+    });
+
     it("throws ConflictError for duplicate email", async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
@@ -688,6 +707,18 @@ describe("updateUser", () => {
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
 
     await expect(AuthService.updateUser("1", "999", { name: "New" })).rejects.toThrow(NotFoundError);
+  });
+
+  it("updates the surname", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
+    (prisma.user.update as jest.Mock).mockResolvedValue({ ...mockUser, surname: "Doe" });
+
+    const result = await AuthService.updateUser("1", "1", { surname: "Doe" }, "2", "admin");
+
+    expect(result.surname).toBe("Doe");
+    expect(prisma.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ surname: "Doe" }) }),
+    );
   });
 
   it("lets a manager rename a user when the role sent is unchanged", async () => {

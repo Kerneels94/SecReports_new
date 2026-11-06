@@ -10,6 +10,7 @@ export interface TrialStatus {
 export interface User {
   id: number;
   name: string;
+  surname?: string | null;
   email: string;
   role: "admin" | "manager" | "senior" | "superadmin";
   status: "active" | "inactive";

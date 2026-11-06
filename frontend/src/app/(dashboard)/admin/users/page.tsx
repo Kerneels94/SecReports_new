@@ -18,6 +18,7 @@ import { hasPermission } from "@/lib/permissions";
 
 const createUserSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  surname: z.string().max(255).optional(),
   email: z.string().email("Invalid email"),
   // Same rules as the backend's strongPassword, so a weak password is caught here with a clear message.
   password: z
@@ -43,6 +44,10 @@ function initials(name: string): string {
     .join("");
 }
 
+function fullName(user: { name: string; surname?: string | null }): string {
+  return [user.name, user.surname].filter(Boolean).join(" ");
+}
+
 function roleChip(role: string) {
   return role === "admin"
     ? "bg-primary/[0.08] text-primary border border-primary/20"
@@ -62,6 +67,7 @@ export default function AdminUsersPage() {
 
   const [editUser, setEditUser] = useState<UserListItem | null>(null);
   const [editName, setEditName] = useState("");
+  const [editSurname, setEditSurname] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editRole, setEditRole] = useState<string>("senior");
   const [editSaving, setEditSaving] = useState(false);
@@ -116,7 +122,10 @@ export default function AdminUsersPage() {
     try {
       setError(null);
       setSuccess(null);
-      const res = await userService.create(data);
+      const res = await userService.create({
+        ...data,
+        surname: data.surname?.trim() || undefined,
+      });
       setSuccess(res.data.message || `Verification email sent to ${data.email}`);
       reset();
       fetchUsers();
@@ -128,6 +137,7 @@ export default function AdminUsersPage() {
   const openEdit = (u: UserListItem) => {
     setEditUser(u);
     setEditName(u.name);
+    setEditSurname(u.surname ?? "");
     setEditEmail(u.email);
     setEditRole(u.role);
     setEditError(null);
@@ -140,7 +150,7 @@ export default function AdminUsersPage() {
     try {
       await userService.remove(deleteUser.id);
       setDeleteUser(null);
-      setSuccess(`User ${deleteUser.name} removed`);
+      setSuccess(`User ${fullName(deleteUser)} removed`);
       fetchUsers();
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : "Failed to remove user");
@@ -157,8 +167,9 @@ export default function AdminUsersPage() {
     setEditSaving(true);
     setEditError(null);
     try {
-      const payload: { name: string; email: string; role?: string } = {
+      const payload: { name: string; surname?: string; email: string; role?: string } = {
         name: editName,
+        surname: editSurname.trim() || undefined,
         email: editEmail,
       };
       if (editUser.role !== "admin") {
@@ -205,6 +216,12 @@ export default function AdminUsersPage() {
               placeholder="Employee name"
               error={errors.name?.message}
               {...register("name")}
+            />
+            <Input
+              label="Surname"
+              placeholder="Employee surname"
+              error={errors.surname?.message}
+              {...register("surname")}
             />
             <Input
               label="Email"
@@ -258,11 +275,11 @@ export default function AdminUsersPage() {
                   className="flex items-center gap-3.5 border-t border-border-light/60 py-3.5 first:border-t-0 first:pt-0"
                 >
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-primary/20 bg-primary/10 text-[13px] font-semibold text-primary">
-                    {initials(u.name)}
+                    {initials(fullName(u))}
                   </span>
                   <span className="min-w-0 flex-1">
                     <b className="block truncate text-sm font-medium text-text">
-                      {u.name}
+                      {fullName(u)}
                       {user?.id === u.id && (
                         <em className="ml-1 font-normal not-italic text-text-secondary/60">(you)</em>
                       )}
@@ -276,7 +293,7 @@ export default function AdminUsersPage() {
                     <button
                       type="button"
                       onClick={() => openEdit(u)}
-                      aria-label={`Edit ${u.name}`}
+                      aria-label={`Edit ${fullName(u)}`}
                       className="grid h-[34px] w-[34px] cursor-pointer place-items-center rounded-lg text-text-secondary transition-colors hover:bg-surface-elevated hover:text-text"
                     >
                       <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -287,7 +304,7 @@ export default function AdminUsersPage() {
                       <button
                         type="button"
                         onClick={() => { setDeleteUser(u); setDeleteError(null); }}
-                        aria-label={`Remove ${u.name}`}
+                        aria-label={`Remove ${fullName(u)}`}
                         className="grid h-[34px] w-[34px] cursor-pointer place-items-center rounded-lg text-text-secondary transition-colors hover:bg-red-300/10 hover:text-red-300"
                       >
                         <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -306,7 +323,7 @@ export default function AdminUsersPage() {
       <Modal
         open={!!editUser}
         onClose={() => setEditUser(null)}
-        title={`Edit ${editUser?.name || "User"}`}
+        title={`Edit ${editUser ? fullName(editUser) : "User"}`}
       >
         {editError && (
           <div className="mb-4 rounded-xl bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
@@ -315,6 +332,7 @@ export default function AdminUsersPage() {
         )}
         <div className="flex flex-col gap-4">
           <Input label="Name" value={editName} onChange={(e) => setEditName(e.target.value)} />
+          <Input label="Surname" value={editSurname} onChange={(e) => setEditSurname(e.target.value)} />
           <Input label="Email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
           {editUser?.role === "admin" ? (
             <div className="flex flex-col gap-1.5">
@@ -352,7 +370,7 @@ export default function AdminUsersPage() {
           </div>
         )}
         <p className="text-sm text-text-secondary">
-          Remove {deleteUser?.name} ({deleteUser?.email})? Their account will be
+          Remove {deleteUser ? fullName(deleteUser) : ""} ({deleteUser?.email})? Their account will be
           permanently deleted and all their sessions revoked. This cannot be undone.
         </p>
         <div className="flex gap-3 pt-4">
