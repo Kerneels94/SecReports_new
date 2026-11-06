@@ -273,19 +273,6 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
         }),
         y,
       );
-      y = drawField(
-        doc,
-        "Updated",
-        new Date(inc.updatedAt).toLocaleString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        y,
-      );
-
       drawFooter(doc);
     }
 
