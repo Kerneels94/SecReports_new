@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import AdminUsersPage from "./page";
 import { userService, authService } from "@/services";
@@ -31,6 +31,7 @@ jest.mock("@/components/ui/Badge", () => ({
 
 const mockUseAuth = useAuth as jest.Mock;
 const mockCreate = userService.create as jest.Mock;
+const mockUpdate = userService.update as jest.Mock;
 const mockListUsers = authService.listUsers as jest.Mock;
 const mockRemove = userService.remove as jest.Mock;
 
@@ -78,6 +79,7 @@ describe("AdminUsersPage", () => {
     expect(screen.getByRole("heading", { name: /users/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /add an employee/i })).toBeInTheDocument();
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Surname")).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
     expect(screen.getByLabelText("Temporary password")).toBeInTheDocument();
     expect(screen.getByLabelText("Role")).toBeInTheDocument();
@@ -120,14 +122,16 @@ describe("AdminUsersPage", () => {
     render(<AdminUsersPage />);
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText("Name"), "Jane Doe");
+    await user.type(screen.getByLabelText("Name"), "Jane");
+    await user.type(screen.getByLabelText("Surname"), "Doe");
     await user.type(screen.getByLabelText("Email"), "jane@example.com");
     await user.type(screen.getByLabelText("Temporary password"), "Password1!");
     await user.click(screen.getByRole("button", { name: /create user/i }));
 
     await waitFor(() => {
       expect(mockCreate).toHaveBeenCalledWith({
-        name: "Jane Doe",
+        name: "Jane",
+        surname: "Doe",
         email: "jane@example.com",
         password: "Password1!",
         role: "senior",
@@ -165,6 +169,27 @@ describe("AdminUsersPage", () => {
 
     await waitFor(() => {
       expect(screen.getByLabelText<HTMLInputElement>("Name").value).toBe("");
+    });
+  });
+
+  it("saves the surname when editing a user", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockListUsers.mockResolvedValue({
+      data: [{ id: 2, name: "Jane", surname: "Doe", email: "jane@example.com", role: "senior", status: "active", createdAt: "" }],
+    });
+    mockUpdate.mockResolvedValue({ success: true, data: {} });
+    render(<AdminUsersPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole("button", { name: /edit jane doe/i }));
+    const dialog = screen.getByRole("dialog");
+    const surnameInput = within(dialog).getAllByRole("textbox")[1];
+    await user.clear(surnameInput);
+    await user.type(surnameInput, "Smith");
+    await user.click(within(dialog).getByRole("button", { name: /^save$/i }));
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith(2, expect.objectContaining({ surname: "Smith" }));
     });
   });
 

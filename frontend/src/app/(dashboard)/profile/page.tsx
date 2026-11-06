@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const { user, refreshUser, logout } = useAuth();
 
   const [editName, setEditName] = useState(user?.name ?? "");
+  const [editSurname, setEditSurname] = useState(user?.surname ?? "");
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -52,7 +53,10 @@ export default function ProfilePage() {
     }
     setProfileLoading(true);
     try {
-      await userService.update(user.id, { name: editName });
+      await userService.update(user.id, {
+        name: editName,
+        surname: editSurname.trim() || undefined,
+      });
       await refreshUser();
       setProfileSuccess("Profile updated");
     } catch (err) {
@@ -121,7 +125,9 @@ export default function ProfilePage() {
               {avatarInitial}
             </div>
             <div>
-              <b className="block text-xl font-semibold text-text">{user.name}</b>
+              <b className="block text-xl font-semibold text-text">
+                {[user.name, user.surname].filter(Boolean).join(" ")}
+              </b>
               <span className="mt-1.5 inline-flex rounded-full border border-primary/20 bg-primary/[0.08] px-2.5 py-[3px] text-xs font-semibold capitalize text-primary">
                 {user.role}
               </span>
@@ -166,6 +172,12 @@ export default function ProfilePage() {
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
                 placeholder={user.name}
+              />
+              <Input
+                label="Surname"
+                value={editSurname}
+                onChange={(e) => setEditSurname(e.target.value)}
+                placeholder="Surname"
               />
               <Button variant="secondary" className="w-full" onClick={handleProfileSave} loading={profileLoading}>
                 Save name

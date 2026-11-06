@@ -177,6 +177,7 @@ describe("ProfilePage name field and session", () => {
     render(<ProfilePage />);
 
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Surname")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save name" })).toBeInTheDocument();
   });
 

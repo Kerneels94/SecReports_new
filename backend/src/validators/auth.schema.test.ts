@@ -77,6 +77,12 @@ describe("auth schemas", () => {
       expect(result.success).toBe(true);
     });
 
+    it("passes with surname", () => {
+      const result = createUserSchema.safeParse({ ...valid, surname: "Doe" });
+      expect(result.success).toBe(true);
+      expect(result.data?.surname).toBe("Doe");
+    });
+
     it("fails for invalid role value", () => {
       const result = createUserSchema.safeParse({ ...valid, role: "superadmin" });
       expect(result.success).toBe(false);
