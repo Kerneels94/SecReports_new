@@ -230,15 +230,16 @@ describe("IncidentsPage", () => {
     expect(screen.getByText("Report your first incident")).toBeInTheDocument();
   });
 
-  it("renders Report Incident button", async () => {
+  it("does not render Report Incident button", async () => {
     mockList.mockResolvedValue({ data: mockPaginated });
     mockSummary.mockResolvedValue({ data: mockSummaryData });
     render(<IncidentsPage />);
 
     await waitFor(() => {
-      const reportBtn = screen.getByText("Report incident");
-      expect(reportBtn.closest("a")).toHaveAttribute("href", "/incidents/new");
+      expect(screen.getByText("SEC-001")).toBeInTheDocument();
     });
+
+    expect(screen.queryByText("Report incident")).not.toBeInTheDocument();
   });
 
   it("passes date and type filters to the service", async () => {

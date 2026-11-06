@@ -175,15 +175,6 @@ export default function IncidentsPage() {
           <h1 className="text-[28px] font-semibold tracking-tight text-text">Incidents</h1>
           <p className="mt-1 text-text-secondary">{total} total incidents</p>
         </div>
-        <Link
-          href="/incidents/new"
-          className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary-hover px-3.5 text-sm font-medium text-gray-900 shadow-lg shadow-primary/25 transition-all duration-150 hover:shadow-primary/40"
-        >
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-          Report incident
-        </Link>
       </div>
 
       {canViewReports && summary && (
