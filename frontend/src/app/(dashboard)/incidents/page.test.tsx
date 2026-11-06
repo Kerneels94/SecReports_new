@@ -54,7 +54,7 @@ const mockPaginated = {
   data: mockIncidents,
   total: 25,
   page: 1,
-  perPage: 25,
+  perPage: 10,
 };
 
 const mockSummaryData = {
@@ -158,14 +158,14 @@ describe("IncidentsPage", () => {
     }));
 
     mockList.mockResolvedValue({
-      data: { data: manyItems, total: 50, page: 1, perPage: 25 },
+      data: { data: manyItems, total: 50, page: 1, perPage: 10 },
     });
     mockSummary.mockResolvedValue({ data: mockSummaryData });
 
     render(<IncidentsPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(/page 1 of 2/i)).toBeInTheDocument();
+      expect(screen.getByText(/page 1 of 5/i)).toBeInTheDocument();
     });
 
     expect(screen.getByText("Previous")).toBeDisabled();
@@ -174,24 +174,24 @@ describe("IncidentsPage", () => {
 
   it("pagination next/previous changes page", async () => {
     mockList.mockResolvedValue({
-      data: { data: mockIncidents, total: 50, page: 1, perPage: 25 },
+      data: { data: mockIncidents, total: 50, page: 1, perPage: 10 },
     });
     mockSummary.mockResolvedValue({ data: mockSummaryData });
 
     render(<IncidentsPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(/page 1 of 2/i)).toBeInTheDocument();
+      expect(screen.getByText(/page 1 of 5/i)).toBeInTheDocument();
     });
 
     mockList.mockResolvedValue({
-      data: { data: mockIncidents, total: 50, page: 2, perPage: 25 },
+      data: { data: mockIncidents, total: 50, page: 2, perPage: 10 },
     });
 
     await userEvent.click(screen.getByText("Next"));
 
     await waitFor(() => {
-      expect(screen.getByText(/page 2 of 2/i)).toBeInTheDocument();
+      expect(screen.getByText(/page 2 of 5/i)).toBeInTheDocument();
     });
   });
 
@@ -217,7 +217,7 @@ describe("IncidentsPage", () => {
 
   it("shows empty state when no incidents", async () => {
     mockList.mockResolvedValue({
-      data: { data: [], total: 0, page: 1, perPage: 25 },
+      data: { data: [], total: 0, page: 1, perPage: 10 },
     });
     mockSummary.mockResolvedValue({ data: { total: 0, attemptedCount: 0, positiveCount: 0 } });
 
@@ -257,7 +257,7 @@ describe("IncidentsPage", () => {
     await waitFor(() => {
       expect(mockList).toHaveBeenLastCalledWith({
         page: "1",
-        perPage: "25",
+        perPage: "10",
         dateFrom: "2026-05-01",
         dateTo: "2026-05-31",
         type: "attempted",
@@ -279,7 +279,7 @@ describe("IncidentsPage", () => {
     await waitFor(() => {
       expect(mockList).toHaveBeenLastCalledWith({
         page: "1",
-        perPage: "25",
+        perPage: "10",
         search: "alice",
       });
     });
@@ -301,7 +301,7 @@ describe("IncidentsPage", () => {
 
     await userEvent.click(screen.getByText("Clear"));
     await waitFor(() => {
-      expect(mockList).toHaveBeenLastCalledWith({ page: "1", perPage: "25" });
+      expect(mockList).toHaveBeenLastCalledWith({ page: "1", perPage: "10" });
     });
   });
 });

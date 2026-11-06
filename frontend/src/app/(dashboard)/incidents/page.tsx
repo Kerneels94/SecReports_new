@@ -79,7 +79,7 @@ export default function IncidentsPage() {
   const [batchSending, setBatchSending] = useState(false);
   const [batchSent, setBatchSent] = useState(false);
   const [batchError, setBatchError] = useState<string | null>(null);
-  const perPage = 25;
+  const perPage = 10;
 
   useEffect(() => {
     const id = setTimeout(() => setSearch(searchInput.trim()), 300);
