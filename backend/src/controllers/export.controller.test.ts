@@ -418,8 +418,6 @@ describe("ExportController.responseTimePdf", () => {
       "Average Response Time Report",
       "Last 3 months",
       "AVGRESPONSE",
-      "MEDIANRESPONSE",
-      "90THPERCENTILE",
       "Average Response Time by Month",
       "Monthly Breakdown",
       "2026-07",
@@ -429,8 +427,6 @@ describe("ExportController.responseTimePdf", () => {
       "23m20s",
       "30m0s",
       "10m0s",
-      "25m0s",
-      "35m0s",
       "All rights reserved",
       "automated notification",
     ]) {

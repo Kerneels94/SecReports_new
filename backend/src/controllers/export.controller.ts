@@ -658,10 +658,8 @@ function generateResponseTimePdf(data: {
     month: string;
     count: number;
     avgMs: number;
-    medianMs: number;
-    p90Ms: number;
   }[];
-  overall: { count: number; avgMs: number; medianMs: number; p90Ms: number };
+  overall: { count: number; avgMs: number };
 }): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = newDoc();
@@ -703,16 +701,6 @@ function generateResponseTimePdf(data: {
         label: "Avg Response",
         value: formatDuration(data.overall.avgMs),
         color: COLORS.accent,
-      },
-      {
-        label: "Median Response",
-        value: formatDuration(data.overall.medianMs),
-        color: "#10b981",
-      },
-      {
-        label: "90th Percentile",
-        value: formatDuration(data.overall.p90Ms),
-        color: "#f59e0b",
       },
     ];
     const boxWidth = 150;
@@ -772,16 +760,12 @@ function generateResponseTimePdf(data: {
         m.month,
         String(m.count),
         formatDuration(m.avgMs),
-        formatDuration(m.medianMs),
-        formatDuration(m.p90Ms),
       ]),
       // Trailing total so the headline figures are checkable against the month rows.
       [
         "All months",
         String(data.overall.count),
         formatDuration(data.overall.avgMs),
-        formatDuration(data.overall.medianMs),
-        formatDuration(data.overall.p90Ms),
       ],
     ];
     y = pageSpace(doc, y + 20, 40 + monthRows.length * 18);
@@ -789,11 +773,9 @@ function generateResponseTimePdf(data: {
     drawTable(
       doc,
       [
-        { label: "Month", width: 120 },
-        { label: "Incidents", width: 80 },
-        { label: "Avg Response", width: 100 },
-        { label: "Median", width: 90 },
-        { label: "90th Percentile", width: 105 },
+        { label: "Month", width: 150 },
+        { label: "Incidents", width: 100 },
+        { label: "Avg Response", width: 140 },
       ],
       monthRows,
       50,
