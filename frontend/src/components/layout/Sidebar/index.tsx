@@ -161,16 +161,18 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
         </nav>
 
         <div className="mt-auto grid gap-1.5">
-          <Link
-            href="/settings/billing"
-            onClick={onClose}
-            className="grid gap-1.5 rounded-xl border border-border-light bg-surface p-3 text-[13px] text-text-secondary transition-colors hover:border-primary/20"
-          >
-            <span className="w-max rounded-full border border-primary/20 bg-primary/[0.08] px-2.5 py-[3px] text-xs font-semibold text-primary">
-              Billing
-            </span>
-            View your plan and invoices
-          </Link>
+          {user?.role !== "manager" && user?.role !== "senior" && (
+            <Link
+              href="/settings/billing"
+              onClick={onClose}
+              className="grid gap-1.5 rounded-xl border border-border-light bg-surface p-3 text-[13px] text-text-secondary transition-colors hover:border-primary/20"
+            >
+              <span className="w-max rounded-full border border-primary/20 bg-primary/[0.08] px-2.5 py-[3px] text-xs font-semibold text-primary">
+                Billing
+              </span>
+              View your plan and invoices
+            </Link>
+          )}
           <Link
             href="/profile"
             onClick={onClose}

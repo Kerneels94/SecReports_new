@@ -123,6 +123,23 @@ describe("Sidebar", () => {
     expect(getNavLink("View Profile")).toHaveAttribute("href", "/profile");
   });
 
+  it("shows the footer billing card for admins", () => {
+    mockUser = { ...mockUser, role: "admin" };
+    mockUsePathname.mockReturnValue("/dashboard");
+    render(<Sidebar />);
+    expect(getNavLink("View your plan and invoices")).toHaveAttribute("href", "/settings/billing");
+  });
+
+  it("hides the footer billing card from managers and seniors", () => {
+    mockUsePathname.mockReturnValue("/dashboard");
+    render(<Sidebar />);
+    expect(getNavLink("View your plan and invoices")).toBeNull();
+
+    mockUser = { ...mockUser, role: "senior" };
+    render(<Sidebar />);
+    expect(getNavLink("View your plan and invoices")).toBeNull();
+  });
+
   it("renders a logout button in the sidebar footer", () => {
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar onLogout={jest.fn()} />);
