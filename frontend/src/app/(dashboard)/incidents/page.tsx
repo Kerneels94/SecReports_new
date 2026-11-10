@@ -51,6 +51,7 @@ const typeChip = (type: string) => {
 export default function IncidentsPage() {
   const { user } = useAuth();
   const canViewReports = hasPermission(user, "reports.view");
+  const canCreate = hasPermission(user, "incidents.create");
   const canExportPdf = hasPermission(user, "export.csv");
   const canEmail = hasPermission(user, "export.reports");
   const [summary, setSummary] = useState<{
@@ -175,6 +176,17 @@ export default function IncidentsPage() {
           <h1 className="text-[28px] font-semibold tracking-tight text-text">Incidents</h1>
           <p className="mt-1 text-text-secondary">{total} total incidents</p>
         </div>
+        {canCreate && (
+          <Link
+            href="/incidents/new"
+            className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary-hover px-3.5 text-sm font-medium text-gray-900 shadow-[0_10px_30px_-12px_rgba(134,239,172,0.55)] transition-all duration-150 hover:brightness-105"
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Report incident
+          </Link>
+        )}
       </div>
 
       {canViewReports && summary && (
@@ -342,7 +354,8 @@ export default function IncidentsPage() {
                       <th className={TH}>Reference</th>
                       <th className={TH}>Address</th>
                       <th className={TH}>Type</th>
-                      <th className={`${TH} hidden md:table-cell`}>Reporter</th>
+                      {/* Column shows operatorName, so label it Operator (was "Reporter"). */}
+                      <th className={`${TH} hidden md:table-cell`}>Operator</th>
                       <th className={TH}>Date</th>
                       <th className={TH}>
                         <span className="sr-only">Actions</span>

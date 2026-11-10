@@ -721,6 +721,27 @@ describe("updateUser", () => {
     );
   });
 
+  it("records a name and surname change in one audit entry", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue({ ...mockUser, surname: "Old" });
+    (prisma.user.update as jest.Mock).mockResolvedValue({ ...mockUser, name: "New", surname: "Doe" });
+
+    await AuthService.updateUser("1", "1", { name: "New", surname: "Doe", role: "admin" }, "2", "admin");
+
+    expect(prisma.auditLog.create).toHaveBeenCalledTimes(1);
+    const { data } = (prisma.auditLog.create as jest.Mock).mock.calls[0][0];
+    expect(JSON.parse(data.oldValues)).toEqual({ name: "Test User", surname: "Old" });
+    expect(JSON.parse(data.newValues)).toEqual({ name: "New", surname: "Doe" });
+  });
+
+  it("does not audit an empty surname when none was set", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue({ ...mockUser, surname: null });
+    (prisma.user.update as jest.Mock).mockResolvedValue(mockUser);
+
+    await AuthService.updateUser("1", "1", { surname: "" }, "2", "admin");
+
+    expect(prisma.auditLog.create).not.toHaveBeenCalled();
+  });
+
   it("lets a manager rename a user when the role sent is unchanged", async () => {
     const senior = { ...mockUser, id: "3", role: "senior" };
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(senior);
@@ -881,6 +902,35 @@ describe("deleteUser", () => {
       where: { id: "1" },
       data: { status: "inactive", email: "test@example.com.1.invalid" },
     });
+  });
+});
+
+describe("logout", () => {
+  it("revokes every session for the user", async () => {
+    (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValue({
+      id: "rt1",
+      userId: "1",
+    });
+
+    await AuthService.logout("raw-token");
+
+    expect(prisma.refreshToken.deleteMany).toHaveBeenCalledWith({
+      where: { userId: "1" },
+    });
+    expect(prisma.auditLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ action: "logout", entityId: "1" }),
+      }),
+    );
+  });
+
+  it("ignores an unknown refresh token", async () => {
+    (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+    await AuthService.logout("unknown-token");
+
+    expect(prisma.refreshToken.deleteMany).not.toHaveBeenCalled();
+    expect(prisma.auditLog.create).not.toHaveBeenCalled();
   });
 });
 

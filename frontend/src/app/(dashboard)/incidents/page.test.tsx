@@ -230,7 +230,16 @@ describe("IncidentsPage", () => {
     expect(screen.getByText("Report your first incident")).toBeInTheDocument();
   });
 
-  it("does not render Report Incident button", async () => {
+  it("labels the operator column as Operator", async () => {
+    mockList.mockResolvedValue({ data: mockPaginated });
+    mockSummary.mockResolvedValue({ data: mockSummaryData });
+    render(<IncidentsPage />);
+
+    expect(await screen.findByRole("columnheader", { name: "Operator" })).toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "Reporter" })).not.toBeInTheDocument();
+  });
+
+  it("renders Report Incident in the page header when permitted", async () => {
     mockList.mockResolvedValue({ data: mockPaginated });
     mockSummary.mockResolvedValue({ data: mockSummaryData });
     render(<IncidentsPage />);
@@ -239,7 +248,10 @@ describe("IncidentsPage", () => {
       expect(screen.getByText("SEC-001")).toBeInTheDocument();
     });
 
-    expect(screen.queryByText("Report incident")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /report incident/i })).toHaveAttribute(
+      "href",
+      "/incidents/new",
+    );
   });
 
   it("passes date and type filters to the service", async () => {

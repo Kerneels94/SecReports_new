@@ -5,6 +5,7 @@ import {
   ledgerListQuerySchema,
 } from "../validators/ledger.schema";
 import { ValidationError } from "../lib/errors";
+import { validationErrorMessage } from "../validators/shared";
 
 const actorOf = (request: FastifyRequest): LedgerActor => ({
   userId: request.user!.userId,
@@ -15,7 +16,7 @@ export const LedgerController = {
   async listEntries(request: FastifyRequest, reply: FastifyReply) {
     const parsed = ledgerListQuerySchema.safeParse(request.query);
     if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
 
     const data = await LedgerService.getEntries(parsed.data, actorOf(request));
     reply.code(200).send({ success: true, data });
@@ -30,7 +31,7 @@ export const LedgerController = {
   async createEntry(request: FastifyRequest, reply: FastifyReply) {
     const parsed = createLedgerEntrySchema.safeParse(request.body);
     if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
 
     const data = await LedgerService.postEntry(
       {

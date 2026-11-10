@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ProfilePage from "./page";
-import { authService } from "@/services";
+import { authService, userService } from "@/services";
 
 jest.mock("@/hooks/useAuth", () => ({
   useAuth: jest.fn(),
@@ -12,6 +12,7 @@ jest.mock("@/services", () => ({
     me: jest.fn(),
     changePassword: jest.fn(),
   },
+  userService: { update: jest.fn() },
 }));
 
 jest.mock("next/link", () => {
@@ -179,6 +180,23 @@ describe("ProfilePage name field and session", () => {
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Surname")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save name" })).toBeInTheDocument();
+  });
+
+  it("sends an empty surname when it is cleared", async () => {
+    mockUseAuth.mockReturnValue({
+      user: { ...mockUser, surname: "Doe", role: "manager", permissions: ["users.update"] },
+      refreshUser: jest.fn(),
+    });
+    (userService.update as jest.Mock).mockResolvedValue({ data: {} });
+    render(<ProfilePage />);
+    const user = userEvent.setup();
+
+    await user.clear(screen.getByLabelText("Surname"));
+    await user.click(screen.getByRole("button", { name: "Save name" }));
+
+    await waitFor(() => {
+      expect(userService.update).toHaveBeenCalledWith(1, expect.objectContaining({ surname: "" }));
+    });
   });
 
   it("logs out after a successful password change, since the server ended every session", async () => {

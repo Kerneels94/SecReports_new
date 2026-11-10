@@ -44,6 +44,7 @@ export interface MonthlyStat {
 export interface MonthlyResponseStat {
   month: string;
   avgMs: number;
+  count: number;
 }
 
 /** Average response time in milliseconds per area, with incident count. */
@@ -80,8 +81,15 @@ export const authService = {
   login: (data: LoginRequest) => api.post<LoginResponse>("/auth/login", data),
   register: (data: RegisterRequest) =>
     api.post<RegisterResponse>("/auth/register", data),
-  logout: () => api.post<void>("/auth/logout", {}),
+  logout: async () => {
+    try {
+      return await api.post<void>("/auth/logout", {});
+    } finally {
+      api.invalidateSession();
+    }
+  },
   refresh: () => api.post<LoginResponse>("/auth/refresh", {}),
+  refreshSession: () => api.refreshSession(),
   me: () => api.get<User>("/auth/me"),
   forgotPassword: (email: string) =>
     api.post<{ message: string }>("/auth/forgot-password", { email }),
@@ -303,6 +311,7 @@ export const adminAuditService = {
       `/admin/audit-logs${qs ? `?${qs}` : ""}`,
     );
   },
+  exportPdf: () => api.downloadBlob("/audit-logs/export"),
   exportCompany: (companyId: string) =>
     api.post<{ emailedTo: string[]; count: number }>(`/admin/audit-logs/export/${companyId}`),
   exportAll: () =>

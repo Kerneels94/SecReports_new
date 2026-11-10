@@ -18,6 +18,10 @@ interface ListAuditLogsParams {
   search?: string | null | undefined;
 }
 
+// ponytail: exports render a PDF in memory, so cap the rows. Move to a
+// streamed export if customers need their full history in one file.
+export const EXPORT_LIMIT = 5000;
+
 export const AuditLogService = {
   /** Creates an audit log entry, stamping it with the request context (IP + user agent). */
   async create(params: {
@@ -114,6 +118,7 @@ export const AuditLogService = {
           },
         },
         orderBy: { createdAt: "desc" },
+        take: EXPORT_LIMIT,
       }),
     ]);
     return { company, entries };
@@ -127,6 +132,7 @@ export const AuditLogService = {
         },
       },
       orderBy: { createdAt: "desc" },
+      take: EXPORT_LIMIT,
     });
     return { entries };
   },

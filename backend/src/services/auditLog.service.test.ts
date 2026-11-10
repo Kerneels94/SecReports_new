@@ -1,4 +1,4 @@
-import { AuditLogService } from "./auditLog.service";
+import { AuditLogService, EXPORT_LIMIT } from "./auditLog.service";
 import { prisma } from "../lib/db";
 import { runWithAuditContext } from "../lib/auditContext";
 
@@ -76,6 +76,7 @@ describe("AuditLogService", () => {
     expect((prisma.auditLog.findMany as jest.Mock).mock.calls[0][0].where).toEqual({
       performedByUser: { companyId: "company-1" },
     });
+    expect((prisma.auditLog.findMany as jest.Mock).mock.calls[0][0].take).toBe(EXPORT_LIMIT);
   });
 
   it("fuses request context (ip + user agent) into created entries", async () => {

@@ -27,7 +27,9 @@ function DetailRow({
       <span className="text-xs font-medium text-text-secondary/60 shrink-0 w-28">
         {label}
       </span>
-      <span className="text-sm text-text text-right">{children}</span>
+      <span className="min-w-0 break-words [overflow-wrap:anywhere] text-sm text-text text-right">
+        {children}
+      </span>
     </div>
   );
 }
@@ -100,7 +102,7 @@ export function IncidentDetailModal({
       open={open}
       onClose={onClose}
       title=""
-      className="max-w-4xl w-full max-h-[85vh] overflow-y-auto"
+      className="max-w-4xl w-full max-h-[85vh] overflow-y-auto overflow-x-hidden"
     >
       <button
         onClick={onClose}
@@ -159,7 +161,7 @@ export function IncidentDetailModal({
             <h3 className="text-xs font-semibold text-text-secondary/60 uppercase tracking-wider mb-2">
               Description
             </h3>
-            <p className="text-sm text-text leading-relaxed whitespace-pre-wrap">
+            <p className="text-sm text-text leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
               {incident.description}
             </p>
           </div>

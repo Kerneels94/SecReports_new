@@ -8,12 +8,14 @@ jest.mock("@/services", () => ({
     me: jest.fn(),
     login: jest.fn(),
     logout: jest.fn().mockResolvedValue(undefined),
+    refreshSession: jest.fn(),
   },
 }));
 
 const mockMe = authService.me as jest.Mock;
 const mockLogin = authService.login as jest.Mock;
 const mockLogout = authService.logout as jest.Mock;
+const mockRefreshSession = authService.refreshSession as jest.Mock;
 
 function TestComponent() {
   const { user, isLoading, login, logout } = useAuth();
@@ -30,6 +32,7 @@ function TestComponent() {
 beforeEach(() => {
   jest.clearAllMocks();
   localStorage.clear();
+  mockRefreshSession.mockResolvedValue({ accessToken: "new-token", user: {} });
 });
 
 describe("useAuth", () => {
@@ -86,6 +89,68 @@ describe("useAuth", () => {
 
     await waitFor(() => {
       expect(localStorage.getItem("accessToken")).toBeNull();
+      expect(screen.getByTestId("user")).toHaveTextContent("null");
+    });
+  });
+
+  it("logs out when the refresh session was revoked elsewhere", async () => {
+    localStorage.setItem("accessToken", "tok");
+    mockRefreshSession.mockResolvedValue(null);
+
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(localStorage.getItem("accessToken")).toBeNull();
+      expect(screen.getByTestId("user")).toHaveTextContent("null");
+    });
+    expect(mockMe).not.toHaveBeenCalled();
+  });
+
+  it("keeps the session when refresh fails transiently", async () => {
+    localStorage.setItem("accessToken", "tok");
+    mockRefreshSession.mockRejectedValue(new Error("network"));
+    mockMe.mockResolvedValue({
+      data: { id: 1, name: "Alice", email: "a@b.com", role: "admin", status: "active", companyId: 1 },
+    });
+
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("user")).toHaveTextContent("Alice");
+    });
+    expect(localStorage.getItem("accessToken")).toBe("tok");
+  });
+
+  it("ignores an in-flight me() after another tab logs out", async () => {
+    localStorage.setItem("accessToken", "tok");
+    let resolveMe: (value: unknown) => void = () => {};
+    mockMe.mockReturnValue(new Promise((resolve) => { resolveMe = resolve; }));
+
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => expect(mockMe).toHaveBeenCalled());
+
+    act(() => {
+      window.dispatchEvent(new StorageEvent("storage", { key: "accessToken", newValue: null }));
+    });
+
+    await act(async () => {
+      resolveMe({ data: { id: 1, name: "Alice", email: "a@b.com", role: "admin", status: "active", companyId: 1 } });
+    });
+
+    await waitFor(() => {
       expect(screen.getByTestId("user")).toHaveTextContent("null");
     });
   });

@@ -2,8 +2,11 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
 import { SubscriptionService } from "../services/subscription.service";
 import { ValidationError } from "../lib/errors";
+import { validationErrorMessage } from "../validators/shared";
 
-const changePlanSchema = z.object({ planId: z.string().min(1) });
+const changePlanSchema = z.object({
+  planId: z.string().min(1, "Plan is required"),
+});
 
 export const SubscriptionController = {
   async listPlans(request: FastifyRequest, reply: FastifyReply) {
@@ -24,7 +27,7 @@ export const SubscriptionController = {
   async changePlan(request: FastifyRequest, reply: FastifyReply) {
     const parsed = changePlanSchema.safeParse(request.body);
     if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
     const data = await SubscriptionService.changePlan(request.user!.companyId, parsed.data.planId);
     reply.code(200).send({ success: true, data });
   },

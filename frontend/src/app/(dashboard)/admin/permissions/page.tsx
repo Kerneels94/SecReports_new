@@ -71,7 +71,7 @@ export default function PermissionsPage() {
   const { user, refreshUser } = useAuth();
 
   const [matrix, setMatrix] = useState<PermissionMatrix | null>(null);
-  const [initial, setInitial] = useState("");
+  const [saved, setSaved] = useState<PermissionMatrix | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,7 +83,7 @@ export default function PermissionsPage() {
     try {
       const res = await permissionsService.get();
       setMatrix(res.data);
-      setInitial(snapshot(res.data));
+      setSaved(res.data);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to load permissions",
@@ -124,7 +124,7 @@ export default function PermissionsPage() {
     );
   }
 
-  const isDirty = matrix ? snapshot(matrix) !== initial : false;
+  const isDirty = matrix && saved ? snapshot(matrix) !== snapshot(saved) : false;
 
   const toggle = (key: string, role: string) => {
     setMatrix(
@@ -147,8 +147,8 @@ export default function PermissionsPage() {
   };
 
   const reset = () => {
-    if (!matrix) return;
-    setMatrix(JSON.parse(initial));
+    if (!saved) return;
+    setMatrix(saved);
     setError(null);
     setSuccess(null);
   };
@@ -165,7 +165,7 @@ export default function PermissionsPage() {
       }));
       const res = await permissionsService.update(payload);
       setMatrix(res.data);
-      setInitial(snapshot(res.data));
+      setSaved(res.data);
       setSuccess("Permissions saved");
       await refreshUser();
     } catch (err) {

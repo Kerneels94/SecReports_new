@@ -57,6 +57,16 @@ const mockData = {
   positiveCount: 2,
 };
 
+// Pin the clock: the 3-month response average uses the current date, and the
+// fixtures below use early-2026 months.
+beforeAll(() => {
+  jest.useFakeTimers({
+    now: new Date("2026-04-15T12:00:00Z"),
+    doNotFake: ["nextTick", "setImmediate", "clearImmediate", "setInterval", "clearInterval", "setTimeout", "clearTimeout", "queueMicrotask", "requestAnimationFrame", "cancelAnimationFrame", "requestIdleCallback", "cancelIdleCallback", "hrtime", "performance"],
+  });
+});
+afterAll(() => jest.useRealTimers());
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockMonthly.mockResolvedValue({ data: [] });
@@ -145,8 +155,8 @@ describe("DashboardPage", () => {
     mockSummary.mockResolvedValue({ data: mockData });
     mockMonthlyResponse.mockResolvedValue({
       data: [
-        { month: "2026-01", avgMs: 1800000 },
-        { month: "2026-02", avgMs: 1320000 },
+        { month: "2026-01", avgMs: 1800000, count: 1 },
+        { month: "2026-02", avgMs: 1320000, count: 1 },
       ],
     });
     render(<DashboardPage />);
@@ -162,16 +172,47 @@ describe("DashboardPage", () => {
     mockSummary.mockResolvedValue({ data: mockData });
     mockMonthlyResponse.mockResolvedValue({
       data: [
-        { month: "2026-01", avgMs: 6000000 },
-        { month: "2026-02", avgMs: 600000 },
-        { month: "2026-03", avgMs: 1200000 },
-        { month: "2026-04", avgMs: 2400000 },
+        { month: "2026-01", avgMs: 6000000, count: 1 },
+        { month: "2026-02", avgMs: 600000, count: 1 },
+        { month: "2026-03", avgMs: 1200000, count: 1 },
+        { month: "2026-04", avgMs: 2400000, count: 1 },
       ],
     });
     render(<DashboardPage />);
 
     await waitFor(() => {
       expect(screen.getByText("23m 20s")).toBeInTheDocument();
+    });
+  });
+
+  it("averages the last 3 calendar months, skipping stale data and gaps", async () => {
+      mockSummary.mockResolvedValue({ data: mockData });
+      mockMonthlyResponse.mockResolvedValue({
+        data: [
+          { month: "2026-01", avgMs: 6000000, count: 5 },
+          { month: "2026-02", avgMs: 600000, count: 1 },
+          { month: "2026-04", avgMs: 1200000, count: 1 },
+        ],
+      });
+      render(<DashboardPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText("15m 0s")).toBeInTheDocument();
+      });
+  });
+
+  it("weights the headline response stat by monthly incident count", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockMonthlyResponse.mockResolvedValue({
+      data: [
+        { month: "2026-03", avgMs: 6000000, count: 1 },
+        { month: "2026-04", avgMs: 600000, count: 9 },
+      ],
+    });
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("19m 0s")).toBeInTheDocument();
     });
   });
 

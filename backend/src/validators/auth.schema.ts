@@ -17,17 +17,31 @@ const strongPassword = z
  * Validates company/employee sign-in credentials.
  */
 export const loginSchema = z.object({
-  email: z.string().trim().toLowerCase().email(),
-  password: z.string().min(1),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
 });
 
 /**
  * Validates new company registration payloads.
  */
 export const registerSchema = z.object({
-  companyName: z.string().min(1).max(255),
-  name: z.string().min(1).max(255),
-  email: z.string().trim().toLowerCase().email(),
+  companyName: z
+    .string()
+    .min(1, "Company name is required")
+    .max(255, "Company name must be 255 characters or fewer"),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(255, "Name must be 255 characters or fewer"),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Enter a valid email address"),
   password: strongPassword,
 });
 
@@ -35,32 +49,45 @@ export const registerSchema = z.object({
  * Validates admin-created user accounts within a company.
  */
 export const createUserSchema = z.object({
-  name: z.string().min(1).max(255),
-  surname: z.string().max(255).optional(),
-  email: z.string().trim().toLowerCase().email(),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(255, "Name must be 255 characters or fewer"),
+  surname: z.string().max(255, "Surname must be 255 characters or fewer").optional(),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Enter a valid email address"),
   password: strongPassword,
-  role: z.enum(["admin", "manager", "senior"]).optional(),
+  role: z.enum(["admin", "manager", "senior"], {
+    message: "Choose a valid role",
+  }).optional(),
 });
 
 /**
  * Validates forgot-password email submissions.
  */
 export const forgotPasswordSchema = z.object({
-  email: z.string().trim().toLowerCase().email(),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Enter a valid email address"),
 });
 
 /**
  * Validates email-verification token submissions.
  */
 export const verifyEmailSchema = z.object({
-  token: z.string().min(1),
+  token: z.string().min(1, "Verification token is required"),
 });
 
 /**
  * Validates password-reset completion payloads (token + new password).
  */
 export const resetPasswordSchema = z.object({
-  token: z.string().min(1),
+  token: z.string().min(1, "Reset token is required"),
   password: strongPassword,
 });
 
@@ -68,7 +95,7 @@ export const resetPasswordSchema = z.object({
  * Validates authenticated password-change requests.
  */
 export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1),
+  currentPassword: z.string().min(1, "Current password is required"),
   newPassword: strongPassword,
 });
 
@@ -76,8 +103,19 @@ export const changePasswordSchema = z.object({
  * Validates user-profile update payloads.
  */
 export const updateUserSchema = z.object({
-  name: z.string().min(1).max(255).optional(),
-  surname: z.string().max(255).optional(),
-  email: z.string().trim().toLowerCase().email().optional(),
-  role: z.enum(["admin", "manager", "senior"]).optional(),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(255, "Name must be 255 characters or fewer")
+    .optional(),
+  surname: z.string().max(255, "Surname must be 255 characters or fewer").optional(),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Enter a valid email address")
+    .optional(),
+  role: z
+    .enum(["admin", "manager", "senior"], { message: "Choose a valid role" })
+    .optional(),
 });

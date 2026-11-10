@@ -15,6 +15,7 @@ import {
   updateUserSchema,
   verifyEmailSchema,
 } from "../validators/auth.schema";
+import { validationErrorMessage } from "../validators/shared";
 import { ValidationError } from "../lib/errors";
 import { REFRESH_TOKEN_TTL_MS } from "../lib/jwt";
 
@@ -39,7 +40,7 @@ export const AuthController = {
   async login(request: FastifyRequest, reply: FastifyReply) {
     const parsed = loginSchema.safeParse(request.body);
     if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
 
     const deviceInfo = (request.headers["user-agent"] as string) || undefined;
     const { refreshToken: _rt1, ...safeResult } = await AuthService.login({
@@ -74,7 +75,7 @@ export const AuthController = {
   async register(request: FastifyRequest, reply: FastifyReply) {
     const parsed = registerSchema.safeParse(request.body);
     if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
 
     const result = await AuthService.register(parsed.data);
     reply.code(201).send({ success: true, data: result });
@@ -84,7 +85,7 @@ export const AuthController = {
   async verifyEmail(request: FastifyRequest, reply: FastifyReply) {
     const parsed = verifyEmailSchema.safeParse(request.body);
     if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
 
     const result = await AuthService.verifyEmail(parsed.data.token);
     reply.code(200).send({ success: true, data: result });
@@ -94,8 +95,7 @@ export const AuthController = {
   async createUser(request: FastifyRequest, reply: FastifyReply) {
     const parsed = createUserSchema.safeParse(request.body);
     if (!parsed.success) {
-      const msg = parsed.error.issues[0]?.message || "Invalid input";
-      throw new ValidationError(msg, parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
     }
 
     const user = await AuthService.createUser({
@@ -111,7 +111,7 @@ export const AuthController = {
   async forgotPassword(request: FastifyRequest, reply: FastifyReply) {
     const parsed = forgotPasswordSchema.safeParse(request.body);
     if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
 
     await AuthService.forgotPassword(parsed.data.email);
     reply.code(200).send({
@@ -125,8 +125,7 @@ export const AuthController = {
   async resetPassword(request: FastifyRequest, reply: FastifyReply) {
     const parsed = resetPasswordSchema.safeParse(request.body);
     if (!parsed.success) {
-      const msg = parsed.error.issues[0]?.message || "Invalid input";
-      throw new ValidationError(msg, parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
     }
 
     await AuthService.resetPassword(parsed.data.token, parsed.data.password);
@@ -141,8 +140,7 @@ export const AuthController = {
   async changePassword(request: FastifyRequest, reply: FastifyReply) {
     const parsed = changePasswordSchema.safeParse(request.body);
     if (!parsed.success) {
-      const msg = parsed.error.issues[0]?.message || "Invalid input";
-      throw new ValidationError(msg, parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
     }
 
     await AuthService.changePassword(
@@ -173,7 +171,7 @@ export const AuthController = {
   async updateUser(request: FastifyRequest, reply: FastifyReply) {
     const parsed = updateUserSchema.safeParse(request.body);
     if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
 
     const { id } = request.params as { id: string };
 

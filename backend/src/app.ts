@@ -13,6 +13,7 @@ import { UnauthorizedError, AppError } from "./lib/errors";
 import { posthog } from "./lib/posthog";
 import { SubscriptionService } from "./services/subscription.service";
 import { runWithAuditContext } from "./lib/auditContext";
+import { parseTrustProxy } from "./lib/utils";
 import authRoutes from "./routes/auth.routes";
 import contactRoutes from "./routes/contact.routes";
 import incidentRoutes from "./routes/incident.routes";
@@ -32,12 +33,13 @@ import permissionRoutes from "./routes/permission.routes";
  * standard JSON envelope.
  */
 export async function buildApp() {
-  // trustProxy limited to localhost: production sits behind Nginx on the same host,
-  // so request.ip / rate limits / audit logs see the real client from X-Forwarded-For.
-  // Never `true` — a directly reachable Node would let clients spoof the header.
+  // Production runs on Render behind one proxy hop: set TRUST_PROXY=1 there so
+  // request.ip / rate limits / audit logs see the real client. Defaults to
+  // localhost-only. Never `true` — that trusts the client-supplied
+  // left-most X-Forwarded-For entry and lets clients spoof their IP.
   const fastify = Fastify({
     logger: true,
-    trustProxy: process.env.TRUST_PROXY ?? "127.0.0.1",
+    trustProxy: parseTrustProxy(process.env.TRUST_PROXY),
   });
 
   const corsOrigin = process.env.CORS_ORIGIN

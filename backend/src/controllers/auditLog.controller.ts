@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import PDFDocument from "pdfkit";
 import { AuditLogService } from "../services/auditLog.service";
 import { paginationSchema } from "../validators/incident.schema";
+import { validationErrorMessage } from "../validators/shared";
 import { ValidationError } from "../lib/errors";
 import { ADMIN_FROM_EMAIL, sendMail } from "../services/email.service";
 import { prisma } from "../lib/db";
@@ -178,7 +179,7 @@ export const AuditLogController = {
 
     const parsed = paginationSchema.safeParse(request.query);
     if (!parsed.success)
-      throw new ValidationError("Invalid query", parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
     const { page, perPage } = parsed.data;
 
     const data = await AuditLogService.list({
@@ -202,7 +203,7 @@ export const AuditLogController = {
 
     const parsed = paginationSchema.safeParse(request.query);
     if (!parsed.success)
-      throw new ValidationError("Invalid query", parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
     const { page, perPage } = parsed.data;
 
     const data = await AuditLogService.list({
@@ -217,6 +218,24 @@ export const AuditLogController = {
     });
 
     reply.code(200).send({ success: true, data });
+  },
+
+  /** Download the current company's audit logs as a PDF. */
+  async exportOwnCompany(request: FastifyRequest, reply: FastifyReply) {
+    const companyId = request.user!.companyId;
+    if (!companyId) throw new ValidationError("Company is required");
+
+    const { company, entries } =
+      await AuditLogService.exportForCompany(companyId);
+    if (!company) throw new ValidationError("Company not found");
+
+    const pdf = await generateAuditLogsPdf(company.name, entries);
+    const filename = `audit-logs-${company.name.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-${Date.now()}.pdf`;
+    reply
+      .header("Content-Type", "application/pdf")
+      .header("Content-Disposition", `attachment; filename="${filename}"`)
+      .code(200)
+      .send(pdf);
   },
 
   /** Export audit logs for a specific company to superadmins only. */
