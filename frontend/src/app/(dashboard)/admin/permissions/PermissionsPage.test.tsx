@@ -100,6 +100,23 @@ describe("PermissionsPage", () => {
     });
   });
 
+  it("restores the last saved matrix on Reset without crashing", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    render(<PermissionsPage />);
+
+    const seniorSwitch = await screen.findByRole("switch", { name: /view audit logs: senior/i });
+    await userEvent.click(seniorSwitch);
+    expect(seniorSwitch).toHaveAttribute("aria-checked", "true");
+
+    await userEvent.click(screen.getByRole("button", { name: /reset permissions/i }));
+
+    expect(seniorSwitch).toHaveAttribute("aria-checked", "false");
+    expect(
+      screen.getByRole("switch", { name: /manage users: admin/i }),
+    ).toBeDisabled();
+    expect(mockUpdate).not.toHaveBeenCalled();
+  });
+
   it("disables Save until a change has been made", async () => {
     mockUseAuth.mockReturnValue({ user: adminUser });
     render(<PermissionsPage />);

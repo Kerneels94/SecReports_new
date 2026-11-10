@@ -13,6 +13,7 @@ import { UnauthorizedError, AppError } from "./lib/errors";
 import { posthog } from "./lib/posthog";
 import { SubscriptionService } from "./services/subscription.service";
 import { runWithAuditContext } from "./lib/auditContext";
+import { getClientIp } from "./lib/utils";
 import authRoutes from "./routes/auth.routes";
 import contactRoutes from "./routes/contact.routes";
 import incidentRoutes from "./routes/incident.routes";
@@ -70,6 +71,8 @@ export async function buildApp() {
   await fastify.register(rateLimit, {
     max: 100,
     timeWindow: "1 minute",
+    // Key on the real client address, not the varying proxy socket peer.
+    keyGenerator: (request) => getClientIp(request),
   });
 
   await fastify.register(cookie);
