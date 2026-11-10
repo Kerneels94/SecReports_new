@@ -15,6 +15,7 @@ import {
   batchEmailSchema,
 } from "../validators/export.schema";
 import { ValidationError } from "../lib/errors";
+import { validationErrorMessage } from "../validators/shared";
 
 interface IncidentForExport {
   referenceNumber: string;
@@ -1096,7 +1097,7 @@ export const ExportController = {
 
     const parsed = batchEmailSchema.safeParse(request.body);
     if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
     const { email, type, format } = parsed.data;
 
     const incidents = await prisma.incident.findMany({
@@ -1253,7 +1254,7 @@ export const ExportController = {
 
     const parsed = emailReportSchema.safeParse(request.body);
     if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
     const { incidentId, email, format } = parsed.data;
 
     const incident = await prisma.incident.findFirst({

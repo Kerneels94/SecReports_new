@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { InvoiceService } from "../services/invoice.service";
 import { createInvoiceSchema } from "../validators/invoice.schema";
 import { ValidationError } from "../lib/errors";
+import { validationErrorMessage } from "../validators/shared";
 
 export const InvoiceController = {
   async listInvoices(request: FastifyRequest, reply: FastifyReply) {
@@ -27,7 +28,7 @@ export const InvoiceController = {
   async createInvoice(request: FastifyRequest, reply: FastifyReply) {
     const parsed = createInvoiceSchema.safeParse(request.body);
     if (!parsed.success)
-      throw new ValidationError("Invalid input", parsed.error.flatten());
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
     const data = await InvoiceService.createInvoice(parsed.data);
     reply.code(201).send({ success: true, data });
   },
