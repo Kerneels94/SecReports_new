@@ -5,6 +5,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { IncidentService } from "../services/incident.service";
 import { createIncidentSchema, paginationSchema } from "../validators/incident.schema";
+import { validationErrorMessage } from "../validators/shared";
 import { ValidationError } from "../lib/errors";
 import { SubscriptionService } from "../services/subscription.service";
 
@@ -12,7 +13,7 @@ export const IncidentController = {
   /** List incidents with pagination, filtered by company and user role. */
   async list(request: FastifyRequest, reply: FastifyReply) {
     const query = paginationSchema.safeParse(request.query);
-    if (!query.success) throw new ValidationError("Invalid query", query.error.flatten());
+    if (!query.success) throw new ValidationError(validationErrorMessage(query.error), query.error.flatten());
 
     const result = await IncidentService.list({
       ...query.data,
@@ -34,7 +35,7 @@ export const IncidentController = {
   /** Create a new incident report. */
   async create(request: FastifyRequest, reply: FastifyReply) {
     const parsed = createIncidentSchema.safeParse(request.body);
-    if (!parsed.success) throw new ValidationError("Invalid input", parsed.error.flatten());
+    if (!parsed.success) throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
 
     const incident = await IncidentService.create({
       ...parsed.data,
