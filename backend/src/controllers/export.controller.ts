@@ -261,7 +261,6 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
         }),
         y,
       );
-      y = drawField(doc, "Reporter", inc.reporter?.name || "Unknown", y);
       y = drawField(
         doc,
         "Created",
