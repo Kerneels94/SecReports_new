@@ -219,6 +219,24 @@ export const AuditLogController = {
     reply.code(200).send({ success: true, data });
   },
 
+  /** Download the current company's audit logs as a PDF. */
+  async exportOwnCompany(request: FastifyRequest, reply: FastifyReply) {
+    const companyId = request.user!.companyId;
+    if (!companyId) throw new ValidationError("Company is required");
+
+    const { company, entries } =
+      await AuditLogService.exportForCompany(companyId);
+    if (!company) throw new ValidationError("Company not found");
+
+    const pdf = await generateAuditLogsPdf(company.name, entries);
+    const filename = `audit-logs-${company.name.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-${Date.now()}.pdf`;
+    reply
+      .header("Content-Type", "application/pdf")
+      .header("Content-Disposition", `attachment; filename="${filename}"`)
+      .code(200)
+      .send(pdf);
+  },
+
   /** Export audit logs for a specific company to superadmins only. */
   async exportCompany(request: FastifyRequest, reply: FastifyReply) {
     const { companyId } = request.params as { companyId?: string };

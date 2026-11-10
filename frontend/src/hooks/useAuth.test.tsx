@@ -8,12 +8,14 @@ jest.mock("@/services", () => ({
     me: jest.fn(),
     login: jest.fn(),
     logout: jest.fn().mockResolvedValue(undefined),
+    refreshSession: jest.fn(),
   },
 }));
 
 const mockMe = authService.me as jest.Mock;
 const mockLogin = authService.login as jest.Mock;
 const mockLogout = authService.logout as jest.Mock;
+const mockRefreshSession = authService.refreshSession as jest.Mock;
 
 function TestComponent() {
   const { user, isLoading, login, logout } = useAuth();
@@ -30,6 +32,7 @@ function TestComponent() {
 beforeEach(() => {
   jest.clearAllMocks();
   localStorage.clear();
+  mockRefreshSession.mockResolvedValue({ accessToken: "new-token", user: {} });
 });
 
 describe("useAuth", () => {
@@ -88,6 +91,23 @@ describe("useAuth", () => {
       expect(localStorage.getItem("accessToken")).toBeNull();
       expect(screen.getByTestId("user")).toHaveTextContent("null");
     });
+  });
+
+  it("logs out when the refresh session was revoked elsewhere", async () => {
+    localStorage.setItem("accessToken", "tok");
+    mockRefreshSession.mockResolvedValue(null);
+
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(localStorage.getItem("accessToken")).toBeNull();
+      expect(screen.getByTestId("user")).toHaveTextContent("null");
+    });
+    expect(mockMe).not.toHaveBeenCalled();
   });
 
   it("login stores access token and sets user", async () => {

@@ -4,7 +4,7 @@ import AuditLogsPage from "./page";
 import { adminAuditService } from "@/services";
 
 jest.mock("@/services", () => ({
-  adminAuditService: { list: jest.fn() },
+  adminAuditService: { list: jest.fn(), exportPdf: jest.fn() },
 }));
 
 jest.mock("@/components/ui/Badge", () => ({
@@ -12,6 +12,7 @@ jest.mock("@/components/ui/Badge", () => ({
 }));
 
 const mockList = adminAuditService.list as jest.Mock;
+const mockExportPdf = adminAuditService.exportPdf as jest.Mock;
 
 const makeEntry = (overrides: Record<string, unknown> = {}) => ({
   id: "entry-1",
@@ -106,5 +107,19 @@ describe("AuditLogsPage", () => {
 
     expect(screen.getByText("1.2.3.4")).toBeInTheDocument();
     expect(screen.getByText("Chrome")).toBeInTheDocument();
+  });
+
+  it("downloads the company audit log PDF", async () => {
+    URL.createObjectURL = jest.fn(() => "blob:mock-url");
+    URL.revokeObjectURL = jest.fn();
+    mockExportPdf.mockResolvedValue(new Blob(["%PDF"]));
+
+    render(<AuditLogsPage />);
+    await waitFor(() => expect(mockList).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByRole("button", { name: /export pdf/i }));
+
+    await waitFor(() => expect(mockExportPdf).toHaveBeenCalled());
+    expect(URL.createObjectURL).toHaveBeenCalled();
   });
 });

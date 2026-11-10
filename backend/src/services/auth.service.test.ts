@@ -884,4 +884,24 @@ describe("deleteUser", () => {
   });
 });
 
+describe("logout", () => {
+  it("revokes every session for the user", async () => {
+    (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValue({
+      id: "rt1",
+      userId: "1",
+    });
+
+    await AuthService.logout("raw-token");
+
+    expect(prisma.refreshToken.deleteMany).toHaveBeenCalledWith({
+      where: { userId: "1" },
+    });
+    expect(prisma.auditLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ action: "logout", entityId: "1" }),
+      }),
+    );
+  });
+});
+
 });

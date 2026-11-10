@@ -82,6 +82,7 @@ export const authService = {
     api.post<RegisterResponse>("/auth/register", data),
   logout: () => api.post<void>("/auth/logout", {}),
   refresh: () => api.post<LoginResponse>("/auth/refresh", {}),
+  refreshSession: () => api.refreshSession(),
   me: () => api.get<User>("/auth/me"),
   forgotPassword: (email: string) =>
     api.post<{ message: string }>("/auth/forgot-password", { email }),
@@ -303,6 +304,7 @@ export const adminAuditService = {
       `/admin/audit-logs${qs ? `?${qs}` : ""}`,
     );
   },
+  exportPdf: () => api.downloadBlob("/audit-logs/export"),
   exportCompany: (companyId: string) =>
     api.post<{ emailedTo: string[]; count: number }>(`/admin/audit-logs/export/${companyId}`),
   exportAll: () =>

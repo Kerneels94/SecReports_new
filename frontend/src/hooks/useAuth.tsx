@@ -29,15 +29,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
-    if (token) {
-      authService
-        .me()
-        .then((res) => setUser(res.data))
-        .catch(() => localStorage.removeItem("accessToken"))
-        .finally(() => setIsLoading(false));
-    } else {
+    if (!token) {
       setIsLoading(false);
+      return;
     }
+
+    let cancelled = false;
+    // Validate the session with the refresh cookie before trusting the stored
+    // access token, so logging out elsewhere ends this session on reload.
+    authService
+      .refreshSession()
+      .then(async (session) => {
+        if (cancelled) return;
+        if (!session) {
+          localStorage.removeItem("accessToken");
+          return;
+        }
+        const res = await authService.me();
+        if (!cancelled) setUser(res.data);
+      })
+      .catch(() => {
+        if (!cancelled) localStorage.removeItem("accessToken");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Clear the user when another tab logs out (shared localStorage).
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === "accessToken" && !event.newValue) setUser(null);
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   // api.ts fires this when the refresh token is rejected; dropping the user sends the layouts to /login.

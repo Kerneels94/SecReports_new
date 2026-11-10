@@ -10,7 +10,7 @@ const BASE_URL =
 
 class ApiClient {
   private baseUrl: string;
-  private refreshing: Promise<boolean> | null = null;
+  private refreshing: Promise<LoginResponse | null> | null = null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
@@ -21,8 +21,8 @@ class ApiClient {
     return localStorage.getItem("accessToken");
   }
 
-  private async attemptRefresh(): Promise<boolean> {
-    const refresh = async (): Promise<boolean> => {
+  private async attemptRefresh(): Promise<LoginResponse | null> {
+    const refresh = async (): Promise<LoginResponse | null> => {
       try {
         const res = await fetch(`${this.baseUrl}/auth/refresh`, {
           method: "POST",
@@ -34,15 +34,15 @@ class ApiClient {
           if (res.status === 400 || res.status === 401) {
             window.dispatchEvent(new Event("auth:expired"));
           }
-          return false;
+          return null;
         }
 
         const json = await res.json();
         const data = json.data as LoginResponse;
         localStorage.setItem("accessToken", data.accessToken);
-        return true;
+        return data;
       } catch {
-        return false;
+        return null;
       }
     };
 
@@ -59,13 +59,18 @@ class ApiClient {
   }
 
   /** Refreshes the access token, sharing one in-flight refresh between concurrent 401s. */
-  private refreshShared(): Promise<boolean> {
+  private refreshShared(): Promise<LoginResponse | null> {
     if (!this.refreshing) {
       this.refreshing = this.attemptRefresh().finally(() => {
         this.refreshing = null;
       });
     }
     return this.refreshing;
+  }
+
+  /** Forces a cookie-backed refresh; returns null when the session is no longer valid. */
+  refreshSession(): Promise<LoginResponse | null> {
+    return this.refreshShared();
   }
 
   private async request<T>(

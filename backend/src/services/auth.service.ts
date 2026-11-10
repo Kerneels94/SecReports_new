@@ -923,15 +923,19 @@ export const AuthService = {
     const record = await prisma.refreshToken.findUnique({
       where: { tokenHash },
     });
-    await prisma.refreshToken.deleteMany({ where: { tokenHash } });
 
     if (record) {
+      // Logging out ends every session for the account, not just this browser.
+      await prisma.refreshToken.deleteMany({ where: { userId: record.userId } });
+
       await createAuditLog({
         entityType: "user",
         entityId: record.userId,
         action: "logout",
         performedBy: record.userId,
       });
+    } else {
+      await prisma.refreshToken.deleteMany({ where: { tokenHash } });
     }
   },
 

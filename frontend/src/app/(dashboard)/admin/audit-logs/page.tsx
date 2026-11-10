@@ -83,6 +83,8 @@ export default function AuditLogsPage() {
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -117,16 +119,52 @@ export default function AuditLogsPage() {
 
   const totalPages = data ? Math.ceil(data.total / data.perPage) : 0;
 
+  const handleExport = async () => {
+    setExporting(true);
+    setExportError(null);
+    try {
+      const blob = await adminAuditService.exportPdf();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = blob.filename || "audit-logs.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : "Failed to export audit logs");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="animate-fade-in">
-      <div className="mb-6">
-        <h1 className="text-[clamp(26px,2.6vw,32px)] font-bold tracking-[-0.03em] text-text">
-          Audit Logs
-        </h1>
-        <p className="mt-1.5 text-sm text-text-secondary">
-          Track activity and changes across your company.
-        </p>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-[clamp(26px,2.6vw,32px)] font-bold tracking-[-0.03em] text-text">
+            Audit Logs
+          </h1>
+          <p className="mt-1.5 text-sm text-text-secondary">
+            Track activity and changes across your company.
+          </p>
+        </div>
+        <Button
+          onClick={handleExport}
+          loading={exporting}
+          variant="secondary"
+          size="sm"
+        >
+          Export PDF
+        </Button>
       </div>
+
+      {exportError && (
+        <div className="mb-4 rounded-xl bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+          {exportError}
+        </div>
+      )}
 
       {error && (
         <div className="mb-4 rounded-xl bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
