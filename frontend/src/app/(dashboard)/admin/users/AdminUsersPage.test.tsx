@@ -193,6 +193,25 @@ describe("AdminUsersPage", () => {
     });
   });
 
+  it("sends an empty surname when it is cleared", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockListUsers.mockResolvedValue({
+      data: [{ id: 2, name: "Jane", surname: "Doe", email: "jane@example.com", role: "senior", status: "active", createdAt: "" }],
+    });
+    mockUpdate.mockResolvedValue({ success: true, data: {} });
+    render(<AdminUsersPage />);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole("button", { name: /edit jane doe/i }));
+    const dialog = screen.getByRole("dialog");
+    await user.clear(within(dialog).getAllByRole("textbox")[1]);
+    await user.click(within(dialog).getByRole("button", { name: /^save$/i }));
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith(2, expect.objectContaining({ surname: "" }));
+    });
+  });
+
   it("removes a user after confirmation and refreshes the list", async () => {
     mockUseAuth.mockReturnValue({ user: adminUser });
     mockListUsers.mockResolvedValue({ data: [{ id: 2, name: "Senior", email: "senior@example.com", role: "senior", status: "active", createdAt: "" }] });

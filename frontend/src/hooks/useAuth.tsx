@@ -4,7 +4,7 @@
  */
 "use client";
 
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import type { User, LoginRequest } from "@/types";
 import { authService } from "@/services";
 
@@ -26,6 +26,7 @@ const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const sessionEpoch = useRef(0);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -35,21 +36,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     let cancelled = false;
+    const epoch = sessionEpoch.current;
+    const isCurrent = () => !cancelled && epoch === sessionEpoch.current;
+
     // Validate the session with the refresh cookie before trusting the stored
     // access token, so logging out elsewhere ends this session on reload.
     authService
       .refreshSession()
       .then(async (session) => {
-        if (cancelled) return;
+        if (!isCurrent()) return;
         if (!session) {
           localStorage.removeItem("accessToken");
           return;
         }
         const res = await authService.me();
-        if (!cancelled) setUser(res.data);
+        if (isCurrent()) setUser(res.data);
       })
-      .catch(() => {
-        if (!cancelled) localStorage.removeItem("accessToken");
+      .catch(async () => {
+        if (!isCurrent()) return;
+        // A transient refresh failure does not end the session: keep the token
+        // and fall back to the access token we already have.
+        try {
+          const res = await authService.me();
+          if (isCurrent()) setUser(res.data);
+        } catch {
+          if (isCurrent()) localStorage.removeItem("accessToken");
+        }
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -63,7 +75,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Clear the user when another tab logs out (shared localStorage).
   useEffect(() => {
     const onStorage = (event: StorageEvent) => {
-      if (event.key === "accessToken" && !event.newValue) setUser(null);
+      if (event.key === "accessToken" && !event.newValue) {
+        sessionEpoch.current += 1;
+        setUser(null);
+      }
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -71,13 +86,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // api.ts fires this when the refresh token is rejected; dropping the user sends the layouts to /login.
   useEffect(() => {
-    const onExpired = () => setUser(null);
+    const onExpired = () => {
+      sessionEpoch.current += 1;
+      setUser(null);
+    };
     window.addEventListener("auth:expired", onExpired);
     return () => window.removeEventListener("auth:expired", onExpired);
   }, []);
 
   const login = useCallback(async (data: LoginRequest) => {
     const res = await authService.login(data);
+    sessionEpoch.current += 1;
     localStorage.setItem("accessToken", res.data.accessToken);
     setUser(res.data.user);
     return res.data.user;
@@ -89,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // Server-side invalidation is best-effort; always clear local state
     }
+    sessionEpoch.current += 1;
     localStorage.removeItem("accessToken");
     setUser(null);
   }, []);

@@ -116,7 +116,11 @@ export const ReportService = {
 
     return Object.entries(byMonth)
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([month, times]) => ({ month, avgMs: durationStats(times).avgMs }));
+      .map(([month, times]) => ({
+        month,
+        avgMs: durationStats(times).avgMs,
+        count: times.length,
+      }));
   },
 
   /**

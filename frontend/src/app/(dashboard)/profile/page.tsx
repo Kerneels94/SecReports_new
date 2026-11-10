@@ -55,7 +55,9 @@ export default function ProfilePage() {
     try {
       await userService.update(user.id, {
         name: editName,
-        surname: editSurname.trim() || undefined,
+        // Send "" (not undefined) so clearing the field actually removes the
+        // surname; undefined was dropped from JSON and the old value stayed.
+        surname: editSurname.trim(),
       });
       await refreshUser();
       setProfileSuccess("Profile updated");

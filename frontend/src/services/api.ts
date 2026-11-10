@@ -11,9 +11,15 @@ const BASE_URL =
 class ApiClient {
   private baseUrl: string;
   private refreshing: Promise<LoginResponse | null> | null = null;
+  private sessionVersion = 0;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", (event) => {
+        if (event.key === "accessToken" && !event.newValue) this.sessionVersion += 1;
+      });
+    }
   }
 
   private getToken(): string | null {
@@ -22,28 +28,30 @@ class ApiClient {
   }
 
   private async attemptRefresh(): Promise<LoginResponse | null> {
+    const version = this.sessionVersion;
     const refresh = async (): Promise<LoginResponse | null> => {
-      try {
-        const res = await fetch(`${this.baseUrl}/auth/refresh`, {
-          method: "POST",
-          credentials: "include",
-        });
+      const res = await fetch(`${this.baseUrl}/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+      });
 
-        if (!res.ok) {
-          // 400 (no cookie) or 401 (expired/revoked): the session is over, not a network blip.
-          if (res.status === 400 || res.status === 401) {
-            window.dispatchEvent(new Event("auth:expired"));
-          }
+      if (!res.ok) {
+        // 400 (no cookie) or 401 (expired/revoked): the session is over, not a network blip.
+        if (res.status === 400 || res.status === 401) {
+          this.clearTokens();
+          window.dispatchEvent(new Event("auth:expired"));
           return null;
         }
-
-        const json = await res.json();
-        const data = json.data as LoginResponse;
-        localStorage.setItem("accessToken", data.accessToken);
-        return data;
-      } catch {
-        return null;
+        // 5xx is transient: let callers keep the current session.
+        throw new Error(`Refresh failed: ${res.status}`);
       }
+
+      const json = await res.json();
+      const data = json.data as LoginResponse;
+      // A logout may have completed while this request was in flight.
+      if (version !== this.sessionVersion) return null;
+      localStorage.setItem("accessToken", data.accessToken);
+      return data;
     };
 
     // Serialise refreshes across tabs so two tabs don't rotate the same
@@ -55,7 +63,13 @@ class ApiClient {
   }
 
   private clearTokens(): void {
+    this.sessionVersion += 1;
     localStorage.removeItem("accessToken");
+  }
+
+  /** Ends the local session, invalidating any refresh that is still in flight. */
+  invalidateSession(): void {
+    this.clearTokens();
   }
 
   /** Refreshes the access token, sharing one in-flight refresh between concurrent 401s. */

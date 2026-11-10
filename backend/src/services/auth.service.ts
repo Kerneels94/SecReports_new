@@ -791,6 +791,10 @@ export const AuthService = {
       },
     });
 
+    // An empty surname from the form means "none", same as null in the DB.
+    const surnameChanged =
+      data.surname !== undefined && data.surname !== (user.surname ?? "");
+
     if (data.role !== undefined && data.role !== user.role) {
       const oldValues: Record<string, string> = { userName: user.name };
       const newValues: Record<string, string> = { userName: updated.name };
@@ -798,9 +802,9 @@ export const AuthService = {
         oldValues.name = user.name;
         newValues.name = data.name;
       }
-      if (data.surname !== undefined && data.surname !== user.surname) {
+      if (surnameChanged) {
         oldValues.surname = user.surname || "";
-        newValues.surname = data.surname;
+        newValues.surname = data.surname!;
       }
       if (data.role !== undefined) {
         oldValues.role = user.role;
@@ -818,24 +822,30 @@ export const AuthService = {
         oldValues: JSON.stringify(oldValues),
         newValues: JSON.stringify(newValues),
       });
-    } else if (data.name !== undefined && data.name !== user.name) {
-      await createAuditLog({
-        entityType: "user",
-        entityId: userId,
-        action: "user_updated",
-        performedBy: performedBy || userId,
-        oldValues: JSON.stringify({ name: user.name }),
-        newValues: JSON.stringify({ name: data.name }),
-      });
-    } else if (data.surname !== undefined && data.surname !== user.surname) {
-      await createAuditLog({
-        entityType: "user",
-        entityId: userId,
-        action: "user_updated",
-        performedBy: performedBy || userId,
-        oldValues: JSON.stringify({ surname: user.surname || "" }),
-        newValues: JSON.stringify({ surname: data.surname }),
-      });
+    } else {
+      // PR #127 review: name and surname used to be an if/else-if, so a request
+      // changing both only audited the name. Record both in one entry.
+      const nameChanged = data.name !== undefined && data.name !== user.name;
+      if (nameChanged || surnameChanged) {
+        const oldValues: Record<string, string> = {};
+        const newValues: Record<string, string> = {};
+        if (nameChanged) {
+          oldValues.name = user.name;
+          newValues.name = data.name!;
+        }
+        if (surnameChanged) {
+          oldValues.surname = user.surname || "";
+          newValues.surname = data.surname!;
+        }
+        await createAuditLog({
+          entityType: "user",
+          entityId: userId,
+          action: "user_updated",
+          performedBy: performedBy || userId,
+          oldValues: JSON.stringify(oldValues),
+          newValues: JSON.stringify(newValues),
+        });
+      }
     }
 
     // Email is handled independently of the role branch so a combined
@@ -915,28 +925,25 @@ export const AuthService = {
   },
 
   /**
-   * Logs out by deleting the specific refresh token from the DB.
-   * After this, the token can no longer be used to refresh.
+   * Logs out by revoking every session for the account that owns the token.
+   * Unknown tokens are ignored — there is no session to revoke.
    */
   async logout(refreshToken: string) {
     const tokenHash = hashToken(refreshToken);
     const record = await prisma.refreshToken.findUnique({
       where: { tokenHash },
     });
+    if (!record) return;
 
-    if (record) {
-      // Logging out ends every session for the account, not just this browser.
-      await prisma.refreshToken.deleteMany({ where: { userId: record.userId } });
+    // Logging out ends every session for the account, not just this browser.
+    await prisma.refreshToken.deleteMany({ where: { userId: record.userId } });
 
-      await createAuditLog({
-        entityType: "user",
-        entityId: record.userId,
-        action: "logout",
-        performedBy: record.userId,
-      });
-    } else {
-      await prisma.refreshToken.deleteMany({ where: { tokenHash } });
-    }
+    await createAuditLog({
+      entityType: "user",
+      entityId: record.userId,
+      action: "logout",
+      performedBy: record.userId,
+    });
   },
 
   /**

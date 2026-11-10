@@ -253,8 +253,19 @@ export default function DashboardPage() {
 
   const responseStats = useMemo(() => {
     if (responseData.length === 0) return null;
-    const recent = responseData.slice(-3);
-    const avg = recent.reduce((sum, d) => sum + d.avgMs, 0) / recent.length;
+    // PR #127 review: slice(-3) took the last 3 *returned* rows, which could be
+    // months old and skipped empty months. Use the last 3 calendar months
+    // instead; months with no incidents just add nothing.
+    const now = new Date();
+    const cutoffDate = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+    const cutoff = `${cutoffDate.getFullYear()}-${String(cutoffDate.getMonth() + 1).padStart(2, "0")}`;
+    const recent = responseData.filter((d) => d.month >= cutoff);
+    // Weight each month by its incident count so a quiet month with one slow
+    // call cannot skew the average. null = no data in the window, shown as "—".
+    const total = recent.reduce((sum, d) => sum + d.count, 0);
+    const avg = total
+      ? recent.reduce((sum, d) => sum + d.avgMs * d.count, 0) / total
+      : null;
     const fastest = responseData.reduce((a, b) => (b.avgMs < a.avgMs ? b : a));
     const slowest = responseData.reduce((a, b) => (b.avgMs > a.avgMs ? b : a));
     return { avg, fastest, slowest };
@@ -710,7 +721,7 @@ export default function DashboardPage() {
                     className="rounded-lg border border-border-light bg-surface-secondary px-3 py-2.5"
                   >
                     <b className="block font-mono text-lg font-semibold text-text">
-                      {formatDurationMs(s.v)}
+                      {s.v === null ? "—" : formatDurationMs(s.v)}
                     </b>
                     <span className="text-[11px] text-text-secondary">
                       {s.l}

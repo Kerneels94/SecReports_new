@@ -96,6 +96,20 @@ describe("IncidentDetailModal", () => {
     expect(screen.getByText("SAPS-123")).toBeInTheDocument();
   });
 
+  it("wraps long unbroken values and descriptions instead of overflowing", async () => {
+    const longValue = "v".repeat(300);
+    const longDescription = "d".repeat(300);
+    mockGetById.mockResolvedValue({
+      data: { ...mockIncident, operatorName: longValue, description: longDescription },
+    });
+    render(<IncidentDetailModal incidentId={1} open={true} onClose={jest.fn()} />);
+
+    for (const el of [await screen.findByText(longValue), screen.getByText(longDescription)]) {
+      expect(el.className).toContain("[overflow-wrap:anywhere]");
+    }
+    expect(screen.getByRole("dialog").className).toContain("overflow-x-hidden");
+  });
+
   it("shows error state with retry", async () => {
     mockGetById.mockRejectedValue(new Error("Failed"));
     render(<IncidentDetailModal incidentId={1} open={true} onClose={jest.fn()} />);

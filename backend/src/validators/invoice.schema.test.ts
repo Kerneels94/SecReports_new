@@ -41,4 +41,28 @@ describe("createInvoiceSchema", () => {
   it("rejects an unparseable dueDate", () => {
     expect(createInvoiceSchema.safeParse({ ...valid, dueDate: "not-a-date" }).success).toBe(false);
   });
+
+  it("rejects a null, zero, or missing dueDate instead of coercing to the epoch", () => {
+    for (const dueDate of [null, 0, undefined, ""]) {
+      const result = createInvoiceSchema.safeParse({ ...valid, dueDate });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0]?.message).toBe("Due date is required");
+      }
+    }
+  });
+
+  it("reports an invalid dueDate distinctly from a missing one", () => {
+    const result = createInvoiceSchema.safeParse({ ...valid, dueDate: "not-a-date" });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toBe("Due date must be a valid date");
+    }
+  });
+
+  it("accepts null for optional period dates", () => {
+    expect(
+      createInvoiceSchema.safeParse({ ...valid, periodStart: null, periodEnd: undefined }).success,
+    ).toBe(true);
+  });
 });

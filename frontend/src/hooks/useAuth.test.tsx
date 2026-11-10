@@ -110,6 +110,51 @@ describe("useAuth", () => {
     expect(mockMe).not.toHaveBeenCalled();
   });
 
+  it("keeps the session when refresh fails transiently", async () => {
+    localStorage.setItem("accessToken", "tok");
+    mockRefreshSession.mockRejectedValue(new Error("network"));
+    mockMe.mockResolvedValue({
+      data: { id: 1, name: "Alice", email: "a@b.com", role: "admin", status: "active", companyId: 1 },
+    });
+
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("user")).toHaveTextContent("Alice");
+    });
+    expect(localStorage.getItem("accessToken")).toBe("tok");
+  });
+
+  it("ignores an in-flight me() after another tab logs out", async () => {
+    localStorage.setItem("accessToken", "tok");
+    let resolveMe: (value: unknown) => void = () => {};
+    mockMe.mockReturnValue(new Promise((resolve) => { resolveMe = resolve; }));
+
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => expect(mockMe).toHaveBeenCalled());
+
+    act(() => {
+      window.dispatchEvent(new StorageEvent("storage", { key: "accessToken", newValue: null }));
+    });
+
+    await act(async () => {
+      resolveMe({ data: { id: 1, name: "Alice", email: "a@b.com", role: "admin", status: "active", companyId: 1 } });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("user")).toHaveTextContent("null");
+    });
+  });
+
   it("login stores access token and sets user", async () => {
     const userData = { id: 1, name: "Bob", email: "b@b.com", role: "senior", status: "active", companyId: 1 };
     mockLogin.mockResolvedValue({

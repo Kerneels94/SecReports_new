@@ -131,8 +131,8 @@ describe("ReportService", () => {
       const result = await ReportService.monthlyResponse("company1");
 
       expect(result).toEqual([
-        { month: "2025-12", avgMs: 600000 },
-        { month: "2026-01", avgMs: 1800000 },
+        { month: "2025-12", avgMs: 600000, count: 1 },
+        { month: "2026-01", avgMs: 1800000, count: 2 },
       ]);
     });
 
@@ -142,7 +142,7 @@ describe("ReportService", () => {
       ]);
 
       expect(await ReportService.monthlyResponse("company1")).toEqual([
-        { month: "2026-01", avgMs: 24000 },
+        { month: "2026-01", avgMs: 24000, count: 1 },
       ]);
     });
 
@@ -154,7 +154,7 @@ describe("ReportService", () => {
 
       const result = await ReportService.monthlyResponse("company1");
 
-      expect(result).toEqual([{ month: "2026-03", avgMs: 900000 }]);
+      expect(result).toEqual([{ month: "2026-03", avgMs: 900000, count: 1 }]);
       expect(prisma.incident.findMany).toHaveBeenCalledWith(
         expect.objectContaining({ where: { companyId: "company1", dispatchTime: { not: null }, arrivalTime: { not: null } } }),
       );

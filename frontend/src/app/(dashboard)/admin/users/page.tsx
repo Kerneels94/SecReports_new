@@ -169,7 +169,9 @@ export default function AdminUsersPage() {
     try {
       const payload: { name: string; surname?: string; email: string; role?: string } = {
         name: editName,
-        surname: editSurname.trim() || undefined,
+        // Send "" (not undefined) so clearing the field actually removes the
+        // surname; undefined was dropped from JSON and the old value stayed.
+        surname: editSurname.trim(),
         email: editEmail,
       };
       if (editUser.role !== "admin") {
