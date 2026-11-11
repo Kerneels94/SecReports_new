@@ -229,4 +229,35 @@ describe("AdminUsersPage", () => {
       expect(screen.getByText(/user senior removed/i)).toBeInTheDocument();
     });
   });
+
+  it("paginates employees 5 per page and disables buttons at the edges", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockListUsers.mockResolvedValue({
+      data: Array.from({ length: 7 }, (_, i) => ({
+        id: i + 10, name: `Emp${i + 1}`, email: `emp${i + 1}@example.com`, role: "senior", status: "active", createdAt: "",
+      })),
+    });
+    render(<AdminUsersPage />);
+    const user = userEvent.setup();
+
+    expect(await screen.findByText("Emp5")).toBeInTheDocument();
+    expect(screen.queryByText("Emp6")).not.toBeInTheDocument();
+    expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Previous" })).toBeDisabled();
+
+    await user.click(screen.getByRole("button", { name: "Next" }));
+    expect(screen.getByText("Emp7")).toBeInTheDocument();
+    expect(screen.queryByText("Emp1")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
+  });
+
+  it("disables both pagination buttons with 5 or fewer employees", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockListUsers.mockResolvedValue({ data: [{ id: 2, name: "Senior", email: "senior@example.com", role: "senior", status: "active", createdAt: "" }] });
+    render(<AdminUsersPage />);
+
+    expect(await screen.findByText("Page 1 of 1")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Previous" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
+  });
 });
