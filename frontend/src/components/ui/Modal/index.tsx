@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useCallback, HTMLAttributes } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
 
 /** Props for the Modal component */
@@ -35,9 +36,11 @@ export function Modal({ open, onClose, title, children, className, ...props }: M
     };
   }, [open, handleEscape]);
 
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
 
-  return (
+  // Portal to <body> so the modal escapes ancestor stacking contexts
+  // (e.g. the dashboard <main> at z-10) and stays above the sidebar.
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in" role="dialog" aria-modal="true" aria-label={title}>
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div
@@ -63,6 +66,7 @@ export function Modal({ open, onClose, title, children, className, ...props }: M
         )}
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
