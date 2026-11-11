@@ -17,6 +17,7 @@ jest.mock("../lib/db", () => ({
       findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn().mockResolvedValue({ count: 1 }),
       delete: jest.fn(),
       count: jest.fn().mockResolvedValue(0),
     },
@@ -924,13 +925,82 @@ describe("logout", () => {
     );
   });
 
-  it("ignores an unknown refresh token", async () => {
+  it("stamps sessionsRevokedAt before deleting tokens", async () => {
+    (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValue({ id: "rt1", userId: "1" });
+
+    await AuthService.logout("raw-token");
+
+    expect(prisma.user.updateMany).toHaveBeenCalledWith({
+      where: { id: "1" },
+      data: { sessionsRevokedAt: expect.any(Date) },
+    });
+    const stampOrder = (prisma.user.updateMany as jest.Mock).mock.invocationCallOrder[0];
+    const deleteOrder = (prisma.refreshToken.deleteMany as jest.Mock).mock.invocationCallOrder[0];
+    expect(stampOrder).toBeLessThan(deleteOrder);
+  });
+
+  it("still revokes every session when a refresh already consumed the token", async () => {
+    // Interleaving 1: refresh deleted the row first, so only the signature identifies the user.
     (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: "1", role: "admin", companyId: "1" });
+
+    await AuthService.logout("consumed-token");
+
+    expect(prisma.refreshToken.deleteMany).toHaveBeenCalledWith({ where: { userId: "1" } });
+  });
+
+  it("ignores a token that is unknown and fails verification", async () => {
+    (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (jwt.verifyRefreshToken as jest.Mock).mockImplementation(() => {
+      throw new Error("invalid");
+    });
 
     await AuthService.logout("unknown-token");
 
     expect(prisma.refreshToken.deleteMany).not.toHaveBeenCalled();
     expect(prisma.auditLog.create).not.toHaveBeenCalled();
+  });
+});
+
+describe("refresh racing logout", () => {
+  it("removes its replacement token when a logout landed mid-refresh", async () => {
+    // Interleaving 2: logout stamped the user after this session's token was issued.
+    (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: "1", role: "admin", companyId: "1" });
+    (jwt.signRefreshToken as jest.Mock).mockReturnValue("new-refresh-token");
+    (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValue({
+      id: "rt1",
+      userId: "1",
+      familyId: "fam1",
+      createdAt: new Date("2026-01-01T10:00:00Z"),
+    });
+    (prisma.user.findUnique as jest.Mock)
+      .mockResolvedValueOnce(mockUser)
+      .mockResolvedValueOnce({ sessionsRevokedAt: new Date("2026-01-01T10:05:00Z") });
+
+    await expect(AuthService.refresh("valid-refresh-token")).rejects.toThrow(UnauthorizedError);
+
+    expect(prisma.refreshToken.deleteMany).toHaveBeenLastCalledWith({
+      where: { tokenHash: expect.any(String) },
+    });
+  });
+
+  it("keeps the session when the last logout predates the token", async () => {
+    (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: "1", role: "admin", companyId: "1" });
+    (jwt.signAccessToken as jest.Mock).mockReturnValue("new-access-token");
+    (jwt.signRefreshToken as jest.Mock).mockReturnValue("new-refresh-token");
+    (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValue({
+      id: "rt1",
+      userId: "1",
+      familyId: "fam1",
+      createdAt: new Date("2026-01-01T10:00:00Z"),
+    });
+    (prisma.user.findUnique as jest.Mock)
+      .mockResolvedValueOnce(mockUser)
+      .mockResolvedValueOnce({ sessionsRevokedAt: new Date("2025-12-31T10:00:00Z") });
+
+    const result = await AuthService.refresh("valid-refresh-token");
+
+    expect(result.accessToken).toBe("new-access-token");
   });
 });
 

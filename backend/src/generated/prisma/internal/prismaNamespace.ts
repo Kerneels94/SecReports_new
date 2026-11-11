@@ -1437,6 +1437,7 @@ export const UserScalarFieldEnum = {
   lockoutCount: 'lockoutCount',
   lockedUntil: 'lockedUntil',
   emailVerified: 'emailVerified',
+  sessionsRevokedAt: 'sessionsRevokedAt',
   createdBy: 'createdBy',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
