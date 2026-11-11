@@ -341,9 +341,13 @@ export default function IncidentsPage() {
                 </svg>
               </div>
               <p className="text-lg text-text-secondary">No incidents found.</p>
-        <Link href="/incidents/new" className="cursor-pointer">
-                <Button variant="gradient">Report your first incident</Button>
-              </Link>
+              {/* Same gate as the header link: without incidents.create the
+                  backend rejects the submission, so don't offer it. */}
+              {canCreate && (
+                <Link href="/incidents/new" className="cursor-pointer">
+                  <Button variant="gradient">Report your first incident</Button>
+                </Link>
+              )}
             </div>
           ) : (
             <>

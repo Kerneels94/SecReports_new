@@ -1,6 +1,6 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import DashboardPage, { aggregateYearly, fillMonthGaps } from "./page";
+import DashboardPage, { aggregateYearly, fillMonthGaps, utcMonthKey } from "./page";
 import { reportService, exportService } from "@/services";
 
 jest.mock("next/navigation", () => ({
@@ -199,6 +199,34 @@ describe("DashboardPage", () => {
       await waitFor(() => {
         expect(screen.getByText("15m 0s")).toBeInTheDocument();
       });
+  });
+
+  it("shows — for the 3-month average when every sample is older than the window", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockMonthlyResponse.mockResolvedValue({
+      data: [
+        { month: "2025-11", avgMs: 6000000, count: 2 },
+        { month: "2026-01", avgMs: 600000, count: 1 },
+      ],
+    });
+    render(<DashboardPage />);
+
+    const label = await screen.findByText("3-month average");
+    expect(label.parentElement).toHaveTextContent("—");
+  });
+
+  it("ignores future-dated months in the 3-month average", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockMonthlyResponse.mockResolvedValue({
+      data: [
+        { month: "2026-04", avgMs: 600000, count: 1 },
+        { month: "2026-09", avgMs: 6000000, count: 1 },
+      ],
+    });
+    render(<DashboardPage />);
+
+    const label = await screen.findByText("3-month average");
+    expect(label.parentElement).toHaveTextContent("10m 0s");
   });
 
   it("weights the headline response stat by monthly incident count", async () => {
@@ -600,5 +628,16 @@ describe("fillMonthGaps with malformed keys", () => {
       { month: "NaN-NaN", count: 2 },
     ];
     expect(fillMonthGaps(data)).toBe(data);
+  });
+});
+
+describe("utcMonthKey", () => {
+  it("uses the UTC month, not the browser's local month", () => {
+    // 00:30 UTC on 1 May is still 30 April in Los Angeles.
+    expect(utcMonthKey(new Date("2026-05-01T00:30:00Z"))).toBe("2026-05");
+  });
+
+  it("shifts back across a year boundary", () => {
+    expect(utcMonthKey(new Date("2026-01-15T00:00:00Z"), -2)).toBe("2025-11");
   });
 });
