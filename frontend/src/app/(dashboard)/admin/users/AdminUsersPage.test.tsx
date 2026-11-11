@@ -260,4 +260,35 @@ describe("AdminUsersPage", () => {
     expect(screen.getByRole("button", { name: "Previous" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
   });
+
+  it("stays on page 1 after deleting the last user on page 2, even when the list grows again", async () => {
+    const employee = (i: number) => ({
+      id: i + 10, name: `Emp${i}`, email: `emp${i}@example.com`, role: "senior", status: "active", createdAt: "",
+    });
+    const six = Array.from({ length: 6 }, (_, i) => employee(i + 1));
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockRemove.mockResolvedValue({ success: true, data: {} });
+    mockListUsers
+      .mockResolvedValueOnce({ data: six }) // initial load: 2 pages
+      .mockResolvedValueOnce({ data: six.slice(0, 5) }) // after delete: 1 page
+      .mockResolvedValueOnce({ data: [...six.slice(0, 5), employee(7)] }); // after create: 2 pages
+    render(<AdminUsersPage />);
+    const user = userEvent.setup();
+
+    await screen.findByText("Emp1");
+    await user.click(screen.getByRole("button", { name: "Next" }));
+    await user.click(screen.getByRole("button", { name: "Remove Emp6" }));
+    await user.click(screen.getByRole("button", { name: /remove user/i }));
+    expect(await screen.findByText("Page 1 of 1")).toBeInTheDocument();
+
+    // Creating a user refetches the list, which grows back to 2 pages.
+    await user.type(screen.getByLabelText("Name"), "New");
+    await user.type(screen.getByLabelText("Email"), "new.person@example.com");
+    await user.type(screen.getByLabelText("Temporary password"), "Str0ng!Pass");
+    mockCreate.mockResolvedValue({ success: true, data: { message: "ok" } });
+    await user.click(screen.getByRole("button", { name: /create user/i }));
+
+    expect(await screen.findByText("Page 1 of 2")).toBeInTheDocument();
+    expect(screen.getByText("Emp1")).toBeInTheDocument();
+  });
 });

@@ -65,7 +65,11 @@ export default function AdminUsersPage() {
   const [usersLoading, setUsersLoading] = useState(true);
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(users.length / USERS_PER_PAGE));
-  // Clamp so deleting the last user on the final page doesn't leave an empty page.
+  // Clamp the STORED page when the list shrinks (e.g. deleting the last user
+  // on the final page). Clamping only the displayed value let the view jump
+  // back to the stale page once the list grew again. Setting state during
+  // render is React's supported pattern for adjusting state to new data.
+  if (page > totalPages) setPage(totalPages);
   const currentPage = Math.min(page, totalPages);
   const pagedUsers = users.slice((currentPage - 1) * USERS_PER_PAGE, currentPage * USERS_PER_PAGE);
 
