@@ -333,3 +333,72 @@ describe("ApiClient session expiry", () => {
     expect(onExpired).not.toHaveBeenCalled();
   });
 });
+
+describe("ApiClient stale refresh results", () => {
+  /** A fetch mock whose /auth/refresh response is released manually. */
+  function deferredRefresh() {
+    let release: (res: unknown) => void = () => {};
+    const pending = new Promise((resolve) => {
+      release = resolve;
+    });
+    (global.fetch as jest.Mock) = jest.fn((url: string) =>
+      url.endsWith("/auth/refresh")
+        ? pending
+        : Promise.resolve({ ok: true, status: 200, json: async () => ({ success: true, data: {} }) }),
+    );
+    return (res: unknown) => release(res);
+  }
+
+  beforeEach(() => {
+    localStorage.clear();
+    Object.defineProperty(navigator, "locks", { value: undefined, configurable: true });
+  });
+
+  it("does not let account A's late refresh overwrite account B's token", async () => {
+    localStorage.setItem("accessToken", "token-A");
+    const release = deferredRefresh();
+
+    const refreshA = api.refreshSession();
+    api.startSession("token-B");
+    release({
+      ok: true,
+      status: 200,
+      json: async () => ({ data: { accessToken: "token-A2", user: { id: 1 } } }),
+    });
+
+    await expect(refreshA).resolves.toBeNull();
+    expect(localStorage.getItem("accessToken")).toBe("token-B");
+  });
+
+  it("does not sign out a newer session when an old refresh is rejected late", async () => {
+    localStorage.setItem("accessToken", "token-A");
+    const release = deferredRefresh();
+    const onExpired = jest.fn();
+    window.addEventListener("auth:expired", onExpired);
+
+    const refreshA = api.refreshSession();
+    api.invalidateSession();
+    api.startSession("token-B");
+    release({ ok: false, status: 401, json: async () => ({}) });
+
+    await expect(refreshA).resolves.toBeNull();
+    expect(localStorage.getItem("accessToken")).toBe("token-B");
+    expect(onExpired).not.toHaveBeenCalled();
+    window.removeEventListener("auth:expired", onExpired);
+  });
+
+  it("still clears tokens and fires auth:expired when the current session is rejected", async () => {
+    localStorage.setItem("accessToken", "token-A");
+    const release = deferredRefresh();
+    const onExpired = jest.fn();
+    window.addEventListener("auth:expired", onExpired);
+
+    const refreshA = api.refreshSession();
+    release({ ok: false, status: 401, json: async () => ({}) });
+
+    await expect(refreshA).resolves.toBeNull();
+    expect(localStorage.getItem("accessToken")).toBeNull();
+    expect(onExpired).toHaveBeenCalledTimes(1);
+    window.removeEventListener("auth:expired", onExpired);
+  });
+});

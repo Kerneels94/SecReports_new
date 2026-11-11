@@ -9,6 +9,8 @@ jest.mock("@/services", () => ({
     login: jest.fn(),
     logout: jest.fn().mockResolvedValue(undefined),
     refreshSession: jest.fn(),
+    // The real one also bumps the API session generation; here it only needs to store the token.
+    startSession: jest.fn((token: string) => localStorage.setItem("accessToken", token)),
   },
 }));
 
@@ -16,6 +18,9 @@ const mockMe = authService.me as jest.Mock;
 const mockLogin = authService.login as jest.Mock;
 const mockLogout = authService.logout as jest.Mock;
 const mockRefreshSession = authService.refreshSession as jest.Mock;
+const mockStartSession = authService.startSession as jest.Mock;
+
+const alice = { id: 1, name: "Alice", email: "a@b.com", role: "admin", status: "active", companyId: 1 };
 
 function TestComponent() {
   const { user, isLoading, login, logout } = useAuth();
@@ -77,9 +82,12 @@ describe("useAuth", () => {
     });
   });
 
-  it("removes token if me() fails", async () => {
-    localStorage.setItem("accessToken", "bad-token");
-    mockMe.mockRejectedValue(new Error("Unauthorized"));
+  it("keeps the refreshed user and token when the me() probe fails", async () => {
+    // A successful refresh already proves the session; a failed profile
+    // request (e.g. a network drop) must not sign the user out.
+    localStorage.setItem("accessToken", "tok");
+    mockRefreshSession.mockResolvedValue({ accessToken: "new-token", user: alice });
+    mockMe.mockRejectedValue(new Error("Failed to fetch"));
 
     render(
       <AuthProvider>
@@ -88,12 +96,33 @@ describe("useAuth", () => {
     );
 
     await waitFor(() => {
-      expect(localStorage.getItem("accessToken")).toBeNull();
-      expect(screen.getByTestId("user")).toHaveTextContent("null");
+      expect(screen.getByTestId("user")).toHaveTextContent("Alice");
     });
+    expect(localStorage.getItem("accessToken")).toBe("tok");
   });
 
-  it("logs out when the refresh session was revoked elsewhere", async () => {
+  it("keeps the token when refresh and me() both fail with transport errors", async () => {
+    // Nothing proved the session is over, so the token must survive for the
+    // next reload to retry. (A real rejection is cleared inside api.ts.)
+    localStorage.setItem("accessToken", "tok");
+    mockRefreshSession.mockRejectedValue(new Error("network"));
+    mockMe.mockRejectedValue(new Error("network"));
+
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("user")).toHaveTextContent("null");
+    });
+    expect(localStorage.getItem("accessToken")).toBe("tok");
+  });
+
+  it("shows no user when the refresh session was revoked elsewhere", async () => {
+    // refreshSession() resolves null; api.ts owns clearing the token in that
+    // case, so this hook only has to leave the user signed out.
     localStorage.setItem("accessToken", "tok");
     mockRefreshSession.mockResolvedValue(null);
 
@@ -104,7 +133,6 @@ describe("useAuth", () => {
     );
 
     await waitFor(() => {
-      expect(localStorage.getItem("accessToken")).toBeNull();
       expect(screen.getByTestId("user")).toHaveTextContent("null");
     });
     expect(mockMe).not.toHaveBeenCalled();
@@ -180,6 +208,8 @@ describe("useAuth", () => {
       expect(localStorage.getItem("refreshToken")).toBeNull();
       expect(screen.getByTestId("user")).toHaveTextContent("Bob");
     });
+    // Goes through startSession so stale refreshes of a previous account are invalidated.
+    expect(mockStartSession).toHaveBeenCalledWith("at");
   });
 
   it("logout calls backend and clears access token", async () => {

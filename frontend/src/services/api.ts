@@ -12,6 +12,7 @@ class ApiClient {
   private baseUrl: string;
   private refreshing: Promise<LoginResponse | null> | null = null;
   private sessionVersion = 0;
+  private refreshingVersion = 0;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
@@ -27,8 +28,19 @@ class ApiClient {
     return localStorage.getItem("accessToken");
   }
 
+  /**
+   * Rotates the refresh cookie for a new access token.
+   * Returns null when there is no session to continue, for one of two reasons:
+   *  - rejected: the server refused the cookie (400/401) for the CURRENT
+   *    session. Tokens are cleared and `auth:expired` fires here.
+   *  - stale: the session changed (logout or a new login) while the request
+   *    was in flight. Nothing is touched, because the result belongs to a
+   *    session that no longer exists and must not clear or overwrite the new one.
+   * Callers must NOT clear tokens on null: this method owns that decision.
+   */
   private async attemptRefresh(): Promise<LoginResponse | null> {
     const version = this.sessionVersion;
+    const isStale = () => version !== this.sessionVersion;
     const refresh = async (): Promise<LoginResponse | null> => {
       const res = await fetch(`${this.baseUrl}/auth/refresh`, {
         method: "POST",
@@ -38,6 +50,9 @@ class ApiClient {
       if (!res.ok) {
         // 400 (no cookie) or 401 (expired/revoked): the session is over, not a network blip.
         if (res.status === 400 || res.status === 401) {
+          // A late rejection for an old session must not sign out a user who
+          // has since logged in again.
+          if (isStale()) return null;
           this.clearTokens();
           window.dispatchEvent(new Event("auth:expired"));
           return null;
@@ -48,8 +63,9 @@ class ApiClient {
 
       const json = await res.json();
       const data = json.data as LoginResponse;
-      // A logout may have completed while this request was in flight.
-      if (version !== this.sessionVersion) return null;
+      // A logout or another login completed while this request was in flight:
+      // storing this token would put the old account's identity on the new session.
+      if (isStale()) return null;
       localStorage.setItem("accessToken", data.accessToken);
       return data;
     };
@@ -72,17 +88,34 @@ class ApiClient {
     this.clearTokens();
   }
 
+  /**
+   * Starts a session after a successful login. The generation advances BEFORE
+   * the token is stored, so a refresh still in flight for the previous
+   * account is stale and can neither overwrite nor clear this token.
+   */
+  startSession(accessToken: string): void {
+    this.sessionVersion += 1;
+    localStorage.setItem("accessToken", accessToken);
+  }
+
   /** Refreshes the access token, sharing one in-flight refresh between concurrent 401s. */
   private refreshShared(): Promise<LoginResponse | null> {
-    if (!this.refreshing) {
-      this.refreshing = this.attemptRefresh().finally(() => {
-        this.refreshing = null;
+    // Only share a refresh that belongs to the current session; one started
+    // before a login/logout is stale and would resolve to null for everyone.
+    if (!this.refreshing || this.refreshingVersion !== this.sessionVersion) {
+      const pending: Promise<LoginResponse | null> = this.attemptRefresh().finally(() => {
+        if (this.refreshing === pending) this.refreshing = null;
       });
+      this.refreshing = pending;
+      this.refreshingVersion = this.sessionVersion;
     }
     return this.refreshing;
   }
 
-  /** Forces a cookie-backed refresh; returns null when the session is no longer valid. */
+  /**
+   * Forces a cookie-backed refresh. Null means there is no session to
+   * continue (rejected or stale); token clearing has already been handled.
+   */
   refreshSession(): Promise<LoginResponse | null> {
     return this.refreshShared();
   }
@@ -119,8 +152,8 @@ class ApiClient {
       if (refreshed) {
         return this.request<T>(path, options, true);
       }
-
-      this.clearTokens();
+      // No clearTokens() here: attemptRefresh already cleared them if the
+      // session was rejected, and a stale result must leave a newer session alone.
     }
 
     const json = await res.json();
@@ -179,7 +212,7 @@ class ApiClient {
       if (await this.refreshShared()) {
         return this.downloadBlob(path, true);
       }
-      this.clearTokens();
+      // Token clearing is owned by attemptRefresh (see request()).
     }
 
     if (!res.ok) {

@@ -44,13 +44,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     authService
       .refreshSession()
       .then(async (session) => {
-        if (!isCurrent()) return;
-        if (!session) {
-          localStorage.removeItem("accessToken");
-          return;
+        // No session: api.ts has already cleared the token if the server
+        // rejected it, and left it alone if a newer session took over.
+        if (!isCurrent() || !session) return;
+        // A successful refresh IS the authenticated session, so show the user
+        // now instead of waiting on a second request that may fail.
+        setUser(session.user);
+        try {
+          // me() adds trial status. If it fails, keep the user we already have:
+          // a failed profile probe is not a sign-out.
+          const res = await authService.me();
+          if (isCurrent()) setUser(res.data);
+        } catch {
+          // keep session.user
         }
-        const res = await authService.me();
-        if (isCurrent()) setUser(res.data);
       })
       .catch(async () => {
         if (!isCurrent()) return;
@@ -60,7 +67,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const res = await authService.me();
           if (isCurrent()) setUser(res.data);
         } catch {
-          if (isCurrent()) localStorage.removeItem("accessToken");
+          // Transport failure: keep the token so the next reload can retry.
+          // If the server really rejected the session, api.ts has already
+          // cleared the token and fired auth:expired.
         }
       })
       .finally(() => {
@@ -97,7 +106,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (data: LoginRequest) => {
     const res = await authService.login(data);
     sessionEpoch.current += 1;
-    localStorage.setItem("accessToken", res.data.accessToken);
+    // startSession (not a bare localStorage write) so a refresh still in
+    // flight for a previous account cannot overwrite or clear this token.
+    authService.startSession(res.data.accessToken);
     setUser(res.data.user);
     return res.data.user;
   }, []);
