@@ -6,8 +6,10 @@
 import { z } from "zod";
 import { newEmail } from "./shared";
 
+// The message on z.string() covers an omitted field: without it the type
+// check fails before .min() runs and the client sees a raw type error.
 const strongPassword = z
-  .string()
+  .string("Password is required")
   .min(8, "Password must be at least 8 characters")
   .regex(/[a-z]/, "Password must contain at least one lowercase letter")
   .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
@@ -21,11 +23,11 @@ const strongPassword = z
  */
 export const loginSchema = z.object({
   email: z
-    .string()
+    .string("Email is required")
     .trim()
     .toLowerCase()
     .email("Enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
+  password: z.string("Password is required").min(1, "Password is required"),
 });
 
 /**
@@ -33,11 +35,11 @@ export const loginSchema = z.object({
  */
 export const registerSchema = z.object({
   companyName: z
-    .string()
+    .string("Company name is required")
     .min(1, "Company name is required")
     .max(255, "Company name must be 255 characters or fewer"),
   name: z
-    .string()
+    .string("Name is required")
     .min(1, "Name is required")
     .max(255, "Name must be 255 characters or fewer"),
   // newEmail adds the gibberish check; only new or changed addresses use it.
@@ -50,7 +52,7 @@ export const registerSchema = z.object({
  */
 export const createUserSchema = z.object({
   name: z
-    .string()
+    .string("Name is required")
     .min(1, "Name is required")
     .max(255, "Name must be 255 characters or fewer"),
   surname: z.string().max(255, "Surname must be 255 characters or fewer").optional(),
@@ -66,7 +68,7 @@ export const createUserSchema = z.object({
  */
 export const forgotPasswordSchema = z.object({
   email: z
-    .string()
+    .string("Email is required")
     .trim()
     .toLowerCase()
     .email("Enter a valid email address"),
@@ -76,14 +78,14 @@ export const forgotPasswordSchema = z.object({
  * Validates email-verification token submissions.
  */
 export const verifyEmailSchema = z.object({
-  token: z.string().min(1, "Verification token is required"),
+  token: z.string("Verification token is required").min(1, "Verification token is required"),
 });
 
 /**
  * Validates password-reset completion payloads (token + new password).
  */
 export const resetPasswordSchema = z.object({
-  token: z.string().min(1, "Reset token is required"),
+  token: z.string("Reset token is required").min(1, "Reset token is required"),
   password: strongPassword,
 });
 
@@ -91,7 +93,7 @@ export const resetPasswordSchema = z.object({
  * Validates authenticated password-change requests.
  */
 export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
+  currentPassword: z.string("Current password is required").min(1, "Current password is required"),
   newPassword: strongPassword,
 });
 

@@ -7,7 +7,7 @@ import { newEmail } from "./shared";
 
 /** Emails a single incident as CSV/PDF. */
 export const emailReportSchema = z.object({
-  incidentId: z.string().min(1, "Incident is required"),
+  incidentId: z.string("Incident is required").min(1, "Incident is required"),
   email: newEmail,
   format: z.enum(["csv", "pdf"], { message: "Choose CSV or PDF" }),
 });

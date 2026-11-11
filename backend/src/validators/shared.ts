@@ -52,7 +52,7 @@ export function isGibberishEmail(email: string): boolean {
 
 /** Email for a new or changed address: valid format and not gibberish. */
 export const newEmail = z
-  .string()
+  .string("Email is required")
   .trim()
   .toLowerCase()
   .email("Enter a valid email address")
