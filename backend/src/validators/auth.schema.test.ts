@@ -128,4 +128,9 @@ describe("auth schemas", () => {
       "Password is required",
     ]);
   });
+
+  it("updateUserSchema checks format only, so an unchanged legacy email still parses", () => {
+    expect(updateUserSchema.safeParse({ name: "Renamed", email: "qwerty@gmail.com" }).success).toBe(true);
+    expect(updateUserSchema.safeParse({ email: "not-an-email" }).success).toBe(false);
+  });
 });

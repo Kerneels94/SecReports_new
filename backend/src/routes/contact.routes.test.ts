@@ -1,18 +1,18 @@
 import { submitContact } from "./contact.routes";
 import { sendMail } from "../services/email.service";
 import { ValidationError } from "../lib/errors";
-import { hasMxRecord } from "../lib/email";
+import { acceptsMail } from "../lib/email";
 
 jest.mock("../services/email.service", () => ({
   sendMail: jest.fn(),
 }));
 
 jest.mock("../lib/email", () => ({
-  hasMxRecord: jest.fn(),
+  acceptsMail: jest.fn(),
 }));
 
 const sendMailMock = sendMail as jest.Mock;
-const hasMxRecordMock = hasMxRecord as jest.Mock;
+const acceptsMailMock = acceptsMail as jest.Mock;
 
 describe("submitContact", () => {
   let request: any;
@@ -28,7 +28,7 @@ describe("submitContact", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     sendMailMock.mockResolvedValue({ data: {} });
-    hasMxRecordMock.mockResolvedValue(true);
+    acceptsMailMock.mockResolvedValue(true);
     request = { body: { ...validBody }, log: { error: jest.fn() } };
     reply = { code: jest.fn().mockReturnThis(), send: jest.fn() };
   });
@@ -87,7 +87,7 @@ describe("submitContact", () => {
   });
 
   it("rejects an email whose domain has no MX record", async () => {
-    hasMxRecordMock.mockResolvedValue(false);
+    acceptsMailMock.mockResolvedValue(false);
 
     await expect(submitContact(request, reply)).rejects.toThrow(ValidationError);
     expect(sendMailMock).not.toHaveBeenCalled();
@@ -97,6 +97,6 @@ describe("submitContact", () => {
     request.body.email = "asdflkjqwer@gmail.com";
 
     await expect(submitContact(request, reply)).rejects.toThrow(ValidationError);
-    expect(hasMxRecordMock).not.toHaveBeenCalled();
+    expect(acceptsMailMock).not.toHaveBeenCalled();
   });
 });

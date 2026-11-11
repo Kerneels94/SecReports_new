@@ -4,7 +4,7 @@
  * @module auth.schema
  */
 import { z } from "zod";
-import { newEmail } from "./shared";
+import { emailFormat, newEmail } from "./shared";
 
 // The message on z.string() covers an omitted field: without it the type
 // check fails before .min() runs and the client sees a raw type error.
@@ -107,7 +107,10 @@ export const updateUserSchema = z.object({
     .max(255, "Name must be 255 characters or fewer")
     .optional(),
   surname: z.string().max(255, "Surname must be 255 characters or fewer").optional(),
-  email: newEmail.optional(),
+  // Format only here: the edit form always resends the current email, and an
+  // existing address that fails the gibberish heuristic must not block edits
+  // to name or role. AuthService.updateUser runs the heuristic when it changes.
+  email: emailFormat.optional(),
   role: z
     .enum(["admin", "manager", "senior"], { message: "Choose a valid role" })
     .optional(),

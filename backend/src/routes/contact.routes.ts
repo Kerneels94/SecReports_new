@@ -8,7 +8,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { sendMail } from "../services/email.service";
 import { contactSchema } from "../validators/contact.schema";
 import { ValidationError } from "../lib/errors";
-import { hasMxRecord } from "../lib/email";
+import { acceptsMail } from "../lib/email";
 
 const CONTACT_INBOX = process.env.FROM_EMAIL || "support@secreports.co.za";
 
@@ -24,7 +24,7 @@ export async function submitContact(
   const { name, email, company, message } = parsed.data;
   // Public form: confirm the sender's domain accepts mail, otherwise our
   // Reply-To would point at an address support can never answer.
-  if (!(await hasMxRecord(email)))
+  if (!(await acceptsMail(email)))
     throw new ValidationError("Email domain does not accept mail");
 
   const { error } = await sendMail({

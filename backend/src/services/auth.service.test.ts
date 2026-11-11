@@ -61,7 +61,7 @@ jest.mock("../lib/hash", () => ({
 }));
 jest.mock("../lib/jwt");
 jest.mock("../lib/email", () => ({
-  hasMxRecord: jest.fn().mockResolvedValue(true),
+  acceptsMail: jest.fn().mockResolvedValue(true),
 }));
 jest.mock("./email.service", () => ({
   sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
@@ -101,8 +101,8 @@ describe("AuthService", () => {
       ...mockUser,
       loginAttempts: 1,
     });
-    const { hasMxRecord } = require("../lib/email");
-    (hasMxRecord as jest.Mock).mockResolvedValue(true);
+    const { acceptsMail } = require("../lib/email");
+    (acceptsMail as jest.Mock).mockResolvedValue(true);
   });
 
   describe("login", () => {
@@ -388,8 +388,8 @@ describe("AuthService", () => {
     });
 
     it("throws ValidationError when email domain has no MX records", async () => {
-      const { hasMxRecord } = require("../lib/email");
-      (hasMxRecord as jest.Mock).mockResolvedValue(false);
+      const { acceptsMail } = require("../lib/email");
+      (acceptsMail as jest.Mock).mockResolvedValue(false);
 
       await expect(
         AuthService.register({
@@ -453,8 +453,8 @@ describe("AuthService", () => {
     });
 
     it("throws ValidationError when email domain has no MX records", async () => {
-      const { hasMxRecord } = require("../lib/email");
-      (hasMxRecord as jest.Mock).mockResolvedValue(false);
+      const { acceptsMail } = require("../lib/email");
+      (acceptsMail as jest.Mock).mockResolvedValue(false);
 
       await expect(
         AuthService.createUser({
@@ -789,11 +789,31 @@ describe("updateUser", () => {
   });
 
   it("throws ValidationError when new email domain has no MX records", async () => {
-    const { hasMxRecord } = require("../lib/email");
-    (hasMxRecord as jest.Mock).mockResolvedValue(false);
+    const { acceptsMail } = require("../lib/email");
+    (acceptsMail as jest.Mock).mockResolvedValue(false);
     (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
 
     await expect(AuthService.updateUser("1", "1", { email: "bad@nonexistent-domain-xyz.com" }, "2", "admin")).rejects.toThrow("Email domain does not accept mail");
+  });
+
+  it("rejects a gibberish address only when the email actually changes", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
+
+    await expect(
+      AuthService.updateUser("1", "1", { email: "asdflkjqwer@gmail.com" }, "2", "admin"),
+    ).rejects.toThrow("Enter a real email address");
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it("lets an admin edit a user whose existing email fails the heuristic", async () => {
+    // Regression: the edit form resends the unchanged email with every save.
+    const legacyUser = { ...mockUser, email: "qwerty@gmail.com" };
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(legacyUser);
+    (prisma.user.update as jest.Mock).mockResolvedValue({ ...legacyUser, name: "Renamed" });
+
+    await AuthService.updateUser("1", "1", { name: "Renamed", email: "qwerty@gmail.com" }, "2", "admin");
+
+    expect(prisma.user.update).toHaveBeenCalled();
   });
 
   it("throws ForbiddenError when a non-admin changes another user's email", async () => {

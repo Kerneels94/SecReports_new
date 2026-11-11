@@ -20,7 +20,8 @@ import {
   ValidationError,
   ForbiddenError,
 } from "../lib/errors";
-import { hasMxRecord } from "../lib/email";
+import { acceptsMail } from "../lib/email";
+import { GIBBERISH_EMAIL_MESSAGE, isGibberishEmail } from "../validators/shared";
 import { getAppUrl } from "../lib/app-url";
 import {
   sendVerificationEmail,
@@ -424,7 +425,7 @@ export const AuthService = {
    * subscription, persists a refresh token, and sends a welcome email.
    */
   async register(params: RegisterParams) {
-    const validDomain = await hasMxRecord(params.email);
+    const validDomain = await acceptsMail(params.email);
     if (!validDomain)
       throw new ValidationError("Email domain does not accept mail");
 
@@ -545,7 +546,7 @@ export const AuthService = {
 
     await SubscriptionService.canAddUser(params.companyId);
 
-    const validDomain = await hasMxRecord(params.email);
+    const validDomain = await acceptsMail(params.email);
     if (!validDomain)
       throw new ValidationError("Email domain does not accept mail");
 
@@ -786,7 +787,11 @@ export const AuthService = {
     }
 
     if (data.email && data.email !== user.email) {
-      const validDomain = await hasMxRecord(data.email);
+      // Only a changed address gets the gibberish check (see updateUserSchema).
+      if (isGibberishEmail(data.email))
+        throw new ValidationError(GIBBERISH_EMAIL_MESSAGE);
+
+      const validDomain = await acceptsMail(data.email);
       if (!validDomain)
         throw new ValidationError("Email domain does not accept mail");
 

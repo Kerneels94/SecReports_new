@@ -50,16 +50,21 @@ export function isGibberishEmail(email: string): boolean {
   return false;
 }
 
-/** Email for a new or changed address: valid format and not gibberish. */
-export const newEmail = z
+/** Message shown when an address fails the gibberish check. */
+export const GIBBERISH_EMAIL_MESSAGE = "Enter a real email address";
+
+/** Email format only: trimmed, lowercased, valid and at most 255 chars. */
+export const emailFormat = z
   .string("Email is required")
   .trim()
   .toLowerCase()
   .email("Enter a valid email address")
-  .max(255, "Email must be 255 characters or fewer")
-  .refine((value) => !isGibberishEmail(value), {
-    message: "Enter a real email address",
-  });
+  .max(255, "Email must be 255 characters or fewer");
+
+/** Email for a brand-new address: valid format and not gibberish. */
+export const newEmail = emailFormat.refine((value) => !isGibberishEmail(value), {
+  message: GIBBERISH_EMAIL_MESSAGE,
+});
 
 /** Turns a camelCase field path into a readable label, e.g. operatorName -> "Operator name". */
 function fieldLabel(path: PropertyKey[] = []): string {

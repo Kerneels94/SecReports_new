@@ -15,7 +15,7 @@ import {
   batchEmailSchema,
 } from "../validators/export.schema";
 import { ValidationError } from "../lib/errors";
-import { hasMxRecord } from "../lib/email";
+import { acceptsMail } from "../lib/email";
 import { validationErrorMessage } from "../validators/shared";
 
 interface IncidentForExport {
@@ -1099,9 +1099,9 @@ export const ExportController = {
     if (!parsed.success)
       throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
     const { email, type, format } = parsed.data;
-    // Reject domains with no MX record before building the attachment, so a
+    // Reject domains that cannot receive mail before building the attachment, so a
     // typo'd recipient (e.g. gmial.com) fails fast instead of bouncing later.
-    if (!(await hasMxRecord(email)))
+    if (!(await acceptsMail(email)))
       throw new ValidationError("Email domain does not accept mail");
 
     const incidents = await prisma.incident.findMany({
@@ -1260,9 +1260,9 @@ export const ExportController = {
     if (!parsed.success)
       throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
     const { incidentId, email, format } = parsed.data;
-    // Reject domains with no MX record before building the attachment, so a
+    // Reject domains that cannot receive mail before building the attachment, so a
     // typo'd recipient (e.g. gmial.com) fails fast instead of bouncing later.
-    if (!(await hasMxRecord(email)))
+    if (!(await acceptsMail(email)))
       throw new ValidationError("Email domain does not accept mail");
 
     const incident = await prisma.incident.findFirst({
