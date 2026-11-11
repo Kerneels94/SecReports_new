@@ -61,7 +61,7 @@ export default function LoginPage() {
       }
       lead="Pick up where your team left off — every report, response time and client export in one place."
       ticks={[
-        "Log call-outs with operator, dispatcher and call sign",
+        "Log every incident with operator, dispatcher and call sign",
         "Track dispatch-to-arrival response times",
         "Send clients a PDF report in one click",
       ]}
