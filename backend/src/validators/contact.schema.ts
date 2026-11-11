@@ -4,6 +4,7 @@
  * @module contact.schema
  */
 import { z } from "zod";
+import { newEmail } from "./shared";
 
 /**
  * Validates a contact form submission. Length caps keep the enquiry email
@@ -15,11 +16,8 @@ export const contactSchema = z.object({
     .trim()
     .min(1, "Name is required")
     .max(255, "Name must be 255 characters or fewer"),
-  email: z
-    .string()
-    .trim()
-    .email("Enter a valid email address")
-    .max(255, "Email must be 255 characters or fewer"),
+  // Shared rule: trims, lowercases, caps at 255 and rejects gibberish.
+  email: newEmail,
   company: z.string().trim().max(255, "Company must be 255 characters or fewer").optional(),
   message: z
     .string()

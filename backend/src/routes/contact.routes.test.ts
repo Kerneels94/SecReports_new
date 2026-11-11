@@ -1,12 +1,18 @@
 import { submitContact } from "./contact.routes";
 import { sendMail } from "../services/email.service";
 import { ValidationError } from "../lib/errors";
+import { hasMxRecord } from "../lib/email";
 
 jest.mock("../services/email.service", () => ({
   sendMail: jest.fn(),
 }));
 
+jest.mock("../lib/email", () => ({
+  hasMxRecord: jest.fn(),
+}));
+
 const sendMailMock = sendMail as jest.Mock;
+const hasMxRecordMock = hasMxRecord as jest.Mock;
 
 describe("submitContact", () => {
   let request: any;
@@ -22,6 +28,7 @@ describe("submitContact", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     sendMailMock.mockResolvedValue({ data: {} });
+    hasMxRecordMock.mockResolvedValue(true);
     request = { body: { ...validBody }, log: { error: jest.fn() } };
     reply = { code: jest.fn().mockReturnThis(), send: jest.fn() };
   });
@@ -77,5 +84,19 @@ describe("submitContact", () => {
       "Failed to deliver contact enquiry",
     );
     expect(reply.send).not.toHaveBeenCalled();
+  });
+
+  it("rejects an email whose domain has no MX record", async () => {
+    hasMxRecordMock.mockResolvedValue(false);
+
+    await expect(submitContact(request, reply)).rejects.toThrow(ValidationError);
+    expect(sendMailMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects a gibberish email before any lookup", async () => {
+    request.body.email = "asdflkjqwer@gmail.com";
+
+    await expect(submitContact(request, reply)).rejects.toThrow(ValidationError);
+    expect(hasMxRecordMock).not.toHaveBeenCalled();
   });
 });

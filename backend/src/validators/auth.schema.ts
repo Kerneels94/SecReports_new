@@ -4,6 +4,7 @@
  * @module auth.schema
  */
 import { z } from "zod";
+import { newEmail } from "./shared";
 
 const strongPassword = z
   .string()
@@ -15,6 +16,8 @@ const strongPassword = z
 
 /**
  * Validates company/employee sign-in credentials.
+ * Deliberately not `newEmail`: existing accounts must never be locked out
+ * by the gibberish heuristic. Same for forgotPasswordSchema.
  */
 export const loginSchema = z.object({
   email: z
@@ -37,11 +40,8 @@ export const registerSchema = z.object({
     .string()
     .min(1, "Name is required")
     .max(255, "Name must be 255 characters or fewer"),
-  email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .email("Enter a valid email address"),
+  // newEmail adds the gibberish check; only new or changed addresses use it.
+  email: newEmail,
   password: strongPassword,
 });
 
@@ -54,11 +54,7 @@ export const createUserSchema = z.object({
     .min(1, "Name is required")
     .max(255, "Name must be 255 characters or fewer"),
   surname: z.string().max(255, "Surname must be 255 characters or fewer").optional(),
-  email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .email("Enter a valid email address"),
+  email: newEmail,
   password: strongPassword,
   role: z.enum(["admin", "manager", "senior"], {
     message: "Choose a valid role",
@@ -109,12 +105,7 @@ export const updateUserSchema = z.object({
     .max(255, "Name must be 255 characters or fewer")
     .optional(),
   surname: z.string().max(255, "Surname must be 255 characters or fewer").optional(),
-  email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .email("Enter a valid email address")
-    .optional(),
+  email: newEmail.optional(),
   role: z
     .enum(["admin", "manager", "senior"], { message: "Choose a valid role" })
     .optional(),
