@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import PDFDocument from "pdfkit";
-import { AuditLogService } from "../services/auditLog.service";
+import { AuditLogService, type AuditLogFilters } from "../services/auditLog.service";
 import { paginationSchema } from "../validators/incident.schema";
 import { validationErrorMessage } from "../validators/shared";
 import { ValidationError } from "../lib/errors";
@@ -84,9 +84,43 @@ function formatDate(d: Date | string) {
   });
 }
 
+/** One audit-log row as the PDF renderer needs it. */
+interface AuditExportEntry {
+  createdAt: Date | string;
+  action: string | null;
+  entityType: string | null;
+  ipAddress: string | null;
+  performedByUser: { name: string | null; email: string | null } | null;
+}
+
+/** Column layout for the audit table. Widths add up to the 495pt content area. */
+const AUDIT_COLUMNS = [
+  { label: "Date", x: 50, width: 75 },
+  { label: "User", x: 128, width: 72 },
+  { label: "Email", x: 203, width: 112 },
+  { label: "Action", x: 318, width: 62 },
+  { label: "Entity", x: 383, width: 57 },
+  { label: "IP", x: 443, width: 102 },
+] as const;
+
+function drawTableHeader(doc: PDFKit.PDFDocument, y: number): number {
+  doc.fontSize(8).font("Helvetica-Bold").fillColor(COLORS.white);
+  for (const col of AUDIT_COLUMNS) doc.text(col.label, col.x, y, { width: col.width });
+  y += 12;
+  doc.rect(50, y, 495, 1).fill(COLORS.border);
+  return y + 10;
+}
+
+/**
+ * Renders audit entries as a PDF table. Cells are never truncated: long
+ * emails and IPv6 addresses wrap and the row grows to fit, because the
+ * export is evidence and must identify the actor and source exactly.
+ * When `total` exceeds the rows rendered, the header says the file is partial.
+ */
 async function generateAuditLogsPdf(
   companyName: string,
-  entries: any[],
+  entries: AuditExportEntry[],
+  total: number = entries.length,
 ): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = newDoc();
@@ -115,61 +149,69 @@ async function generateAuditLogsPdf(
       .font("Helvetica")
       .fillColor(COLORS.faint)
       .text(
-        `Generated: ${new Date().toISOString()} | Entries: ${entries.length}`,
+        `Generated: ${new Date().toISOString()} | Entries: ${entries.length}${total > entries.length ? ` of ${total}` : ""}`,
         50,
         y,
         { width: 495, align: "center" },
       );
-    y += 30;
+    y += 14;
+    if (total > entries.length) {
+      doc
+        .fontSize(8)
+        .font("Helvetica-Bold")
+        .fillColor(COLORS.accent)
+        .text(
+          `Partial export: only the newest ${entries.length} entries are included. Export with a date range to get older entries.`,
+          50,
+          y,
+          { width: 495, align: "center" },
+        );
+      y += 22;
+    } else {
+      y += 16;
+    }
 
-    doc.fontSize(8).font("Helvetica-Bold").fillColor(COLORS.white);
-    doc.text("Date", 50, y);
-    doc.text("User", 130, y);
-    doc.text("Email", 230, y);
-    doc.text("Action", 330, y);
-    doc.text("Entity", 400, y);
-    doc.text("IP", 470, y);
-    y += 12;
-    doc.rect(50, y, 495, 1).fill(COLORS.border);
-    y += 10;
+    y = drawTableHeader(doc, y);
 
-    doc.font("Helvetica").fillColor(COLORS.faint);
-    for (let i = 0; i < entries.length; i++) {
-      const e = entries[i];
-      if (y > doc.page.height - 110) {
+    for (const e of entries) {
+      const cells = [
+        formatDate(e.createdAt),
+        e.performedByUser?.name || "",
+        e.performedByUser?.email || "",
+        e.action || "",
+        e.entityType || "",
+        e.ipAddress || "",
+      ];
+
+      doc.fontSize(7).font("Helvetica");
+      const rowHeight = Math.max(
+        ...cells.map((text, i) => doc.heightOfString(text, { width: AUDIT_COLUMNS[i].width })),
+      );
+
+      if (y + rowHeight > doc.page.height - 110) {
         drawFooter(doc);
         doc.addPage();
-        y = drawHeader(doc) + 20;
-        doc.fontSize(8).font("Helvetica-Bold").fillColor(COLORS.white);
-        doc.text("Date", 50, y);
-        doc.text("User", 130, y);
-        doc.text("Email", 230, y);
-        doc.text("Action", 330, y);
-        doc.text("Entity", 400, y);
-        doc.text("IP", 470, y);
-        y += 12;
-        doc.rect(50, y, 495, 1).fill(COLORS.border);
-        y += 10;
-        doc.font("Helvetica").fillColor(COLORS.faint);
+        y = drawTableHeader(doc, drawHeader(doc) + 20);
+        doc.fontSize(7).font("Helvetica");
       }
 
-      doc.fontSize(7).fillColor(COLORS.faint);
-      doc.text(formatDate(e.createdAt), 50, y, { width: 75 });
-      doc.text((e.performedByUser?.name || "").substring(0, 28), 130, y, {
-        width: 95,
+      doc.fillColor(COLORS.faint);
+      cells.forEach((text, i) => {
+        doc.text(text, AUDIT_COLUMNS[i].x, y, { width: AUDIT_COLUMNS[i].width });
       });
-      doc.text((e.performedByUser?.email || "").substring(0, 32), 230, y, {
-        width: 95,
-      });
-      doc.text((e.action || "").substring(0, 20), 330, y, { width: 65 });
-      doc.text((e.entityType || "").substring(0, 18), 400, y, { width: 65 });
-      doc.text((e.ipAddress || "").substring(0, 20), 470, y, { width: 75 });
-      y += 14;
+      y += rowHeight + 6;
     }
 
     drawFooter(doc);
     doc.end();
   });
+}
+
+/** Reads the list filters from the query string so exports match the table. */
+function exportFilters(query: unknown): AuditLogFilters {
+  const { entityType, action, dateFrom, dateTo, search } =
+    (query ?? {}) as Record<string, string | undefined>;
+  return { entityType, action, dateFrom, dateTo, search };
 }
 
 export const AuditLogController = {
@@ -225,15 +267,18 @@ export const AuditLogController = {
     const companyId = request.user!.companyId;
     if (!companyId) throw new ValidationError("Company is required");
 
-    const { company, entries } =
-      await AuditLogService.exportForCompany(companyId);
+    const { company, entries, total } =
+      await AuditLogService.exportForCompany(companyId, exportFilters(request.query));
     if (!company) throw new ValidationError("Company not found");
 
-    const pdf = await generateAuditLogsPdf(company.name, entries);
+    const pdf = await generateAuditLogsPdf(company.name, entries, total);
     const filename = `audit-logs-${company.name.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-${Date.now()}.pdf`;
     reply
       .header("Content-Type", "application/pdf")
       .header("Content-Disposition", `attachment; filename="${filename}"`)
+      // Audit logs are sensitive: stop the browser keeping a cached copy
+      // that outlives the session on a shared machine.
+      .header("Cache-Control", "no-store")
       .code(200)
       .send(pdf);
   },
@@ -244,7 +289,7 @@ export const AuditLogController = {
 
     // If no companyId provided or empty, export all logs
     if (!companyId || companyId === "all") {
-      const { entries } = await AuditLogService.exportAll();
+      const { entries, total } = await AuditLogService.exportAll(exportFilters(request.query));
       const superadmins = await prisma.user.findMany({
         where: { role: "superadmin", status: "active" },
         select: { email: true },
@@ -253,7 +298,7 @@ export const AuditLogController = {
         new Set(superadmins.map((u) => u.email).filter(Boolean)),
       ) as string[];
 
-      const pdf = await generateAuditLogsPdf("All Companies", entries);
+      const pdf = await generateAuditLogsPdf("All Companies", entries, total);
       const filename = `audit-logs-all-${Date.now()}.pdf`;
       for (const to of recipients) {
         await sendMail({
@@ -270,12 +315,12 @@ export const AuditLogController = {
         .code(200)
         .send({
           success: true,
-          data: { emailedTo: recipients, count: entries.length },
+          data: { emailedTo: recipients, count: entries.length, total },
         });
     }
 
-    const { company, entries } =
-      await AuditLogService.exportForCompany(companyId);
+    const { company, entries, total } =
+      await AuditLogService.exportForCompany(companyId, exportFilters(request.query));
     if (!company) throw new ValidationError("Company not found");
 
     const superadmins = await prisma.user.findMany({
@@ -286,7 +331,7 @@ export const AuditLogController = {
       new Set(superadmins.map((u) => u.email).filter(Boolean)),
     ) as string[];
 
-    const pdf = await generateAuditLogsPdf(company.name, entries);
+    const pdf = await generateAuditLogsPdf(company.name, entries, total);
     const filename = `audit-logs-${company.name.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-${Date.now()}.pdf`;
     for (const to of recipients) {
       await sendMail({
@@ -304,7 +349,7 @@ export const AuditLogController = {
       .code(200)
       .send({
         success: true,
-        data: { emailedTo: recipients, count: entries.length },
+        data: { emailedTo: recipients, count: entries.length, total },
       });
   },
 };

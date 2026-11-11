@@ -123,7 +123,12 @@ export default function AuditLogsPage() {
     setExporting(true);
     setExportError(null);
     try {
-      const blob = await adminAuditService.exportPdf();
+      // Export what the table shows: the same filters go to the backend.
+      const blob = await adminAuditService.exportPdf({
+        entityType: entityType || undefined,
+        action: action || undefined,
+        search: search || undefined,
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

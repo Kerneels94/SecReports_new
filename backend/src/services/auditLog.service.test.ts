@@ -79,6 +79,26 @@ describe("AuditLogService", () => {
     expect((prisma.auditLog.findMany as jest.Mock).mock.calls[0][0].take).toBe(EXPORT_LIMIT);
   });
 
+  it("applies filters to an export and reports the uncapped total", async () => {
+    (prisma.company.findUnique as jest.Mock).mockResolvedValue({ id: "company-1", name: "Acme", email: "a@acme.com" });
+    (prisma.auditLog.count as jest.Mock).mockResolvedValue(9000);
+
+    const result = await AuditLogService.exportForCompany("company-1", {
+      entityType: "incident",
+      dateFrom: "2026-01-01",
+    });
+
+    const where = (prisma.auditLog.findMany as jest.Mock).mock.calls[0][0].where;
+    expect(where).toEqual({
+      performedByUser: { companyId: "company-1" },
+      entityType: "incident",
+      createdAt: { gte: new Date("2026-01-01") },
+    });
+    // total lets the caller label a capped file as partial.
+    expect(result.total).toBe(9000);
+    expect((prisma.auditLog.count as jest.Mock).mock.calls[0][0].where).toEqual(where);
+  });
+
   it("fuses request context (ip + user agent) into created entries", async () => {
     await runWithAuditContext(
       { ipAddress: "1.2.3.4", userAgent: "Mozilla/5.0 (Windows NT 10.0) Chrome/126.0" },
