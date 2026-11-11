@@ -112,4 +112,25 @@ describe("auth schemas", () => {
       expect(result.success).toBe(false);
     });
   });
+
+  it("reports omitted required fields with the field's own message", () => {
+    const messages = (result: { error?: { issues: { message: string }[] } }) =>
+      result.error?.issues.map((issue) => issue.message) ?? [];
+
+    expect(messages(registerSchema.safeParse({}))).toEqual([
+      "Company name is required",
+      "Name is required",
+      "Email is required",
+      "Password is required",
+    ]);
+    expect(messages(loginSchema.safeParse({}))).toEqual([
+      "Email is required",
+      "Password is required",
+    ]);
+  });
+
+  it("updateUserSchema checks format only, so an unchanged legacy email still parses", () => {
+    expect(updateUserSchema.safeParse({ name: "Renamed", email: "qwerty@gmail.com" }).success).toBe(true);
+    expect(updateUserSchema.safeParse({ email: "not-an-email" }).success).toBe(false);
+  });
 });

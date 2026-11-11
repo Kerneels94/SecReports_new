@@ -117,6 +117,36 @@ describe("PermissionsPage", () => {
     expect(mockUpdate).not.toHaveBeenCalled();
   });
 
+  it("resets to the saved response after a successful save, not the initial load", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser, refreshUser: jest.fn() });
+    // The backend returns the new baseline: senior now has auditLogs.view.
+    mockUpdate.mockResolvedValue({
+      data: {
+        ...matrix,
+        permissions: matrix.permissions.map((p) =>
+          p.key === "auditLogs.view" ? { ...p, roles: ["admin", "manager", "senior"] } : p,
+        ),
+      },
+    });
+    render(<PermissionsPage />);
+
+    const seniorSwitch = await screen.findByRole("switch", { name: /view audit logs: senior/i });
+    await userEvent.click(seniorSwitch);
+    await userEvent.click(screen.getByRole("button", { name: /save changes/i }));
+    await screen.findByText("Permissions saved");
+
+    // Edit again, then Reset: it must go back to what was saved (senior on).
+    const managerSwitch = screen.getByRole("switch", { name: /view audit logs: manager/i });
+    await userEvent.click(managerSwitch);
+    expect(managerSwitch).toHaveAttribute("aria-checked", "false");
+    await userEvent.click(screen.getByRole("button", { name: /reset permissions/i }));
+
+    expect(managerSwitch).toHaveAttribute("aria-checked", "true");
+    expect(
+      screen.getByRole("switch", { name: /view audit logs: senior/i }),
+    ).toHaveAttribute("aria-checked", "true");
+  });
+
   it("disables Save until a change has been made", async () => {
     mockUseAuth.mockReturnValue({ user: adminUser });
     render(<PermissionsPage />);

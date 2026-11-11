@@ -122,4 +122,33 @@ describe("AuditLogsPage", () => {
     await waitFor(() => expect(mockExportPdf).toHaveBeenCalled());
     expect(URL.createObjectURL).toHaveBeenCalled();
   });
+
+  it("exports with the active filters so the PDF matches the table", async () => {
+    URL.createObjectURL = jest.fn(() => "blob:mock-url");
+    URL.revokeObjectURL = jest.fn();
+    mockExportPdf.mockResolvedValue(new Blob(["%PDF"]));
+    render(<AuditLogsPage />);
+    const user = userEvent.setup();
+
+    await user.selectOptions(screen.getByRole("combobox"), "login");
+    await user.click(screen.getByRole("button", { name: /export pdf/i }));
+
+    await waitFor(() =>
+      expect(mockExportPdf).toHaveBeenCalledWith(
+        expect.objectContaining({ action: "login" }),
+      ),
+    );
+  });
+
+  it("shows an alert and re-enables the button when the export fails", async () => {
+    mockExportPdf.mockRejectedValue(new Error("Export unavailable"));
+    render(<AuditLogsPage />);
+    await waitFor(() => expect(mockList).toHaveBeenCalled());
+
+    const button = screen.getByRole("button", { name: /export pdf/i });
+    fireEvent.click(button);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Export unavailable");
+    expect(button).not.toBeDisabled();
+  });
 });

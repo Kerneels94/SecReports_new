@@ -124,6 +124,16 @@ const TONE = {
   },
 } as const;
 
+/**
+ * "YYYY-MM" for a date in UTC, shifted by `monthOffset` months. UTC because
+ * ReportService buckets months in UTC; using the browser's local month put
+ * the cutoff a month out for users west of UTC around a month boundary.
+ */
+export function utcMonthKey(date: Date, monthOffset = 0): string {
+  const shifted = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + monthOffset, 1));
+  return `${shifted.getUTCFullYear()}-${String(shifted.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
 export function aggregateYearly(
   data: { month: string; count: number }[],
 ): { month: string; count: number }[] {
@@ -251,15 +261,24 @@ export default function DashboardPage() {
     };
   }, [monthlyData]);
 
+  // Current UTC month, re-checked every minute so a dashboard left open
+  // across a month boundary drops the expired month without a reload.
+  // Setting the same string again does not re-render.
+  const [currentMonth, setCurrentMonth] = useState(() => utcMonthKey(new Date()));
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentMonth(utcMonthKey(new Date())), 60_000);
+    return () => clearInterval(timer);
+  }, []);
+
   const responseStats = useMemo(() => {
     if (responseData.length === 0) return null;
     // PR #127 review: slice(-3) took the last 3 *returned* rows, which could be
     // months old and skipped empty months. Use the last 3 calendar months
     // instead; months with no incidents just add nothing.
-    const now = new Date();
-    const cutoffDate = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-    const cutoff = `${cutoffDate.getFullYear()}-${String(cutoffDate.getMonth() + 1).padStart(2, "0")}`;
-    const recent = responseData.filter((d) => d.month >= cutoff);
+    const cutoff = utcMonthKey(new Date(`${currentMonth}-01T00:00:00Z`), -2);
+    // Upper bound too: incidents can be future-dated, and those months must
+    // not feed the average or hide the empty-window "—".
+    const recent = responseData.filter((d) => d.month >= cutoff && d.month <= currentMonth);
     // Weight each month by its incident count so a quiet month with one slow
     // call cannot skew the average. null = no data in the window, shown as "—".
     const total = recent.reduce((sum, d) => sum + d.count, 0);
@@ -269,7 +288,7 @@ export default function DashboardPage() {
     const fastest = responseData.reduce((a, b) => (b.avgMs < a.avgMs ? b : a));
     const slowest = responseData.reduce((a, b) => (b.avgMs > a.avgMs ? b : a));
     return { avg, fastest, slowest };
-  }, [responseData]);
+  }, [responseData, currentMonth]);
 
   const saveBlob = (blob: Blob & { filename?: string }, fallback: string) => {
     const url = URL.createObjectURL(blob);

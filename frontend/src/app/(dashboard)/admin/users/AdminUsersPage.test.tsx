@@ -229,4 +229,66 @@ describe("AdminUsersPage", () => {
       expect(screen.getByText(/user senior removed/i)).toBeInTheDocument();
     });
   });
+
+  it("paginates employees 5 per page and disables buttons at the edges", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockListUsers.mockResolvedValue({
+      data: Array.from({ length: 7 }, (_, i) => ({
+        id: i + 10, name: `Emp${i + 1}`, email: `emp${i + 1}@example.com`, role: "senior", status: "active", createdAt: "",
+      })),
+    });
+    render(<AdminUsersPage />);
+    const user = userEvent.setup();
+
+    expect(await screen.findByText("Emp5")).toBeInTheDocument();
+    expect(screen.queryByText("Emp6")).not.toBeInTheDocument();
+    expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Previous" })).toBeDisabled();
+
+    await user.click(screen.getByRole("button", { name: "Next" }));
+    expect(screen.getByText("Emp7")).toBeInTheDocument();
+    expect(screen.queryByText("Emp1")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
+  });
+
+  it("disables both pagination buttons with 5 or fewer employees", async () => {
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockListUsers.mockResolvedValue({ data: [{ id: 2, name: "Senior", email: "senior@example.com", role: "senior", status: "active", createdAt: "" }] });
+    render(<AdminUsersPage />);
+
+    expect(await screen.findByText("Page 1 of 1")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Previous" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
+  });
+
+  it("stays on page 1 after deleting the last user on page 2, even when the list grows again", async () => {
+    const employee = (i: number) => ({
+      id: i + 10, name: `Emp${i}`, email: `emp${i}@example.com`, role: "senior", status: "active", createdAt: "",
+    });
+    const six = Array.from({ length: 6 }, (_, i) => employee(i + 1));
+    mockUseAuth.mockReturnValue({ user: adminUser });
+    mockRemove.mockResolvedValue({ success: true, data: {} });
+    mockListUsers
+      .mockResolvedValueOnce({ data: six }) // initial load: 2 pages
+      .mockResolvedValueOnce({ data: six.slice(0, 5) }) // after delete: 1 page
+      .mockResolvedValueOnce({ data: [...six.slice(0, 5), employee(7)] }); // after create: 2 pages
+    render(<AdminUsersPage />);
+    const user = userEvent.setup();
+
+    await screen.findByText("Emp1");
+    await user.click(screen.getByRole("button", { name: "Next" }));
+    await user.click(screen.getByRole("button", { name: "Remove Emp6" }));
+    await user.click(screen.getByRole("button", { name: /remove user/i }));
+    expect(await screen.findByText("Page 1 of 1")).toBeInTheDocument();
+
+    // Creating a user refetches the list, which grows back to 2 pages.
+    await user.type(screen.getByLabelText("Name"), "New");
+    await user.type(screen.getByLabelText("Email"), "new.person@example.com");
+    await user.type(screen.getByLabelText("Temporary password"), "Str0ng!Pass");
+    mockCreate.mockResolvedValue({ success: true, data: { message: "ok" } });
+    await user.click(screen.getByRole("button", { name: /create user/i }));
+
+    expect(await screen.findByText("Page 1 of 2")).toBeInTheDocument();
+    expect(screen.getByText("Emp1")).toBeInTheDocument();
+  });
 });

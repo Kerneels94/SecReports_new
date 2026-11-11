@@ -158,4 +158,29 @@ describe("Sidebar", () => {
     expect(onLogout).toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();
   });
+
+  it("moves focus into the drawer on open and back to the opener on close", () => {
+    mockUsePathname.mockReturnValue("/dashboard");
+    const opener = document.createElement("button");
+    document.body.appendChild(opener);
+    opener.focus();
+
+    const { rerender } = render(<Sidebar isOpen={false} />);
+    rerender(<Sidebar isOpen />);
+    expect(screen.getByRole("button", { name: "Close sidebar" })).toHaveFocus();
+
+    rerender(<Sidebar isOpen={false} />);
+    expect(opener).toHaveFocus();
+    opener.remove();
+  });
+
+  it("hides the closed drawer from the tab order on mobile only", () => {
+    mockUsePathname.mockReturnValue("/dashboard");
+    const { container, rerender } = render(<Sidebar isOpen={false} />);
+    const aside = container.querySelector("aside")!;
+    expect(aside).toHaveClass("invisible", "lg:visible");
+
+    rerender(<Sidebar isOpen />);
+    expect(aside).not.toHaveClass("invisible");
+  });
 });

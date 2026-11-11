@@ -49,6 +49,7 @@ export type UserMinAggregateOutputType = {
   lockoutCount: number | null
   lockedUntil: Date | null
   emailVerified: boolean | null
+  sessionsRevokedAt: Date | null
   createdBy: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -67,6 +68,7 @@ export type UserMaxAggregateOutputType = {
   lockoutCount: number | null
   lockedUntil: Date | null
   emailVerified: boolean | null
+  sessionsRevokedAt: Date | null
   createdBy: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -85,6 +87,7 @@ export type UserCountAggregateOutputType = {
   lockoutCount: number
   lockedUntil: number
   emailVerified: number
+  sessionsRevokedAt: number
   createdBy: number
   createdAt: number
   updatedAt: number
@@ -115,6 +118,7 @@ export type UserMinAggregateInputType = {
   lockoutCount?: true
   lockedUntil?: true
   emailVerified?: true
+  sessionsRevokedAt?: true
   createdBy?: true
   createdAt?: true
   updatedAt?: true
@@ -133,6 +137,7 @@ export type UserMaxAggregateInputType = {
   lockoutCount?: true
   lockedUntil?: true
   emailVerified?: true
+  sessionsRevokedAt?: true
   createdBy?: true
   createdAt?: true
   updatedAt?: true
@@ -151,6 +156,7 @@ export type UserCountAggregateInputType = {
   lockoutCount?: true
   lockedUntil?: true
   emailVerified?: true
+  sessionsRevokedAt?: true
   createdBy?: true
   createdAt?: true
   updatedAt?: true
@@ -256,6 +262,7 @@ export type UserGroupByOutputType = {
   lockoutCount: number
   lockedUntil: Date | null
   emailVerified: boolean
+  sessionsRevokedAt: Date | null
   createdBy: string | null
   createdAt: Date
   updatedAt: Date
@@ -297,6 +304,7 @@ export type UserWhereInput = {
   lockoutCount?: Prisma.IntFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  sessionsRevokedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdBy?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -322,6 +330,7 @@ export type UserOrderByWithRelationInput = {
   lockoutCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
+  sessionsRevokedAt?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -350,6 +359,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   lockoutCount?: Prisma.IntFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  sessionsRevokedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdBy?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -375,6 +385,7 @@ export type UserOrderByWithAggregationInput = {
   lockoutCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
+  sessionsRevokedAt?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -401,6 +412,7 @@ export type UserScalarWhereWithAggregatesInput = {
   lockoutCount?: Prisma.IntWithAggregatesFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   emailVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  sessionsRevokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdBy?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -418,6 +430,7 @@ export type UserCreateInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -442,6 +455,7 @@ export type UserUncheckedCreateInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -463,6 +477,7 @@ export type UserUpdateInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -486,6 +501,7 @@ export type UserUncheckedUpdateInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -509,6 +525,7 @@ export type UserCreateManyInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -525,6 +542,7 @@ export type UserUpdateManyMutationInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -541,6 +559,7 @@ export type UserUncheckedUpdateManyInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -574,6 +593,7 @@ export type UserCountOrderByAggregateInput = {
   lockoutCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
+  sessionsRevokedAt?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -597,6 +617,7 @@ export type UserMaxOrderByAggregateInput = {
   lockoutCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
+  sessionsRevokedAt?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -615,6 +636,7 @@ export type UserMinOrderByAggregateInput = {
   lockoutCount?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
+  sessionsRevokedAt?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -826,6 +848,7 @@ export type UserCreateWithoutCompanyInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   creator?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
@@ -848,6 +871,7 @@ export type UserUncheckedCreateWithoutCompanyInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -899,6 +923,7 @@ export type UserScalarWhereInput = {
   lockoutCount?: Prisma.IntFilter<"User"> | number
   lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  sessionsRevokedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdBy?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -916,6 +941,7 @@ export type UserCreateWithoutCreatedUsersInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -939,6 +965,7 @@ export type UserUncheckedCreateWithoutCreatedUsersInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -965,6 +992,7 @@ export type UserCreateWithoutCreatorInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -988,6 +1016,7 @@ export type UserUncheckedCreateWithoutCreatorInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCreatorInput
@@ -1028,6 +1057,7 @@ export type UserUpdateWithoutCreatedUsersInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -1050,6 +1080,7 @@ export type UserUncheckedUpdateWithoutCreatedUsersInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1087,6 +1118,7 @@ export type UserCreateWithoutRefreshTokensInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1110,6 +1142,7 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1146,6 +1179,7 @@ export type UserUpdateWithoutRefreshTokensInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -1168,6 +1202,7 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1189,6 +1224,7 @@ export type UserCreateWithoutReportedIncidentsInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1212,6 +1248,7 @@ export type UserUncheckedCreateWithoutReportedIncidentsInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1238,6 +1275,7 @@ export type UserCreateWithoutAssignedIncidentsInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1261,6 +1299,7 @@ export type UserUncheckedCreateWithoutAssignedIncidentsInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1297,6 +1336,7 @@ export type UserUpdateWithoutReportedIncidentsInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -1319,6 +1359,7 @@ export type UserUncheckedUpdateWithoutReportedIncidentsInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1350,6 +1391,7 @@ export type UserUpdateWithoutAssignedIncidentsInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -1372,6 +1414,7 @@ export type UserUncheckedUpdateWithoutAssignedIncidentsInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1393,6 +1436,7 @@ export type UserCreateWithoutAuditLogsInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1416,6 +1460,7 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1452,6 +1497,7 @@ export type UserUpdateWithoutAuditLogsInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -1474,6 +1520,7 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1495,6 +1542,7 @@ export type UserCreateManyCompanyInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdBy?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1511,6 +1559,7 @@ export type UserUpdateWithoutCompanyInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   creator?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
@@ -1532,6 +1581,7 @@ export type UserUncheckedUpdateWithoutCompanyInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1553,6 +1603,7 @@ export type UserUncheckedUpdateManyWithoutCompanyInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1571,6 +1622,7 @@ export type UserCreateManyCreatorInput = {
   lockoutCount?: number
   lockedUntil?: Date | string | null
   emailVerified?: boolean
+  sessionsRevokedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1586,6 +1638,7 @@ export type UserUpdateWithoutCreatorInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
@@ -1608,6 +1661,7 @@ export type UserUncheckedUpdateWithoutCreatorInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdUsers?: Prisma.UserUncheckedUpdateManyWithoutCreatorNestedInput
@@ -1629,6 +1683,7 @@ export type UserUncheckedUpdateManyWithoutCreatorInput = {
   lockoutCount?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionsRevokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1713,6 +1768,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   lockoutCount?: boolean
   lockedUntil?: boolean
   emailVerified?: boolean
+  sessionsRevokedAt?: boolean
   createdBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1741,12 +1797,13 @@ export type UserSelectScalar = {
   lockoutCount?: boolean
   lockedUntil?: boolean
   emailVerified?: boolean
+  sessionsRevokedAt?: boolean
   createdBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "name" | "surname" | "email" | "passwordHash" | "role" | "status" | "loginAttempts" | "lockoutCount" | "lockedUntil" | "emailVerified" | "createdBy" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "name" | "surname" | "email" | "passwordHash" | "role" | "status" | "loginAttempts" | "lockoutCount" | "lockedUntil" | "emailVerified" | "sessionsRevokedAt" | "createdBy" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.User$companyArgs<ExtArgs>
   creator?: boolean | Prisma.User$creatorArgs<ExtArgs>
@@ -1782,6 +1839,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     lockoutCount: number
     lockedUntil: Date | null
     emailVerified: boolean
+    sessionsRevokedAt: Date | null
     createdBy: string | null
     createdAt: Date
     updatedAt: Date
@@ -2196,6 +2254,7 @@ export interface UserFieldRefs {
   readonly lockoutCount: Prisma.FieldRef<"User", 'Int'>
   readonly lockedUntil: Prisma.FieldRef<"User", 'DateTime'>
   readonly emailVerified: Prisma.FieldRef<"User", 'Boolean'>
+  readonly sessionsRevokedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdBy: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>

@@ -10,9 +10,13 @@ jest.mock("next/navigation", () => ({
   ),
 }));
 
+const ALL_PERMISSIONS = ["incidents.view", "incidents.create", "reports.view", "export.csv", "export.reports"];
+// Mutable so a test can drop a permission; reset in the empty-state test below.
+let mockPermissions = ALL_PERMISSIONS;
+
 jest.mock("@/hooks/useAuth", () => ({
   useAuth: () => ({
-    user: { id: 1, role: "manager", name: "Manager", email: "m@test.com", status: "active", companyId: 1, permissions: ["incidents.view", "incidents.create", "reports.view", "export.csv", "export.reports"] },
+    user: { id: 1, role: "manager", name: "Manager", email: "m@test.com", status: "active", companyId: 1, permissions: mockPermissions },
   }),
 }));
 
@@ -228,6 +232,23 @@ describe("IncidentsPage", () => {
     });
 
     expect(screen.getByText("Report your first incident")).toBeInTheDocument();
+  });
+
+  it("hides the empty-state create link without incidents.create", async () => {
+    mockPermissions = ["incidents.view"];
+    mockList.mockResolvedValue({
+      data: { data: [], total: 0, page: 1, perPage: 10 },
+    });
+    mockSummary.mockResolvedValue({ data: { total: 0, attemptedCount: 0, positiveCount: 0 } });
+
+    try {
+      render(<IncidentsPage />);
+
+      expect(await screen.findByText("No incidents found.")).toBeInTheDocument();
+      expect(screen.queryByText("Report your first incident")).not.toBeInTheDocument();
+    } finally {
+      mockPermissions = ALL_PERMISSIONS;
+    }
   });
 
   it("labels the operator column as Operator", async () => {

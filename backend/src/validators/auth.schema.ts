@@ -4,9 +4,12 @@
  * @module auth.schema
  */
 import { z } from "zod";
+import { emailFormat, newEmail } from "./shared";
 
+// The message on z.string() covers an omitted field: without it the type
+// check fails before .min() runs and the client sees a raw type error.
 const strongPassword = z
-  .string()
+  .string("Password is required")
   .min(8, "Password must be at least 8 characters")
   .regex(/[a-z]/, "Password must contain at least one lowercase letter")
   .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
@@ -15,14 +18,16 @@ const strongPassword = z
 
 /**
  * Validates company/employee sign-in credentials.
+ * Deliberately not `newEmail`: existing accounts must never be locked out
+ * by the gibberish heuristic. Same for forgotPasswordSchema.
  */
 export const loginSchema = z.object({
   email: z
-    .string()
+    .string("Email is required")
     .trim()
     .toLowerCase()
     .email("Enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
+  password: z.string("Password is required").min(1, "Password is required"),
 });
 
 /**
@@ -30,18 +35,15 @@ export const loginSchema = z.object({
  */
 export const registerSchema = z.object({
   companyName: z
-    .string()
+    .string("Company name is required")
     .min(1, "Company name is required")
     .max(255, "Company name must be 255 characters or fewer"),
   name: z
-    .string()
+    .string("Name is required")
     .min(1, "Name is required")
     .max(255, "Name must be 255 characters or fewer"),
-  email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .email("Enter a valid email address"),
+  // newEmail adds the gibberish check; only new or changed addresses use it.
+  email: newEmail,
   password: strongPassword,
 });
 
@@ -50,15 +52,11 @@ export const registerSchema = z.object({
  */
 export const createUserSchema = z.object({
   name: z
-    .string()
+    .string("Name is required")
     .min(1, "Name is required")
     .max(255, "Name must be 255 characters or fewer"),
   surname: z.string().max(255, "Surname must be 255 characters or fewer").optional(),
-  email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .email("Enter a valid email address"),
+  email: newEmail,
   password: strongPassword,
   role: z.enum(["admin", "manager", "senior"], {
     message: "Choose a valid role",
@@ -70,7 +68,7 @@ export const createUserSchema = z.object({
  */
 export const forgotPasswordSchema = z.object({
   email: z
-    .string()
+    .string("Email is required")
     .trim()
     .toLowerCase()
     .email("Enter a valid email address"),
@@ -80,14 +78,14 @@ export const forgotPasswordSchema = z.object({
  * Validates email-verification token submissions.
  */
 export const verifyEmailSchema = z.object({
-  token: z.string().min(1, "Verification token is required"),
+  token: z.string("Verification token is required").min(1, "Verification token is required"),
 });
 
 /**
  * Validates password-reset completion payloads (token + new password).
  */
 export const resetPasswordSchema = z.object({
-  token: z.string().min(1, "Reset token is required"),
+  token: z.string("Reset token is required").min(1, "Reset token is required"),
   password: strongPassword,
 });
 
@@ -95,7 +93,7 @@ export const resetPasswordSchema = z.object({
  * Validates authenticated password-change requests.
  */
 export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
+  currentPassword: z.string("Current password is required").min(1, "Current password is required"),
   newPassword: strongPassword,
 });
 
@@ -109,12 +107,10 @@ export const updateUserSchema = z.object({
     .max(255, "Name must be 255 characters or fewer")
     .optional(),
   surname: z.string().max(255, "Surname must be 255 characters or fewer").optional(),
-  email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .email("Enter a valid email address")
-    .optional(),
+  // Format only here: the edit form always resends the current email, and an
+  // existing address that fails the gibberish heuristic must not block edits
+  // to name or role. AuthService.updateUser runs the heuristic when it changes.
+  email: emailFormat.optional(),
   role: z
     .enum(["admin", "manager", "senior"], { message: "Choose a valid role" })
     .optional(),

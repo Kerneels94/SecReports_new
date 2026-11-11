@@ -34,6 +34,8 @@ const createUserSchema = z.object({
 type CreateUserForm = z.infer<typeof createUserSchema>;
 
 const PANEL = "rounded-[18px] border border-border-light bg-surface p-[22px]";
+/** Employees shown per page. The list is fetched once and paged client-side. */
+const USERS_PER_PAGE = 5;
 
 function initials(name: string): string {
   return name
@@ -61,6 +63,15 @@ export default function AdminUsersPage() {
 
   const [users, setUsers] = useState<UserListItem[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(users.length / USERS_PER_PAGE));
+  // Clamp the STORED page when the list shrinks (e.g. deleting the last user
+  // on the final page). Clamping only the displayed value let the view jump
+  // back to the stale page once the list grew again. Setting state during
+  // render is React's supported pattern for adjusting state to new data.
+  if (page > totalPages) setPage(totalPages);
+  const currentPage = Math.min(page, totalPages);
+  const pagedUsers = users.slice((currentPage - 1) * USERS_PER_PAGE, currentPage * USERS_PER_PAGE);
 
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -271,7 +282,7 @@ export default function AdminUsersPage() {
             <p className="py-8 text-center text-sm text-text-secondary">No employees yet.</p>
           ) : (
             <ul className="m-0 list-none p-0">
-              {users.map((u) => (
+              {pagedUsers.map((u) => (
                 <li
                   key={u.id}
                   className="flex items-center gap-3.5 border-t border-border-light/60 py-3.5 first:border-t-0 first:pt-0"
@@ -318,6 +329,21 @@ export default function AdminUsersPage() {
                 </li>
               ))}
             </ul>
+          )}
+          {/* Always render the controls so admins see the page count; both
+              buttons are disabled when everything fits on one page. */}
+          {!usersLoading && (
+            <div className="mt-4 flex items-center justify-between gap-3 border-t border-border-light pt-3.5 text-[13px] text-text-secondary/60">
+              <span>Page {currentPage} of {totalPages}</span>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
+                  Previous
+                </Button>
+                <Button variant="ghost" size="sm" disabled={currentPage >= totalPages} onClick={() => setPage(currentPage + 1)}>
+                  Next
+                </Button>
+              </div>
+            </div>
           )}
         </div>
       </div>

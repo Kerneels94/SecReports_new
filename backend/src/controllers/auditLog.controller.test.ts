@@ -58,6 +58,54 @@ describe("AuditLogController.exportOwnCompany", () => {
     );
     expect(reply.code).toHaveBeenCalledWith(200);
     expect(Buffer.isBuffer(reply.send.mock.calls[0][0])).toBe(true);
+    // Sensitive export: the browser must not keep a cached copy.
+    expect(reply.header).toHaveBeenCalledWith("Cache-Control", "no-store");
+  });
+
+  it("passes the table filters through so the PDF matches what is shown", async () => {
+    mockExportForCompany.mockResolvedValue({ company: { name: "Acme" }, entries: [], total: 0 });
+
+    await AuditLogController.exportOwnCompany(
+      {
+        user: { companyId: "company-1" },
+        query: { entityType: "incident", action: "create", dateFrom: "2026-01-01", search: "alice" },
+      } as any,
+      reply as any,
+    );
+
+    expect(mockExportForCompany).toHaveBeenCalledWith("company-1", {
+      entityType: "incident",
+      action: "create",
+      dateFrom: "2026-01-01",
+      dateTo: undefined,
+      search: "alice",
+    });
+  });
+
+  it("renders long emails, IPv6 addresses and a partial-export notice without failing", async () => {
+    mockExportForCompany.mockResolvedValue({
+      company: { name: "Acme" },
+      total: 9000,
+      entries: [
+        {
+          createdAt: new Date("2026-05-01T10:00:00Z"),
+          performedByUser: {
+            name: "A Very Long Operator Name That Wraps",
+            email: "a.very.long.mailbox.name.for.testing@subdomain.example-security-company.co.za",
+          },
+          action: "permissions_updated",
+          entityType: "companyPermission",
+          ipAddress: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+        },
+      ],
+    });
+
+    await AuditLogController.exportOwnCompany(
+      { user: { companyId: "company-1" } } as any,
+      reply as any,
+    );
+
+    expect(Buffer.isBuffer(reply.send.mock.calls[0][0])).toBe(true);
   });
 
   it("rejects a user with no company", async () => {

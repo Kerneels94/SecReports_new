@@ -5,6 +5,7 @@
  * Renders nav items filtered by user role and highlights the active route.
  */
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
@@ -83,6 +84,21 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
   const isAdmin = user?.role === "admin" || user?.role === "manager";
   const canReport = user?.permissions?.includes("incidents.create");
 
+  // Keyboard focus for the mobile drawer: move focus into it on open and hand
+  // it back to whatever opened it (the hamburger) on close. isOpen is never
+  // true on desktop, where the sidebar is always visible, so this is a no-op there.
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (isOpen) {
+      openerRef.current = document.activeElement as HTMLElement | null;
+      closeButtonRef.current?.focus();
+    } else if (openerRef.current) {
+      openerRef.current.focus();
+      openerRef.current = null;
+    }
+  }, [isOpen]);
+
   return (
     <>
       <div
@@ -94,8 +110,10 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
       />
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 flex h-full w-[264px] flex-col gap-[18px] overflow-y-auto border-r border-border-light bg-surface-raised px-3.5 py-[18px] transition-transform duration-200 lg:translate-x-0",
-          isOpen ? "translate-x-0" : "-translate-x-full",
+          "fixed left-0 top-0 z-40 flex h-full w-[264px] flex-col gap-[18px] overflow-y-auto border-r border-border-light bg-surface-raised px-3.5 py-[18px] transition-[transform,visibility] duration-200 lg:visible lg:translate-x-0",
+          // `invisible` takes the closed, off-screen drawer out of the tab
+          // order and the accessibility tree; lg:visible keeps desktop usable.
+          isOpen ? "translate-x-0" : "invisible -translate-x-full",
         )}
       >
         <div className="flex items-center justify-between px-2">
@@ -114,6 +132,7 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
             </span>
           </Link>
           <button
+            ref={closeButtonRef}
             onClick={onClose}
             className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-surface-elevated hover:text-text lg:hidden"
             aria-label="Close sidebar"

@@ -90,6 +90,8 @@ export const authService = {
   },
   refresh: () => api.post<LoginResponse>("/auth/refresh", {}),
   refreshSession: () => api.refreshSession(),
+  /** Stores the access token for a new login and invalidates in-flight refreshes of the old session. */
+  startSession: (accessToken: string) => api.startSession(accessToken),
   me: () => api.get<User>("/auth/me"),
   forgotPassword: (email: string) =>
     api.post<{ message: string }>("/auth/forgot-password", { email }),
@@ -311,7 +313,18 @@ export const adminAuditService = {
       `/admin/audit-logs${qs ? `?${qs}` : ""}`,
     );
   },
-  exportPdf: () => api.downloadBlob("/audit-logs/export"),
+  /**
+   * Downloads the company's audit logs as a PDF. Takes the same filters as
+   * `list` so the file contains what the table is showing, not everything.
+   */
+  exportPdf: (params?: { entityType?: string; action?: string; search?: string }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.entityType) searchParams.set("entityType", params.entityType);
+    if (params?.action) searchParams.set("action", params.action);
+    if (params?.search) searchParams.set("search", params.search);
+    const qs = searchParams.toString();
+    return api.downloadBlob(`/audit-logs/export${qs ? `?${qs}` : ""}`);
+  },
   exportCompany: (companyId: string) =>
     api.post<{ emailedTo: string[]; count: number }>(`/admin/audit-logs/export/${companyId}`),
   exportAll: () =>

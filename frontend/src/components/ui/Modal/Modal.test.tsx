@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Modal } from ".";
@@ -55,5 +56,95 @@ describe("Modal", () => {
   it("does not lock body scroll when closed", () => {
     render(<Modal open={false} onClose={jest.fn()}>Content</Modal>);
     expect(document.body.style.overflow).toBe("");
+  });
+
+  it("portals the dialog to document.body, outside the render container", () => {
+    const { container } = render(<Modal open={true} onClose={jest.fn()}>Content</Modal>);
+    const dialog = screen.getByRole("dialog");
+    // Rendering inline would put it back inside <main>'s stacking context,
+    // where the sidebar covers it.
+    expect(dialog.parentElement).toBe(document.body);
+    expect(container).not.toContainElement(dialog);
+  });
+
+  it("moves focus into the dialog on open", () => {
+    render(
+      <Modal open={true} onClose={jest.fn()} title="Edit">
+        <input aria-label="Name" />
+      </Modal>,
+    );
+    // The close button is the first focusable element in the panel.
+    expect(screen.getByLabelText("Close")).toHaveFocus();
+  });
+
+  it("focuses the panel itself when it has nothing focusable", () => {
+    render(<Modal open={true} onClose={jest.fn()}>Read only</Modal>);
+    expect(screen.getByText("Read only")).toHaveFocus();
+  });
+
+  it("keeps Tab and Shift+Tab inside the dialog", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <button>Behind</button>
+        <Modal open={true} onClose={jest.fn()} title="Edit">
+          <input aria-label="Name" />
+          <button>Save</button>
+        </Modal>
+      </>,
+    );
+
+    expect(screen.getByLabelText("Close")).toHaveFocus();
+    await user.tab();
+    expect(screen.getByLabelText("Name")).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Save" })).toHaveFocus();
+    await user.tab(); // wraps instead of escaping to "Behind"
+    expect(screen.getByLabelText("Close")).toHaveFocus();
+    await user.tab({ shift: true });
+    expect(screen.getByRole("button", { name: "Save" })).toHaveFocus();
+  });
+
+  it("returns focus to the trigger on close", async () => {
+    const user = userEvent.setup();
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button onClick={() => setOpen(true)}>Open</button>
+          <Modal open={open} onClose={() => setOpen(false)} title="Edit">
+            <input aria-label="Name" />
+          </Modal>
+        </>
+      );
+    }
+    render(<Harness />);
+
+    await user.click(screen.getByRole("button", { name: "Open" }));
+    expect(screen.getByLabelText("Close")).toHaveFocus();
+    await user.keyboard("{Escape}");
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open" })).toHaveFocus();
+  });
+
+  it("keeps focus where the user is typing when the parent re-renders", async () => {
+    const user = userEvent.setup();
+    function Harness() {
+      const [value, setValue] = useState("");
+      // Inline onClose: a new function every render.
+      return (
+        <Modal open={true} onClose={() => {}} title="Edit">
+          <input aria-label="Name" value={value} onChange={(e) => setValue(e.target.value)} />
+        </Modal>
+      );
+    }
+    render(<Harness />);
+
+    await user.click(screen.getByLabelText("Name"));
+    await user.keyboard("abc");
+
+    expect(screen.getByLabelText("Name")).toHaveFocus();
+    expect(screen.getByLabelText("Name")).toHaveValue("abc");
   });
 });

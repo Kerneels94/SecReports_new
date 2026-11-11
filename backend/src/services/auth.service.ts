@@ -20,7 +20,8 @@ import {
   ValidationError,
   ForbiddenError,
 } from "../lib/errors";
-import { hasMxRecord } from "../lib/email";
+import { acceptsMail } from "../lib/email";
+import { GIBBERISH_EMAIL_MESSAGE, isGibberishEmail } from "../validators/shared";
 import { getAppUrl } from "../lib/app-url";
 import {
   sendVerificationEmail,
@@ -204,6 +205,19 @@ async function resetLoginAttempts(userId: string): Promise<void> {
   });
 }
 
+/**
+ * Revokes every refresh token for a user. The stamp is written first so an
+ * in-flight refresh that persists a replacement after the delete still
+ * detects the logout and removes its own token (see AuthService.refresh).
+ */
+async function revokeAllSessions(userId: string): Promise<void> {
+  await prisma.user.updateMany({
+    where: { id: userId },
+    data: { sessionsRevokedAt: new Date() },
+  });
+  await prisma.refreshToken.deleteMany({ where: { userId } });
+}
+
 export const AuthService = {
   /**
    * Authenticates a user by email/password.
@@ -303,9 +317,7 @@ export const AuthService = {
     });
 
     if (!stored) {
-      await prisma.refreshToken.deleteMany({
-        where: { userId: payload.userId },
-      });
+      await revokeAllSessions(payload.userId);
       await createAuditLog({
         entityType: "user",
         entityId: payload.userId,
@@ -341,6 +353,22 @@ export const AuthService = {
     }
 
     const newRaw = await persistRefreshToken(user, stored.familyId, deviceInfo);
+
+    // Close the race with logout: logout stamps sessionsRevokedAt BEFORE it
+    // deletes tokens. If a logout ran after this session's token was issued,
+    // either its delete already removed our replacement, or we see the stamp
+    // here and remove it ourselves. Either way no session survives a logout.
+    const fresh = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { sessionsRevokedAt: true },
+    });
+    if (fresh?.sessionsRevokedAt && fresh.sessionsRevokedAt >= stored.createdAt) {
+      await prisma.refreshToken.deleteMany({
+        where: { tokenHash: hashToken(newRaw) },
+      });
+      throw new UnauthorizedError("Session has been logged out");
+    }
+
     const newPayload = {
       userId: user.id,
       role: user.role,
@@ -397,7 +425,7 @@ export const AuthService = {
    * subscription, persists a refresh token, and sends a welcome email.
    */
   async register(params: RegisterParams) {
-    const validDomain = await hasMxRecord(params.email);
+    const validDomain = await acceptsMail(params.email);
     if (!validDomain)
       throw new ValidationError("Email domain does not accept mail");
 
@@ -518,7 +546,7 @@ export const AuthService = {
 
     await SubscriptionService.canAddUser(params.companyId);
 
-    const validDomain = await hasMxRecord(params.email);
+    const validDomain = await acceptsMail(params.email);
     if (!validDomain)
       throw new ValidationError("Email domain does not accept mail");
 
@@ -640,7 +668,7 @@ export const AuthService = {
       });
     });
 
-    await prisma.refreshToken.deleteMany({ where: { userId: user.id } });
+    await revokeAllSessions(user.id);
 
     await createAuditLog({
       entityType: "user",
@@ -674,7 +702,7 @@ export const AuthService = {
       data: { passwordHash },
     });
 
-    await prisma.refreshToken.deleteMany({ where: { userId } });
+    await revokeAllSessions(userId);
 
     await createAuditLog({
       entityType: "user",
@@ -759,7 +787,11 @@ export const AuthService = {
     }
 
     if (data.email && data.email !== user.email) {
-      const validDomain = await hasMxRecord(data.email);
+      // Only a changed address gets the gibberish check (see updateUserSchema).
+      if (isGibberishEmail(data.email))
+        throw new ValidationError(GIBBERISH_EMAIL_MESSAGE);
+
+      const validDomain = await acceptsMail(data.email);
       if (!validDomain)
         throw new ValidationError("Email domain does not accept mail");
 
@@ -899,7 +931,7 @@ export const AuthService = {
       throw new ForbiddenError("Only an admin can delete an admin");
     }
 
-    await prisma.refreshToken.deleteMany({ where: { userId } });
+    await revokeAllSessions(userId);
     // Reset tokens are keyed by email, so they must not survive into a new account with the same address.
     await prisma.passwordResetToken.deleteMany({
       where: { email: user.email },
@@ -926,23 +958,32 @@ export const AuthService = {
 
   /**
    * Logs out by revoking every session for the account that owns the token.
-   * Unknown tokens are ignored — there is no session to revoke.
+   * A concurrent refresh may already have consumed the presented token, so
+   * when the DB row is gone we fall back to the userId in the token's verified
+   * signature. Tokens that fail verification are ignored — nothing to revoke.
    */
   async logout(refreshToken: string) {
-    const tokenHash = hashToken(refreshToken);
     const record = await prisma.refreshToken.findUnique({
-      where: { tokenHash },
+      where: { tokenHash: hashToken(refreshToken) },
     });
-    if (!record) return;
+
+    let userId = record?.userId;
+    if (!userId) {
+      try {
+        userId = verifyRefreshToken(refreshToken).userId;
+      } catch {
+        return;
+      }
+    }
 
     // Logging out ends every session for the account, not just this browser.
-    await prisma.refreshToken.deleteMany({ where: { userId: record.userId } });
+    await revokeAllSessions(userId);
 
     await createAuditLog({
       entityType: "user",
-      entityId: record.userId,
+      entityId: userId,
       action: "logout",
-      performedBy: record.userId,
+      performedBy: userId,
     });
   },
 
@@ -950,7 +991,7 @@ export const AuthService = {
    * Logs out all sessions for a user by deleting every refresh token they own.
    */
   async logoutAll(userId: string) {
-    await prisma.refreshToken.deleteMany({ where: { userId } });
+    await revokeAllSessions(userId);
 
     await createAuditLog({
       entityType: "user",
