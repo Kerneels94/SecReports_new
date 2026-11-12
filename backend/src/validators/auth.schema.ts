@@ -97,6 +97,11 @@ export const changePasswordSchema = z.object({
   newPassword: strongPassword,
 });
 
+/** Validates the password re-entry that confirms a company account deletion. */
+export const deleteCompanySchema = z.object({
+  password: z.string("Password is required").min(1, "Password is required"),
+});
+
 /**
  * Validates user-profile update payloads.
  */

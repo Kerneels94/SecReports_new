@@ -731,11 +731,6 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-  unset?: boolean
-}
-
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }

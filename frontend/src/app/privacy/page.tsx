@@ -81,9 +81,12 @@ const sections = [
     title: "Data Retention",
     body: (
       <p>
-        We retain your data for as long as your account is active or as needed
-        to provide you services. You may request deletion of your data at any
-        time by contacting our support team.
+        We retain your data for as long as your account is active. A company
+        admin can delete the company account from their profile page at any
+        time. This permanently erases all users, incident reports and audit
+        logs. Invoices and payment records are kept for 5 years, as South
+        African tax law requires, and then deleted. Deleted data may remain in
+        backups until those backups expire.
       </p>
     ),
   },

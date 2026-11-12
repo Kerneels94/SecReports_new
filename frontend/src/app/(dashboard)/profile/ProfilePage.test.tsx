@@ -11,6 +11,7 @@ jest.mock("@/services", () => ({
   authService: {
     me: jest.fn(),
     changePassword: jest.fn(),
+    deleteCompany: jest.fn(),
   },
   userService: { update: jest.fn() },
 }));
@@ -211,6 +212,33 @@ describe("ProfilePage name field and session", () => {
     await userEvent.click(screen.getByText("Update password"));
 
     await waitFor(() => {
+      expect(logout).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("hides company deletion from non-admins", () => {
+    mockUseAuth.mockReturnValue({ user: { ...mockUser, role: "manager" } });
+    render(<ProfilePage />);
+
+    expect(screen.queryByText("Delete company account")).not.toBeInTheDocument();
+  });
+
+  it("lets an admin delete the company after typing DELETE and their password, then logs out", async () => {
+    const logout = jest.fn().mockResolvedValue(undefined);
+    mockUseAuth.mockReturnValue({ user: { ...mockUser, role: "admin" }, logout });
+    (authService.deleteCompany as jest.Mock).mockResolvedValue({});
+    render(<ProfilePage />);
+
+    await userEvent.click(screen.getByRole("button", { name: "Delete company account" }));
+    const confirm = screen.getByRole("button", { name: "Permanently delete" });
+    expect(confirm).toBeDisabled();
+
+    await userEvent.type(screen.getByLabelText('Type "DELETE" to confirm'), "DELETE");
+    await userEvent.type(screen.getByLabelText("Your password"), "secret");
+    await userEvent.click(confirm);
+
+    await waitFor(() => {
+      expect(authService.deleteCompany).toHaveBeenCalledWith("secret");
       expect(logout).toHaveBeenCalledTimes(1);
     });
   });
