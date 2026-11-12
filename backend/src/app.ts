@@ -14,6 +14,7 @@ import { posthog } from "./lib/posthog";
 import { SubscriptionService } from "./services/subscription.service";
 import { runWithAuditContext } from "./lib/auditContext";
 import { parseTrustProxy } from "./lib/utils";
+import { prisma } from "./lib/db";
 import authRoutes from "./routes/auth.routes";
 import contactRoutes from "./routes/contact.routes";
 import incidentRoutes from "./routes/incident.routes";
@@ -97,12 +98,31 @@ export async function buildApp() {
     }
 
     const token = header.substring(7);
+    let payload: ReturnType<typeof verifyAccessToken>;
     try {
-      const payload = verifyAccessToken(token);
-      request.user = { userId: payload.userId, role: payload.role, companyId: payload.companyId };
+      payload = verifyAccessToken(token);
     } catch {
       throw new UnauthorizedError("Invalid or expired token");
     }
+
+    // A valid signature is not enough: logout, deletion, a role change, or a
+    // company deletion must end access now, not when the 15-minute token expires.
+    // JWT iat has 1s precision, so compare at whole seconds.
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: { status: true, role: true, companyId: true, sessionsRevokedAt: true },
+    });
+    if (
+      !user ||
+      user.status !== "active" ||
+      user.role !== payload.role ||
+      user.companyId !== payload.companyId ||
+      (user.sessionsRevokedAt &&
+        payload.iat < Math.floor(user.sessionsRevokedAt.getTime() / 1000))
+    ) {
+      throw new UnauthorizedError("Invalid or expired token");
+    }
+    request.user = { userId: payload.userId, role: payload.role, companyId: payload.companyId };
 
     const path = request.url.split("?")[0];
     const isSubscriptionFlow =

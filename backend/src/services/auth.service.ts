@@ -42,6 +42,13 @@ const MAX_LOCKOUT_MS = 4 * 60 * 60 * 1000;
 const DUMMY_BCRYPT_HASH =
   "$2b$12$fVfsKL1jvOfJcoa0CWRsyeXCpyak/CPQ4/pVgSUIbz/CTvKLsNG.m";
 
+const ROLE_RANK: Record<string, number> = { senior: 1, manager: 2, admin: 3 };
+
+/** True when `role` sits above `actorRole` in the company hierarchy. Unknown actor ranks lowest. */
+function outranks(role: string, actorRole?: string): boolean {
+  return (ROLE_RANK[role] ?? 0) > (ROLE_RANK[actorRole ?? ""] ?? 0);
+}
+
 /** Calculate lockout duration with exponential backoff (15min → 30min → 1hr → 2hr → 4hr cap). */
 function lockoutDuration(lockoutCount: number): number {
   return Math.min(BASE_LOCKOUT_MS * Math.pow(2, lockoutCount), MAX_LOCKOUT_MS);
@@ -232,7 +239,11 @@ export const AuthService = {
       await comparePassword(params.password, DUMMY_BCRYPT_HASH);
       throwGenericAuthError();
     }
-    if (authDenied(user)) throwGenericAuthError();
+    if (authDenied(user)) {
+      // Spend the same bcrypt time as a real check so response timing doesn't reveal locked/unverified accounts.
+      await comparePassword(params.password, DUMMY_BCRYPT_HASH);
+      throwGenericAuthError();
+    }
 
     const valid = await comparePassword(params.password, user.passwordHash);
     if (!valid) {
@@ -543,6 +554,10 @@ export const AuthService = {
     if (params.role === "admin" && params.actorRole !== "admin") {
       throw new ForbiddenError("Only an admin can create an admin");
     }
+    // Same for seniors granted users.manage: no creating a role above your own.
+    if (outranks(params.role || "senior", params.actorRole)) {
+      throw new ForbiddenError("You cannot create a user with a higher role than your own");
+    }
 
     await SubscriptionService.canAddUser(params.companyId);
 
@@ -703,6 +718,8 @@ export const AuthService = {
     });
 
     await revokeAllSessions(userId);
+    // A pending reset link would otherwise still override the new password.
+    await prisma.passwordResetToken.deleteMany({ where: { email: user.email } });
 
     await createAuditLog({
       entityType: "user",
@@ -884,6 +901,10 @@ export const AuthService = {
     // role+email update always re-verifies the new address (golden rule #6).
     const emailChanged = data.email !== undefined && data.email !== user.email;
     if (emailChanged) {
+      // Reset tokens are keyed by email; one for the old address must not
+      // later reset whoever takes that address next.
+      await prisma.passwordResetToken.deleteMany({ where: { email: user.email } });
+
       const roleChanged = data.role !== undefined && data.role !== user.role;
       if (!roleChanged) {
         await createAuditLog({
@@ -929,6 +950,9 @@ export const AuthService = {
       throw new ValidationError("You cannot delete your own account");
     if (user.role === "admin" && actorRole !== "admin") {
       throw new ForbiddenError("Only an admin can delete an admin");
+    }
+    if (outranks(user.role, actorRole)) {
+      throw new ForbiddenError("You cannot delete a user with a higher role than your own");
     }
 
     await revokeAllSessions(userId);

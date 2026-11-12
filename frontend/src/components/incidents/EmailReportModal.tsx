@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { exportService } from "@/services";
+import { useAuth } from "@/hooks/useAuth";
+import { hasPermission } from "@/lib/permissions";
 
 interface EmailReportModalProps {
   incidentId: number;
@@ -18,6 +20,8 @@ export function EmailReportModal({
   open,
   onClose,
 }: EmailReportModalProps) {
+  const { user } = useAuth();
+  const canCsv = hasPermission(user, "export.csv");
   const [email, setEmail] = useState("");
   const [format, setFormat] = useState<"csv" | "pdf">("pdf");
   const [sending, setSending] = useState(false);
@@ -92,13 +96,16 @@ export function EmailReportModal({
               >
                 PDF
               </button>
-              <button
-                type="button"
-                onClick={() => setFormat("csv")}
-                className={`cursor-pointer flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${format === "csv" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
-              >
-                CSV
-              </button>
+              {/* CSV email needs export.csv on the backend, same as the download. */}
+              {canCsv && (
+                <button
+                  type="button"
+                  onClick={() => setFormat("csv")}
+                  className={`cursor-pointer flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${format === "csv" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
+                >
+                  CSV
+                </button>
+              )}
             </div>
           </div>
 

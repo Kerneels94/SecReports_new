@@ -23,6 +23,13 @@ async function start() {
     process.exit(1);
   }
 
+  // Both token types share issuer/audience, so equal secrets would let a
+  // 12-hour refresh token pass as an access token.
+  if (process.env.JWT_SECRET === process.env.JWT_REFRESH_SECRET) {
+    console.error("FATAL: JWT_SECRET and JWT_REFRESH_SECRET must be different");
+    process.exit(1);
+  }
+
   const app = await buildApp();
 
   try {

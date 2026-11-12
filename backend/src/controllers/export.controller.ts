@@ -17,6 +17,7 @@ import {
 import { ValidationError } from "../lib/errors";
 import { acceptsMail } from "../lib/email";
 import { validationErrorMessage } from "../validators/shared";
+import { requirePermission } from "../middleware/requirePermission";
 
 interface IncidentForExport {
   referenceNumber: string;
@@ -81,7 +82,8 @@ const INCIDENT_CSV_HEADERS = [
 ];
 
 function sanitizeCsv(val: string): string {
-  if (/^[=+\-@\t\r]/.test(val)) return `" ${val.replace(/"/g, '""')}"`;
+  // OWASP: a leading apostrophe makes spreadsheets treat the cell as text.
+  if (/^\s*[=+\-@\t\r]/.test(val)) return `"'${val.replace(/"/g, '""')}"`;
   return `"${val.replace(/"/g, '""')}"`;
 }
 
@@ -1099,6 +1101,9 @@ export const ExportController = {
     if (!parsed.success)
       throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
     const { email, type, format } = parsed.data;
+    // The route only needs export.reports; a CSV attachment is the same data as
+    // the CSV download, so it needs the same permission.
+    if (format === "csv") await requirePermission("export.csv")(request, reply);
     // Reject domains that cannot receive mail before building the attachment, so a
     // typo'd recipient (e.g. gmial.com) fails fast instead of bouncing later.
     if (!(await acceptsMail(email)))
@@ -1260,6 +1265,7 @@ export const ExportController = {
     if (!parsed.success)
       throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
     const { incidentId, email, format } = parsed.data;
+    if (format === "csv") await requirePermission("export.csv")(request, reply);
     // Reject domains that cannot receive mail before building the attachment, so a
     // typo'd recipient (e.g. gmial.com) fails fast instead of bouncing later.
     if (!(await acceptsMail(email)))
