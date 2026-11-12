@@ -14,6 +14,14 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/cn";
 import { incidentService } from "@/services";
+import { AddressAutocomplete } from "@/components/incidents/AddressAutocomplete";
+import { LocationMap } from "@/components/map/LocationMap";
+import { googleMapsUrl } from "@/lib/geocode";
+
+const ALARM_TYPES = ["Burglary", "Panic", "Duress"] as const;
+
+/** Map centre used when the operator pins by hand with no address match (Johannesburg). */
+const DEFAULT_PIN = { lat: -26.2041, lng: 28.0473 };
 
 const createIncidentSchema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -31,6 +39,9 @@ const createIncidentSchema = z.object({
   clientCode: z.string().max(100).optional(),
   businessOrComplex: z.string().max(255).optional(),
   sapsReference: z.string().max(100).optional(),
+  alarmType: z.enum(ALARM_TYPES, "Alarm type is required"),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
 });
 
 type CreateIncidentForm = z.infer<typeof createIncidentSchema>;
@@ -98,17 +109,28 @@ export default function NewIncidentPage() {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CreateIncidentForm>({
     resolver: zodResolver(createIncidentSchema),
     defaultValues: {
       type: "",
+      alarmType: "" as CreateIncidentForm["alarmType"],
       incidentDate: new Date().toLocaleDateString("en-CA"),
     },
   });
 
   const dispatchTime = useWatch({ control, name: "dispatchTime" });
   const arrivalTime = useWatch({ control, name: "arrivalTime" });
+  const propertyAddress = useWatch({ control, name: "propertyAddress" }) ?? "";
+  const latitude = useWatch({ control, name: "latitude" });
+  const longitude = useWatch({ control, name: "longitude" });
+  const hasPin = latitude !== undefined && longitude !== undefined;
+
+  const setPin = (lat: number | undefined, lng: number | undefined) => {
+    setValue("latitude", lat);
+    setValue("longitude", lng);
+  };
 
   let responseMinutes: number | null = null;
   if (dispatchTime && arrivalTime) {
@@ -192,7 +214,7 @@ export default function NewIncidentPage() {
           <section className={cn(CARD, "grid gap-[18px]")}>
             <SectionHeader step={1} title="Incident" description="What happened and when." />
             <fieldset className="min-w-0">
-              <legend className="mb-[7px] block text-sm font-medium text-text/90">Type</legend>
+              <legend className="mb-[7px] block text-sm font-medium text-text/90">Incident type</legend>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <TypeOption
                   value="Attempted"
@@ -235,6 +257,34 @@ export default function NewIncidentPage() {
                 error={errors.incidentDate?.message}
                 {...register("incidentDate")}
               />
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="alarmType" className="text-sm font-medium text-text/90">
+                  Alarm Type
+                </label>
+                <select
+                  id="alarmType"
+                  aria-invalid={!!errors.alarmType}
+                  className={cn(
+                    "scheme-dark cursor-pointer rounded-lg border border-border-light bg-surface-secondary px-3 py-2.5 text-sm text-text outline-none transition-all focus:ring-2 focus:ring-primary",
+                    errors.alarmType && "border-danger/60",
+                  )}
+                  {...register("alarmType")}
+                >
+                  <option value="" disabled>
+                    Select alarm type
+                  </option>
+                  {ALARM_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+                {errors.alarmType && (
+                  <p className="text-sm text-danger" role="alert">
+                    {errors.alarmType.message}
+                  </p>
+                )}
+              </div>
             </div>
           </section>
 
@@ -292,14 +342,57 @@ export default function NewIncidentPage() {
               description="Where it happened and who the client is."
             />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <Input
-                  className="bg-surface-secondary"
+              <div className="grid gap-3 sm:col-span-2">
+                <AddressAutocomplete
                   label="Property Address"
-                  placeholder="Street address of the property"
+                  placeholder="Start typing a South African address"
+                  value={propertyAddress}
                   error={errors.propertyAddress?.message}
-                  {...register("propertyAddress")}
+                  onChange={(v) => setValue("propertyAddress", v, { shouldValidate: !!errors.propertyAddress })}
+                  onPick={(s) => {
+                    if (s.suburb) setValue("suburb", s.suburb);
+                    if (s.city) setValue("city", s.city);
+                    setPin(s.lat, s.lng);
+                  }}
                 />
+                {hasPin ? (
+                  <div className="grid gap-2">
+                    <LocationMap
+                      lat={latitude}
+                      lng={longitude}
+                      zoom={latitude === DEFAULT_PIN.lat && longitude === DEFAULT_PIN.lng ? 6 : 16}
+                      onChange={setPin}
+                    />
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-subtle">
+                      <span>Drag the pin or click the map to mark the exact spot.</span>
+                      <span className="flex items-center gap-3">
+                        <a
+                          href={googleMapsUrl(latitude, longitude)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          Open in Google Maps
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => setPin(undefined, undefined)}
+                          className="cursor-pointer text-text-secondary hover:text-danger"
+                        >
+                          Remove pin
+                        </button>
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setPin(DEFAULT_PIN.lat, DEFAULT_PIN.lng)}
+                    className="cursor-pointer justify-self-start text-xs font-medium text-primary hover:underline"
+                  >
+                    Can&apos;t find the address? Pin it on the map
+                  </button>
+                )}
               </div>
               <Input
                 className="bg-surface-secondary"

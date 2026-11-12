@@ -10,6 +10,7 @@ describe("incident schemas", () => {
     dispatcher: "Jane Dispatcher",
     suburb: "Rivonia",
     city: "Johannesburg",
+    alarmType: "Burglary",
   };
 
   describe("createIncidentSchema", () => {
@@ -22,6 +23,34 @@ describe("incident schemas", () => {
       const { title, ...rest } = validCreate;
       const result = createIncidentSchema.safeParse(rest);
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe("createIncidentSchema alarm type and coordinates", () => {
+    it("fails when alarmType is missing", () => {
+      const { alarmType, ...rest } = validCreate;
+      expect(createIncidentSchema.safeParse(rest).success).toBe(false);
+    });
+
+    it("fails for an unknown alarmType", () => {
+      expect(createIncidentSchema.safeParse({ ...validCreate, alarmType: "Fire" }).success).toBe(false);
+    });
+
+    it("accepts every allowed alarmType", () => {
+      for (const alarmType of ["Burglary", "Panic", "Duress"]) {
+        expect(createIncidentSchema.safeParse({ ...validCreate, alarmType }).success).toBe(true);
+      }
+    });
+
+    it("accepts valid coordinates", () => {
+      expect(
+        createIncidentSchema.safeParse({ ...validCreate, latitude: -33.92, longitude: 18.42 }).success,
+      ).toBe(true);
+    });
+
+    it("rejects out-of-range coordinates", () => {
+      expect(createIncidentSchema.safeParse({ ...validCreate, latitude: 91 }).success).toBe(false);
+      expect(createIncidentSchema.safeParse({ ...validCreate, longitude: -181 }).success).toBe(false);
     });
   });
 

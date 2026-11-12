@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { useRouter } from "next/navigation";
 import NewIncidentPage from "./page";
 import { incidentService } from "@/services";
+import { searchAddress } from "@/lib/geocode";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
@@ -12,12 +13,25 @@ jest.mock("@/services", () => ({
   incidentService: { create: jest.fn() },
 }));
 
+jest.mock("@/lib/geocode", () => ({
+  ...jest.requireActual("@/lib/geocode"),
+  searchAddress: jest.fn().mockResolvedValue([]),
+}));
+
+jest.mock("@/components/map/LocationMap", () => ({
+  LocationMap: ({ lat, lng }: { lat: number; lng: number }) => (
+    <div data-testid="location-map">{`${lat},${lng}`}</div>
+  ),
+}));
+
+const mockSearch = searchAddress as jest.Mock;
 const mockRouter = { push: jest.fn() };
 const mockCreate = incidentService.create as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
   (useRouter as jest.Mock).mockReturnValue(mockRouter);
+  mockSearch.mockResolvedValue([]);
 });
 
 describe("NewIncidentPage", () => {
@@ -47,7 +61,8 @@ describe("NewIncidentPage", () => {
     expect(screen.getByLabelText("Business or Complex Name")).toBeInTheDocument();
     expect(screen.getByLabelText("SAPS Reference")).toBeInTheDocument();
     expect(screen.getByLabelText("Report")).toBeInTheDocument();
-    expect(screen.getByText("Type")).toBeInTheDocument();
+    expect(screen.getByText("Incident type")).toBeInTheDocument();
+    expect(screen.getByLabelText("Alarm Type")).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: "Attempted" })).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: "Positive" })).toBeInTheDocument();
     expect(screen.getByLabelText("Incident Date")).toBeInTheDocument();
@@ -68,6 +83,7 @@ describe("NewIncidentPage", () => {
     await waitFor(() => {
       expect(screen.getByText("Description is required")).toBeInTheDocument();
       expect(screen.getByText("Type is required")).toBeInTheDocument();
+      expect(screen.getByText("Alarm type is required")).toBeInTheDocument();
       expect(screen.getByText("Operator name is required")).toBeInTheDocument();
       expect(screen.getByText("Dispatcher is required")).toBeInTheDocument();
     });
@@ -90,6 +106,7 @@ describe("NewIncidentPage", () => {
     await user.type(screen.getByLabelText("SAPS Reference"), "SAPS-123");
     await user.type(screen.getByLabelText("Report"), "Server is down");
     await user.click(screen.getByRole("radio", { name: "Attempted" }));
+    await user.selectOptions(screen.getByLabelText("Alarm Type"), "Panic");
 
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
@@ -110,6 +127,7 @@ describe("NewIncidentPage", () => {
         title: "123 Main St",
         description: "Server is down",
         type: "Attempted",
+        alarmType: "Panic",
         incidentDate: expect.any(String),
       });
       expect(mockRouter.push).toHaveBeenCalledWith("/incidents");
@@ -127,6 +145,7 @@ describe("NewIncidentPage", () => {
     fireEvent.change(screen.getByLabelText("Arrival Time"), { target: { value: "2026-10-17T00:05" } });
     await user.type(screen.getByLabelText("Report"), "Server is down");
     await user.click(screen.getByRole("radio", { name: "Attempted" }));
+    await user.selectOptions(screen.getByLabelText("Alarm Type"), "Panic");
 
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
@@ -149,6 +168,7 @@ describe("NewIncidentPage", () => {
     await user.type(screen.getByLabelText("Dispatcher"), "Jane");
     await user.type(screen.getByLabelText("Report"), "Server is down");
     await user.click(screen.getByRole("radio", { name: "Attempted" }));
+    await user.selectOptions(screen.getByLabelText("Alarm Type"), "Panic");
 
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
@@ -176,6 +196,7 @@ describe("NewIncidentPage", () => {
     fireEvent.change(screen.getByLabelText("Arrival Time"), { target: { value: "2026-10-16T23:50" } });
     await user.type(screen.getByLabelText("Report"), "Server is down");
     await user.click(screen.getByRole("radio", { name: "Attempted" }));
+    await user.selectOptions(screen.getByLabelText("Alarm Type"), "Panic");
 
     await user.click(screen.getByRole("button", { name: /submit report/i }));
 
@@ -193,5 +214,49 @@ describe("NewIncidentPage", () => {
     expect(mockRouter.push).toHaveBeenCalledWith("/incidents");
   });
 
-});
 
+  it("fills suburb, city and the map pin when an address suggestion is picked", async () => {
+    mockSearch.mockResolvedValue([
+      { label: "12 Oak Ave, Rivonia, Sandton", street: "12 Oak Ave", suburb: "Rivonia", city: "Sandton", lat: -26.05, lng: 28.06 },
+    ]);
+    mockCreate.mockResolvedValue({});
+    render(<NewIncidentPage />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText("Property Address"), "12 Oak");
+    await user.click(await screen.findByRole("option", { name: "12 Oak Ave, Rivonia, Sandton" }));
+
+    expect(screen.getByLabelText("Property Address")).toHaveValue("12 Oak Ave");
+    expect(screen.getByLabelText("Suburb")).toHaveValue("Rivonia");
+    expect(screen.getByLabelText("City")).toHaveValue("Sandton");
+    expect(screen.getByTestId("location-map")).toHaveTextContent("-26.05,28.06");
+    expect(screen.getByRole("link", { name: /open in google maps/i })).toHaveAttribute(
+      "href",
+      "https://www.google.com/maps/search/?api=1&query=-26.05,28.06",
+    );
+
+    await user.type(screen.getByLabelText("Operator Name"), "John");
+    await user.type(screen.getByLabelText("Dispatcher"), "Jane");
+    await user.type(screen.getByLabelText("Report"), "Break-in");
+    await user.click(screen.getByRole("radio", { name: "Positive" }));
+    await user.selectOptions(screen.getByLabelText("Alarm Type"), "Burglary");
+    await user.click(screen.getByRole("button", { name: /submit report/i }));
+
+    await waitFor(() => {
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ alarmType: "Burglary", latitude: -26.05, longitude: 28.06 }),
+      );
+    });
+  });
+
+  it("lets the operator drop a pin by hand and remove it", async () => {
+    render(<NewIncidentPage />);
+    const user = userEvent.setup();
+
+    expect(screen.queryByTestId("location-map")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /pin it on the map/i }));
+    expect(screen.getByTestId("location-map")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /remove pin/i }));
+    expect(screen.queryByTestId("location-map")).not.toBeInTheDocument();
+  });
+});

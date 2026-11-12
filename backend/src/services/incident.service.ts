@@ -118,6 +118,9 @@ interface CreateIncidentParams {
   clientCode?: string;
   businessOrComplex?: string;
   sapsReference?: string;
+  alarmType: string;
+  latitude?: number;
+  longitude?: number;
   reporterId: string;
 }
 
@@ -226,6 +229,9 @@ export const IncidentService = {
         clientCode: params.clientCode,
         businessOrComplex: params.businessOrComplex,
         sapsReference: params.sapsReference,
+        alarmType: params.alarmType,
+        latitude: params.latitude,
+        longitude: params.longitude,
         reporterId: params.reporterId,
       },
       include: {

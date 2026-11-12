@@ -37,6 +37,7 @@ interface IncidentForExport {
   clientCode: string | null;
   businessOrComplex: string | null;
   sapsReference: string | null;
+  alarmType: string | null;
   reporter: { name: string } | null;
   createdAt: Date;
   updatedAt: Date;
@@ -252,7 +253,8 @@ async function generatePdf(incidents: IncidentForExport[]): Promise<Buffer> {
       }
 
       y = drawSection(doc, "Details", y + 4);
-      y = drawField(doc, "Type", inc.type, y);
+      y = drawField(doc, "Incident Type", inc.type, y);
+      y = drawField(doc, "Alarm Type", inc.alarmType || "-", y);
       y = drawField(
         doc,
         "Incident Date",

@@ -90,3 +90,20 @@ body {
 .animate-scale-in {
   animation: scaleIn 0.2s ease-out;
 }
+
+/* Leaflet: darken OSM tiles to match the zinc theme. Only tiles are filtered, so the pin keeps its colour. */
+.location-map .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);
+}
+.location-map .leaflet-container,
+.location-map.leaflet-container {
+  background: #18181b;
+  font-family: inherit;
+}
+.location-map .leaflet-control-attribution {
+  background: rgba(24, 24, 27, 0.8);
+  color: #9393a0;
+}
+.location-map .leaflet-control-attribution a {
+  color: #86efac;
+}
