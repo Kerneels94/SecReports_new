@@ -7,6 +7,7 @@
 import { FastifyInstance } from "fastify";
 import { AuthController } from "../controllers/auth.controller";
 import { requirePermission } from "../middleware/requirePermission";
+import { requireRole } from "../middleware/requireRole";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   fastify.post("/auth/login", { config: { rateLimit: { max: 5, timeWindow: "1 minute" } } }, AuthController.login);
@@ -36,6 +37,13 @@ export default async function authRoutes(fastify: FastifyInstance) {
   fastify.get("/auth/sessions", {
     preHandler: [fastify.authenticate],
     handler: AuthController.listSessions,
+  });
+
+  // Gated by role, not permission: company permission overrides must never grant this.
+  fastify.post("/auth/company/delete", {
+    config: { rateLimit: { max: 5, timeWindow: "1 minute" } },
+    preHandler: [fastify.authenticate, requireRole("admin")],
+    handler: AuthController.deleteCompany,
   });
 
   fastify.post("/auth/users", {

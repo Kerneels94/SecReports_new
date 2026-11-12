@@ -7,6 +7,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
 import { useAuth } from "@/hooks/useAuth";
 import { authService, userService } from "@/services";
 import { hasPermission } from "@/lib/permissions";
@@ -32,6 +33,12 @@ export default function ProfilePage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [passwordLoading, setPasswordLoading] = useState(false);
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     if (!passwordSuccess) return;
@@ -96,6 +103,19 @@ export default function ProfilePage() {
       setPasswordError(err instanceof Error ? err.message : "Failed to change password");
     } finally {
       setPasswordLoading(false);
+    }
+  };
+
+  const handleDeleteCompany = async () => {
+    setDeleteError(null);
+    setDeleteLoading(true);
+    try {
+      await authService.deleteCompany(deletePassword);
+      // Every account in the company is gone, so end this session locally.
+      await logout();
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Failed to delete company");
+      setDeleteLoading(false);
     }
   };
 
@@ -252,6 +272,61 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {user.role === "admin" && (
+        <div className={cn(PANEL, "mt-4 border-red-500/30")}>
+          <h2 className="text-[17px] font-semibold text-text">Delete company account</h2>
+          <p className="mt-1.5 mb-4 text-sm text-text-secondary">
+            Permanently deletes your company, every user, all incident reports and audit logs. This cannot be undone.
+            All outstanding invoices must be paid first. Invoices and payment records are kept for 5 years, as
+            South African tax law requires.
+          </p>
+          <Button variant="danger" onClick={() => setDeleteOpen(true)}>
+            Delete company account
+          </Button>
+        </div>
+      )}
+
+      <Modal
+        open={deleteOpen}
+        onClose={() => {
+          setDeleteOpen(false);
+          setDeleteConfirm("");
+          setDeletePassword("");
+          setDeleteError(null);
+        }}
+        title="Delete company account"
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-text-secondary">
+            All users lose access immediately and all company data is erased. Export any reports you need first.
+          </p>
+          {deleteError && (
+            <div className="rounded-xl bg-red-900/20 px-4 py-3 text-sm text-danger ring-1 ring-red-500/20" role="alert">
+              {deleteError}
+            </div>
+          )}
+          <Input
+            label='Type "DELETE" to confirm'
+            value={deleteConfirm}
+            onChange={(e) => setDeleteConfirm(e.target.value)}
+          />
+          <Input
+            label="Your password"
+            type="password"
+            value={deletePassword}
+            onChange={(e) => setDeletePassword(e.target.value)}
+          />
+          <Button
+            variant="danger"
+            loading={deleteLoading}
+            disabled={deleteConfirm !== "DELETE" || !deletePassword}
+            onClick={handleDeleteCompany}
+          >
+            Permanently delete
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

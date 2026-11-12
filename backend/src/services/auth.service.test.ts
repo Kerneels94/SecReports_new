@@ -10,6 +10,18 @@ jest.mock("../lib/db", () => ({
     company: {
       findUnique: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
+    },
+    invoice: {
+      count: jest.fn().mockResolvedValue(0),
+    },
+    incident: {
+      findMany: jest.fn().mockResolvedValue([]),
+      deleteMany: jest.fn(),
+    },
+    companyPermission: {
+      findMany: jest.fn().mockResolvedValue([]),
+      deleteMany: jest.fn(),
     },
     user: {
       findUnique: jest.fn(),
@@ -19,6 +31,7 @@ jest.mock("../lib/db", () => ({
       update: jest.fn(),
       updateMany: jest.fn().mockResolvedValue({ count: 1 }),
       delete: jest.fn(),
+      deleteMany: jest.fn(),
       count: jest.fn().mockResolvedValue(0),
     },
     passwordResetToken: {
@@ -30,6 +43,7 @@ jest.mock("../lib/db", () => ({
     emailVerificationToken: {
       create: jest.fn().mockResolvedValue({ id: "evt1" }),
       findUnique: jest.fn(),
+      deleteMany: jest.fn(),
     },
     subscriptionPlan: {
       findFirst: jest.fn().mockResolvedValue({ id: "1", name: "Free", price: 0, userLimit: 1, trialPeriodDays: 14, features: "[]" }),
@@ -37,6 +51,7 @@ jest.mock("../lib/db", () => ({
     companySubscription: {
       findUnique: jest.fn().mockResolvedValue(null),
       create: jest.fn().mockResolvedValue({ id: "1", companyId: "1", planId: "1", status: "active" }),
+      deleteMany: jest.fn(),
     },
     refreshToken: {
       create: jest.fn().mockResolvedValue({ id: "rt1" }),
@@ -44,11 +59,9 @@ jest.mock("../lib/db", () => ({
       delete: jest.fn(),
       deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
     },
-    companyPermission: {
-      findMany: jest.fn().mockResolvedValue([]),
-    },
     auditLog: {
       create: jest.fn().mockResolvedValue({ id: "al1" }),
+      deleteMany: jest.fn(),
     },
     $transaction: jest.fn((fn: any) => fn(prisma)),
   },
@@ -922,6 +935,68 @@ describe("deleteUser", () => {
     expect(prisma.user.update).toHaveBeenCalledWith({
       where: { id: "1" },
       data: { status: "inactive", email: "test@example.com.1.invalid" },
+    });
+  });
+});
+
+describe("deleteCompany", () => {
+  beforeEach(() => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
+    (hash.comparePassword as jest.Mock).mockResolvedValue(true);
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([
+      { id: "1", email: "admin@example.com" },
+      { id: "2", email: "gone@example.com.2.invalid" },
+    ]);
+    (prisma.incident.findMany as jest.Mock).mockResolvedValue([{ id: "inc1" }]);
+  });
+
+  it("erases company personal data and keeps only the scrubbed company row", async () => {
+    await AuthService.deleteCompany("c1", "1", "admin", "pw");
+
+    expect(prisma.passwordResetToken.deleteMany).toHaveBeenCalledWith({
+      where: { email: { in: ["admin@example.com", "gone@example.com"] } },
+    });
+    expect(prisma.auditLog.deleteMany).toHaveBeenCalledWith({
+      where: { OR: [{ performedBy: { in: ["1", "2"] } }, { entityId: { in: ["1", "2", "inc1"] } }] },
+    });
+    expect(prisma.incident.deleteMany).toHaveBeenCalledWith({ where: { companyId: "c1" } });
+    expect(prisma.companyPermission.deleteMany).toHaveBeenCalledWith({ where: { companyId: "c1" } });
+    expect(prisma.companySubscription.deleteMany).toHaveBeenCalledWith({ where: { companyId: "c1" } });
+    expect(prisma.user.deleteMany).toHaveBeenCalledWith({ where: { companyId: "c1" } });
+    expect(prisma.company.update).toHaveBeenCalledWith({
+      where: { id: "c1" },
+      data: { email: "deleted-c1@deleted.invalid", deletedAt: expect.any(Date) },
+    });
+  });
+
+  it.each(["manager", "senior", "superadmin"])("refuses a %s", async (role) => {
+    await expect(AuthService.deleteCompany("c1", "1", role, "pw")).rejects.toThrow(ForbiddenError);
+    expect(prisma.user.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it("refuses while issued invoices are unpaid", async () => {
+    (prisma.invoice.count as jest.Mock).mockResolvedValueOnce(2);
+
+    await expect(AuthService.deleteCompany("c1", "1", "admin", "pw")).rejects.toThrow(ConflictError);
+    expect(prisma.invoice.count).toHaveBeenCalledWith({
+      where: { companyId: "c1", status: { in: ["sent", "overdue"] } },
+    });
+    expect(prisma.user.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it("refuses a wrong password", async () => {
+    (hash.comparePassword as jest.Mock).mockResolvedValue(false);
+
+    await expect(AuthService.deleteCompany("c1", "1", "admin", "bad")).rejects.toThrow(UnauthorizedError);
+    expect(prisma.user.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it("refuses an admin from another company", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
+
+    await expect(AuthService.deleteCompany("c1", "1", "admin", "pw")).rejects.toThrow(UnauthorizedError);
+    expect(prisma.user.findFirst).toHaveBeenCalledWith({
+      where: { id: "1", companyId: "c1", status: "active" },
     });
   });
 });

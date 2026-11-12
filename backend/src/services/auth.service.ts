@@ -957,6 +957,91 @@ export const AuthService = {
   },
 
   /**
+   * Closes a company account and erases its personal information (POPIA s14(4), s24).
+   * Admin-only, and the admin must re-enter their password.
+   *
+   * Deleted: users, sessions, tokens, incidents, permissions, subscription, and
+   * audit logs about or by the company's users.
+   * Kept: invoices, payments, and ledger entries, which tax law requires
+   * (Tax Administration Act s29, VAT Act s55: 5 years). The company row keeps
+   * only its name for those records; its email is scrubbed so it can sign up again.
+   */
+  async deleteCompany(
+    companyId: string,
+    actorId: string,
+    actorRole: string,
+    password: string,
+  ) {
+    if (actorRole !== "admin") {
+      throw new ForbiddenError("Only an admin can delete the company account");
+    }
+
+    const actor = await prisma.user.findFirst({
+      where: { id: actorId, companyId, status: "active" },
+    });
+    if (!actor || !(await comparePassword(password, actor.passwordHash))) {
+      throw new UnauthorizedError("Password is incorrect");
+    }
+
+    // Issued invoices must be settled first; drafts were never sent, so they don't count.
+    const unpaid = await prisma.invoice.count({
+      where: { companyId, status: { in: ["sent", "overdue"] } },
+    });
+    if (unpaid > 0) {
+      throw new ConflictError(
+        "Please pay all outstanding invoices before deleting your company account.",
+      );
+    }
+
+    const users = await prisma.user.findMany({
+      where: { companyId },
+      select: { id: true, email: true },
+    });
+    const userIds = users.map((u) => u.id);
+    // Soft-deleted users carry a renamed "<email>.<id>.invalid" address, so
+    // match reset tokens on the original address too.
+    const emails = users.map((u) =>
+      u.email.endsWith(`.${u.id}.invalid`)
+        ? u.email.slice(0, -`.${u.id}.invalid`.length)
+        : u.email,
+    );
+    const incidentIds = (
+      await prisma.incident.findMany({ where: { companyId }, select: { id: true } })
+    ).map((i) => i.id);
+
+    // Block new refreshes before the rows go, same as a normal logout.
+    await prisma.user.updateMany({
+      where: { companyId },
+      data: { sessionsRevokedAt: new Date() },
+    });
+
+    await prisma.$transaction(async (tx) => {
+      await tx.refreshToken.deleteMany({ where: { userId: { in: userIds } } });
+      await tx.emailVerificationToken.deleteMany({ where: { userId: { in: userIds } } });
+      await tx.passwordResetToken.deleteMany({ where: { email: { in: emails } } });
+      await tx.auditLog.deleteMany({
+        where: {
+          OR: [
+            { performedBy: { in: userIds } },
+            { entityId: { in: [...userIds, ...incidentIds] } },
+          ],
+        },
+      });
+      await tx.incident.deleteMany({ where: { companyId } });
+      await tx.companyPermission.deleteMany({ where: { companyId } });
+      await tx.companySubscription.deleteMany({ where: { companyId } });
+      // created_by is a self-relation; clear it so no row points at a deleted user.
+      await tx.user.updateMany({ where: { companyId }, data: { createdBy: null } });
+      await tx.user.deleteMany({ where: { companyId } });
+      await tx.company.update({
+        where: { id: companyId },
+        data: { email: `deleted-${companyId}@deleted.invalid`, deletedAt: new Date() },
+      });
+    });
+    // ponytail: database backups still hold the data until they rotate out; say so in the privacy policy.
+  },
+
+  /**
    * Logs out by revoking every session for the account that owns the token.
    * A concurrent refresh may already have consumed the presented token, so
    * when the DB row is gone we fall back to the userId in the token's verified

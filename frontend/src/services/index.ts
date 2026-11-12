@@ -102,6 +102,9 @@ export const authService = {
       currentPassword,
       newPassword,
     }),
+  /** Admin only. Erases the company and its data; billing records are kept for tax law. */
+  deleteCompany: (password: string) =>
+    api.post<{ message: string }>("/auth/company/delete", { password }),
   listUsers: () => api.get<UserListItem[]>("/auth/users"),
   getUserById: (id: number) => api.get<UserListItem>(`/auth/users/${id}`),
 };

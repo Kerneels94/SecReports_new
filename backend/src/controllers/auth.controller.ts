@@ -14,6 +14,7 @@ import {
   changePasswordSchema,
   updateUserSchema,
   verifyEmailSchema,
+  deleteCompanySchema,
 } from "../validators/auth.schema";
 import { validationErrorMessage } from "../validators/shared";
 import { ValidationError } from "../lib/errors";
@@ -152,6 +153,23 @@ export const AuthController = {
     reply
       .code(200)
       .send({ success: true, message: "Password changed successfully." });
+  },
+
+  /** Delete the caller's company and its data (admin-only, password re-entry required). */
+  async deleteCompany(request: FastifyRequest, reply: FastifyReply) {
+    const parsed = deleteCompanySchema.safeParse(request.body);
+    if (!parsed.success) {
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
+    }
+
+    await AuthService.deleteCompany(
+      request.user!.companyId,
+      request.user!.userId,
+      request.user!.role,
+      parsed.data.password,
+    );
+    clearRefreshCookie(reply);
+    reply.code(200).send({ success: true, message: "Company account deleted." });
   },
 
   /** List all users in the company (admin-only via route). */

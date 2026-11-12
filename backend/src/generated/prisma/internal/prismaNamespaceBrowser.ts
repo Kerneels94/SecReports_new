@@ -74,6 +74,7 @@ export const CompanyScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
+  deletedAt: 'deletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
