@@ -35,8 +35,8 @@ import { posthog } from "../lib/posthog";
 import type { UserRole } from "../generated/prisma/enums";
 
 const MAX_LOGIN_ATTEMPTS = 3;
-const BASE_LOCKOUT_MS = 15 * 60 * 1000;
-const MAX_LOCKOUT_MS = 4 * 60 * 60 * 1000;
+/** Lockout length per consecutive lockout: 1 → 2 → 5 → 10 min, then stays at 10 min. */
+const LOCKOUT_STEPS_MS = [1, 2, 5, 10].map((min) => min * 60 * 1000);
 
 /** A real bcrypt hash of a throwaway string — used to equalise login timing on the unknown-email path. */
 const DUMMY_BCRYPT_HASH =
@@ -49,9 +49,9 @@ function outranks(role: string, actorRole?: string): boolean {
   return (ROLE_RANK[role] ?? 0) > (ROLE_RANK[actorRole ?? ""] ?? 0);
 }
 
-/** Calculate lockout duration with exponential backoff (15min → 30min → 1hr → 2hr → 4hr cap). */
+/** Lockout duration for the nth lockout (1min → 2min → 5min → 10min cap). */
 function lockoutDuration(lockoutCount: number): number {
-  return Math.min(BASE_LOCKOUT_MS * Math.pow(2, lockoutCount), MAX_LOCKOUT_MS);
+  return LOCKOUT_STEPS_MS[Math.min(lockoutCount, LOCKOUT_STEPS_MS.length - 1)];
 }
 
 /** Credentials for user login. */
@@ -229,7 +229,7 @@ export const AuthService = {
   /**
    * Authenticates a user by email/password.
    * On success: resets login counter and returns tokens + a refresh token record.
-   * On failure: increments login counter; locks account after 3 attempts for 15 min.
+   * On failure: increments login counter; locks account after 3 attempts (1min, growing to 10min).
    */
   async login(params: LoginParams & { deviceInfo?: string }) {
     const user = await prisma.user.findUnique({
