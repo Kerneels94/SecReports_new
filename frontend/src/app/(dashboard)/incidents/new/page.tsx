@@ -15,13 +15,8 @@ import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/cn";
 import { incidentService } from "@/services";
 import { AddressAutocomplete } from "@/components/incidents/AddressAutocomplete";
-import { LocationMap } from "@/components/map/LocationMap";
-import { googleMapsUrl } from "@/lib/geocode";
 
 const ALARM_TYPES = ["Burglary", "Panic", "Duress"] as const;
-
-/** Map centre used when the operator pins by hand with no address match (Johannesburg). */
-const DEFAULT_PIN = { lat: -26.2041, lng: 28.0473 };
 
 const createIncidentSchema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -123,10 +118,6 @@ export default function NewIncidentPage() {
   const dispatchTime = useWatch({ control, name: "dispatchTime" });
   const arrivalTime = useWatch({ control, name: "arrivalTime" });
   const propertyAddress = useWatch({ control, name: "propertyAddress" }) ?? "";
-  const latitude = useWatch({ control, name: "latitude" });
-  const longitude = useWatch({ control, name: "longitude" });
-  const hasPin = latitude !== undefined && longitude !== undefined;
-
   const setPin = (lat: number | undefined, lng: number | undefined) => {
     setValue("latitude", lat);
     setValue("longitude", lng);
@@ -342,57 +333,23 @@ export default function NewIncidentPage() {
               description="Where it happened and who the client is."
             />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="grid gap-3 sm:col-span-2">
+              <div className="sm:col-span-2">
                 <AddressAutocomplete
                   label="Property Address"
                   placeholder="Start typing a South African address"
                   value={propertyAddress}
                   error={errors.propertyAddress?.message}
-                  onChange={(v) => setValue("propertyAddress", v, { shouldValidate: !!errors.propertyAddress })}
+                  onChange={(v) => {
+                    setValue("propertyAddress", v, { shouldValidate: !!errors.propertyAddress });
+                    // Typed edits no longer match the picked point; a new pick sets it again.
+                    setPin(undefined, undefined);
+                  }}
                   onPick={(s) => {
                     if (s.suburb) setValue("suburb", s.suburb);
                     if (s.city) setValue("city", s.city);
                     setPin(s.lat, s.lng);
                   }}
                 />
-                {hasPin ? (
-                  <div className="grid gap-2">
-                    <LocationMap
-                      lat={latitude}
-                      lng={longitude}
-                      zoom={latitude === DEFAULT_PIN.lat && longitude === DEFAULT_PIN.lng ? 6 : 16}
-                      onChange={setPin}
-                    />
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-subtle">
-                      <span>Drag the pin or click the map to mark the exact spot.</span>
-                      <span className="flex items-center gap-3">
-                        <a
-                          href={googleMapsUrl(latitude, longitude)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                        >
-                          Open in Google Maps
-                        </a>
-                        <button
-                          type="button"
-                          onClick={() => setPin(undefined, undefined)}
-                          className="cursor-pointer text-text-secondary hover:text-danger"
-                        >
-                          Remove pin
-                        </button>
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setPin(DEFAULT_PIN.lat, DEFAULT_PIN.lng)}
-                    className="cursor-pointer justify-self-start text-xs font-medium text-primary hover:underline"
-                  >
-                    Can&apos;t find the address? Pin it on the map
-                  </button>
-                )}
               </div>
               <Input
                 className="bg-surface-secondary"
