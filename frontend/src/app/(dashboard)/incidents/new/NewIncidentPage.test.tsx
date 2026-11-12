@@ -18,12 +18,6 @@ jest.mock("@/lib/geocode", () => ({
   searchAddress: jest.fn().mockResolvedValue([]),
 }));
 
-jest.mock("@/components/map/LocationMap", () => ({
-  LocationMap: ({ lat, lng }: { lat: number; lng: number }) => (
-    <div data-testid="location-map">{`${lat},${lng}`}</div>
-  ),
-}));
-
 const mockSearch = searchAddress as jest.Mock;
 const mockRouter = { push: jest.fn() };
 const mockCreate = incidentService.create as jest.Mock;
@@ -215,7 +209,7 @@ describe("NewIncidentPage", () => {
   });
 
 
-  it("fills suburb, city and the map pin when an address suggestion is picked", async () => {
+  it("fills suburb, city and saves the coordinates when an address suggestion is picked", async () => {
     mockSearch.mockResolvedValue([
       { label: "12 Oak Ave, Rivonia, Sandton", street: "12 Oak Ave", suburb: "Rivonia", city: "Sandton", lat: -26.05, lng: 28.06 },
     ]);
@@ -229,11 +223,7 @@ describe("NewIncidentPage", () => {
     expect(screen.getByLabelText("Property Address")).toHaveValue("12 Oak Ave");
     expect(screen.getByLabelText("Suburb")).toHaveValue("Rivonia");
     expect(screen.getByLabelText("City")).toHaveValue("Sandton");
-    expect(screen.getByTestId("location-map")).toHaveTextContent("-26.05,28.06");
-    expect(screen.getByRole("link", { name: /open in google maps/i })).toHaveAttribute(
-      "href",
-      "https://www.google.com/maps/search/?api=1&query=-26.05,28.06",
-    );
+    expect(screen.queryByRole("region", { name: /map/i })).not.toBeInTheDocument();
 
     await user.type(screen.getByLabelText("Operator Name"), "John");
     await user.type(screen.getByLabelText("Dispatcher"), "Jane");
@@ -249,14 +239,27 @@ describe("NewIncidentPage", () => {
     });
   });
 
-  it("lets the operator drop a pin by hand and remove it", async () => {
+  it("drops the saved coordinates when the address is edited after a pick", async () => {
+    mockSearch.mockResolvedValue([
+      { label: "12 Oak Ave, Rivonia", street: "12 Oak Ave", suburb: "Rivonia", city: "Sandton", lat: -26.05, lng: 28.06 },
+    ]);
+    mockCreate.mockResolvedValue({});
     render(<NewIncidentPage />);
     const user = userEvent.setup();
 
-    expect(screen.queryByTestId("location-map")).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /pin it on the map/i }));
-    expect(screen.getByTestId("location-map")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /remove pin/i }));
-    expect(screen.queryByTestId("location-map")).not.toBeInTheDocument();
+    await user.type(screen.getByLabelText("Property Address"), "12 Oak");
+    await user.click(await screen.findByRole("option", { name: "12 Oak Ave, Rivonia" }));
+    await user.type(screen.getByLabelText("Property Address"), "x");
+
+    await user.type(screen.getByLabelText("Operator Name"), "John");
+    await user.type(screen.getByLabelText("Dispatcher"), "Jane");
+    await user.type(screen.getByLabelText("Report"), "Break-in");
+    await user.click(screen.getByRole("radio", { name: "Positive" }));
+    await user.selectOptions(screen.getByLabelText("Alarm Type"), "Panic");
+    await user.click(screen.getByRole("button", { name: /submit report/i }));
+
+    await waitFor(() => expect(mockCreate).toHaveBeenCalled());
+    expect(mockCreate.mock.calls[0][0].latitude).toBeUndefined();
+    expect(mockCreate.mock.calls[0][0].longitude).toBeUndefined();
   });
 });
