@@ -26,6 +26,12 @@ jest.mock("@/components/ui/Badge", () => ({
   ),
 }));
 
+jest.mock("@/components/map/LocationMap", () => ({
+  LocationMap: ({ lat, lng }: { lat: number; lng: number }) => (
+    <div data-testid="location-map">{`${lat},${lng}`}</div>
+  ),
+}));
+
 jest.mock("@/hooks/useAuth", () => ({
   useAuth: () => ({ user: { id: 1, role: "manager", permissions: ["incidents.view", "export.csv"] } }),
 }));
@@ -51,6 +57,9 @@ const mockIncident = {
   clientCode: "C-001",
   businessOrComplex: "Biz Hub",
   sapsReference: "SAPS-123",
+  alarmType: "Panic",
+  latitude: -26.1,
+  longitude: 28.05,
   reporterId: 1,
   assignedTo: 2,
   createdAt: "2026-05-01T08:00:00Z",
@@ -84,12 +93,13 @@ describe("IncidentDetailModal", () => {
       expect(screen.getByText("Unauthorized access detected in server room B.")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Security")).toBeInTheDocument();
+    expect(screen.getAllByText("Security").length).toBeGreaterThan(0);
     expect(screen.getByText("Alice")).toBeInTheDocument();
     expect(screen.getByText("John Operator")).toBeInTheDocument();
     expect(screen.getByText("Jane Dispatcher")).toBeInTheDocument();
     expect(screen.getByText("AR-42")).toBeInTheDocument();
-    expect(screen.getByText("123 Main St")).toBeInTheDocument();
+    // Shown in the Client & Property card and as the map caption.
+    expect(screen.getAllByText("123 Main St").length).toBeGreaterThan(0);
     expect(screen.getByText("Bob Client")).toBeInTheDocument();
     expect(screen.getByText("C-001")).toBeInTheDocument();
     expect(screen.getByText("Biz Hub")).toBeInTheDocument();
@@ -199,5 +209,27 @@ describe("IncidentDetailModal download failure", () => {
 
     expect(await screen.findByText("Failed to download PDF")).toBeInTheDocument();
     expect(screen.getByText("Server Breach")).toBeInTheDocument();
+  });
+
+  it("shows the alarm type, the pinned map and a Google Maps link", async () => {
+    mockGetById.mockResolvedValue({ data: mockIncident });
+    render(<IncidentDetailModal incidentId={1} open={true} onClose={jest.fn()} />);
+
+    expect(await screen.findByTestId("location-map")).toHaveTextContent("-26.1,28.05");
+    expect(screen.getByText("Panic")).toBeInTheDocument();
+    expect(screen.getByText("Incident Type")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /open in google maps/i })).toHaveAttribute(
+      "href",
+      "https://www.google.com/maps/search/?api=1&query=-26.1,28.05",
+    );
+  });
+
+  it("shows a placeholder instead of the map when the incident has no coordinates", async () => {
+    mockGetById.mockResolvedValue({ data: { ...mockIncident, latitude: null, longitude: null, alarmType: null } });
+    render(<IncidentDetailModal incidentId={1} open={true} onClose={jest.fn()} />);
+
+    expect(await screen.findByText(/No location pinned/)).toBeInTheDocument();
+    expect(screen.queryByTestId("location-map")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /open in google maps/i })).not.toBeInTheDocument();
   });
 });

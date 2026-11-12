@@ -6,6 +6,9 @@
 import { z } from "zod";
 import { isoDate } from "./shared";
 
+/** Alarm types an incident can be raised by. */
+export const ALARM_TYPES = ["Burglary", "Panic", "Duress"] as const;
+
 /**
  * Validates creation of a new incident report.
  */
@@ -48,6 +51,9 @@ export const createIncidentSchema = z.object({
     .string()
     .max(100, "SAPS reference must be 100 characters or fewer")
     .optional(),
+  alarmType: z.enum(ALARM_TYPES, "Alarm type must be Burglary, Panic or Duress"),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
 });
 
 /**

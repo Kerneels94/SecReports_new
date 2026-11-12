@@ -52,6 +52,9 @@ export interface Incident {
   clientCode: string | null;
   businessOrComplex: string | null;
   sapsReference: string | null;
+  alarmType: string | null;
+  latitude: number | null;
+  longitude: number | null;
   reporterId: number;
   assignedTo: number | null;
   createdAt: string;

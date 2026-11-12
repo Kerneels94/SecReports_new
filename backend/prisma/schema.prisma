@@ -124,6 +124,9 @@ model Incident {
   clientCode        String?  @map("client_code")
   businessOrComplex String?  @map("business_or_complex")
   sapsReference     String?  @map("saps_reference")
+  alarmType         String?  @map("alarm_type")
+  latitude          Float?
+  longitude         Float?
   reporterId        String   @map("reporter_id") @db.ObjectId
   assignedTo        String?  @map("assigned_to") @db.ObjectId
   createdAt         DateTime @default(now()) @map("created_at")

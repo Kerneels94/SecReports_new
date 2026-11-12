@@ -251,6 +251,9 @@ describe("IncidentService", () => {
       city: "Johannesburg",
       operatorName: "John Operator",
       dispatcher: "Jane Dispatcher",
+      alarmType: "Panic",
+      latitude: -26.05,
+      longitude: 28.06,
       reporterId: "1",
     };
 
@@ -266,7 +269,13 @@ describe("IncidentService", () => {
       expect(result.referenceNumber).toMatch(/^INC-/);
       expect(prisma.incident.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ suburb: "Rivonia", city: "Johannesburg" }),
+          data: expect.objectContaining({
+            suburb: "Rivonia",
+            city: "Johannesburg",
+            alarmType: "Panic",
+            latitude: -26.05,
+            longitude: 28.06,
+          }),
         }),
       );
       expect(prisma.auditLog.create).toHaveBeenCalledWith({
