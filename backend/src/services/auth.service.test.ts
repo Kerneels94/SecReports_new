@@ -426,7 +426,7 @@ describe("AuthService", () => {
         email: "test@example.com",
         password: "password123",
         companyId: "1",
-        createdBy: "1",
+        createdBy: "1", actorRole: "admin",
       });
 
       expect(result).toEqual(expect.objectContaining({ email: "test@example.com" }));
@@ -443,7 +443,7 @@ describe("AuthService", () => {
         email: "jane@example.com",
         password: "password123",
         companyId: "1",
-        createdBy: "1",
+        createdBy: "1", actorRole: "admin",
       });
 
       expect(prisma.user.create).toHaveBeenCalledWith({
@@ -460,7 +460,7 @@ describe("AuthService", () => {
           email: "test@example.com",
           password: "password123",
           companyId: "1",
-          createdBy: "1",
+          createdBy: "1", actorRole: "admin",
         }),
       ).rejects.toThrow(ConflictError);
     });
@@ -475,7 +475,7 @@ describe("AuthService", () => {
           email: "bad@nonexistent-domain-xyz.com",
           password: "password123",
           companyId: "1",
-          createdBy: "1",
+          createdBy: "1", actorRole: "admin",
         }),
       ).rejects.toThrow("Email domain does not accept mail");
     });
@@ -492,6 +492,21 @@ describe("AuthService", () => {
           companyId: "1",
           createdBy: "2",
           actorRole: "manager",
+        }),
+      ).rejects.toThrow(ForbiddenError);
+      expect(prisma.user.create).not.toHaveBeenCalled();
+    });
+
+    it("rejects a senior creating a manager", async () => {
+      await expect(
+        AuthService.createUser({
+          name: "Test User",
+          email: "test@example.com",
+          password: "password123",
+          role: "manager",
+          companyId: "1",
+          createdBy: "2",
+          actorRole: "senior",
         }),
       ).rejects.toThrow(ForbiddenError);
       expect(prisma.user.create).not.toHaveBeenCalled();

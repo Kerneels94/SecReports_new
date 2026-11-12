@@ -549,13 +549,16 @@ export default function IncidentsPage() {
                 >
                   PDF
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setBatchFormat("csv")}
-                  className={`cursor-pointer flex-1 rounded-lg border px-3 py-2 text-lg font-medium transition-colors ${batchFormat === "csv" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
-                >
-                  CSV
-                </button>
+                {/* CSV email needs export.csv on the backend, same as the download. */}
+                {canExportPdf && (
+                  <button
+                    type="button"
+                    onClick={() => setBatchFormat("csv")}
+                    className={`cursor-pointer flex-1 rounded-lg border px-3 py-2 text-lg font-medium transition-colors ${batchFormat === "csv" ? "border-primary bg-primary/10 text-primary" : "border-border text-text-secondary hover:border-text-secondary/30"}`}
+                  >
+                    CSV
+                  </button>
+                )}
               </div>
             </div>
 
