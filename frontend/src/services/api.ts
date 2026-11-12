@@ -147,7 +147,13 @@ class ApiClient {
       return { success: true, data: undefined as unknown as T };
     }
 
-    if (res.status === 401 && !isRetry && !path.startsWith("/auth/refresh")) {
+    // A 401 from login means bad credentials, not an expired session: don't refresh.
+    if (
+      res.status === 401 &&
+      !isRetry &&
+      !path.startsWith("/auth/refresh") &&
+      !path.startsWith("/auth/login")
+    ) {
       const refreshed = await this.refreshShared();
       if (refreshed) {
         return this.request<T>(path, options, true);

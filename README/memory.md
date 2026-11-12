@@ -78,15 +78,14 @@
 - `persistRefreshToken` accepts optional `deviceInfo` — controller extracts `User-Agent` header on login/employeeLogin/refresh.
 - `/auth/sessions` returns stored `deviceInfo` for meaningful session identification.
 
-## Progressive Lockout (Exponential Backoff)
+## Progressive Lockout
 
-| Attempt | Lockout Duration |
-|---------|-----------------|
-| 1st     | 15 min          |
-| 2nd     | 30 min          |
-| 3rd     | 1 hr            |
-| 4th     | 2 hr            |
-| 5th+    | 4 hr (cap)      |
+| Lockout | Duration     |
+|---------|--------------|
+| 1st     | 1 min        |
+| 2nd     | 2 min        |
+| 3rd     | 5 min        |
+| 4th+    | 10 min (cap) |
 
 - On successful login, `lockoutCount` decays by 1 (so the next lockout is shorter).
 - Uses `lockoutCount` field on the User model.

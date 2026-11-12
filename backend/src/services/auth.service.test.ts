@@ -202,6 +202,33 @@ describe("AuthService", () => {
           lockedUntil: expect.any(Date),
         }),
       });
+      // First lockout lasts 1 minute.
+      const lockedUntil = (prisma.user.update as jest.Mock).mock.calls[1][0].data.lockedUntil as Date;
+      expect(lockedUntil.getTime() - Date.now()).toBeGreaterThan(55_000);
+      expect(lockedUntil.getTime() - Date.now()).toBeLessThanOrEqual(60_000);
+    });
+
+    it.each([
+      [1, 2],
+      [2, 5],
+      [3, 10],
+      [9, 10],
+    ])("lockout number %i+1 lasts %i minutes", async (lockoutCount, minutes) => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+      (hash.comparePassword as jest.Mock).mockResolvedValue(false);
+      (prisma.user.update as jest.Mock).mockResolvedValue({
+        ...mockUser,
+        loginAttempts: 3,
+        lockoutCount,
+      });
+
+      await expect(AuthService.login({ email: "test@example.com", password: "wrong" }))
+        .rejects.toThrow(UnauthorizedError);
+
+      const lockedUntil = (prisma.user.update as jest.Mock).mock.calls[1][0].data.lockedUntil as Date;
+      const ms = lockedUntil.getTime() - Date.now();
+      expect(ms).toBeGreaterThan(minutes * 60_000 - 5_000);
+      expect(ms).toBeLessThanOrEqual(minutes * 60_000);
     });
 
     it("does not lock out before the threshold", async () => {
