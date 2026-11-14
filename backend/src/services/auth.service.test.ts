@@ -38,6 +38,7 @@ jest.mock("../lib/db", () => ({
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn().mockResolvedValue({ count: 1 }),
       deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
     },
     emailVerificationToken: {
@@ -639,8 +640,8 @@ describe("AuthService", () => {
 
       await AuthService.resetPassword("valid-token", "newpassword123");
 
-      expect(prisma.passwordResetToken.update).toHaveBeenCalledWith({
-        where: { id: "1" },
+      expect(prisma.passwordResetToken.updateMany).toHaveBeenCalledWith({
+        where: { id: "1", usedAt: null },
         data: { usedAt: expect.any(Date) },
       });
       expect(prisma.user.update).toHaveBeenCalledWith({
@@ -672,6 +673,14 @@ describe("AuthService", () => {
       (prisma.passwordResetToken.findUnique as jest.Mock).mockResolvedValue(usedRecord);
 
       await expect(AuthService.resetPassword("used-token", "password123")).rejects.toThrow(UnauthorizedError);
+    });
+
+    it("rejects when a parallel request already claimed the token", async () => {
+      (prisma.passwordResetToken.findUnique as jest.Mock).mockResolvedValue(validRecord);
+      (prisma.passwordResetToken.updateMany as jest.Mock).mockResolvedValueOnce({ count: 0 });
+
+      await expect(AuthService.resetPassword("valid-token", "password123")).rejects.toThrow(UnauthorizedError);
+      expect(prisma.user.update).not.toHaveBeenCalled();
     });
   });
 
@@ -878,6 +887,30 @@ describe("updateUser", () => {
       AuthService.updateUser("1", "1", { email: "attacker@test.com" }, "2", "manager"),
     ).rejects.toThrow(ForbiddenError);
     expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it("requires the current password when a user changes their own email", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
+    (hash.comparePassword as jest.Mock).mockResolvedValue(false);
+
+    await expect(
+      AuthService.updateUser("1", "1", { email: "new@test.com" }, "1", "admin"),
+    ).rejects.toThrow(UnauthorizedError);
+    await expect(
+      AuthService.updateUser("1", "1", { email: "new@test.com", currentPassword: "wrong" }, "1", "admin"),
+    ).rejects.toThrow(UnauthorizedError);
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it("lets a user change their own email with the correct password", async () => {
+    (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.user.update as jest.Mock).mockResolvedValue({ ...mockUser, email: "new@test.com" });
+    (hash.comparePassword as jest.Mock).mockResolvedValue(true);
+
+    await AuthService.updateUser("1", "1", { email: "new@test.com", currentPassword: "right" }, "1", "admin");
+
+    expect(prisma.user.update).toHaveBeenCalled();
   });
 
   it("resets emailVerified and sends a verification email when email changes", async () => {

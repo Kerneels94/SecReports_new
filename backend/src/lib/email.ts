@@ -2,6 +2,7 @@ import dns from "dns/promises";
 
 const cache = new Map<string, { result: boolean; expiresAt: number }>();
 const CACHE_TTL_MS = 60 * 60 * 1000;
+const MAX_CACHE_ENTRIES = 10_000;
 
 /** DNS codes that mean "this record definitely does not exist", not a lookup failure. */
 const NOT_FOUND = new Set(["ENOTFOUND", "ENODATA"]);
@@ -63,6 +64,8 @@ export async function acceptsMail(email: string): Promise<boolean> {
   const result = await lookupDomain(domain);
   if (result === null) return false;
 
+  // shortcut: wipe-all bound on public-input growth; use an LRU if hit rate matters.
+  if (cache.size >= MAX_CACHE_ENTRIES) cache.clear();
   cache.set(domain, { result, expiresAt: Date.now() + CACHE_TTL_MS });
   return result;
 }
