@@ -81,6 +81,11 @@ export default function AdminUsersPage() {
   const [editSurname, setEditSurname] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editRole, setEditRole] = useState<string>("senior");
+  const [editPassword, setEditPassword] = useState("");
+  // The backend asks for the password when you change your own email.
+  const changingOwnEmail =
+    !!editUser && user?.id === editUser.id &&
+    editEmail.trim().toLowerCase() !== editUser.email;
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
@@ -151,6 +156,7 @@ export default function AdminUsersPage() {
     setEditSurname(u.surname ?? "");
     setEditEmail(u.email);
     setEditRole(u.role);
+    setEditPassword("");
     setEditError(null);
   };
 
@@ -174,11 +180,18 @@ export default function AdminUsersPage() {
     if (!editUser) return;
     if (!editName.trim()) { setEditError("Name is required"); return; }
     if (!editEmail.trim()) { setEditError("Email is required"); return; }
+    if (changingOwnEmail && !editPassword) { setEditError("Current password is required to change your email"); return; }
 
     setEditSaving(true);
     setEditError(null);
     try {
-      const payload: { name: string; surname?: string; email: string; role?: string } = {
+      const payload: {
+        name: string;
+        surname?: string;
+        email: string;
+        role?: string;
+        currentPassword?: string;
+      } = {
         name: editName,
         // Send "" (not undefined) so clearing the field actually removes the
         // surname; undefined was dropped from JSON and the old value stayed.
@@ -188,6 +201,7 @@ export default function AdminUsersPage() {
       if (editUser.role !== "admin") {
         payload.role = editRole;
       }
+      if (changingOwnEmail) payload.currentPassword = editPassword;
       await userService.update(editUser.id, payload);
       setEditUser(null);
       setSuccess(`User ${editEmail} updated`);
@@ -362,6 +376,15 @@ export default function AdminUsersPage() {
           <Input label="Name" value={editName} onChange={(e) => setEditName(e.target.value)} />
           <Input label="Surname" value={editSurname} onChange={(e) => setEditSurname(e.target.value)} />
           <Input label="Email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
+          {changingOwnEmail && (
+            <Input
+              label="Current password"
+              type="password"
+              autoComplete="current-password"
+              value={editPassword}
+              onChange={(e) => setEditPassword(e.target.value)}
+            />
+          )}
           {editUser?.role === "admin" ? (
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-text/90">Role</label>

@@ -119,4 +119,6 @@ export const updateUserSchema = z.object({
   role: z
     .enum(["admin", "manager", "senior"], { message: "Choose a valid role" })
     .optional(),
+  // Required by the service only when a user changes their own email.
+  currentPassword: z.string().optional(),
 });
