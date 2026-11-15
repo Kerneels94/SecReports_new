@@ -23,3 +23,7 @@
   to = "https://secreports-new.onrender.com/:splat"
   status = 200
   force = true
+  # Adds an x-nf-sign JWS signed with the NETLIFY_PROXY_SECRET env var (set it in
+  # Netlify AND Render). The backend then trusts x-nf-client-connection-ip as the
+  # real client IP for rate limits and audit logs; unsigned requests can't spoof it.
+  signed = "NETLIFY_PROXY_SECRET"

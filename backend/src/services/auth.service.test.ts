@@ -181,69 +181,19 @@ describe("AuthService", () => {
         .rejects.toThrow(UnauthorizedError);
     });
 
-    it("increments loginAttempts atomically and locks out at the threshold", async () => {
+    it("never locks the account: the correct password works right after failures", async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
       (hash.comparePassword as jest.Mock).mockResolvedValue(false);
-      (prisma.user.update as jest.Mock).mockResolvedValue({
-        ...mockUser,
-        loginAttempts: 3,
-      });
+      for (let i = 0; i < 5; i++) {
+        await expect(AuthService.login({ email: "test@example.com", password: "wrong" }))
+          .rejects.toThrow(UnauthorizedError);
+      }
+      expect(prisma.user.update).not.toHaveBeenCalled();
 
-      await expect(AuthService.login({ email: "test@example.com", password: "wrong" }))
-        .rejects.toThrow(UnauthorizedError);
-
-      expect(prisma.user.update).toHaveBeenNthCalledWith(1, {
-        where: { id: "1" },
-        data: { loginAttempts: { increment: 1 } },
-      });
-      expect(prisma.user.update).toHaveBeenNthCalledWith(2, {
-        where: { id: "1" },
-        data: expect.objectContaining({
-          loginAttempts: 0,
-          lockedUntil: expect.any(Date),
-        }),
-      });
-      // First lockout lasts 1 minute.
-      const lockedUntil = (prisma.user.update as jest.Mock).mock.calls[1][0].data.lockedUntil as Date;
-      expect(lockedUntil.getTime() - Date.now()).toBeGreaterThan(55_000);
-      expect(lockedUntil.getTime() - Date.now()).toBeLessThanOrEqual(60_000);
-    });
-
-    it.each([
-      [1, 2],
-      [2, 5],
-      [3, 10],
-      [9, 10],
-    ])("lockout number %i+1 lasts %i minutes", async (lockoutCount, minutes) => {
-      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
-      (hash.comparePassword as jest.Mock).mockResolvedValue(false);
-      (prisma.user.update as jest.Mock).mockResolvedValue({
-        ...mockUser,
-        loginAttempts: 3,
-        lockoutCount,
-      });
-
-      await expect(AuthService.login({ email: "test@example.com", password: "wrong" }))
-        .rejects.toThrow(UnauthorizedError);
-
-      const lockedUntil = (prisma.user.update as jest.Mock).mock.calls[1][0].data.lockedUntil as Date;
-      const ms = lockedUntil.getTime() - Date.now();
-      expect(ms).toBeGreaterThan(minutes * 60_000 - 5_000);
-      expect(ms).toBeLessThanOrEqual(minutes * 60_000);
-    });
-
-    it("does not lock out before the threshold", async () => {
-      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
-      (hash.comparePassword as jest.Mock).mockResolvedValue(false);
-      (prisma.user.update as jest.Mock).mockResolvedValue({
-        ...mockUser,
-        loginAttempts: 2,
-      });
-
-      await expect(AuthService.login({ email: "test@example.com", password: "wrong" }))
-        .rejects.toThrow(UnauthorizedError);
-
-      expect(prisma.user.update).toHaveBeenCalledTimes(1);
+      (hash.comparePassword as jest.Mock).mockResolvedValue(true);
+      await expect(
+        AuthService.login({ email: "test@example.com", password: "right" }),
+      ).resolves.toHaveProperty("accessToken");
     });
 
     it("rejects a deactivated user", async () => {
@@ -324,17 +274,6 @@ describe("AuthService", () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(AuthService.refresh("token-for-deleted-user")).rejects.toThrow(UnauthorizedError);
-    });
-
-    it("revokes the token and rejects a locked-out user", async () => {
-      (jwt.verifyRefreshToken as jest.Mock).mockReturnValue({ userId: "1", role: "admin", companyId: "1" });
-      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
-        ...mockUser,
-        lockedUntil: new Date(Date.now() + 60_000),
-      });
-
-      await expect(AuthService.refresh("locked-token")).rejects.toThrow(UnauthorizedError);
-      expect(prisma.refreshToken.deleteMany).toHaveBeenCalledWith({ where: { id: "rt1" } });
     });
 
     it("revokes the token and rejects an unverified user", async () => {
@@ -649,8 +588,6 @@ describe("AuthService", () => {
         data: {
           passwordHash: "$2b$12$newhashed",
           emailVerified: true,
-          loginAttempts: 0,
-          lockedUntil: null,
         },
       });
     });
