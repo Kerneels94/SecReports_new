@@ -7,6 +7,26 @@ import { Prisma } from "../generated/prisma/client";
 import { AuditLogService } from "./auditLog.service";
 import { NotFoundError } from "../lib/errors";
 import { generateReferenceNumber } from "../lib/utils";
+import { geocode } from "../lib/backfillCoordinates";
+
+/**
+ * Coordinates for a typed address when the operator did not pick a suggestion.
+ * Tries the full address, then "suburb, city", then the suburb. Never throws:
+ * a lookup failure must not stop the incident being saved.
+ */
+async function locate(p: { propertyAddress?: string; suburb?: string; city?: string }) {
+  const join = (...parts: (string | undefined)[]) => parts.filter(Boolean).join(", ");
+  const queries = [join(p.propertyAddress, p.suburb, p.city), join(p.suburb, p.city), p.suburb ?? ""];
+  try {
+    for (const q of new Set(queries.filter(Boolean))) {
+      const point = await geocode(q);
+      if (point) return point;
+    }
+  } catch {
+    // Photon down or rate-limited: save without a pin.
+  }
+  return null;
+}
 
 const MONTH_NAMES: Record<string, number> = {
   jan: 0, january: 0,
@@ -207,6 +227,7 @@ export const IncidentService = {
   /** Creates an incident with auto-generated reference number and an audit log entry. */
   async create(params: CreateIncidentParams) {
     const referenceNumber = generateReferenceNumber();
+    const point = params.latitude == null || params.longitude == null ? await locate(params) : null;
 
     const incident = await prisma.incident.create({
       data: {
@@ -230,8 +251,8 @@ export const IncidentService = {
         businessOrComplex: params.businessOrComplex,
         sapsReference: params.sapsReference,
         alarmType: params.alarmType,
-        latitude: params.latitude,
-        longitude: params.longitude,
+        latitude: point?.lat ?? params.latitude,
+        longitude: point?.lng ?? params.longitude,
         reporterId: params.reporterId,
       },
       include: {
