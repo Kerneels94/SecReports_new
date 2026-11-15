@@ -187,6 +187,54 @@ describe("ApiClient", () => {
     });
   });
 
+  describe("backend cold boot", () => {
+    const gateway = (status: number) => ({
+      ok: false,
+      status,
+      json: () => Promise.reject(new SyntaxError("Unexpected end of JSON input")),
+    });
+    const okJson = { ok: true, status: 200, json: () => Promise.resolve({ success: true, data: 1 }) };
+
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    it("retries a GET through 504s until the backend wakes", async () => {
+      mockFetch
+        .mockResolvedValueOnce(gateway(504))
+        .mockResolvedValueOnce(gateway(502))
+        .mockResolvedValueOnce(okJson);
+
+      const result = api.get("/incidents");
+      await jest.advanceTimersByTimeAsync(10_000);
+
+      await expect(result).resolves.toEqual({ success: true, data: 1 });
+      expect(mockFetch).toHaveBeenCalledTimes(3);
+    });
+
+    it("shows a starting-up message, not a JSON error, when it never wakes", async () => {
+      mockFetch.mockResolvedValue(gateway(504));
+
+      const result = api.post("/auth/login", { email: "a@b.co", password: "x" });
+      const assertion = expect(result).rejects.toThrow("The server is starting up");
+      await jest.advanceTimersByTimeAsync(20_000);
+      await assertion;
+      expect(mockFetch).toHaveBeenCalledTimes(4);
+    });
+
+    it("does not repeat a non-login POST, which could duplicate a record", async () => {
+      mockFetch.mockResolvedValue(gateway(504));
+
+      await expect(api.post("/incidents", { title: "x" })).rejects.toThrow("The server is starting up");
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("handles an empty 200 body without a JSON error", async () => {
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.reject(new SyntaxError("x")) });
+
+      await expect(api.get("/empty")).rejects.toThrow("The server is starting up");
+    });
+  });
+
   describe("HTTP methods", () => {
     beforeEach(() => {
       mockFetch.mockResolvedValue({

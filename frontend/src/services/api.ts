@@ -8,6 +8,42 @@ const BASE_URL =
     ? "/api"
     : process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
+/** Netlify's proxy returns these, often with an empty body, while Render's free tier cold-boots. */
+const GATEWAY_ERRORS = new Set([502, 503, 504]);
+/** Waits between retries while the backend wakes (each 504 already took ~26 s). */
+const WAKE_RETRY_DELAYS_MS = [2000, 5000, 10000];
+const WAKING_MESSAGE = "The server is starting up. Please try again in a few seconds.";
+
+/**
+ * fetch that rides out a backend cold boot by retrying gateway errors.
+ * Only for requests that are safe to repeat: after a 504 the backend may still
+ * have processed the request, so retrying e.g. "create incident" could duplicate it.
+ */
+async function fetchWaking(url: string, init: RequestInit, canRetry: boolean): Promise<Response> {
+  let res = await fetch(url, init);
+  if (!canRetry) return res;
+  for (const delay of WAKE_RETRY_DELAYS_MS) {
+    if (!GATEWAY_ERRORS.has(res.status)) break;
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    res = await fetch(url, init);
+  }
+  return res;
+}
+
+/** GETs and login are safe to repeat (refresh retries in attemptRefresh). */
+function isRepeatable(path: string, method = "GET"): boolean {
+  return method === "GET" || path === "/auth/login";
+}
+
+/** Parses a JSON body, or null when it's empty or not JSON (e.g. a proxy error page). */
+async function readJson(res: Response): Promise<unknown> {
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
 class ApiClient {
   private baseUrl: string;
   private refreshing: Promise<LoginResponse | null> | null = null;
@@ -42,10 +78,11 @@ class ApiClient {
     const version = this.sessionVersion;
     const isStale = () => version !== this.sessionVersion;
     const refresh = async (): Promise<LoginResponse | null> => {
-      const res = await fetch(`${this.baseUrl}/auth/refresh`, {
-        method: "POST",
-        credentials: "include",
-      });
+      const res = await fetchWaking(
+        `${this.baseUrl}/auth/refresh`,
+        { method: "POST", credentials: "include" },
+        true,
+      );
 
       if (!res.ok) {
         // 400 (no cookie) or 401 (expired/revoked): the session is over, not a network blip.
@@ -136,12 +173,11 @@ class ApiClient {
       (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
     }
 
-    const res = await fetch(`${this.baseUrl}${path}`, {
-      ...options,
-      headers,
-      credentials: "include",
-      cache: "no-store",
-    });
+    const res = await fetchWaking(
+      `${this.baseUrl}${path}`,
+      { ...options, headers, credentials: "include", cache: "no-store" },
+      isRepeatable(path, options.method),
+    );
 
     if (res.status === 204) {
       return { success: true, data: undefined as unknown as T };
@@ -162,12 +198,17 @@ class ApiClient {
       // session was rejected, and a stale result must leave a newer session alone.
     }
 
-    const json = await res.json();
+    const json = await readJson(res);
 
     if (!res.ok) {
-      const error = json as ApiError;
-      throw new Error(error.error?.message || error.message || "Request failed");
+      const error = json as ApiError | null;
+      throw new Error(
+        error?.error?.message ||
+          error?.message ||
+          (GATEWAY_ERRORS.has(res.status) ? WAKING_MESSAGE : "Request failed"),
+      );
     }
+    if (json === null) throw new Error(WAKING_MESSAGE);
 
     return json as ApiResponse<T>;
   }
@@ -208,11 +249,11 @@ class ApiClient {
       (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
     }
 
-    const res = await fetch(`${this.baseUrl}${path}`, {
-      method: "GET",
-      headers,
-      credentials: "include",
-    });
+    const res = await fetchWaking(
+      `${this.baseUrl}${path}`,
+      { method: "GET", headers, credentials: "include" },
+      true,
+    );
 
     if (res.status === 401 && !isRetry) {
       if (await this.refreshShared()) {
@@ -222,6 +263,7 @@ class ApiClient {
     }
 
     if (!res.ok) {
+      if (GATEWAY_ERRORS.has(res.status)) throw new Error(WAKING_MESSAGE);
       const text = await res.text();
       throw new Error(`Download failed: ${res.status} ${text}`);
     }
