@@ -3,7 +3,7 @@ import { prisma } from "../lib/db";
 import * as hash from "../lib/hash";
 import * as jwt from "../lib/jwt";
 import { REFRESH_TOKEN_TTL_MS } from "../lib/jwt";
-import { UnauthorizedError, ConflictError, NotFoundError, ForbiddenError } from "../lib/errors";
+import { UnauthorizedError, ConflictError, NotFoundError, ForbiddenError, ValidationError } from "../lib/errors";
 
 jest.mock("../lib/db", () => ({
   prisma: {
@@ -40,6 +40,12 @@ jest.mock("../lib/db", () => ({
       update: jest.fn(),
       updateMany: jest.fn().mockResolvedValue({ count: 1 }),
       deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+    },
+    accountUnblockToken: {
+      create: jest.fn(),
+      findUnique: jest.fn(),
+      updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+      deleteMany: jest.fn(),
     },
     emailVerificationToken: {
       create: jest.fn().mockResolvedValue({ id: "evt1" }),
@@ -82,6 +88,7 @@ jest.mock("./email.service", () => ({
   sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
   sendPasswordChangedEmail: jest.fn().mockResolvedValue(undefined),
   sendNewCompanyAlert: jest.fn().mockResolvedValue(undefined),
+  sendAccountBlockedEmail: jest.fn().mockResolvedValue(undefined),
 }));
 
 const mockUser = {
@@ -96,6 +103,8 @@ const mockUser = {
   loginAttempts: 0,
   lockoutCount: 0,
   lockedUntil: null,
+  wrongPasswordTries: 0,
+  accountBlocked: 0,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -181,19 +190,83 @@ describe("AuthService", () => {
         .rejects.toThrow(UnauthorizedError);
     });
 
-    it("never locks the account: the correct password works right after failures", async () => {
-      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
-      (hash.comparePassword as jest.Mock).mockResolvedValue(false);
-      for (let i = 0; i < 5; i++) {
-        await expect(AuthService.login({ email: "test@example.com", password: "wrong" }))
-          .rejects.toThrow(UnauthorizedError);
-      }
-      expect(prisma.user.update).not.toHaveBeenCalled();
+    describe("wrong-password block", () => {
+      const { sendAccountBlockedEmail } = require("./email.service");
+      const wrongLogin = () =>
+        AuthService.login({ email: "test@example.com", password: "wrong" });
 
-      (hash.comparePassword as jest.Mock).mockResolvedValue(true);
-      await expect(
-        AuthService.login({ email: "test@example.com", password: "right" }),
-      ).resolves.toHaveProperty("accessToken");
+      beforeEach(() => {
+        (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+        (hash.comparePassword as jest.Mock).mockResolvedValue(false);
+      });
+
+      it("counts a wrong password without blocking before the 5th", async () => {
+        (prisma.user.update as jest.Mock).mockResolvedValue({ wrongPasswordTries: 4 });
+
+        await expect(wrongLogin()).rejects.toThrow("Invalid email or password");
+
+        expect(prisma.user.update).toHaveBeenCalledWith({
+          where: { id: "1" },
+          data: { wrongPasswordTries: { increment: 1 } },
+          select: { wrongPasswordTries: true },
+        });
+        expect(prisma.user.updateMany).not.toHaveBeenCalledWith(
+          expect.objectContaining({ data: { accountBlocked: 1 } }),
+        );
+        expect(sendAccountBlockedEmail).not.toHaveBeenCalled();
+      });
+
+      it("blocks on the 5th wrong password and emails one unblock link", async () => {
+        (prisma.user.update as jest.Mock).mockResolvedValue({ wrongPasswordTries: 5 });
+
+        await expect(wrongLogin()).rejects.toThrow("Invalid email or password");
+
+        expect(prisma.user.updateMany).toHaveBeenCalledWith({
+          where: { id: "1", accountBlocked: 0 },
+          data: { accountBlocked: 1 },
+        });
+        expect(prisma.accountUnblockToken.create).toHaveBeenCalledWith({
+          data: expect.objectContaining({ userId: "1", tokenHash: expect.stringMatching(/^hash-/) }),
+        });
+        expect(sendAccountBlockedEmail).toHaveBeenCalledWith(
+          "test@example.com",
+          "Test User",
+          expect.stringMatching(/\/unblock-account\?token=[0-9a-f]{64}$/),
+        );
+      });
+
+      it("sends no second email when a parallel request already blocked it", async () => {
+        (prisma.user.update as jest.Mock).mockResolvedValue({ wrongPasswordTries: 6 });
+        (prisma.user.updateMany as jest.Mock).mockResolvedValueOnce({ count: 0 });
+
+        await expect(wrongLogin()).rejects.toThrow("Invalid email or password");
+
+        expect(prisma.accountUnblockToken.create).not.toHaveBeenCalled();
+        expect(sendAccountBlockedEmail).not.toHaveBeenCalled();
+      });
+
+      it("rejects a blocked account even with the correct password, without counting", async () => {
+        (prisma.user.findUnique as jest.Mock).mockResolvedValue({ ...mockUser, accountBlocked: 1 });
+        (hash.comparePassword as jest.Mock).mockResolvedValue(true);
+
+        await expect(
+          AuthService.login({ email: "test@example.com", password: "right" }),
+        ).rejects.toThrow("Invalid email or password");
+        expect(prisma.user.update).not.toHaveBeenCalled();
+      });
+
+      it("resets the tries after a correct password", async () => {
+        (prisma.user.findUnique as jest.Mock).mockResolvedValue({ ...mockUser, wrongPasswordTries: 3 });
+        (hash.comparePassword as jest.Mock).mockResolvedValue(true);
+
+        await expect(
+          AuthService.login({ email: "test@example.com", password: "right" }),
+        ).resolves.toHaveProperty("accessToken");
+        expect(prisma.user.update).toHaveBeenCalledWith({
+          where: { id: "1" },
+          data: { wrongPasswordTries: 0 },
+        });
+      });
     });
 
     it("rejects a deactivated user", async () => {
@@ -562,6 +635,45 @@ describe("AuthService", () => {
     });
   });
 
+  describe("unblockAccount", () => {
+    const record = { id: "ub1", userId: "1", usedAt: null, expiresAt: new Date(Date.now() + 60_000) };
+
+    it("clears the block and claims the token", async () => {
+      (prisma.accountUnblockToken.findUnique as jest.Mock).mockResolvedValue(record);
+
+      await expect(AuthService.unblockAccount("raw")).resolves.toHaveProperty("message");
+
+      expect(prisma.accountUnblockToken.findUnique).toHaveBeenCalledWith({ where: { tokenHash: "hash-raw" } });
+      expect(prisma.accountUnblockToken.updateMany).toHaveBeenCalledWith({
+        where: { id: "ub1", usedAt: null },
+        data: { usedAt: expect.any(Date) },
+      });
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: "1" },
+        data: { accountBlocked: 0, wrongPasswordTries: 0 },
+      });
+    });
+
+    it.each([
+      ["unknown", null],
+      ["used", { ...record, usedAt: new Date() }],
+      ["expired", { ...record, expiresAt: new Date(Date.now() - 1) }],
+    ])("rejects an %s token", async (_label, found) => {
+      (prisma.accountUnblockToken.findUnique as jest.Mock).mockResolvedValue(found);
+
+      await expect(AuthService.unblockAccount("raw")).rejects.toThrow(ValidationError);
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it("rejects when a parallel request claimed the token first", async () => {
+      (prisma.accountUnblockToken.findUnique as jest.Mock).mockResolvedValue(record);
+      (prisma.accountUnblockToken.updateMany as jest.Mock).mockResolvedValueOnce({ count: 0 });
+
+      await expect(AuthService.unblockAccount("raw")).rejects.toThrow("already been used");
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+  });
+
   describe("resetPassword", () => {
     const futureDate = new Date(Date.now() + 3600000);
     const validRecord = {
@@ -588,6 +700,8 @@ describe("AuthService", () => {
         data: {
           passwordHash: "$2b$12$newhashed",
           emailVerified: true,
+          wrongPasswordTries: 0,
+          accountBlocked: 0,
         },
       });
     });

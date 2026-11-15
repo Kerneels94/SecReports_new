@@ -28,11 +28,16 @@ import {
   sendPasswordResetEmail,
   sendPasswordChangedEmail,
   sendNewCompanyAlert,
+  sendAccountBlockedEmail,
 } from "./email.service";
 import { SubscriptionService } from "./subscription.service";
 import { PermissionService } from "./permission.service";
 import { posthog } from "../lib/posthog";
 import type { UserRole } from "../generated/prisma/enums";
+
+/** Wrong passwords in a row before the account is blocked (accountBlocked = 1). */
+const MAX_WRONG_PASSWORD_TRIES = 5;
+const UNBLOCK_TOKEN_TTL_MS = 60 * 60 * 1000;
 
 /** A real bcrypt hash of a throwaway string — used to equalise login timing on the unknown-email path. */
 const DUMMY_BCRYPT_HASH =
@@ -107,18 +112,51 @@ async function persistRefreshToken(
 }
 
 /**
- * Audits a wrong password. Brute force is stopped by the per-email login rate
- * limit (auth.routes.ts), not an account lockout: a lockout answered every
- * attempt, correct password included, with the generic 401, so locked users
- * could not tell why their real password failed.
+ * Counts a wrong password. The 5th in a row blocks the account and emails an
+ * unblock link. The block is set with an `accountBlocked: 0` guard so parallel
+ * wrong attempts send one email, not several.
  */
-async function handleLoginFailure(userId: string): Promise<never> {
+async function handleLoginFailure(user: { id: string; email: string; name: string }): Promise<never> {
+  const { wrongPasswordTries } = await prisma.user.update({
+    where: { id: user.id },
+    data: { wrongPasswordTries: { increment: 1 } },
+    select: { wrongPasswordTries: true },
+  });
+
   await createAuditLog({
     entityType: "user",
-    entityId: userId,
+    entityId: user.id,
     action: "login_failed",
-    performedBy: userId,
+    performedBy: user.id,
+    newValues: JSON.stringify({ wrongPasswordTries }),
   });
+
+  if (wrongPasswordTries >= MAX_WRONG_PASSWORD_TRIES) {
+    const blocked = await prisma.user.updateMany({
+      where: { id: user.id, accountBlocked: 0 },
+      data: { accountBlocked: 1 },
+    });
+    if (blocked.count === 1) {
+      const rawToken = crypto.randomBytes(32).toString("hex");
+      await prisma.accountUnblockToken.create({
+        data: {
+          userId: user.id,
+          tokenHash: hashToken(rawToken),
+          expiresAt: new Date(Date.now() + UNBLOCK_TOKEN_TTL_MS),
+        },
+      });
+      await createAuditLog({
+        entityType: "user",
+        entityId: user.id,
+        action: "account_blocked",
+        performedBy: user.id,
+      });
+      const unblockLink = `${getAppUrl()}/unblock-account?token=${rawToken}`;
+      sendAccountBlockedEmail(user.email, user.name, unblockLink).catch((err) =>
+        console.error("[AuthService] Account blocked email failed:", err),
+      );
+    }
+  }
 
   throw new UnauthorizedError("Invalid email or password");
 }
@@ -179,7 +217,8 @@ export const AuthService = {
   /**
    * Authenticates a user by email/password.
    * On success: returns tokens + a refresh token record.
-   * On failure: audits the attempt. Brute force is capped by the per-email rate limit on the route.
+   * On failure: counts the wrong password; 5 in a row block the account until
+   * the emailed unblock link (or a password reset) clears it.
    */
   async login(params: LoginParams & { deviceInfo?: string }) {
     const user = await prisma.user.findUnique({
@@ -189,15 +228,25 @@ export const AuthService = {
       await comparePassword(params.password, DUMMY_BCRYPT_HASH);
       throwGenericAuthError();
     }
-    if (authDenied(user)) {
-      // Spend the same bcrypt time as a real check so response timing doesn't reveal inactive/unverified accounts.
+    // Blocked is checked here, not in authDenied, so refresh keeps open sessions
+    // alive: a blocked account means someone guessed wrong, not that the
+    // logged-in user is untrusted. Blocked attempts are not counted.
+    if (authDenied(user) || user.accountBlocked === 1) {
+      // Spend the same bcrypt time as a real check so response timing doesn't reveal inactive/unverified/blocked accounts.
       await comparePassword(params.password, DUMMY_BCRYPT_HASH);
       throwGenericAuthError();
     }
 
     const valid = await comparePassword(params.password, user.passwordHash);
     if (!valid) {
-      return await handleLoginFailure(user.id);
+      return await handleLoginFailure(user);
+    }
+
+    if (user.wrongPasswordTries > 0) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { wrongPasswordTries: 0 },
+      });
     }
 
     await assertTrialNotExpired(user);
@@ -501,6 +550,40 @@ export const AuthService = {
     return { message: "Email verified successfully. You can now log in." };
   },
 
+  /** Lifts a wrong-password block using the one-time token from the account-blocked email. */
+  async unblockAccount(token: string) {
+    const record = await prisma.accountUnblockToken.findUnique({
+      where: { tokenHash: hashToken(token) },
+    });
+    if (!record || record.usedAt || record.expiresAt < new Date())
+      throw new ValidationError(
+        "Invalid or expired unblock link. Use Forgot password to unblock your account.",
+      );
+
+    await prisma.$transaction(async (tx) => {
+      // Claim the token atomically so two parallel requests can't both use it.
+      const claimed = await tx.accountUnblockToken.updateMany({
+        where: { id: record.id, usedAt: null },
+        data: { usedAt: new Date() },
+      });
+      if (claimed.count === 0)
+        throw new ValidationError("Unblock link has already been used");
+      await tx.user.update({
+        where: { id: record.userId },
+        data: { accountBlocked: 0, wrongPasswordTries: 0 },
+      });
+    });
+
+    await createAuditLog({
+      entityType: "user",
+      entityId: record.userId,
+      action: "account_unblocked",
+      performedBy: record.userId,
+    });
+
+    return { message: "Your account has been unblocked. You can now log in." };
+  },
+
   /** Creates a user within a company after checking subscription user-limit. Sends verification email. */
   async createUser(params: CreateUserParams) {
     // users.manage can be granted to managers; without this they could create an admin they control.
@@ -627,8 +710,9 @@ export const AuthService = {
         throw new UnauthorizedError("Invalid or expired reset token");
       return tx.user.update({
         where: { email: record.email },
-        // Reset link proves mailbox ownership, so it also verifies the email.
-        data: { passwordHash, emailVerified: true },
+        // Reset link proves mailbox ownership, so it also verifies the email
+        // and lifts a wrong-password block.
+        data: { passwordHash, emailVerified: true, wrongPasswordTries: 0, accountBlocked: 0 },
       });
     });
 
@@ -1009,6 +1093,7 @@ export const AuthService = {
     await prisma.$transaction(async (tx) => {
       await tx.refreshToken.deleteMany({ where: { userId: { in: userIds } } });
       await tx.emailVerificationToken.deleteMany({ where: { userId: { in: userIds } } });
+      await tx.accountUnblockToken.deleteMany({ where: { userId: { in: userIds } } });
       await tx.passwordResetToken.deleteMany({ where: { email: { in: emails } } });
       await tx.auditLog.deleteMany({
         where: {

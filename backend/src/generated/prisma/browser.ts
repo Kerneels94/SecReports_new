@@ -48,6 +48,11 @@ export type Incident = Prisma.IncidentModel
  */
 export type PasswordResetToken = Prisma.PasswordResetTokenModel
 /**
+ * Model AccountUnblockToken
+ * One-time link emailed when an account is blocked; only the sha256 hash is stored.
+ */
+export type AccountUnblockToken = Prisma.AccountUnblockTokenModel
+/**
  * Model EmailVerificationToken
  * 
  */

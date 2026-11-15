@@ -81,6 +81,11 @@ export const verifyEmailSchema = z.object({
   token: z.string("Verification token is required").min(1, "Verification token is required"),
 });
 
+/** Validates the token from the account-blocked email's unblock link. */
+export const unblockAccountSchema = z.object({
+  token: z.string("Unblock token is required").min(1, "Unblock token is required"),
+});
+
 /**
  * Validates password-reset completion payloads (token + new password).
  */

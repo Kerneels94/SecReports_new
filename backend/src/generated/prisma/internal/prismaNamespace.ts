@@ -396,6 +396,7 @@ export const ModelName = {
   RefreshToken: 'RefreshToken',
   Incident: 'Incident',
   PasswordResetToken: 'PasswordResetToken',
+  AccountUnblockToken: 'AccountUnblockToken',
   EmailVerificationToken: 'EmailVerificationToken',
   SubscriptionPlan: 'SubscriptionPlan',
   CompanySubscription: 'CompanySubscription',
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company" | "companyPermission" | "user" | "refreshToken" | "incident" | "passwordResetToken" | "emailVerificationToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "invoice" | "ledger" | "auditLog"
+    modelProps: "company" | "companyPermission" | "user" | "refreshToken" | "incident" | "passwordResetToken" | "accountUnblockToken" | "emailVerificationToken" | "subscriptionPlan" | "companySubscription" | "paymentHistory" | "invoice" | "ledger" | "auditLog"
     txIsolationLevel: never
   }
   model: {
@@ -863,6 +864,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PasswordResetTokenCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PasswordResetTokenCountAggregateOutputType> | number
+        }
+      }
+    }
+    AccountUnblockToken: {
+      payload: Prisma.$AccountUnblockTokenPayload<ExtArgs>
+      fields: Prisma.AccountUnblockTokenFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AccountUnblockTokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AccountUnblockTokenPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AccountUnblockTokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AccountUnblockTokenPayload>
+        }
+        findFirst: {
+          args: Prisma.AccountUnblockTokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AccountUnblockTokenPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AccountUnblockTokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AccountUnblockTokenPayload>
+        }
+        findMany: {
+          args: Prisma.AccountUnblockTokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AccountUnblockTokenPayload>[]
+        }
+        create: {
+          args: Prisma.AccountUnblockTokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AccountUnblockTokenPayload>
+        }
+        createMany: {
+          args: Prisma.AccountUnblockTokenCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AccountUnblockTokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AccountUnblockTokenPayload>
+        }
+        update: {
+          args: Prisma.AccountUnblockTokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AccountUnblockTokenPayload>
+        }
+        deleteMany: {
+          args: Prisma.AccountUnblockTokenDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AccountUnblockTokenUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AccountUnblockTokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AccountUnblockTokenPayload>
+        }
+        aggregate: {
+          args: Prisma.AccountUnblockTokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAccountUnblockToken>
+        }
+        groupBy: {
+          args: Prisma.AccountUnblockTokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AccountUnblockTokenGroupByOutputType>[]
+        }
+        findRaw: {
+          args: Prisma.AccountUnblockTokenFindRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        aggregateRaw: {
+          args: Prisma.AccountUnblockTokenAggregateRawArgs<ExtArgs>
+          result: Prisma.JsonObject
+        }
+        count: {
+          args: Prisma.AccountUnblockTokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AccountUnblockTokenCountAggregateOutputType> | number
         }
       }
     }
@@ -1437,6 +1512,8 @@ export const UserScalarFieldEnum = {
   loginAttempts: 'loginAttempts',
   lockoutCount: 'lockoutCount',
   lockedUntil: 'lockedUntil',
+  wrongPasswordTries: 'wrongPasswordTries',
+  accountBlocked: 'accountBlocked',
   emailVerified: 'emailVerified',
   sessionsRevokedAt: 'sessionsRevokedAt',
   createdBy: 'createdBy',
@@ -1504,6 +1581,18 @@ export const PasswordResetTokenScalarFieldEnum = {
 } as const
 
 export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
+
+
+export const AccountUnblockTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type AccountUnblockTokenScalarFieldEnum = (typeof AccountUnblockTokenScalarFieldEnum)[keyof typeof AccountUnblockTokenScalarFieldEnum]
 
 
 export const EmailVerificationTokenScalarFieldEnum = {
@@ -1806,6 +1895,7 @@ export type GlobalOmitConfig = {
   refreshToken?: Prisma.RefreshTokenOmit
   incident?: Prisma.IncidentOmit
   passwordResetToken?: Prisma.PasswordResetTokenOmit
+  accountUnblockToken?: Prisma.AccountUnblockTokenOmit
   emailVerificationToken?: Prisma.EmailVerificationTokenOmit
   subscriptionPlan?: Prisma.SubscriptionPlanOmit
   companySubscription?: Prisma.CompanySubscriptionOmit
