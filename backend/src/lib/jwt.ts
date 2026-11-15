@@ -60,6 +60,7 @@ export function signRefreshToken(payload: TokenPayload): string {
  */
 export function verifyAccessToken(token: string): TokenPayload & { iat: number } {
   return jwt.verify(token, JWT_SECRET!, {
+    algorithms: ["HS256"],
     issuer: "secreports-api",
     audience: "secreports-client",
   }) as TokenPayload & { iat: number };
@@ -73,6 +74,7 @@ export function verifyAccessToken(token: string): TokenPayload & { iat: number }
  */
 export function verifyRefreshToken(token: string): TokenPayload {
   return jwt.verify(token, JWT_REFRESH_SECRET!, {
+    algorithms: ["HS256"],
     issuer: "secreports-api",
     audience: "secreports-client",
   }) as TokenPayload;

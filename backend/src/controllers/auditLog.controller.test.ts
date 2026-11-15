@@ -11,7 +11,7 @@ jest.mock("../services/email.service", () => ({
 }));
 
 jest.mock("../services/auditLog.service", () => ({
-  AuditLogService: { exportForCompany: jest.fn() },
+  AuditLogService: { exportForCompany: jest.fn(), list: jest.fn() },
 }));
 
 const mockExportForCompany = AuditLogService.exportForCompany as jest.Mock;
@@ -115,5 +115,17 @@ describe("AuditLogController.exportOwnCompany", () => {
         reply as any,
       ),
     ).rejects.toThrow("Company is required");
+  });
+});
+
+describe("AuditLogController.list", () => {
+  it("rejects a user with no company instead of listing every company", async () => {
+    await expect(
+      AuditLogController.list(
+        { user: { companyId: null }, query: {} } as any,
+        { code: jest.fn(), send: jest.fn() } as any,
+      ),
+    ).rejects.toThrow("Company is required");
+    expect(AuditLogService.list).not.toHaveBeenCalled();
   });
 });

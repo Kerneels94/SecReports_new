@@ -41,6 +41,16 @@ describe("verifyAccessToken", () => {
     expect(result).toEqual(payload);
   });
 
+  it("pins HS256 so a token signed with another algorithm is rejected", () => {
+    (jwt.verify as jest.Mock).mockReturnValue(payload);
+    verifyAccessToken("some-token");
+    expect(jwt.verify).toHaveBeenCalledWith(
+      "some-token",
+      expect.any(String),
+      expect.objectContaining({ algorithms: ["HS256"] }),
+    );
+  });
+
   it("throws on invalid token", () => {
     (jwt.verify as jest.Mock).mockImplementation(() => { throw new Error("jwt malformed"); });
     expect(() => verifyAccessToken("bad-token")).toThrow("jwt malformed");
@@ -59,5 +69,15 @@ describe("verifyRefreshToken", () => {
       expect.objectContaining({ issuer: "secreports-api", audience: "secreports-client" }),
     );
     expect(result).toEqual(payload);
+  });
+
+  it("pins HS256 so a token signed with another algorithm is rejected", () => {
+    (jwt.verify as jest.Mock).mockReturnValue(payload);
+    verifyRefreshToken("some-token");
+    expect(jwt.verify).toHaveBeenCalledWith(
+      "some-token",
+      expect.any(String),
+      expect.objectContaining({ algorithms: ["HS256"] }),
+    );
   });
 });
