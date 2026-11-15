@@ -608,7 +608,7 @@ export default function LandingPage() {
                   Full access to all features — with a 3-user and 50-report
                   limit during your trial.
                 </p>
-                <p className="price">R 0</p>
+                <p className="price">Free</p>
                 <p className="price-note">for 14 days</p>
                 <ul className="ticks">
                   <li>
