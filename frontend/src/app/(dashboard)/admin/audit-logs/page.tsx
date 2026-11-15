@@ -275,8 +275,8 @@ export default function AuditLogsPage() {
                         </td>
                         <td className={TD}>
                           <div>
-                            <p className="font-medium text-text">{entry.performedByUser.name}</p>
-                            <p className="mt-0.5 text-xs text-text-secondary/60">{entry.performedByUser.email}</p>
+                            <p className="font-medium text-text">{entry.performedByUser?.name || "—"}</p>
+                            <p className="mt-0.5 text-xs text-text-secondary/60">{entry.performedByUser?.email || ""}</p>
                           </div>
                         </td>
                         <td className={TD}><ActionBadge action={entry.action} /></td>

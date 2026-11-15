@@ -295,10 +295,11 @@ model AuditLog {
   userAgent    String?  @map("user_agent")
   oldValues    String?  @map("old_values")
   newValues    String?  @map("new_values")
-  performedBy  String   @map("performed_by") @db.ObjectId
+  // Null when a login names an email that has no account.
+  performedBy  String?  @map("performed_by") @db.ObjectId
   createdAt    DateTime @default(now()) @map("created_at")
 
-  performedByUser User @relation(fields: [performedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  performedByUser User? @relation(fields: [performedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([entityType, entityId])
   @@index([performedBy])
