@@ -54,6 +54,14 @@ export interface AreaResponseStat {
   count: number;
 }
 
+/** Incident count for one ~1 km map cell. */
+export interface IncidentMapCell {
+  lat: number;
+  lng: number;
+  count: number;
+  area: string;
+}
+
 /** Aggregated report summary data for the dashboard. */
 interface ReportSummary {
   total: number;
@@ -135,6 +143,7 @@ export const reportService = {
   monthlyStats: () => api.get<MonthlyStat[]>("/reports/monthly-stats"),
   monthlyResponse: () => api.get<MonthlyResponseStat[]>("/reports/monthly-response"),
   responseByArea: () => api.get<AreaResponseStat[]>("/reports/response-by-area"),
+  incidentMap: () => api.get<IncidentMapCell[]>("/reports/incident-map"),
   batchEmail: (email: string, type: string, format: "csv" | "pdf") =>
     api.post<{ message: string }>("/reports/batch-email", {
       email,

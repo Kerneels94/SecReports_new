@@ -194,4 +194,30 @@ export const ReportService = {
       .map(([area, times]) => ({ area, avgMs: durationStats(times).avgMs, count: times.length }))
       .sort((a, b) => b.avgMs - a.avgMs);
   },
+
+  /**
+   * Incident counts per map cell, busiest first, for the dashboard heat map.
+   * Coordinates are snapped to a 0.01° grid (~1 km) so nearby incidents merge into one hotspot
+   * and the payload stays small. Incidents without coordinates are skipped.
+   */
+  async incidentMap(companyId: string) {
+    const incidents = await prisma.incident.findMany({
+      where: { companyId, latitude: { not: null }, longitude: { not: null } },
+      select: { latitude: true, longitude: true, suburb: true, city: true, location: true },
+    });
+
+    const cells: Record<string, { lat: number; lng: number; count: number; area: string }> = {};
+    for (const inc of incidents) {
+      const lat = Math.round(inc.latitude! * 100) / 100;
+      const lng = Math.round(inc.longitude! * 100) / 100;
+      const key = `${lat},${lng}`;
+      // First incident with a readable place names the cell.
+      const area = [inc.suburb, inc.city].filter(Boolean).join(", ") || inc.location || "";
+      const cell = (cells[key] ||= { lat, lng, count: 0, area });
+      cell.count++;
+      if (!cell.area) cell.area = area;
+    }
+
+    return Object.values(cells).sort((a, b) => b.count - a.count);
+  },
 };

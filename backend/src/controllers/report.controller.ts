@@ -25,4 +25,9 @@ export const ReportController = {
     const data = await ReportService.responseByArea(request.user!.companyId);
     reply.code(200).send({ success: true, data });
   },
+
+  async incidentMap(request: FastifyRequest, reply: FastifyReply) {
+    const data = await ReportService.incidentMap(request.user!.companyId);
+    reply.code(200).send({ success: true, data });
+  },
 };

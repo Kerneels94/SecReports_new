@@ -321,4 +321,26 @@ describe("ReportService", () => {
       expect(result).toEqual([]);
     });
   });
+
+  describe("incidentMap", () => {
+    it("merges incidents into ~1 km cells, busiest first, named by the first readable place", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+        { latitude: -26.2041, longitude: 28.0473, suburb: null, city: null, location: null },
+        { latitude: -26.2039, longitude: 28.0469, suburb: "CBD", city: "Joburg", location: null },
+        { latitude: -33.9249, longitude: 18.4241, suburb: null, city: "Cape Town", location: null },
+      ]);
+
+      const result = await ReportService.incidentMap("company1");
+
+      expect(result).toEqual([
+        { lat: -26.2, lng: 28.05, count: 2, area: "CBD, Joburg" },
+        { lat: -33.92, lng: 18.42, count: 1, area: "Cape Town" },
+      ]);
+      expect(prisma.incident.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { companyId: "company1", latitude: { not: null }, longitude: { not: null } },
+        }),
+      );
+    });
+  });
 });

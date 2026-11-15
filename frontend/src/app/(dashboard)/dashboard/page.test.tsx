@@ -34,7 +34,7 @@ const { __authState: authState } = jest.requireMock("@/hooks/useAuth");
 
 jest.mock("@/services", () => ({
   ...jest.requireActual("@/services"),
-  reportService: { summary: jest.fn(), monthlyStats: jest.fn(), monthlyResponse: jest.fn(), responseByArea: jest.fn() },
+  reportService: { summary: jest.fn(), monthlyStats: jest.fn(), monthlyResponse: jest.fn(), responseByArea: jest.fn(), incidentMap: jest.fn() },
   exportService: { downloadYearlyPdf: jest.fn(), downloadMonthlyCrimePdf: jest.fn(), downloadResponseTimePdf: jest.fn() },
 }));
 
@@ -42,6 +42,7 @@ const mockSummary = reportService.summary as jest.Mock;
 const mockMonthly = reportService.monthlyStats as jest.Mock;
 const mockMonthlyResponse = reportService.monthlyResponse as jest.Mock;
 const mockResponseByArea = reportService.responseByArea as jest.Mock;
+const mockIncidentMap = reportService.incidentMap as jest.Mock;
 const mockDownloadPdf = exportService.downloadYearlyPdf as jest.Mock;
 const mockDownloadMonthlyCrime = exportService.downloadMonthlyCrimePdf as jest.Mock;
 const mockDownloadResponseTime = exportService.downloadResponseTimePdf as jest.Mock;
@@ -72,6 +73,7 @@ beforeEach(() => {
   mockMonthly.mockResolvedValue({ data: [] });
   mockMonthlyResponse.mockResolvedValue({ data: [] });
   mockResponseByArea.mockResolvedValue({ data: [] });
+  mockIncidentMap.mockResolvedValue({ data: [] });
 });
 
 describe("DashboardPage", () => {
@@ -117,6 +119,30 @@ describe("DashboardPage", () => {
 
     const trendHeader = screen.getByTestId("trend-header");
     expect(trendHeader.className).toContain("flex-wrap");
+  });
+
+  it("lists the busiest map areas under the hotspot map", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockIncidentMap.mockResolvedValue({
+      data: [
+        { lat: -26.2, lng: 28.05, count: 7, area: "CBD, Joburg" },
+        { lat: -33.92, lng: 18.42, count: 2, area: "" },
+      ],
+    });
+    render(<DashboardPage />);
+
+    expect(await screen.findByText("CBD, Joburg")).toBeInTheDocument();
+    expect(screen.getByText("Unnamed area")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Incident hotspot map" })).toBeInTheDocument();
+  });
+
+  it("shows an inline message when the map fails, without blanking the dashboard", async () => {
+    mockSummary.mockResolvedValue({ data: mockData });
+    mockIncidentMap.mockRejectedValue(new Error("down"));
+    render(<DashboardPage />);
+
+    expect(await screen.findByText("Could not load the incident map.")).toBeInTheDocument();
+    expect(screen.getByText("Total incidents")).toBeInTheDocument();
   });
 
   it("renders stat card values", async () => {

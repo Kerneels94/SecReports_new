@@ -5,13 +5,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { MonthlyCrimeReportModal } from "@/components/reports/MonthlyCrimeReportModal";
 import { reportService, exportService, formatDurationMs } from "@/services";
+import { IncidentHeatMap } from "@/components/map/IncidentHeatMap";
 import {
-  IncidentPieChart,
   ResponseTimeChart,
   YearlyTrendChart,
 } from "./components/DashboardCharts";
 import type {
   AreaResponseStat,
+  IncidentMapCell,
   MonthlyResponseStat,
   ResponsePeriod,
 } from "@/services";
@@ -190,6 +191,8 @@ export default function DashboardPage() {
   // whole dashboard with a Retry button, so a 404 or expired trial would blank every chart.
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [yearlyError, setYearlyError] = useState<string | null>(null);
+  const [mapCells, setMapCells] = useState<IncidentMapCell[]>([]);
+  const [mapError, setMapError] = useState(false);
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -232,6 +235,11 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchSummary();
     fetchResponseMetrics();
+    // Own error flag: a map failure should not blank the rest of the dashboard.
+    reportService
+      .incidentMap()
+      .then((res) => setMapCells(res.data ?? []))
+      .catch(() => setMapError(true));
   }, [fetchSummary, fetchResponseMetrics]);
 
   const chartData = useMemo(() => {
@@ -633,20 +641,36 @@ export default function DashboardPage() {
           <div className={`${PANEL} flex flex-col lg:col-span-2`}>
             <div className={CARD_HEAD}>
               <div>
-                <h2 className={CARD_TITLE}>Incidents by Type</h2>
-                <p className={CARD_SUB}>All incidents</p>
+                <h2 className={CARD_TITLE}>Incident hotspots</h2>
+                <p className={CARD_SUB}>Areas with the most incidents</p>
               </div>
             </div>
             <div className="flex flex-1 flex-col justify-center">
-              {total === 0 ? (
+              {mapError ? (
                 <p className="text-lg text-text-secondary">
-                  No incidents reported yet.
+                  Could not load the incident map.
+                </p>
+              ) : mapCells.length === 0 ? (
+                <p className="text-lg text-text-secondary">
+                  No incidents with a location yet.
                 </p>
               ) : (
-                <IncidentPieChart
-                  attempted={attemptedCount}
-                  positive={positiveCount}
-                />
+                <>
+                  <IncidentHeatMap cells={mapCells} className="h-72" />
+                  <ul className="mt-3 grid gap-2">
+                    {mapCells.slice(0, 3).map((c) => (
+                      <li
+                        key={`${c.lat},${c.lng}`}
+                        className="flex items-center gap-2.5 text-sm text-text-secondary"
+                      >
+                        <span className="truncate">{c.area || "Unnamed area"}</span>
+                        <b className="ml-auto font-mono font-semibold text-text">
+                          {c.count}
+                        </b>
+                      </li>
+                    ))}
+                  </ul>
+                </>
               )}
             </div>
           </div>
