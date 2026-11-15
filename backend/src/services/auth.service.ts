@@ -1130,7 +1130,8 @@ export const AuthService = {
         where: { id: companyId },
         data: { email: `deleted-${companyId}@deleted.invalid`, deletedAt: new Date() },
       });
-    });
+      // Ten bulk deletes on a big company outrun Prisma's 5s default.
+    }, { timeout: 60_000 });
     // ponytail: database backups still hold the data until they rotate out; say so in the privacy policy.
   },
 

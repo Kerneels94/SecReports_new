@@ -133,19 +133,6 @@ export async function buildApp() {
     }
   });
 
-  await fastify.register(authRoutes);
-  await fastify.register(contactRoutes);
-  await fastify.register(incidentRoutes);
-  await fastify.register(reportRoutes);
-
-  await fastify.register(exportRoutes);
-
-  await fastify.register(invoiceRoutes);
-  await fastify.register(ledgerRoutes);
-  await fastify.register(auditLogRoutes);
-  await fastify.register(subscriptionRoutes);
-  await fastify.register(permissionRoutes);
-
   fastify.setErrorHandler((error: Error & { statusCode?: number; code?: string; validation?: unknown }, request, reply) => {
     if (error instanceof AppError) {
       reply.code(error.statusCode).send({
@@ -230,6 +217,19 @@ export async function buildApp() {
       },
     });
   });
+
+  await fastify.register(authRoutes);
+  await fastify.register(contactRoutes);
+  await fastify.register(incidentRoutes);
+  await fastify.register(reportRoutes);
+
+  await fastify.register(exportRoutes);
+
+  await fastify.register(invoiceRoutes);
+  await fastify.register(ledgerRoutes);
+  await fastify.register(auditLogRoutes);
+  await fastify.register(subscriptionRoutes);
+  await fastify.register(permissionRoutes);
 
   return fastify;
 }
