@@ -1,9 +1,6 @@
 "use client";
 
 import {
-  PieChart,
-  Pie,
-  Cell,
   ResponsiveContainer,
   LineChart,
   Line,
@@ -15,8 +12,6 @@ import {
   Tooltip,
 } from "recharts";
 
-const ATTEMPTED_COLOR = "#d97706";
-const POSITIVE_COLOR = "#e11d48";
 const ACCENT = "#86efac";
 const CURSOR = { stroke: "#71717a", strokeWidth: 1, strokeDasharray: "4 4" };
 const AXIS_TICK = { fill: "#9393a0", fontSize: 11 };
@@ -52,68 +47,6 @@ function ChartTooltip({ active, payload, label, format }: {
         {payload[0].name}:{" "}
         <span className="font-medium text-text">{format ? format(value) : value}</span>
       </p>
-    </div>
-  );
-}
-
-export function IncidentPieChart({ attempted, positive }: { attempted: number; positive: number }) {
-  const data = [
-    { name: "Attempted", value: attempted },
-    { name: "Positive", value: positive },
-  ];
-  const total = attempted + positive;
-  const pct = (n: number) => (total ? Math.round((n / total) * 100) : 0);
-
-  return (
-    <div className="flex h-full flex-col">
-      <div className="relative flex flex-1 items-center justify-center py-2">
-        <div className="h-56 w-full max-w-[220px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={data}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={62}
-                outerRadius={82}
-                startAngle={90}
-                endAngle={-270}
-                paddingAngle={2}
-                stroke="none"
-              >
-                {data.map((_, i) => (
-                  <Cell key={i} fill={i === 0 ? ATTEMPTED_COLOR : POSITIVE_COLOR} />
-                ))}
-              </Pie>
-              <Tooltip content={<ChartTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="font-mono text-2xl font-semibold leading-none text-text">
-            {total}
-          </span>
-          <span className="mt-1 text-[11px] text-text-secondary">incidents</span>
-        </div>
-      </div>
-      <ul className="mt-3 grid gap-2.5">
-        {data.map((d, i) => (
-          <li
-            key={d.name}
-            className="flex items-center gap-2.5 text-sm text-text-secondary"
-          >
-            <span
-              className="h-2.5 w-2.5 shrink-0 rounded-[3px]"
-              style={{ background: i === 0 ? ATTEMPTED_COLOR : POSITIVE_COLOR }}
-            />
-            {d.name}
-            <b className="ml-auto font-mono font-semibold text-text">{d.value}</b>
-            <em className="w-10 text-right not-italic text-text-secondary">
-              {pct(d.value)}%
-            </em>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
