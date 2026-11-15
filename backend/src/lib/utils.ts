@@ -1,4 +1,30 @@
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
+
+/**
+ * The real client IP. Behind the Netlify /api proxy, request.ip is Netlify's
+ * edge, so every user would share one rate-limit bucket. Netlify passes the
+ * client in x-nf-client-connection-ip, but anyone can call Render directly and
+ * set that header, so trust it only when Netlify's signature (x-nf-sign, the
+ * `signed` option in netlify.toml) verifies with NETLIFY_PROXY_SECRET.
+ */
+export function clientIp(request: {
+  ip: string;
+  headers: Record<string, string | string[] | undefined>;
+}): string {
+  const secret = process.env.NETLIFY_PROXY_SECRET;
+  const sig = request.headers["x-nf-sign"];
+  const nfIp = request.headers["x-nf-client-connection-ip"];
+  if (secret && typeof sig === "string" && typeof nfIp === "string") {
+    try {
+      jwt.verify(sig, secret, { issuer: "netlify", algorithms: ["HS256"] });
+      return nfIp;
+    } catch {
+      // Bad or forged signature: fall through to the socket-derived IP.
+    }
+  }
+  return request.ip;
+}
 
 /**
  * General-purpose utility functions.

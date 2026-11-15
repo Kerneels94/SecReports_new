@@ -1,5 +1,5 @@
 import Fastify from "fastify";
-import { generateReferenceNumber, parseTrustProxy } from "./utils";
+import { generateReferenceNumber, parseTrustProxy, clientIp } from "./utils";
 
 describe("generateReferenceNumber", () => {
   it("returns a string matching INC-YYYY-XXXXXXXX pattern", () => {
@@ -42,5 +42,35 @@ describe("parseTrustProxy", () => {
       headers: { "x-forwarded-for": "6.6.6.6, 203.0.113.7" },
     });
     expect(res.body).toBe("203.0.113.7");
+  });
+});
+
+describe("clientIp", () => {
+  const SECRET = "netlify-proxy-secret-for-tests";
+  const jwt = require("jsonwebtoken");
+  const req = (headers: Record<string, string>) => ({ ip: "10.0.0.9", headers });
+
+  beforeEach(() => {
+    process.env.NETLIFY_PROXY_SECRET = SECRET;
+  });
+  afterAll(() => {
+    delete process.env.NETLIFY_PROXY_SECRET;
+  });
+
+  it("uses Netlify's client IP when the proxy signature verifies", () => {
+    const sig = jwt.sign({ site_url: "x" }, SECRET, { issuer: "netlify" });
+    expect(clientIp(req({ "x-nf-sign": sig, "x-nf-client-connection-ip": "198.51.100.4" }))).toBe("198.51.100.4");
+  });
+
+  it("ignores the header when the signature is forged", () => {
+    const sig = jwt.sign({}, "attacker-secret", { issuer: "netlify" });
+    expect(clientIp(req({ "x-nf-sign": sig, "x-nf-client-connection-ip": "1.2.3.4" }))).toBe("10.0.0.9");
+  });
+
+  it("ignores the header when unsigned or no secret is configured", () => {
+    expect(clientIp(req({ "x-nf-client-connection-ip": "1.2.3.4" }))).toBe("10.0.0.9");
+    delete process.env.NETLIFY_PROXY_SECRET;
+    const sig = jwt.sign({}, SECRET, { issuer: "netlify" });
+    expect(clientIp(req({ "x-nf-sign": sig, "x-nf-client-connection-ip": "1.2.3.4" }))).toBe("10.0.0.9");
   });
 });

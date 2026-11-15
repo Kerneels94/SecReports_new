@@ -34,10 +34,6 @@ import { PermissionService } from "./permission.service";
 import { posthog } from "../lib/posthog";
 import type { UserRole } from "../generated/prisma/enums";
 
-const MAX_LOGIN_ATTEMPTS = 3;
-/** Lockout length per consecutive lockout: 1 → 2 → 5 → 10 min, then stays at 10 min. */
-const LOCKOUT_STEPS_MS = [1, 2, 5, 10].map((min) => min * 60 * 1000);
-
 /** A real bcrypt hash of a throwaway string — used to equalise login timing on the unknown-email path. */
 const DUMMY_BCRYPT_HASH =
   "$2b$12$fVfsKL1jvOfJcoa0CWRsyeXCpyak/CPQ4/pVgSUIbz/CTvKLsNG.m";
@@ -47,11 +43,6 @@ const ROLE_RANK: Record<string, number> = { senior: 1, manager: 2, admin: 3 };
 /** True when `role` sits above `actorRole` in the company hierarchy. Unknown actor ranks lowest. */
 function outranks(role: string, actorRole?: string): boolean {
   return (ROLE_RANK[role] ?? 0) > (ROLE_RANK[actorRole ?? ""] ?? 0);
-}
-
-/** Lockout duration for the nth lockout (1min → 2min → 5min → 10min cap). */
-function lockoutDuration(lockoutCount: number): number {
-  return LOCKOUT_STEPS_MS[Math.min(lockoutCount, LOCKOUT_STEPS_MS.length - 1)];
 }
 
 /** Credentials for user login. */
@@ -115,38 +106,18 @@ async function persistRefreshToken(
   return raw;
 }
 
-/** Checks whether the account is currently locked and increments on failure. */
+/**
+ * Audits a wrong password. Brute force is stopped by the per-email login rate
+ * limit (auth.routes.ts), not an account lockout: a lockout answered every
+ * attempt, correct password included, with the generic 401, so locked users
+ * could not tell why their real password failed.
+ */
 async function handleLoginFailure(userId: string): Promise<never> {
-  const result = await prisma.$transaction(
-    async (tx) => {
-      const user = await tx.user.update({
-        where: { id: userId },
-        data: { loginAttempts: { increment: 1 } },
-      });
-
-      if (user.loginAttempts >= MAX_LOGIN_ATTEMPTS) {
-        const duration = lockoutDuration(user.lockoutCount);
-        const locked = await tx.user.update({
-          where: { id: userId },
-          data: {
-            loginAttempts: 0,
-            lockoutCount: { increment: 1 },
-            lockedUntil: new Date(Date.now() + duration),
-          },
-        });
-        return { user: locked, attempts: 0 };
-      }
-      return { user, attempts: user.loginAttempts };
-    },
-    { timeout: 10000, maxWait: 5000 },
-  );
-
   await createAuditLog({
     entityType: "user",
     entityId: userId,
     action: "login_failed",
     performedBy: userId,
-    newValues: JSON.stringify({ loginAttempts: result.attempts }),
   });
 
   throw new UnauthorizedError("Invalid email or password");
@@ -162,7 +133,6 @@ function throwGenericAuthError(): never {
 function authDenied(user: {
   role: string;
   emailVerified: boolean;
-  lockedUntil: Date | null;
   status: string;
 }): boolean {
   const roleAllowed =
@@ -173,8 +143,7 @@ function authDenied(user: {
   return (
     user.status !== "active" ||
     !roleAllowed ||
-    !user.emailVerified ||
-    (!!user.lockedUntil && user.lockedUntil > new Date())
+    !user.emailVerified
   );
 }
 
@@ -193,20 +162,6 @@ async function assertTrialNotExpired(user: {
   }
 }
 
-/** Resets the login counter on successful authentication and decays lockout count. */
-async function resetLoginAttempts(userId: string): Promise<void> {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) return;
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      loginAttempts: 0,
-      lockedUntil: null,
-      lockoutCount: Math.max(0, user.lockoutCount - 1),
-    },
-  });
-}
-
 /**
  * Revokes every refresh token for a user. The stamp is written first so an
  * in-flight refresh that persists a replacement after the delete still
@@ -223,8 +178,8 @@ async function revokeAllSessions(userId: string): Promise<void> {
 export const AuthService = {
   /**
    * Authenticates a user by email/password.
-   * On success: resets login counter and returns tokens + a refresh token record.
-   * On failure: increments login counter; locks account after 3 attempts (1min, growing to 10min).
+   * On success: returns tokens + a refresh token record.
+   * On failure: audits the attempt. Brute force is capped by the per-email rate limit on the route.
    */
   async login(params: LoginParams & { deviceInfo?: string }) {
     const user = await prisma.user.findUnique({
@@ -235,7 +190,7 @@ export const AuthService = {
       throwGenericAuthError();
     }
     if (authDenied(user)) {
-      // Spend the same bcrypt time as a real check so response timing doesn't reveal locked/unverified accounts.
+      // Spend the same bcrypt time as a real check so response timing doesn't reveal inactive/unverified accounts.
       await comparePassword(params.password, DUMMY_BCRYPT_HASH);
       throwGenericAuthError();
     }
@@ -244,8 +199,6 @@ export const AuthService = {
     if (!valid) {
       return await handleLoginFailure(user.id);
     }
-
-    await resetLoginAttempts(user.id);
 
     await assertTrialNotExpired(user);
 
@@ -338,7 +291,7 @@ export const AuthService = {
     const user = await prisma.user.findUnique({ where: { id: stored.userId } });
     if (!user) throw new UnauthorizedError("User not found");
 
-    // Re-run the same gates as login() so a locked, unverified, or
+    // Re-run the same gates as login() so an inactive, unverified, or
     // trial-expired account cannot keep rotating its refresh token.
     if (authDenied(user)) {
       await prisma.refreshToken.deleteMany({ where: { id: stored.id } });
@@ -674,14 +627,8 @@ export const AuthService = {
         throw new UnauthorizedError("Invalid or expired reset token");
       return tx.user.update({
         where: { email: record.email },
-        // Reset link proves mailbox ownership: verify the email and lift any
-        // lockout. lockoutCount stays for escalation.
-        data: {
-          passwordHash,
-          emailVerified: true,
-          loginAttempts: 0,
-          lockedUntil: null,
-        },
+        // Reset link proves mailbox ownership, so it also verifies the email.
+        data: { passwordHash, emailVerified: true },
       });
     });
 

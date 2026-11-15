@@ -13,7 +13,7 @@ import { UnauthorizedError, AppError } from "./lib/errors";
 import { posthog } from "./lib/posthog";
 import { SubscriptionService } from "./services/subscription.service";
 import { runWithAuditContext } from "./lib/auditContext";
-import { parseTrustProxy } from "./lib/utils";
+import { parseTrustProxy, clientIp } from "./lib/utils";
 import { prisma } from "./lib/db";
 import authRoutes from "./routes/auth.routes";
 import contactRoutes from "./routes/contact.routes";
@@ -73,13 +73,14 @@ export async function buildApp() {
   await fastify.register(rateLimit, {
     max: 100,
     timeWindow: "1 minute",
+    keyGenerator: clientIp,
   });
 
   await fastify.register(cookie);
 
   fastify.addHook("onRequest", (request, _reply, done) => {
     runWithAuditContext(
-      { ipAddress: request.ip, userAgent: request.headers["user-agent"] as string },
+      { ipAddress: clientIp(request), userAgent: request.headers["user-agent"] as string },
       done,
     );
   });
@@ -176,7 +177,8 @@ export async function buildApp() {
         success: false,
         error: {
           code: "RATE_LIMIT",
-          message: "Too many requests",
+          // The plugin message says when to retry ("... retry in 14 minutes").
+          message: error.message || "Too many requests",
         },
       });
       return;

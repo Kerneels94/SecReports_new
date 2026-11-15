@@ -78,17 +78,19 @@
 - `persistRefreshToken` accepts optional `deviceInfo` — controller extracts `User-Agent` header on login/employeeLogin/refresh.
 - `/auth/sessions` returns stored `deviceInfo` for meaningful session identification.
 
-## Progressive Lockout
+## Login Brute-Force Limits
 
-| Lockout | Duration     |
-|---------|--------------|
-| 1st     | 1 min        |
-| 2nd     | 2 min        |
-| 3rd     | 5 min        |
-| 4th+    | 10 min (cap) |
+No account lockout. A lockout answered every attempt, correct password included,
+with the generic 401, so locked users could not tell why their real password failed.
 
-- On successful login, `lockoutCount` decays by 1 (so the next lockout is shorter).
-- Uses `lockoutCount` field on the User model.
+- Per email: 10 attempts / 15 min, keyed on the submitted email whether or not the
+  account exists, so the visible 429 ("Too many login attempts for this account...")
+  never reveals which emails are registered (golden rule #2 still holds for the 401).
+- Per IP: 10 / min on `/auth/login`, 100 / min global.
+- Client IP comes from `clientIp()` (`lib/utils.ts`): Netlify's
+  `x-nf-client-connection-ip`, trusted only when the `x-nf-sign` proxy signature
+  verifies with `NETLIFY_PROXY_SECRET`. Otherwise `request.ip` (`TRUST_PROXY=1`).
+- In-memory store: resets on restart, per instance. Move to Redis if Render scales out.
 
 ## Audit Logging
 
@@ -112,7 +114,7 @@ Always call `createAuditLog()` for these events:
 | File | Role |
 |------|------|
 | `backend/src/app.ts` | Inline `authenticate` decorator (single source of truth) |
-| `backend/src/services/auth.service.ts` | Core auth logic — login, register, refresh, logout, lockout, audit |
+| `backend/src/services/auth.service.ts` | Core auth logic — login, register, refresh, logout, audit |
 | `backend/src/controllers/auth.controller.ts` | Endpoint handlers — extracts User-Agent for deviceInfo |
 | `backend/src/routes/auth.routes.ts` | Rate limiting config per route |
 | `backend/src/lib/hash.ts` | Bcrypt salt rounds from env |
