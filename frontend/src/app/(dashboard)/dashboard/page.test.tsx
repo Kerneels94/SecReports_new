@@ -392,7 +392,7 @@ describe("DashboardPage", () => {
     render(<DashboardPage />);
 
     await waitFor(() => {
-      expect(screen.getAllByText("No incidents reported yet.").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText("No incidents with a location yet.")).toBeInTheDocument();
     });
   });
 
