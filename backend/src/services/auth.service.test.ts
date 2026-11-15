@@ -645,7 +645,7 @@ describe("AuthService", () => {
 
       expect(prisma.accountUnblockToken.findUnique).toHaveBeenCalledWith({ where: { tokenHash: "hash-raw" } });
       expect(prisma.accountUnblockToken.updateMany).toHaveBeenCalledWith({
-        where: { id: "ub1", usedAt: null },
+        where: { id: "ub1", OR: [{ usedAt: null }, { usedAt: { isSet: false } }] },
         data: { usedAt: expect.any(Date) },
       });
       expect(prisma.user.update).toHaveBeenCalledWith({
@@ -692,7 +692,7 @@ describe("AuthService", () => {
       await AuthService.resetPassword("valid-token", "newpassword123");
 
       expect(prisma.passwordResetToken.updateMany).toHaveBeenCalledWith({
-        where: { id: "1", usedAt: null },
+        where: { id: "1", OR: [{ usedAt: null }, { usedAt: { isSet: false } }] },
         data: { usedAt: expect.any(Date) },
       });
       expect(prisma.user.update).toHaveBeenCalledWith({
