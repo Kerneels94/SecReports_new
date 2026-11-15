@@ -216,6 +216,10 @@ function exportFilters(query: unknown): AuditLogFilters {
 
 export const AuditLogController = {
   async list(request: FastifyRequest, reply: FastifyReply) {
+    // The service reads a missing company as "every company" (the superadmin view).
+    const companyId = request.user!.companyId;
+    if (!companyId) throw new ValidationError("Company is required");
+
     const { entityType, action, dateFrom, dateTo, search } =
       request.query as Record<string, string | undefined>;
 
@@ -227,7 +231,7 @@ export const AuditLogController = {
     const data = await AuditLogService.list({
       page,
       perPage,
-      companyId: request.user!.companyId,
+      companyId,
       entityType,
       action,
       dateFrom,
