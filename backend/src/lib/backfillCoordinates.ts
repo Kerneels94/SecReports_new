@@ -13,7 +13,8 @@ type Point = { lat: number; lng: number };
 /** First Photon hit for a South African place, or null. Throws on HTTP errors (e.g. 429). */
 export async function geocode(query: string): Promise<Point | null> {
   const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1&lang=en&bbox=${ZA_BBOX}`;
-  const res = await fetch(url);
+  // Timeout so a slow Photon cannot hang an incident save.
+  const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
   if (!res.ok) throw new Error(`Photon returned ${res.status}`);
   const data = (await res.json()) as { features: { geometry: { coordinates: [number, number] } }[] };
   const hit = data.features[0];

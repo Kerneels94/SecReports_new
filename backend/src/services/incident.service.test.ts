@@ -1,6 +1,9 @@
 import { IncidentService } from "./incident.service";
 import { prisma } from "../lib/db";
 import { NotFoundError } from "../lib/errors";
+import { geocode } from "../lib/backfillCoordinates";
+
+jest.mock("../lib/backfillCoordinates", () => ({ geocode: jest.fn() }));
 
 jest.mock("../lib/db", () => ({
   prisma: {
@@ -287,6 +290,57 @@ describe("IncidentService", () => {
           performedBy: "1",
         },
       });
+    });
+
+    describe("without a picked pin", () => {
+      const { latitude: _lat, longitude: _lng, ...noPin } = createParams;
+      const typed = { ...noPin, propertyAddress: "12 Main Rd" };
+      const savedData = () => (prisma.incident.create as jest.Mock).mock.calls[0][0].data;
+
+      beforeEach(() => {
+        (prisma.incident.create as jest.Mock).mockResolvedValue({ ...baseIncident, reporter: null });
+      });
+
+      it("looks up the typed address and saves its coordinates", async () => {
+        (geocode as jest.Mock).mockImplementation(async (q: string) =>
+          q === "12 Main Rd, Rivonia, Johannesburg" ? { lat: -26.04, lng: 28.05 } : null,
+        );
+
+        await IncidentService.create(typed);
+
+        expect(savedData()).toMatchObject({ latitude: -26.04, longitude: 28.05 });
+      });
+
+      it("falls back to the suburb and city when the full address is not found", async () => {
+        (geocode as jest.Mock).mockImplementation(async (q: string) =>
+          q === "Rivonia, Johannesburg" ? { lat: -26.05, lng: 28.06 } : null,
+        );
+
+        await IncidentService.create(typed);
+
+        expect((geocode as jest.Mock).mock.calls.map((c) => c[0])).toEqual([
+          "12 Main Rd, Rivonia, Johannesburg",
+          "Rivonia, Johannesburg",
+        ]);
+        expect(savedData()).toMatchObject({ latitude: -26.05, longitude: 28.06 });
+      });
+
+      it("still saves the incident when the lookup fails", async () => {
+        (geocode as jest.Mock).mockRejectedValue(new Error("Photon returned 429"));
+
+        await IncidentService.create(typed);
+
+        expect(savedData().latitude).toBeUndefined();
+        expect(prisma.auditLog.create).toHaveBeenCalled();
+      });
+    });
+
+    it("keeps a picked pin and does not look the address up", async () => {
+      (prisma.incident.create as jest.Mock).mockResolvedValue({ ...baseIncident, reporter: null });
+
+      await IncidentService.create({ ...createParams, propertyAddress: "12 Main Rd" });
+
+      expect(geocode).not.toHaveBeenCalled();
     });
   });
 });
