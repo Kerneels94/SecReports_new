@@ -5,7 +5,7 @@
 ### A07 — Authentication Failures
 
 1. **NEVER store refreshToken in localStorage** — httpOnly cookie only (set by backend via `@fastify/cookie`).
-2. **NEVER use distinct error messages for auth failures** — always return `"Invalid email or password"` to prevent user enumeration. Only exception: the account-blocked message (see Login Brute-Force Limits).
+2. **NEVER use distinct error messages for auth failures** — every failed login returns the same 401 `"Invalid email or password. After 5 wrong tries the account is blocked and an unblock link is emailed."` to prevent user enumeration. No exceptions, not even for a blocked account (see Login Brute-Force Limits).
 3. **ALWAYS invalidate tokens server-side on logout** — call `POST /auth/logout` to delete refresh token from DB.
 4. **ALWAYS auto-refresh access tokens transparently** — 401 interceptor in `ApiClient` calls `/auth/refresh`, updates stored access token, retries. Dedup concurrent refresh calls.
 5. **ALWAYS send a verification email when admin creates a user** — admin-created users are created with `emailVerified: false` and must verify their email before their first login. Never create an admin-created user without a verification email, otherwise they're permanently locked out.
@@ -86,11 +86,10 @@
   (`/unblock-account?token=...`, 1 hour, sha256 hash in `account_unblock_tokens`).
   The 0 -> 1 update is guarded on `accountBlocked: 0`, so parallel attempts send one email.
 - A correct password resets `wrongPasswordTries` to 0. Blocked attempts are not counted.
-- **Exception to golden rule #2:** from the 5th wrong password on, login returns 403
-  "Your account has been blocked after too many wrong passwords. Check your email for
-  the unblock link, or use Forgot password." Users must understand why their real
-  password fails. Cost: 5 wrong tries confirm an email is registered; the per-IP limit
-  slows bulk probing. Inactive/unverified accounts and unknown emails stay generic 401.
+- **No blocked-specific answer (golden rule #2).** A blocked account gets the same 401
+  message as an unknown email or a wrong password, and spends the same bcrypt time.
+  A distinct "blocked" answer used to confirm an email was registered. The generic
+  message hints at the block; the blocked email tells the real user what happened.
 - Unblock: `POST /auth/unblock { token }` claims the token atomically and resets both
   fields. A password reset also unblocks (proves mailbox ownership).
 - Open sessions survive a block: refresh does not check `accountBlocked`, so an

@@ -39,12 +39,12 @@ import type { UserRole } from "../generated/prisma/enums";
 const MAX_WRONG_PASSWORD_TRIES = 5;
 const UNBLOCK_TOKEN_TTL_MS = 60 * 60 * 1000;
 /**
- * Shown from the 5th wrong password on. Deliberate exception to golden rule #2:
- * users must understand why their real password fails. Cost: 5 wrong tries
- * confirm an email is registered (per-IP limit slows bulk probing).
+ * The one answer to every failed login: unknown email, wrong password, or a
+ * blocked account (golden rule #2). A distinct "blocked" answer would confirm
+ * the email is registered, so the hint covers the block and the email explains it.
  */
-const ACCOUNT_BLOCKED_MESSAGE =
-  "Your account has been blocked after too many wrong passwords. Check your email for the unblock link, or use Forgot password.";
+const LOGIN_FAILED_MESSAGE =
+  "Invalid email or password. After 5 wrong tries the account is blocked and an unblock link is emailed.";
 
 /**
  * Matches a token that has not been used. On MongoDB, Prisma's `usedAt: null`
@@ -173,13 +173,12 @@ async function handleLoginFailure(user: { id: string; email: string; name: strin
     }
   }
 
-  if (wrongPasswordTries >= MAX_WRONG_PASSWORD_TRIES) throw new ForbiddenError(ACCOUNT_BLOCKED_MESSAGE);
-  throw new UnauthorizedError("Invalid email or password");
+  throwGenericAuthError();
 }
 
 /** Throws a generic auth error — never reveals whether the email exists. */
 function throwGenericAuthError(): never {
-  throw new UnauthorizedError("Invalid email or password");
+  throw new UnauthorizedError(LOGIN_FAILED_MESSAGE);
 }
 
 /** True when the account must be denied authentication — shared by `login()` and `refresh()`
@@ -267,6 +266,7 @@ export const AuthService = {
     // alive: a blocked account means someone guessed wrong, not that the
     // logged-in user is untrusted. Blocked attempts are not counted.
     if (user.accountBlocked === 1) {
+      await comparePassword(params.password, DUMMY_BCRYPT_HASH);
       await createAuditLog({
         entityType: "user",
         entityId: user.id,
@@ -274,7 +274,7 @@ export const AuthService = {
         performedBy: user.id,
         newValues: JSON.stringify({ reason: "Account blocked" }),
       });
-      throw new ForbiddenError(ACCOUNT_BLOCKED_MESSAGE);
+      throwGenericAuthError();
     }
 
     const valid = await comparePassword(params.password, user.passwordHash);

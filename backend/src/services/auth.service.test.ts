@@ -233,7 +233,7 @@ describe("AuthService", () => {
       it("blocks on the 5th wrong password and emails one unblock link", async () => {
         (prisma.user.update as jest.Mock).mockResolvedValue({ wrongPasswordTries: 5 });
 
-        await expect(wrongLogin()).rejects.toThrow("Your account has been blocked");
+        await expect(wrongLogin()).rejects.toThrow(UnauthorizedError);
 
         expect(prisma.user.updateMany).toHaveBeenCalledWith({
           where: { id: "1", accountBlocked: 0 },
@@ -253,22 +253,42 @@ describe("AuthService", () => {
         (prisma.user.update as jest.Mock).mockResolvedValue({ wrongPasswordTries: 6 });
         (prisma.user.updateMany as jest.Mock).mockResolvedValueOnce({ count: 0 });
 
-        await expect(wrongLogin()).rejects.toThrow("Your account has been blocked");
+        await expect(wrongLogin()).rejects.toThrow(UnauthorizedError);
 
         expect(prisma.accountUnblockToken.create).not.toHaveBeenCalled();
         expect(sendAccountBlockedEmail).not.toHaveBeenCalled();
       });
 
-      it("tells a blocked account it is blocked, even with the correct password, without counting", async () => {
+      it("answers a blocked account exactly like an unknown email, without counting", async () => {
         (prisma.user.findUnique as jest.Mock).mockResolvedValue({ ...mockUser, accountBlocked: 1 });
         (hash.comparePassword as jest.Mock).mockResolvedValue(true);
+        const blocked = await AuthService.login({ email: "test@example.com", password: "right" }).catch((e) => e);
 
-        const attempt = AuthService.login({ email: "test@example.com", password: "right" });
-        await expect(attempt).rejects.toThrow(ForbiddenError);
-        await expect(
-          AuthService.login({ email: "test@example.com", password: "right" }),
-        ).rejects.toThrow("Check your email for the unblock link, or use Forgot password");
+        (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+        const unknown = await AuthService.login({ email: "nobody@example.com", password: "right" }).catch((e) => e);
+
+        expect(blocked).toBeInstanceOf(UnauthorizedError);
+        expect(blocked.constructor).toBe(unknown.constructor);
+        expect(blocked.message).toBe(unknown.message);
+        expect(blocked.message).toContain("unblock link is emailed");
         expect(prisma.user.update).not.toHaveBeenCalled();
+      });
+
+      it("spends bcrypt time on a blocked account so timing does not reveal it", async () => {
+        (prisma.user.findUnique as jest.Mock).mockResolvedValue({ ...mockUser, accountBlocked: 1 });
+
+        await expect(wrongLogin()).rejects.toThrow(UnauthorizedError);
+        expect(hash.comparePassword).toHaveBeenCalledTimes(1);
+      });
+
+      it("answers the 5th wrong password exactly like the 4th", async () => {
+        (prisma.user.update as jest.Mock).mockResolvedValueOnce({ wrongPasswordTries: 4 });
+        const fourth = await wrongLogin().catch((e) => e);
+        (prisma.user.update as jest.Mock).mockResolvedValueOnce({ wrongPasswordTries: 5 });
+        const fifth = await wrongLogin().catch((e) => e);
+
+        expect(fifth.constructor).toBe(fourth.constructor);
+        expect(fifth.message).toBe(fourth.message);
       });
 
       it("resets the tries after a correct password", async () => {
