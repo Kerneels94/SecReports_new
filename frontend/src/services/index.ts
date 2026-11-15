@@ -185,7 +185,13 @@ export const userService = {
   }) => api.post<User & { message: string }>("/auth/users", data),
   update: (
     id: number,
-    data: { name?: string; surname?: string; email?: string; role?: string },
+    data: {
+      name?: string;
+      surname?: string;
+      email?: string;
+      role?: string;
+      currentPassword?: string;
+    },
   ) => api.patch<UserListItem>(`/auth/users/${id}`, data),
   remove: (id: number) => api.delete<{ message: string }>(`/auth/users/${id}`),
 };

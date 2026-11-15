@@ -92,11 +92,6 @@ async function createAuditLog(params: {
   await AuditLogService.create(params);
 }
 
-/** Sleep for a given number of milliseconds. */
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 /** Stores a new refresh token record for a user and returns the signed JWT. */
 async function persistRefreshToken(
   user: { id: string; role: string; companyId: string | null },
@@ -440,6 +435,10 @@ export const AuthService = {
     if (!validDomain)
       throw new ValidationError("Email domain does not accept mail");
 
+    // Hash before the existence checks so a taken email costs the same bcrypt
+    // time as a new one and response timing can't enumerate accounts.
+    const passwordHash = await hashPassword(params.password);
+
     const existingUser = await prisma.user.findUnique({
       where: { email: params.email },
     });
@@ -459,8 +458,6 @@ export const AuthService = {
           "Account created. Please check your email to verify your account.",
       };
     }
-
-    const passwordHash = await hashPassword(params.password);
 
     const result = await prisma.$transaction(async (tx) => {
       const company = await tx.company.create({
@@ -527,16 +524,19 @@ export const AuthService = {
     if (record.expiresAt < new Date())
       throw new ValidationError("Verification link has expired");
 
-    await prisma.$transaction([
-      prisma.user.update({
+    await prisma.$transaction(async (tx) => {
+      // Claim the token atomically so two parallel requests can't both use it.
+      const claimed = await tx.emailVerificationToken.updateMany({
+        where: { id: record.id, usedAt: null },
+        data: { usedAt: new Date() },
+      });
+      if (claimed.count === 0)
+        throw new ValidationError("Verification link has already been used");
+      await tx.user.update({
         where: { id: record.userId },
         data: { emailVerified: true },
-      }),
-      prisma.emailVerificationToken.update({
-        where: { id: record.id },
-        data: { usedAt: new Date() },
-      }),
-    ]);
+      });
+    });
 
     await createAuditLog({
       entityType: "user",
@@ -620,31 +620,30 @@ export const AuthService = {
   /**
    * Generates a password reset token, stores its sha256 hash in the DB, and
    * emails a reset link. Silent if email not found to prevent user enumeration.
-   * A constant artificial delay masks timing side-channels.
+   * The token write and email run in the background, so both paths return
+   * after the same single lookup and timing can't reveal whether the account exists.
    */
   async forgotPassword(email: string) {
     const user = await prisma.user.findUnique({ where: { email } });
     // Unverified users are served too: the reset link proves mailbox ownership,
     // and resetPassword marks the email verified (golden rule #32).
-    if (!user || user.status !== "active") {
-      await sleep(200);
-      return;
-    }
+    if (!user || user.status !== "active") return;
 
     const rawToken = crypto.randomBytes(32).toString("hex");
-
-    await prisma.passwordResetToken.create({
-      data: {
-        email,
-        tokenHash: hashToken(rawToken),
-        expiresAt: new Date(Date.now() + 900000),
-      },
-    });
-
     const resetLink = `${getAppUrl()}/reset-password?token=${rawToken}`;
-    sendPasswordResetEmail(email, user.name, resetLink).catch((err) =>
-      console.error("[AuthService] Password reset email failed:", err),
-    );
+
+    prisma.passwordResetToken
+      .create({
+        data: {
+          email,
+          tokenHash: hashToken(rawToken),
+          expiresAt: new Date(Date.now() + 900000),
+        },
+      })
+      .then(() => sendPasswordResetEmail(email, user.name, resetLink))
+      .catch((err) =>
+        console.error("[AuthService] Password reset email failed:", err),
+      );
   },
 
   /**
@@ -666,10 +665,13 @@ export const AuthService = {
     const passwordHash = await hashPassword(newPassword);
 
     const user = await prisma.$transaction(async (tx) => {
-      await tx.passwordResetToken.update({
-        where: { id: record.id },
+      // Claim the token atomically so two parallel requests can't both use it.
+      const claimed = await tx.passwordResetToken.updateMany({
+        where: { id: record.id, usedAt: null },
         data: { usedAt: new Date() },
       });
+      if (claimed.count === 0)
+        throw new UnauthorizedError("Invalid or expired reset token");
       return tx.user.update({
         where: { email: record.email },
         // Reset link proves mailbox ownership: verify the email and lift any
@@ -773,7 +775,13 @@ export const AuthService = {
   async updateUser(
     companyId: string,
     userId: string,
-    data: { name?: string; surname?: string; email?: string; role?: UserRole },
+    data: {
+      name?: string;
+      surname?: string;
+      email?: string;
+      role?: UserRole;
+      currentPassword?: string;
+    },
     performedBy?: string,
     actorRole?: string,
   ) {
@@ -781,6 +789,18 @@ export const AuthService = {
       where: { id: userId, companyId },
     });
     if (!user) throw new NotFoundError("User not found");
+
+    // Own email change is a takeover path (new address -> verify -> reset), so a
+    // stolen access token alone must not be enough: re-check the password.
+    if (
+      performedBy === userId &&
+      data.email !== undefined &&
+      data.email !== user.email &&
+      !(data.currentPassword &&
+        (await comparePassword(data.currentPassword, user.passwordHash)))
+    ) {
+      throw new UnauthorizedError("Current password is required to change your email");
+    }
 
     // The edit form always sends the role, so only an actual change is a role change.
     if (data.role !== undefined && data.role !== user.role) {
