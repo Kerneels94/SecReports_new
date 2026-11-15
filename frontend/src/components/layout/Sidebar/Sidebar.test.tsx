@@ -140,6 +140,16 @@ describe("Sidebar", () => {
     expect(getNavLink("View your plan and invoices")).toBeNull();
   });
 
+  it("links to a bug report email that names the current page", () => {
+    mockUsePathname.mockReturnValue("/incidents");
+    render(<Sidebar />);
+
+    const link = screen.getByRole("link", { name: /something not working\? report it/i });
+    const href = decodeURIComponent(link.getAttribute("href")!);
+    expect(href).toMatch(/^mailto:support@secreports\.co\.za\?subject=Bug report/);
+    expect(href).toContain("Page: /incidents");
+  });
+
   it("renders a logout button in the sidebar footer", () => {
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar onLogout={jest.fn()} />);
