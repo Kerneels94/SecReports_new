@@ -39,6 +39,14 @@ import type { UserRole } from "../generated/prisma/enums";
 const MAX_WRONG_PASSWORD_TRIES = 5;
 const UNBLOCK_TOKEN_TTL_MS = 60 * 60 * 1000;
 
+/**
+ * Matches a token that has not been used. On MongoDB, Prisma's `usedAt: null`
+ * only matches an explicit null, and create() leaves an omitted optional field
+ * unset, so a fresh token needs `isSet: false` too. Without it every claim
+ * matched 0 rows and fresh links were refused as "already used".
+ */
+const UNUSED_TOKEN = { OR: [{ usedAt: null }, { usedAt: { isSet: false } }] };
+
 /** A real bcrypt hash of a throwaway string — used to equalise login timing on the unknown-email path. */
 const DUMMY_BCRYPT_HASH =
   "$2b$12$fVfsKL1jvOfJcoa0CWRsyeXCpyak/CPQ4/pVgSUIbz/CTvKLsNG.m";
@@ -529,7 +537,7 @@ export const AuthService = {
     await prisma.$transaction(async (tx) => {
       // Claim the token atomically so two parallel requests can't both use it.
       const claimed = await tx.emailVerificationToken.updateMany({
-        where: { id: record.id, usedAt: null },
+        where: { id: record.id, ...UNUSED_TOKEN },
         data: { usedAt: new Date() },
       });
       if (claimed.count === 0)
@@ -563,7 +571,7 @@ export const AuthService = {
     await prisma.$transaction(async (tx) => {
       // Claim the token atomically so two parallel requests can't both use it.
       const claimed = await tx.accountUnblockToken.updateMany({
-        where: { id: record.id, usedAt: null },
+        where: { id: record.id, ...UNUSED_TOKEN },
         data: { usedAt: new Date() },
       });
       if (claimed.count === 0)
@@ -703,7 +711,7 @@ export const AuthService = {
     const user = await prisma.$transaction(async (tx) => {
       // Claim the token atomically so two parallel requests can't both use it.
       const claimed = await tx.passwordResetToken.updateMany({
-        where: { id: record.id, usedAt: null },
+        where: { id: record.id, ...UNUSED_TOKEN },
         data: { usedAt: new Date() },
       });
       if (claimed.count === 0)
