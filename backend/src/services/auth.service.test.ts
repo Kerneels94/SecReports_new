@@ -180,14 +180,28 @@ describe("AuthService", () => {
 
       await expect(AuthService.login({ email: "unknown@example.com", password: "p" }))
         .rejects.toThrow(UnauthorizedError);
+      expect(prisma.auditLog.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          action: "login_failed",
+          newValues: JSON.stringify({ reason: "Wrong email", email: "unknown@example.com" }),
+        }),
+      });
     });
 
     it("throws UnauthorizedError for wrong password", async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
       (hash.comparePassword as jest.Mock).mockResolvedValue(false);
+      (prisma.user.update as jest.Mock).mockResolvedValue({ wrongPasswordTries: 1 });
 
       await expect(AuthService.login({ email: "test@example.com", password: "wrong" }))
         .rejects.toThrow(UnauthorizedError);
+      expect(prisma.auditLog.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          action: "login_failed",
+          performedBy: "1",
+          newValues: JSON.stringify({ reason: "Wrong password", wrongPasswordTries: 1 }),
+        }),
+      });
     });
 
     describe("wrong-password block", () => {

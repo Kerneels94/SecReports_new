@@ -83,7 +83,7 @@ export interface AuditLogEntry {
   action: string;
   oldValues: string | null;
   newValues: string | null;
-  performedBy: string;
+  performedBy: string | null;
   createdAt: string;
   ipAddress: string | null;
   userAgent: string | null;
@@ -92,7 +92,7 @@ export interface AuditLogEntry {
     name: string;
     email: string;
     company: { id: string; name: string } | null;
-  };
+  } | null;
 }
 
 /** Standard success response wrapper from the API. */

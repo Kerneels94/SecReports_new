@@ -84,7 +84,7 @@ export const AuditLogService = {
     entityType: string;
     entityId: string;
     action: string;
-    performedBy: string;
+    performedBy?: string;
     oldValues?: string;
     newValues?: string;
   }) {

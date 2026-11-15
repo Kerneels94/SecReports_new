@@ -96,7 +96,7 @@ async function createAuditLog(params: {
   entityType: string;
   entityId: string;
   action: string;
-  performedBy: string;
+  performedBy?: string;
   oldValues?: string;
   newValues?: string;
 }): Promise<void> {
@@ -143,7 +143,7 @@ async function handleLoginFailure(user: { id: string; email: string; name: strin
     entityId: user.id,
     action: "login_failed",
     performedBy: user.id,
-    newValues: JSON.stringify({ wrongPasswordTries }),
+    newValues: JSON.stringify({ reason: "Wrong password", wrongPasswordTries }),
   });
 
   if (wrongPasswordTries >= MAX_WRONG_PASSWORD_TRIES) {
@@ -242,17 +242,40 @@ export const AuthService = {
     });
     if (!user) {
       await comparePassword(params.password, DUMMY_BCRYPT_HASH);
+      // No account, so no company: only the superadmin log shows this.
+      await createAuditLog({
+        entityType: "user",
+        entityId: params.email,
+        action: "login_failed",
+        newValues: JSON.stringify({ reason: "Wrong email", email: params.email }),
+      });
       throwGenericAuthError();
     }
     if (authDenied(user)) {
       // Spend the same bcrypt time as a real check so response timing doesn't reveal inactive/unverified accounts.
       await comparePassword(params.password, DUMMY_BCRYPT_HASH);
+      await createAuditLog({
+        entityType: "user",
+        entityId: user.id,
+        action: "login_failed",
+        performedBy: user.id,
+        newValues: JSON.stringify({ reason: "Account inactive or email not verified" }),
+      });
       throwGenericAuthError();
     }
     // Blocked is checked here, not in authDenied, so refresh keeps open sessions
     // alive: a blocked account means someone guessed wrong, not that the
     // logged-in user is untrusted. Blocked attempts are not counted.
-    if (user.accountBlocked === 1) throw new ForbiddenError(ACCOUNT_BLOCKED_MESSAGE);
+    if (user.accountBlocked === 1) {
+      await createAuditLog({
+        entityType: "user",
+        entityId: user.id,
+        action: "login_failed",
+        performedBy: user.id,
+        newValues: JSON.stringify({ reason: "Account blocked" }),
+      });
+      throw new ForbiddenError(ACCOUNT_BLOCKED_MESSAGE);
+    }
 
     const valid = await comparePassword(params.password, user.passwordHash);
     if (!valid) {
