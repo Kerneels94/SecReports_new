@@ -64,6 +64,10 @@ model User {
   loginAttempts  Int       @default(0) @map("login_attempts")
   lockoutCount   Int       @default(0) @map("lockout_count")
   lockedUntil    DateTime? @map("locked_until")
+  // 5 wrong passwords in a row set accountBlocked to 1 (0 = not blocked) and
+  // email an unblock link. A correct password resets the tries to 0.
+  wrongPasswordTries Int   @default(0) @map("wrong_password_tries")
+  accountBlocked Int       @default(0) @map("account_blocked")
   emailVerified Boolean   @default(false) @map("email_verified")
   // Stamped on logout. A refresh that started before this moment must not
   // leave a replacement token behind (see AuthService.refresh).
@@ -155,6 +159,19 @@ model PasswordResetToken {
 
   @@index([email])
   @@map("password_reset_tokens")
+}
+
+/// One-time link emailed when an account is blocked; only the sha256 hash is stored.
+model AccountUnblockToken {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String    @map("user_id") @db.ObjectId
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("account_unblock_tokens")
 }
 
 model EmailVerificationToken {

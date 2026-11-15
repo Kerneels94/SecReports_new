@@ -302,6 +302,30 @@ export async function sendPasswordResetEmail(
   return { data };
 }
 
+/** Tells a user their account was blocked after too many wrong passwords, with an unblock link. */
+export async function sendAccountBlockedEmail(
+  to: string,
+  name: string,
+  unblockLink: string,
+) {
+  const { default: template } = await import("../templates/account-blocked");
+  const html = template(name, unblockLink);
+
+  const { data, error } = await sendEmail({
+    from: FROM_EMAIL,
+    to: [to],
+    subject: "Your SecReports Account Has Been Blocked",
+    html,
+  });
+
+  if (error) {
+    console.error({ error });
+    return { error };
+  }
+
+  return { data };
+}
+
 /** Sends a password change confirmation email. */
 export async function sendPasswordChangedEmail(to: string, name: string) {
   const { default: template } = await import("../templates/password-changed");

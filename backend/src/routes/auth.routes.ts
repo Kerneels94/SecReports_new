@@ -4,41 +4,16 @@
  * Protected (JWT): me, change-password, logout.
  * Admin-only: user CRUD.
  */
-import { FastifyInstance, FastifyRequest } from "fastify";
+import { FastifyInstance } from "fastify";
 import { AuthController } from "../controllers/auth.controller";
 import { requirePermission } from "../middleware/requirePermission";
 import { requireRole } from "../middleware/requireRole";
 
 export default async function authRoutes(fastify: FastifyInstance) {
-  // Per-account brute-force cap. Keyed on the submitted email whether or not the
-  // account exists, so the visible 429 never reveals which emails are registered.
-  // preHandler, not onRequest: the body must be parsed to read the email.
-  // createRateLimit, not rateLimit(): the plugin runs only one rateLimit() hook
-  // per request, so a second one would be skipped after the per-IP route limit.
-  // shortcut: in-memory store, resets on restart and is per instance; use a Redis store if Render scales out.
-  const checkLoginPerEmail = fastify.createRateLimit({
-    max: 10,
-    timeWindow: "15 minutes",
-    keyGenerator: (req) =>
-      `login:${String((req.body as { email?: unknown } | undefined)?.email ?? "").trim().toLowerCase()}`,
-  });
-  const loginPerEmail = async (req: FastifyRequest) => {
-    const limit = await checkLoginPerEmail(req);
-    if (!limit.isAllowed && limit.isExceeded) {
-      const minutes = Math.max(1, Math.ceil(limit.ttlInSeconds / 60));
-      throw Object.assign(
-        new Error(
-          `Too many login attempts for this account. Try again in ${minutes} minute${minutes === 1 ? "" : "s"} or reset your password.`,
-        ),
-        { statusCode: 429 },
-      );
-    }
-  };
-  fastify.post(
-    "/auth/login",
-    { config: { rateLimit: { max: 10, timeWindow: "1 minute" } }, preHandler: loginPerEmail },
-    AuthController.login,
-  );
+  // Per-account brute force is stopped by the DB block after 5 wrong
+  // passwords (AuthService.login); this caps one IP across many accounts.
+  fastify.post("/auth/login", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, AuthController.login);
+  fastify.post("/auth/unblock", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, AuthController.unblockAccount);
   fastify.post("/auth/register", { config: { rateLimit: { max: 5, timeWindow: "1 minute" } } }, AuthController.register);
   fastify.post("/auth/verify-email", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, AuthController.verifyEmail);
   fastify.post("/auth/refresh", { config: { rateLimit: { max: 20, timeWindow: "1 minute" } } }, AuthController.refresh);

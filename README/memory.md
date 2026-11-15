@@ -80,17 +80,24 @@
 
 ## Login Brute-Force Limits
 
-No account lockout. A lockout answered every attempt, correct password included,
-with the generic 401, so locked users could not tell why their real password failed.
-
-- Per email: 10 attempts / 15 min, keyed on the submitted email whether or not the
-  account exists, so the visible 429 ("Too many login attempts for this account...")
-  never reveals which emails are registered (golden rule #2 still holds for the 401).
+- **Block after 5 wrong passwords.** Each wrong password increments
+  `wrongPasswordTries` (`wrong_password_tries`). At 5, `accountBlocked`
+  (`account_blocked`) goes 0 -> 1 and the user is emailed a one-time unblock link
+  (`/unblock-account?token=...`, 1 hour, sha256 hash in `account_unblock_tokens`).
+  The 0 -> 1 update is guarded on `accountBlocked: 0`, so parallel attempts send one email.
+- A correct password resets `wrongPasswordTries` to 0. Blocked attempts are not counted.
+- Blocked login returns the generic 401 (golden rule #2); the email tells the user why.
+- Unblock: `POST /auth/unblock { token }` claims the token atomically and resets both
+  fields. A password reset also unblocks (proves mailbox ownership).
+- Open sessions survive a block: refresh does not check `accountBlocked`, so an
+  attacker guessing passwords cannot log an operator out mid-shift.
+- Old `loginAttempts` / `lockoutCount` / `lockedUntil` fields are kept but unused.
 - Per IP: 10 / min on `/auth/login`, 100 / min global.
 - Client IP comes from `clientIp()` (`lib/utils.ts`): Netlify's
   `x-nf-client-connection-ip`, trusted only when the `x-nf-sign` proxy signature
   verifies with `NETLIFY_PROXY_SECRET`. Otherwise `request.ip` (`TRUST_PROXY=1`).
-- In-memory store: resets on restart, per instance. Move to Redis if Render scales out.
+- Known trade-off: anyone who knows an email can block it with 5 guesses; the owner
+  unblocks via the emailed link or Forgot password.
 
 ## Audit Logging
 

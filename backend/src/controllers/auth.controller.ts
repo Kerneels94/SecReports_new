@@ -14,6 +14,7 @@ import {
   changePasswordSchema,
   updateUserSchema,
   verifyEmailSchema,
+  unblockAccountSchema,
   deleteCompanySchema,
 } from "../validators/auth.schema";
 import { validationErrorMessage } from "../validators/shared";
@@ -89,6 +90,16 @@ export const AuthController = {
       throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
 
     const result = await AuthService.verifyEmail(parsed.data.token);
+    reply.code(200).send({ success: true, data: result });
+  },
+
+  /** Unblock an account using the token from the account-blocked email. */
+  async unblockAccount(request: FastifyRequest, reply: FastifyReply) {
+    const parsed = unblockAccountSchema.safeParse(request.body);
+    if (!parsed.success)
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
+
+    const result = await AuthService.unblockAccount(parsed.data.token);
     reply.code(200).send({ success: true, data: result });
   },
 

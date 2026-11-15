@@ -55,6 +55,7 @@ export const ModelName = {
   RefreshToken: 'RefreshToken',
   Incident: 'Incident',
   PasswordResetToken: 'PasswordResetToken',
+  AccountUnblockToken: 'AccountUnblockToken',
   EmailVerificationToken: 'EmailVerificationToken',
   SubscriptionPlan: 'SubscriptionPlan',
   CompanySubscription: 'CompanySubscription',
@@ -106,6 +107,8 @@ export const UserScalarFieldEnum = {
   loginAttempts: 'loginAttempts',
   lockoutCount: 'lockoutCount',
   lockedUntil: 'lockedUntil',
+  wrongPasswordTries: 'wrongPasswordTries',
+  accountBlocked: 'accountBlocked',
   emailVerified: 'emailVerified',
   sessionsRevokedAt: 'sessionsRevokedAt',
   createdBy: 'createdBy',
@@ -173,6 +176,18 @@ export const PasswordResetTokenScalarFieldEnum = {
 } as const
 
 export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
+
+
+export const AccountUnblockTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type AccountUnblockTokenScalarFieldEnum = (typeof AccountUnblockTokenScalarFieldEnum)[keyof typeof AccountUnblockTokenScalarFieldEnum]
 
 
 export const EmailVerificationTokenScalarFieldEnum = {
