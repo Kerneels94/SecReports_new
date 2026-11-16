@@ -6,21 +6,17 @@ import { generateInvoicePdf } from "../templates/invoice-pdf";
 
 export const InvoiceService = {
   async generateInvoiceNumber(): Promise<string> {
-    try {
-      const year = new Date().getFullYear();
-      const lastInvoice = await prisma.invoice.findFirst({
-        where: { invoiceNumber: { startsWith: `INV-${year}-` } },
-        orderBy: { invoiceNumber: "desc" },
-      });
-      let nextSeq = 1;
-      if (lastInvoice) {
-        const parts = lastInvoice.invoiceNumber.split("-");
-        nextSeq = parseInt(parts[2], 10) + 1;
-      }
-      return `INV-${year}-${String(nextSeq).padStart(4, "0")}`;
-    } catch (error) {
-      return `${error}`;
+    const year = new Date().getFullYear();
+    const lastInvoice = await prisma.invoice.findFirst({
+      where: { invoiceNumber: { startsWith: `INV-${year}-` } },
+      orderBy: { invoiceNumber: "desc" },
+    });
+    let nextSeq = 1;
+    if (lastInvoice) {
+      const parts = lastInvoice.invoiceNumber.split("-");
+      nextSeq = parseInt(parts[2], 10) + 1;
     }
+    return `INV-${year}-${String(nextSeq).padStart(4, "0")}`;
   },
 
   async createInvoice(data: {
@@ -76,19 +72,15 @@ export const InvoiceService = {
   },
 
   async getInvoiceById(id: string) {
-    try {
-      const invoice = await prisma.invoice.findUnique({
-        where: { id },
-        include: {
-          company: { select: { id: true, name: true, email: true } },
-          payments: true,
-        },
-      });
-      if (!invoice) throw new NotFoundError("Invoice");
-      return invoice;
-    } catch (error) {
-      return new Error("Could not get invoice id: check ");
-    }
+    const invoice = await prisma.invoice.findUnique({
+      where: { id },
+      include: {
+        company: { select: { id: true, name: true, email: true } },
+        payments: true,
+      },
+    });
+    if (!invoice) throw new NotFoundError("Invoice");
+    return invoice;
   },
 
   async sendInvoice(id: string) {
@@ -312,17 +304,26 @@ export const InvoiceService = {
       paidCounts,
       overdueCounts,
       companyCount,
+      trialCount,
     ] = await Promise.all([
-      prisma.paymentHistory.aggregate({ _sum: { amount: true } }),
       prisma.paymentHistory.aggregate({
         _sum: { amount: true },
-        where: { createdAt: { gte: monthStart } },
+        where: { status: "completed" },
+      }),
+      prisma.paymentHistory.aggregate({
+        _sum: { amount: true },
+        where: { status: "completed", createdAt: { gte: monthStart } },
       }),
       prisma.invoice.count({
         where: { status: "paid", paidAt: { gte: yearStart } },
       }),
       prisma.invoice.count({ where: { status: "overdue" } }),
-      prisma.company.count(),
+      prisma.company.count({
+        where: { subscription: { status: "active", plan: { price: { gt: 0 } } } },
+      }),
+      prisma.company.count({
+        where: { subscription: { status: "active", plan: { price: 0 }, trialEndsAt: { gt: now } } },
+      }),
     ]);
 
     const outstanding = await prisma.invoice.aggregate({
@@ -337,6 +338,7 @@ export const InvoiceService = {
       overdueInvoices: overdueCounts,
       outstandingAmount: outstanding._sum.amount || 0,
       activeCompanies: companyCount,
+      trialCompanies: trialCount,
     };
   },
 

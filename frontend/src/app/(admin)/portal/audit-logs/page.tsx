@@ -111,7 +111,11 @@ export default function AdminAuditLogsPage() {
     setExportMsg(null);
     setError(null);
     try {
-      const res = await adminAuditService.exportAll();
+      const res = await adminAuditService.exportAll({
+        entityType: entityType || undefined,
+        action: action || undefined,
+        search: search || undefined,
+      });
       setExportMsg(`Emailed ${res.data.count} entries to ${res.data.emailedTo.join(", ")}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to export audit logs");

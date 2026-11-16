@@ -173,6 +173,7 @@ export interface RevenueStats {
   overdueInvoices: number;
   outstandingAmount: number;
   activeCompanies: number;
+  trialCompanies: number;
 }
 
 /** Monthly revenue trend data point. */
@@ -193,6 +194,7 @@ export interface AdminCompany {
     id: string;
     status: string;
     currentPeriodStart: string | null;
+    trialEndsAt: string | null;
     plan: { id: string; name: string; price: number };
   } | null;
   _count?: { users: number; invoices: number };

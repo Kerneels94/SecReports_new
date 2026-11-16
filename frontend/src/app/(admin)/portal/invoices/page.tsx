@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -42,6 +43,7 @@ export default function AdminInvoicesPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [success, setSuccess] = useState<string | null>(null);
   const [sendingId, setSendingId] = useState<string | null>(null);
+  const router = useRouter();
 
   const fetchInvoices = async () => {
     setLoading(true);
@@ -111,7 +113,7 @@ export default function AdminInvoicesPage() {
             Manage and track all invoices.
           </p>
         </div>
-        <Button onClick={() => (window.location.href = "/portal/invoices/new")}>
+        <Button onClick={() => router.push("/portal/invoices/new")}>
           New Invoice
         </Button>
       </div>

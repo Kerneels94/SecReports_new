@@ -1,5 +1,7 @@
 import { AuditLogController } from "./auditLog.controller";
 import { AuditLogService } from "../services/auditLog.service";
+import { sendMail } from "../services/email.service";
+import { prisma } from "../lib/db";
 
 jest.mock("../lib/db", () => ({
   prisma: { user: { findMany: jest.fn() } },
@@ -11,7 +13,7 @@ jest.mock("../services/email.service", () => ({
 }));
 
 jest.mock("../services/auditLog.service", () => ({
-  AuditLogService: { exportForCompany: jest.fn(), list: jest.fn() },
+  AuditLogService: { exportForCompany: jest.fn(), exportAll: jest.fn(), list: jest.fn() },
 }));
 
 const mockExportForCompany = AuditLogService.exportForCompany as jest.Mock;
@@ -127,5 +129,38 @@ describe("AuditLogController.list", () => {
       ),
     ).rejects.toThrow("Company is required");
     expect(AuditLogService.list).not.toHaveBeenCalled();
+  });
+});
+
+describe("AuditLogController.exportCompany", () => {
+  const reply = { code: jest.fn(), send: jest.fn() };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    reply.code.mockReturnValue(reply);
+    (AuditLogService.exportAll as jest.Mock).mockResolvedValue({ entries: [], total: 0 });
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([
+      { email: "a@example.com" },
+      { email: "b@example.com" },
+    ]);
+  });
+
+  it("lists only the recipients whose email actually went out", async () => {
+    (sendMail as jest.Mock)
+      .mockResolvedValueOnce({ data: {} })
+      .mockResolvedValueOnce({ error: new Error("bounced") });
+
+    await AuditLogController.exportCompany({ params: {}, query: {} } as any, reply as any);
+
+    expect(reply.send.mock.calls[0][0].data.emailedTo).toEqual(["a@example.com"]);
+  });
+
+  it("fails with 502 when no email could be sent", async () => {
+    (sendMail as jest.Mock).mockResolvedValue({ error: new Error("down") });
+
+    await expect(
+      AuditLogController.exportCompany({ params: {}, query: {} } as any, reply as any),
+    ).rejects.toMatchObject({ statusCode: 502 });
+    expect(reply.send).not.toHaveBeenCalled();
   });
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -30,6 +31,7 @@ export default function AdminPortalPage() {
   const [generating, setGenerating] = useState(false);
   const [genResult, setGenResult] = useState<MonthlyInvoiceResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const fetchData = async () => {
     setLoading(true);
@@ -52,6 +54,7 @@ export default function AdminPortalPage() {
   useEffect(() => { fetchData(); }, []);
 
   const handleGenerateMonthly = async () => {
+    if (!window.confirm("Generate and email this month's invoice to every paying company?")) return;
     setGenerating(true);
     setGenResult(null);
     setError(null);
@@ -121,7 +124,7 @@ export default function AdminPortalPage() {
       )}
 
       {stats && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardContent className="p-5">
               <p className="text-xs text-text-secondary/70 uppercase tracking-wider font-semibold">Monthly Revenue</p>
@@ -142,9 +145,15 @@ export default function AdminPortalPage() {
           </Card>
           <Card>
             <CardContent className="p-5">
-              <p className="text-xs text-text-secondary/70 uppercase tracking-wider font-semibold">Active Companies</p>
+              <p className="text-xs text-text-secondary/70 uppercase tracking-wider font-semibold">Paying Companies</p>
               <p className="text-2xl font-bold text-text mt-1">{stats.activeCompanies}</p>
               <p className="text-xs text-text-secondary/60 mt-0.5">{stats.overdueInvoices} overdue invoices</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-5">
+              <p className="text-xs text-text-secondary/70 uppercase tracking-wider font-semibold">On Trial</p>
+              <p className="text-2xl font-bold text-text mt-1">{stats.trialCompanies}</p>
             </CardContent>
           </Card>
         </div>
@@ -210,7 +219,7 @@ export default function AdminPortalPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Recent Invoices</CardTitle>
-          <Button variant="ghost" size="sm" onClick={() => window.location.href = "/portal/invoices"}>
+          <Button variant="ghost" size="sm" onClick={() => router.push("/portal/invoices")}>
             View All
           </Button>
         </CardHeader>

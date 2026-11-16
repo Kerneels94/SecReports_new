@@ -13,9 +13,11 @@ jest.mock("../lib/db", () => ({
       create: jest.fn(),
       update: jest.fn(),
       updateMany: jest.fn(),
+      count: jest.fn(),
+      aggregate: jest.fn(),
     },
-    company: { findMany: jest.fn() },
-    paymentHistory: { create: jest.fn() },
+    company: { findMany: jest.fn(), count: jest.fn() },
+    paymentHistory: { create: jest.fn(), aggregate: jest.fn() },
     ledger: { create: jest.fn() },
     $transaction: jest.fn(),
   },
@@ -327,5 +329,55 @@ describe("InvoiceService.generateMonthlyInvoices", () => {
     expect(results).toEqual([
       expect.objectContaining({ status: "skipped (already exists)" }),
     ]);
+  });
+});
+
+describe("InvoiceService.getInvoiceById", () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it("throws NotFoundError for a missing invoice instead of returning an error object", async () => {
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue(null);
+
+    await expect(InvoiceService.getInvoiceById("missing")).rejects.toBeInstanceOf(NotFoundError);
+  });
+});
+
+describe("InvoiceService.generateInvoiceNumber", () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it("lets a database error through instead of using it as the invoice number", async () => {
+    (prisma.invoice.findFirst as jest.Mock).mockRejectedValue(new Error("db down"));
+
+    await expect(InvoiceService.generateInvoiceNumber()).rejects.toThrow("db down");
+  });
+});
+
+describe("InvoiceService.getRevenueStats", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.paymentHistory.aggregate as jest.Mock).mockResolvedValue({ _sum: { amount: 0 } });
+    (prisma.invoice.aggregate as jest.Mock).mockResolvedValue({ _sum: { amount: 0 } });
+    (prisma.invoice.count as jest.Mock).mockResolvedValue(0);
+    (prisma.company.count as jest.Mock).mockResolvedValueOnce(4).mockResolvedValueOnce(2);
+  });
+
+  it("counts active paid companies and companies on trial separately", async () => {
+    const stats = await InvoiceService.getRevenueStats();
+
+    expect(stats.activeCompanies).toBe(4);
+    expect(stats.trialCompanies).toBe(2);
+    const [paidWhere, trialWhere] = (prisma.company.count as jest.Mock).mock.calls.map((c) => c[0].where);
+    expect(paidWhere).toEqual({ subscription: { status: "active", plan: { price: { gt: 0 } } } });
+    expect(trialWhere).toEqual({
+      subscription: { status: "active", plan: { price: 0 }, trialEndsAt: { gt: expect.any(Date) } },
+    });
+  });
+
+  it("sums only completed payments, like the trend chart", async () => {
+    await InvoiceService.getRevenueStats();
+
+    for (const [args] of (prisma.paymentHistory.aggregate as jest.Mock).mock.calls) {
+      expect(args.where).toEqual(expect.objectContaining({ status: "completed" }));
+    }
   });
 });

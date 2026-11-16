@@ -345,8 +345,16 @@ export const adminAuditService = {
   },
   exportCompany: (companyId: string) =>
     api.post<{ emailedTo: string[]; count: number }>(`/admin/audit-logs/export/${companyId}`),
-  exportAll: () =>
-    api.post<{ emailedTo: string[]; count: number }>(`/admin/audit-logs/export`),
+  exportAll: (params?: { entityType?: string; action?: string; search?: string }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.entityType) searchParams.set("entityType", params.entityType);
+    if (params?.action) searchParams.set("action", params.action);
+    if (params?.search) searchParams.set("search", params.search);
+    const qs = searchParams.toString();
+    return api.post<{ emailedTo: string[]; count: number }>(
+      `/admin/audit-logs/export${qs ? `?${qs}` : ""}`,
+    );
+  },
 };
 
 /** Subscription plan and company subscription endpoints. */
