@@ -28,35 +28,38 @@ export function PlanSelectCard({
   return (
     <div
       className={cn(
-        "group flex flex-col rounded-2xl p-6 transition-all duration-200",
+        // Same shape as the landing page .price-card: 18px corners, 22px padding, featured card lifted 10px.
+        "flex flex-col rounded-[18px] border bg-surface p-[22px] transition-colors duration-200",
         highlighted
-          ? "bg-surface-elevated ring-2 ring-primary/30 shadow-2xl shadow-primary/10 scale-105 hover:ring-primary/50"
+          ? "-translate-y-2.5 border-primary/50 shadow-[0_40px_80px_-40px_rgba(134,239,172,0.4)]"
           : isCurrent
-            ? "bg-surface ring-2 ring-primary/40"
-            : "bg-surface ring-1 ring-border-light hover:ring-border hover:shadow-lg hover:shadow-black/20",
+            ? "border-primary/40"
+            : "border-border-light hover:border-primary/25",
       )}
     >
       <div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <h3 className="text-lg font-semibold text-text">{plan.name}</h3>
           {isCurrent && <Badge variant="success">Current</Badge>}
           {highlighted && <Badge variant="info">Popular</Badge>}
         </div>
-        <p className="mt-1 text-sm text-text-secondary">{wording.description}</p>
-        <p className="mt-4">
-          <span className="text-4xl font-bold text-text">{formatPrice(plan.price)}</span>
+        <p className="mt-2 min-h-12 text-sm text-text-secondary">{wording.description}</p>
+        <p className="mt-5 leading-none">
+          <span className="text-[34px] font-bold tracking-[-0.04em] text-text">{formatPrice(plan.price)}</span>
           {plan.price > 0 && (
-            <span className="text-sm text-text-secondary ml-1">/month</span>
+            <span className="ml-1 text-sm text-text-secondary">/month</span>
           )}
         </p>
-        <p className="mt-1 text-sm text-text-secondary">{wording.limit}</p>
+        <p className="mt-2 text-sm text-text-subtle">{wording.limit}</p>
       </div>
-      <ul className="mt-6 flex-1 space-y-3">
+      <ul className="mb-7 mt-6 flex-1 space-y-3">
         {wording.features.map((feature) => (
-          <li key={feature} className="flex items-start gap-2 text-sm text-text-secondary">
-            <svg className="mt-0.5 h-4 w-4 shrink-0 text-success" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
+          <li key={feature} className="flex items-start gap-3 text-sm text-text-secondary">
+            <span data-tick className="mt-px grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full bg-primary/12 text-primary">
+              <svg className="h-[13px] w-[13px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+            </span>
             {feature}
           </li>
         ))}
@@ -66,7 +69,7 @@ export function PlanSelectCard({
         onClick={onSelect}
         disabled={disabled || isCurrent}
         className={cn(
-          "mt-6 block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-150",
+          "mt-auto block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-150",
           highlighted
             ? "cursor-pointer bg-primary-fill text-white shadow-lg shadow-primary-fill/20 hover:shadow-xl hover:shadow-primary-fill/30 hover:bg-primary-fill-hover"
             : isCurrent

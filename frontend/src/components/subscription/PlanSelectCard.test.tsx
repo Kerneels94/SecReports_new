@@ -25,6 +25,18 @@ describe("PlanSelectCard", () => {
     expect(screen.getByText("Priority support")).toBeInTheDocument();
   });
 
+  it("lifts the highlighted plan like the landing page instead of scaling it into its neighbours", () => {
+    const { container } = render(<PlanSelectCard plan={plan} isCurrent={false} onSelect={jest.fn()} />);
+    const card = container.firstElementChild!;
+    expect(card).toHaveClass("-translate-y-2.5");
+    expect(card).not.toHaveClass("scale-105");
+  });
+
+  it("shows each feature with a round tick chip like the landing page", () => {
+    const { container } = render(<PlanSelectCard plan={plan} isCurrent={false} onSelect={jest.fn()} />);
+    expect(container.querySelectorAll("li [data-tick]")).toHaveLength(4);
+  });
+
   it("renders Current Plan and disables the button when current", () => {
     render(<PlanSelectCard plan={plan} isCurrent onSelect={jest.fn()} />);
     const button = screen.getByRole("button", { name: /current plan/i });
