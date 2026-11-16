@@ -610,7 +610,7 @@ export default function DashboardPage() {
                       onClick={() => setChartMode(m)}
                       className={`cursor-pointer rounded-md px-3 py-1 text-sm font-medium capitalize transition-colors ${
                         chartMode === m
-                          ? "bg-primary text-gray-900"
+                          ? "bg-primary-fill text-white"
                           : "text-text-secondary hover:text-text"
                       }`}
                     >
@@ -833,7 +833,7 @@ export default function DashboardPage() {
                       </span>
                       <span className="h-1.5 overflow-hidden rounded-full bg-surface-elevated">
                         <span
-                          className="block h-full rounded-full bg-primary"
+                          className="block h-full rounded-full bg-primary-fill"
                           style={{
                             width: `${(area.avgMs / maxAreaAvgMs) * 100}%`,
                           }}

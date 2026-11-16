@@ -245,11 +245,11 @@ export default function ProfilePage() {
                     <span
                       className={cn(
                         "grid h-[15px] w-[15px] shrink-0 place-items-center rounded-full border-[1.5px] border-text-secondary/40",
-                        rule.met && "border-primary bg-primary",
+                        rule.met && "border-primary-fill bg-primary-fill",
                       )}
                     >
                       {rule.met && (
-                        <svg className="h-[9px] w-[9px]" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <svg className="h-[9px] w-[9px]" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                           <path d="M20 6 9 17l-5-5" />
                         </svg>
                       )}

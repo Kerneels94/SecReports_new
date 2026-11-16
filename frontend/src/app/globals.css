@@ -3,6 +3,8 @@
 @theme inline {
   --color-primary: #86efac;
   --color-primary-hover: #6ee7b7;
+  --color-primary-fill: #20764b;        /* deep green for buttons, bars, toggles; white text on top */
+  --color-primary-fill-hover: #1a6640;
   --color-primary-glow: rgba(134, 239, 172, 0.25);
   --color-danger: #f87171;
   --color-success: #4ade80;

@@ -54,7 +54,7 @@ function Toggle({
       disabled={disabled}
       className={`relative inline-flex h-6 w-[42px] shrink-0 rounded-full transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-60 ${
         disabled ? "" : "cursor-pointer"
-      } ${checked ? "bg-primary" : "bg-surface-elevated"}`}
+      } ${checked ? "bg-primary-fill" : "bg-surface-elevated"}`}
     >
       <span
         className={`inline-block h-[18px] w-[18px] transform rounded-full transition-transform duration-150 ${

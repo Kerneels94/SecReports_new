@@ -175,7 +175,7 @@ export default function AdminPortalPage() {
                     <div key={`${t.year}-${t.month}`} className="flex-1 flex flex-col items-center gap-1">
                       <span className="text-[10px] text-text-secondary/60">{formatCurrency(t.revenue)}</span>
                       <div
-                        className="w-full rounded-t-md bg-gradient-to-t from-primary to-primary/60 transition-all duration-300 hover:from-primary-hover"
+                        className="w-full rounded-t-md bg-gradient-to-t from-primary-fill to-primary-fill/60 transition-all duration-300 hover:from-primary-fill-hover"
                         style={{ height: `${Math.max(height, 2)}%` }}
                       />
                       <span className="text-[10px] text-text-secondary/60">{monthNames[parseInt(t.month) - 1]}</span>

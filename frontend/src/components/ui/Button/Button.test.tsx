@@ -30,6 +30,12 @@ describe("Button", () => {
     expect(container.querySelector("svg.animate-spin")).toBeInTheDocument();
   });
 
+  it("paints the primary variant deep green with white text", () => {
+    render(<Button>Save</Button>);
+    expect(screen.getByRole("button")).toHaveClass("bg-primary-fill", "text-white");
+    expect(screen.getByRole("button")).not.toHaveClass("text-gray-900");
+  });
+
   it("applies variant classes", () => {
     const { rerender } = render(<Button variant="danger">Delete</Button>);
     expect(screen.getByRole("button")).toHaveClass("bg-danger");

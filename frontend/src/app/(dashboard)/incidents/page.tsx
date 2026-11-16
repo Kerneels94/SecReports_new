@@ -179,7 +179,7 @@ export default function IncidentsPage() {
         {canCreate && (
           <Link
             href="/incidents/new"
-            className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary-hover px-3.5 text-sm font-medium text-gray-900 shadow-[0_10px_30px_-12px_rgba(134,239,172,0.55)] transition-all duration-150 hover:brightness-105"
+            className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary-fill px-3.5 text-sm font-medium text-white shadow-[0_10px_30px_-12px_rgba(134,239,172,0.55)] transition-all duration-150 hover:brightness-105"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M12 5v14M5 12h14" />

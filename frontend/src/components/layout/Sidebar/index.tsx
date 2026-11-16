@@ -150,8 +150,8 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
             className={cn(
               "flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-3.5 text-sm font-medium transition-all duration-150",
               pathname === "/incidents/new"
-                ? "bg-primary text-gray-900"
-                : "bg-gradient-to-r from-primary to-primary-hover text-gray-900 shadow-[0_10px_30px_-12px_rgba(134,239,172,0.55)] hover:brightness-105",
+                ? "bg-primary-fill text-white"
+                : "bg-primary-fill text-white shadow-[0_10px_30px_-12px_rgba(32,118,75,0.55)] hover:bg-primary-fill-hover",
             )}
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

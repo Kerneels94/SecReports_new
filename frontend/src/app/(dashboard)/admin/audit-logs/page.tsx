@@ -186,7 +186,7 @@ export default function AuditLogsPage() {
               aria-pressed={entityType === et.value}
               className={`h-8 cursor-pointer rounded-lg px-3 text-[13px] font-medium transition-colors ${
                 entityType === et.value
-                  ? "bg-primary text-gray-900"
+                  ? "bg-primary-fill text-white"
                   : "text-text-secondary hover:text-text"
               }`}
             >

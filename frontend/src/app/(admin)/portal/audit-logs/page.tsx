@@ -146,7 +146,7 @@ export default function AdminAuditLogsPage() {
                   onClick={() => { setEntityType(et.value); setPage(1); }}
                   className={`cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                     entityType === et.value
-                      ? "bg-primary text-gray-900"
+                      ? "bg-primary-fill text-white"
                       : "bg-surface-elevated/50 text-text-secondary hover:text-text hover:bg-surface-elevated"
                   }`}
                 >
