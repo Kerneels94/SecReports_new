@@ -50,7 +50,7 @@ function VerifyEmailContent() {
   const icon = {
     loading: (
       <svg
-        className="h-7 w-7 animate-pulse text-gray-900"
+        className="h-7 w-7 animate-pulse text-white"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -63,7 +63,7 @@ function VerifyEmailContent() {
       </svg>
     ),
     success: (
-      <svg className="h-7 w-7 text-gray-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="h-7 w-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
         <polyline points="22 4 12 14.01 9 11.01" />
       </svg>
@@ -80,7 +80,7 @@ function VerifyEmailContent() {
   return (
     <Card variant="elevated" className="w-full max-w-sm animate-slide-up">
       <CardHeader className="text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary-hover shadow-lg shadow-primary/25">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-fill shadow-lg shadow-primary-fill/25">
           {icon[state]}
         </div>
         <CardTitle>
@@ -95,7 +95,7 @@ function VerifyEmailContent() {
           {state === "success" ? (
             <Link
               href="/login"
-              className="cursor-pointer block w-full rounded-lg bg-primary py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-primary-hover transition-colors"
+              className="cursor-pointer block w-full rounded-lg bg-primary-fill py-2.5 text-center text-sm font-medium text-white hover:bg-primary-fill-hover transition-colors"
             >
               Go to Login
             </Link>

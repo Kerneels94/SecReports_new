@@ -78,7 +78,7 @@ function AdminShell({ children }: { children: ReactNode }) {
       >
         <div className="flex h-16 items-center justify-between px-6 border-b border-border-light">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-primary to-primary-hover text-gray-900 text-sm font-bold shadow-lg shadow-primary/25">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-fill text-white text-sm font-bold shadow-lg shadow-primary-fill/25">
               S
             </div>
             <div>

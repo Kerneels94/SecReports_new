@@ -15,7 +15,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<string, string> = {
   primary:
-    "bg-primary text-gray-900 shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:bg-primary-hover active:shadow-md",
+    "bg-primary-fill text-white shadow-lg shadow-primary-fill/20 hover:shadow-primary-fill/30 hover:bg-primary-fill-hover active:shadow-md",
   secondary:
     "bg-surface text-text border border-border hover:bg-surface-elevated hover:border-border-light active:bg-surface-elevated",
   danger:
@@ -23,7 +23,7 @@ const variantStyles: Record<string, string> = {
   ghost:
     "text-text-secondary hover:text-text hover:bg-surface-elevated",
   gradient:
-    "bg-gradient-to-r from-primary to-primary-hover text-gray-900 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:from-primary-hover hover:to-primary active:shadow-md",
+    "bg-primary-fill text-white shadow-lg shadow-primary-fill/25 hover:shadow-primary-fill/40 hover:bg-primary-fill-hover active:shadow-md",
 };
 
 const sizeStyles: Record<string, string> = {

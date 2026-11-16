@@ -68,7 +68,7 @@ export function PlanSelectCard({
         className={cn(
           "mt-6 block rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-150",
           highlighted
-            ? "cursor-pointer bg-linear-to-r from-primary to-primary-hover text-gray-900 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:from-primary-hover hover:to-primary"
+            ? "cursor-pointer bg-primary-fill text-white shadow-lg shadow-primary-fill/20 hover:shadow-xl hover:shadow-primary-fill/30 hover:bg-primary-fill-hover"
             : isCurrent
               ? "cursor-default border border-border-light text-text-secondary"
               : "cursor-pointer border border-border-light text-text hover:bg-surface-elevated hover:border-border",

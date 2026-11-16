@@ -49,6 +49,13 @@ describe("LandingPage", () => {
     expect(screen.getByText("Up to 8 user accounts")).toBeInTheDocument();
   });
 
+  it("puts the pricing cards in a labelled, keyboard-scrollable region", () => {
+    render(<LandingPage />);
+    const region = screen.getByRole("region", { name: "Pricing plans" });
+    expect(region).toHaveAttribute("tabindex", "0");
+    expect(region.querySelectorAll(".price-card")).toHaveLength(5);
+  });
+
   it("states the trial limits as 3 users and 10 reports everywhere", () => {
     render(<LandingPage />);
     expect(screen.getByText(/up to 3 users and 10 incident reports on the trial/i)).toBeInTheDocument();
