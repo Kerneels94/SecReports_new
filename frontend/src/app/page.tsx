@@ -599,7 +599,7 @@ export default function LandingPage() {
                 team grows.
               </p>
             </div>
-            <div className="pricing">
+            <div className="pricing" role="region" aria-label="Pricing plans" tabIndex={0}>
               <article className="card price-card">
                 <div className="price-top">
                   <h3>Free trial</h3>

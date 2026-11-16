@@ -252,8 +252,14 @@ a { color: inherit; text-decoration: none; }
 .center { text-align: center; margin-top: 36px; }
 
 /* ===== Pricing ===== */
-.pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; align-items: stretch; }
-.price-card { display: flex; flex-direction: column; padding: 30px; }
+/* Five plans in one row: the grid runs wider than .wrap (up to 1320px), centred with negative margins. */
+.pricing {
+  --pricing-w: min(1320px, calc(100vw - 32px));
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; align-items: stretch;
+  width: var(--pricing-w); margin-inline: calc((100% - var(--pricing-w)) / 2);
+}
+.pricing:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; border-radius: 12px; }
+.price-card { display: flex; flex-direction: column; padding: 22px; }
 .price-card.featured {
   border: 1px solid transparent;
   background: linear-gradient(var(--surface), var(--surface)) padding-box,
@@ -262,9 +268,9 @@ a { color: inherit; text-decoration: none; }
   transform: translateY(-10px);
 }
 .price-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.price-card h3 { font-size: 20px; }
-.price-desc { color: var(--muted); font-size: 15px; margin-top: 8px; min-height: 48px; }
-.price { font-size: 44px; font-weight: 700; letter-spacing: -.04em; margin-top: 22px; line-height: 1; }
+.price-card h3 { font-size: 18px; }
+.price-desc { color: var(--muted); font-size: 14px; margin-top: 8px; min-height: 64px; }
+.price { font-size: 34px; font-weight: 700; letter-spacing: -.04em; margin-top: 22px; line-height: 1; }
 .price small { font-size: 15px; color: var(--muted); font-weight: 400; letter-spacing: 0; }
 .price-note { color: var(--subtle); font-size: 14px; margin-top: 8px; }
 .price-card .ticks { margin: 26px 0 30px; }
@@ -452,6 +458,16 @@ textarea.input { height: auto; min-height: 128px; padding: 12px 14px; resize: ve
 @media (max-width: 1100px) {
   .float { position: static; margin-top: 12px; }
   .float-stat { display: none; }
+  /* Too narrow for five columns: one swipeable row that scrolls inside the section, never stacked. */
+  .pricing {
+    width: auto; margin-inline: 0;
+    grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: min(300px, 82%);
+    overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    padding: 4px 4px 16px;
+  }
+  .price-card { scroll-snap-align: start; }
+  .price-card.featured { transform: none; }
+  .price-desc { min-height: 0; }
 }
 @media (max-width: 960px) {
   .hero-grid { grid-template-columns: 1fr; gap: 48px; }
@@ -461,9 +477,6 @@ textarea.input { height: auto; min-height: 128px; padding: 12px 14px; resize: ve
   .strip-item:nth-child(n+3) { border-top: 1px solid var(--line); }
   .bento .feat, .bento .feat-md { grid-column: span 3; }
   .bento .feat-lg { grid-column: span 6; }
-  .pricing { grid-template-columns: 1fr; max-width: 520px; margin-inline: auto; }
-  .price-card.featured { transform: none; }
-  .price-desc { min-height: 0; }
   .trust { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .contact { grid-template-columns: 1fr; gap: 40px; }
   .footer-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
