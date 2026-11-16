@@ -52,8 +52,15 @@ describe("SubscriptionModal", () => {
   it("centers the plan cards regardless of how many paid plans exist", async () => {
     render(<SubscriptionModal open onClose={jest.fn()} />);
     const card = await screen.findByText("Professional");
-    const container = card.closest(".justify-center");
-    expect(container).toHaveClass("flex");
+    const grid = card.closest(".grid");
+    expect(grid).toHaveClass("justify-center", "gap-5");
+  });
+
+  it("is wide enough for four plans and scrolls on short screens", async () => {
+    render(<SubscriptionModal open onClose={jest.fn()} />);
+    await screen.findByText("Professional");
+    const dialog = screen.getByRole("dialog").querySelector("[tabindex='-1']");
+    expect(dialog).toHaveClass("max-w-6xl", "max-h-[90vh]", "overflow-y-auto");
   });
 
   it("shows a confirmation after choosing a plan and confirms the change", async () => {
