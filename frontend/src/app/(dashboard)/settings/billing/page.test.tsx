@@ -82,6 +82,13 @@ describe("BillingPage", () => {
     expect(screen.getAllByText("Free").length).toBeGreaterThan(0);
   });
 
+  it("lays the plans out in one row of four with landing-page spacing", async () => {
+    render(<BillingPage />);
+    await screen.findByText("Professional");
+    const grid = screen.getAllByRole("button", { name: /choose plan|current plan/i })[0].closest(".grid");
+    expect(grid).toHaveClass("gap-5", "xl:grid-cols-4");
+  });
+
   it("does not offer the free trial plan once the company is on a paid plan", async () => {
     getSubscription.mockResolvedValue({
       data: { ...currentSub, planId: "pro", plan: plans[1] },

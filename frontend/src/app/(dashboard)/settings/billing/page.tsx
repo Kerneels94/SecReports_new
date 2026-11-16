@@ -63,7 +63,7 @@ export default function BillingPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-4xl animate-fade-in">
+      <div className="mx-auto max-w-6xl animate-fade-in">
         <h1 className="text-[clamp(26px,2.6vw,32px)] font-bold tracking-[-0.03em] text-text">
           Billing &amp; Plan
         </h1>
@@ -81,7 +81,7 @@ export default function BillingPage() {
   );
 
   return (
-    <div className="mx-auto max-w-4xl animate-fade-in">
+    <div className="mx-auto max-w-6xl animate-fade-in">
       <div className="mb-6">
         <h1 className="text-[clamp(26px,2.6vw,32px)] font-bold tracking-[-0.03em] text-text">
           Billing &amp; Plan
@@ -161,7 +161,7 @@ export default function BillingPage() {
         effect immediately; your first payment date is shown before you confirm.
       </p>
 
-      <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="mb-6 grid grid-cols-1 items-stretch gap-5 pt-2.5 sm:grid-cols-2 xl:grid-cols-4">
         {availablePlans.map((plan) => (
           <PlanSelectCard
             key={plan.id}
