@@ -1,5 +1,5 @@
 /**
- * One-off migration: caps the free trial plan at 50 incident reports.
+ * One-off migration: caps the free trial plan at 10 incident reports.
  * Run: npx tsx prisma/migrate-free-report-limit.ts
  */
 import "dotenv/config";
@@ -10,10 +10,10 @@ const prisma = new PrismaClient();
 async function main() {
   const result = await prisma.subscriptionPlan.updateMany({
     where: { price: 0 },
-    data: { reportLimit: 50 },
+    data: { reportLimit: 10 },
   });
 
-  console.log(`Updated ${result.count} free plan(s) — report limit set to 50`);
+  console.log(`Updated ${result.count} free plan(s) — report limit set to 10`);
 }
 
 main()

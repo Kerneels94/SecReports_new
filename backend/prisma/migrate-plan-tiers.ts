@@ -1,5 +1,6 @@
 /**
- * One-off migration: adds the Starter (R650) and Standard (R850) plans and raises Professional to 10 users.
+ * One-off migration: sets the trial to 10 reports, adds/updates Starter (R650, 5 users) and Standard (R850, 8 users),
+ * and raises Professional to 10 users.
  * Safe to run more than once.
  * Run: npx tsx prisma/migrate-plan-tiers.ts
  */
@@ -18,9 +19,12 @@ async function main() {
   });
   console.log("Professional plan — user limit set to 10");
 
+  const free = await prisma.subscriptionPlan.updateMany({ where: { price: 0 }, data: { reportLimit: 10 } });
+  console.log(`Updated ${free.count} free plan(s) — report limit set to 10`);
+
   const tiers = [
-    { name: "Starter", price: 65000, userLimit: 3, reportLimit: 25 },
-    { name: "Standard", price: 85000, userLimit: 5, reportLimit: 50 },
+    { name: "Starter", price: 65000, userLimit: 5, reportLimit: 25 },
+    { name: "Standard", price: 85000, userLimit: 8, reportLimit: 50 },
   ];
   for (const tier of tiers) {
     const existing = await prisma.subscriptionPlan.findFirst({ where: { name: tier.name } });

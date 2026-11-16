@@ -26,7 +26,7 @@ jest.mock("../lib/db", () => ({
   },
 }));
 
-const freePlan = { id: "free", name: "Free", price: 0, userLimit: 0, reportLimit: 50, trialPeriodDays: 14 };
+const freePlan = { id: "free", name: "Free", price: 0, userLimit: 0, reportLimit: 10, trialPeriodDays: 14 };
 const paidPlan = { id: "pro", name: "Professional", price: 150000, userLimit: 5, reportLimit: 100 };
 
 const past = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -155,23 +155,23 @@ describe("SubscriptionService.assertActive", () => {
     await expect(SubscriptionService.assertActive("company1")).resolves.toBeUndefined();
   });
 
-  it("allows a free trial below the 50-report limit", async () => {
+  it("allows a free trial below the 10-report limit", async () => {
     (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
       sub({ trialStartedAt: past, trialEndsAt: future }),
     );
-    (prisma.incident.count as jest.Mock).mockResolvedValue(49);
+    (prisma.incident.count as jest.Mock).mockResolvedValue(9);
 
     await expect(SubscriptionService.assertActive("company1")).resolves.toBeUndefined();
   });
 
-  it("throws ForbiddenError when a free trial reaches the 50-report limit", async () => {
+  it("throws ForbiddenError when a free trial reaches the 10-report limit", async () => {
     (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
       sub({ trialStartedAt: past, trialEndsAt: future }),
     );
-    (prisma.incident.count as jest.Mock).mockResolvedValue(50);
+    (prisma.incident.count as jest.Mock).mockResolvedValue(10);
 
     await expect(SubscriptionService.assertActive("company1")).rejects.toThrow(
-      /50-report limit/,
+      /10-report limit/,
     );
   });
 

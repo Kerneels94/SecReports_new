@@ -37,20 +37,20 @@ export function formatPrice(price: number): string {
 /** Per-plan wording (description, limit, features) matching the landing page pricing tiers. */
 export const PLAN_WORDING: Record<string, PlanWording> = {
   Free: {
-    description: "Full access to all features — with a 3-user and 50-report limit during your trial.",
+    description: "Full access to all features — with a 3-user and 10-report limit during your trial.",
     limit: "14-day trial",
     features: [
       "Up to 3 users",
-      "50 incident reports",
+      "10 incident reports",
       "All features included",
       "14-day free trial, no credit card",
     ],
   },
   Starter: {
     description: "For small teams getting started.",
-    limit: "Up to 3 users",
+    limit: "Up to 5 users",
     features: [
-      "Up to 3 user accounts",
+      "Up to 5 user accounts",
       "25 incident reports",
       "CSV & PDF export",
       "Email support",
@@ -58,9 +58,9 @@ export const PLAN_WORDING: Record<string, PlanWording> = {
   },
   Standard: {
     description: "For small teams with more to report.",
-    limit: "Up to 5 users",
+    limit: "Up to 8 users",
     features: [
-      "Up to 5 user accounts",
+      "Up to 8 user accounts",
       "50 incident reports",
       "CSV & PDF export",
       "Email support",

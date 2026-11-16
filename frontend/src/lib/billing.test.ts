@@ -48,8 +48,9 @@ describe("billing helpers", () => {
     it("returns the landing page wording for the Free plan", () => {
       const wording = planWording({ name: "Free", userLimit: 0, features: "[]" });
       expect(wording.description).toBe(
-        "Full access to all features — with a 3-user and 50-report limit during your trial.",
+        "Full access to all features — with a 3-user and 10-report limit during your trial.",
       );
+      expect(wording.features).toContain("10 incident reports");
       expect(wording.limit).toBe("14-day trial");
       expect(wording.features).toEqual(PLAN_WORDING.Free.features);
     });
@@ -64,14 +65,16 @@ describe("billing helpers", () => {
     });
 
     it("returns the landing page wording for the Starter plan", () => {
-      const wording = planWording({ name: "Starter", userLimit: 3, features: "[]" });
-      expect(wording.limit).toBe("Up to 3 users");
+      const wording = planWording({ name: "Starter", userLimit: 5, features: "[]" });
+      expect(wording.limit).toBe("Up to 5 users");
+      expect(wording.features).toContain("Up to 5 user accounts");
       expect(wording.features).toContain("25 incident reports");
     });
 
     it("returns the landing page wording for the Standard plan", () => {
-      const wording = planWording({ name: "Standard", userLimit: 5, features: "[]" });
-      expect(wording.limit).toBe("Up to 5 users");
+      const wording = planWording({ name: "Standard", userLimit: 8, features: "[]" });
+      expect(wording.limit).toBe("Up to 8 users");
+      expect(wording.features).toContain("Up to 8 user accounts");
       expect(wording.features).toContain("50 incident reports");
     });
 
