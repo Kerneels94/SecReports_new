@@ -77,7 +77,7 @@ export function SubscriptionModal({
         open={open}
         onClose={onClose}
         title="Update Your Subscription"
-        className="max-w-3xl"
+        className="max-w-6xl max-h-[90vh] overflow-y-auto"
       >
         <p className="text-sm text-text-secondary mb-5">
           {reason === "reports"
@@ -96,17 +96,17 @@ export function SubscriptionModal({
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
           </div>
         ) : (
-          <div className="flex justify-center gap-5">
+          // Cards 230-260px wide: fills the row, wraps when narrow, stays centred for 3 or 4 plans.
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(230px,260px))] justify-center gap-5 pt-2.5">
             {plans
               .filter((plan) => plan.price > 0 && plan.id !== excludePlanId)
               .map((plan) => (
-                <div key={plan.id} className="mt-3">
-                  <PlanSelectCard
-                    plan={plan}
-                    isCurrent={Boolean(plan.isCurrent)}
-                    onSelect={() => setConfirming(plan)}
-                  />
-                </div>
+                <PlanSelectCard
+                  key={plan.id}
+                  plan={plan}
+                  isCurrent={Boolean(plan.isCurrent)}
+                  onSelect={() => setConfirming(plan)}
+                />
               ))}
           </div>
         )}
