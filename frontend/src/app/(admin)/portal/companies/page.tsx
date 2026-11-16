@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -15,10 +16,39 @@ function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-ZA", { year: "numeric", month: "short", day: "numeric" });
 }
 
+const DAY_MS = 86_400_000;
+const filters = ["all", "trial", "paid"] as const;
+type Filter = (typeof filters)[number];
+
+/** A free-plan subscription with a trial end date is a trial (expired ones wait for the auto-upgrade). */
+function isTrial(c: AdminCompany) {
+  return !!c.subscription?.trialEndsAt && (c.subscription.plan?.price ?? 0) === 0;
+}
+
+function StatusBadge({ company, now }: { company: AdminCompany; now: number }) {
+  const sub = company.subscription;
+  if (isTrial(company)) {
+    const daysLeft = Math.ceil((Date.parse(sub!.trialEndsAt!) - now) / DAY_MS);
+    return daysLeft > 0 ? (
+      <Badge variant="info">Trial · {daysLeft} {daysLeft === 1 ? "day" : "days"} left</Badge>
+    ) : (
+      <Badge variant="warning">Trial expired</Badge>
+    );
+  }
+  return (
+    <Badge variant={sub?.status === "active" ? "success" : "default"}>
+      {sub?.status || "no subscription"}
+    </Badge>
+  );
+}
+
 export default function AdminCompaniesPage() {
   const [companies, setCompanies] = useState<AdminCompany[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<Filter>("all");
+  const [now] = useState(Date.now);
+  const router = useRouter();
 
   useEffect(() => {
     adminCompanyService
@@ -36,11 +66,32 @@ export default function AdminCompaniesPage() {
     );
   }
 
+  const shown = companies.filter((c) =>
+    filter === "trial"
+      ? isTrial(c)
+      : filter === "paid"
+        ? (c.subscription?.plan?.price ?? 0) > 0
+        : true,
+  );
+
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold text-text">Companies</h1>
         <p className="text-sm text-text-secondary mt-1">All registered companies and their subscription status.</p>
+      </div>
+
+      <div className="flex gap-2">
+        {filters.map((f) => (
+          <Button
+            key={f}
+            variant={filter === f ? "primary" : "secondary"}
+            size="sm"
+            onClick={() => setFilter(f)}
+          >
+            {f.charAt(0).toUpperCase() + f.slice(1)}
+          </Button>
+        ))}
       </div>
 
       {error && (
@@ -51,8 +102,8 @@ export default function AdminCompaniesPage() {
 
       <Card>
         <CardContent className="p-0">
-          {companies.length === 0 ? (
-            <p className="px-6 py-8 text-sm text-text-secondary text-center">No companies registered yet.</p>
+          {shown.length === 0 ? (
+            <p className="px-6 py-8 text-sm text-text-secondary text-center">No companies found.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -69,7 +120,7 @@ export default function AdminCompaniesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {companies.map((c, idx) => (
+                  {shown.map((c, idx) => (
                     <tr key={c.id} className={`border-b border-border-light/50 hover:bg-surface-elevated/20 transition-colors ${idx % 2 === 0 ? 'bg-surface-elevated/10' : ''}`}>
                       <td className="px-4 py-3 font-medium text-text">{c.name}</td>
                       <td className="px-4 py-3 text-text-secondary">{c.email}</td>
@@ -77,13 +128,11 @@ export default function AdminCompaniesPage() {
                       <td className="px-4 py-3 text-text font-medium">{c.subscription?.plan ? formatCurrency(c.subscription.plan.price) : "—"}</td>
                       <td className="px-4 py-3 text-text-secondary">{c._count?.users || 0}</td>
                       <td className="px-4 py-3">
-                        <Badge variant={c.subscription?.status === "active" ? "success" : "default"}>
-                          {c.subscription?.status || "no subscription"}
-                        </Badge>
+                        <StatusBadge company={c} now={now} />
                       </td>
                       <td className="px-4 py-3 text-text-secondary">{formatDate(c.createdAt)}</td>
                       <td className="px-4 py-3 text-right">
-                        <Button variant="ghost" size="sm" onClick={() => window.location.href = `/portal/companies/detail?id=${c.id}`}>
+                        <Button variant="ghost" size="sm" onClick={() => router.push(`/portal/companies/detail?id=${c.id}`)}>
                           View
                         </Button>
                       </td>

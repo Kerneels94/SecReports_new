@@ -110,4 +110,19 @@ describe("AdminAuditLogsPage", () => {
       await screen.findByText(/Emailed 3 entries to admin@acme.com/),
     ).toBeInTheDocument();
   });
+
+  it("exports what the table shows, not every log", async () => {
+    render(<AdminAuditLogsPage />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByPlaceholderText(/search/i), "alice");
+    await waitFor(() =>
+      expect(mockListAll).toHaveBeenCalledWith(expect.objectContaining({ search: "alice" })),
+    );
+    await user.click(screen.getByRole("button", { name: /email export/i }));
+
+    await waitFor(() =>
+      expect(mockExportAll).toHaveBeenCalledWith(expect.objectContaining({ search: "alice" })),
+    );
+  });
 });

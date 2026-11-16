@@ -4,6 +4,7 @@ import AdminInvoicesPage from "./page";
 import { adminInvoiceService } from "@/services";
 import type { Invoice } from "@/types";
 
+jest.mock("next/navigation", () => ({ useRouter: () => ({ push: jest.fn() }) }));
 jest.mock("@/services", () => ({
   adminInvoiceService: {
     list: jest.fn(),

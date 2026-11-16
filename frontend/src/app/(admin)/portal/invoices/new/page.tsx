@@ -10,10 +10,14 @@ import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import { adminInvoiceService, adminCompanyService } from "@/services";
 import type { AdminCompany } from "@/types";
+import { randToCents, RAND_FORMAT_MESSAGE } from "@/lib/money";
 
 const createInvoiceSchema = z.object({
   companyId: z.string().min(1, "Company is required"),
-  amount: z.string().min(1, "Amount is required"),
+  amount: z
+    .string()
+    .min(1, "Amount is required")
+    .refine((v) => randToCents(v) !== null, RAND_FORMAT_MESSAGE),
   dueDate: z.string().min(1, "Due date is required"),
   description: z.string().optional(),
 });
@@ -57,7 +61,7 @@ export default function NewInvoicePage() {
     try {
       setError(null);
       setSuccess(null);
-      const amountInCents = Math.round(parseFloat(data.amount) * 100);
+      const amountInCents = randToCents(data.amount)!;
       await adminInvoiceService.create({
         companyId: data.companyId,
         amount: amountInCents,
@@ -72,6 +76,7 @@ export default function NewInvoicePage() {
   };
 
   const handleGenerateMonthly = async () => {
+    if (!window.confirm("Generate and email this month's invoice to every paying company?")) return;
     setGenerating(true);
     setGenResult(null);
     setError(null);

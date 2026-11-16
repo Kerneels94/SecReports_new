@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { adminLedgerService, adminCompanyService } from "@/services";
+import { randToCents, RAND_FORMAT_MESSAGE } from "@/lib/money";
 import type { LedgerEntry, LedgerSummary, AdminCompany } from "@/types";
 
 const ENTRY_TYPES = ["invoice", "payment", "refund", "adjustment", "credit"] as const;
@@ -17,7 +18,10 @@ const ENTRY_TYPES = ["invoice", "payment", "refund", "adjustment", "credit"] as 
 const createEntrySchema = z.object({
   companyId: z.string().min(1, "Company is required"),
   entryType: z.string().min(1, "Type is required"),
-  amount: z.string().min(1, "Amount is required"),
+  amount: z
+    .string()
+    .min(1, "Amount is required")
+    .refine((v) => randToCents(v, { allowNegative: true }) !== null, RAND_FORMAT_MESSAGE),
   reference: z.string().optional(),
   description: z.string().optional(),
 });
@@ -154,7 +158,7 @@ export default function AdminLedgerPage() {
     try {
       setError(null);
       setSuccess(null);
-      const amount = Math.round(parseFloat(data.amount) * 100);
+      const amount = randToCents(data.amount, { allowNegative: true })!;
       await adminLedgerService.create({
         companyId: data.companyId,
         entryType: data.entryType,
@@ -168,6 +172,19 @@ export default function AdminLedgerPage() {
       await fetchData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create entry");
+    }
+  };
+
+  const handleVoid = async (id: string) => {
+    if (!window.confirm("Void this ledger entry? It will no longer count toward the balance.")) return;
+    try {
+      setError(null);
+      setSuccess(null);
+      await adminLedgerService.voidEntry(id);
+      setSuccess("Ledger entry voided");
+      await fetchData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to void entry");
     }
   };
 
@@ -306,6 +323,9 @@ export default function AdminLedgerPage() {
                     <th className="px-4 py-3 text-left font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">
                       Status
                     </th>
+                    <th className="px-4 py-3 text-right font-semibold text-text-secondary/80 text-xs uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -347,6 +367,13 @@ export default function AdminLedgerPage() {
                         >
                           {entry.status}
                         </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {entry.status !== "void" && (
+                          <Button variant="ghost" size="sm" onClick={() => handleVoid(entry.id)}>
+                            Void
+                          </Button>
+                        )}
                       </td>
                     </tr>
                   ))}

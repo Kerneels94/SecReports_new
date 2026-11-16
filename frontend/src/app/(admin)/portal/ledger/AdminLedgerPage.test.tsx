@@ -39,6 +39,7 @@ const mockList = adminLedgerService.list as jest.Mock;
 const mockSummary = adminLedgerService.summary as jest.Mock;
 const mockCreate = adminLedgerService.create as jest.Mock;
 const mockCompanies = adminCompanyService.list as jest.Mock;
+const mockVoid = adminLedgerService.voidEntry as jest.Mock;
 
 const company: AdminCompany = {
   id: "c1",
@@ -154,5 +155,48 @@ describe("AdminLedgerPage", () => {
     render(<AdminLedgerPage />);
 
     expect(await screen.findByText("paid")).toBeInTheDocument();
+  });
+
+  it("rejects an amount with a thousands comma instead of posting R 1.00", async () => {
+    render(<AdminLedgerPage />);
+    const user = userEvent.setup();
+
+    await screen.findAllByText("Acme Security");
+    await user.click(screen.getByRole("button", { name: /new entry/i }));
+    await user.selectOptions(screen.getByLabelText("Company"), "c1");
+    await user.selectOptions(screen.getByLabelText("Type"), "payment");
+    await user.type(screen.getByLabelText(/amount/i), "1,500.00");
+    await user.click(screen.getByRole("button", { name: /post entry/i }));
+
+    expect(await screen.findByText(/use digits and a dot/i)).toBeInTheDocument();
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
+  it("voids an entry after the admin confirms", async () => {
+    jest.spyOn(window, "confirm").mockReturnValue(true);
+    mockVoid.mockResolvedValue({ data: { ...entry, status: "void" } });
+    render(<AdminLedgerPage />);
+
+    await userEvent.click(await screen.findByRole("button", { name: /void/i }));
+
+    await waitFor(() => expect(mockVoid).toHaveBeenCalledWith("e1"));
+    expect(await screen.findByText("Ledger entry voided")).toBeInTheDocument();
+  });
+
+  it("does not void when the admin cancels", async () => {
+    jest.spyOn(window, "confirm").mockReturnValue(false);
+    render(<AdminLedgerPage />);
+
+    await userEvent.click(await screen.findByRole("button", { name: /void/i }));
+
+    expect(mockVoid).not.toHaveBeenCalled();
+  });
+
+  it("hides Void on an entry that is already void", async () => {
+    mockList.mockResolvedValue({ data: [{ ...entry, status: "void" }] });
+    render(<AdminLedgerPage />);
+
+    await screen.findByText("void");
+    expect(screen.queryByRole("button", { name: /void/i })).not.toBeInTheDocument();
   });
 });

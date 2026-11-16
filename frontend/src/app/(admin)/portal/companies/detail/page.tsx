@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -25,6 +26,7 @@ export default function CompanyDetailPage() {
   const [company, setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get("id");
@@ -67,7 +69,7 @@ export default function CompanyDetailPage() {
           <h1 className="text-2xl font-bold text-text">{company.name}</h1>
           <p className="text-sm text-text-secondary mt-1">{company.email}</p>
         </div>
-        <Button variant="secondary" onClick={() => window.location.href = "/portal/companies"}>
+        <Button variant="secondary" onClick={() => router.push("/portal/companies")}>
           Back to Companies
         </Button>
       </div>
@@ -87,6 +89,11 @@ export default function CompanyDetailPage() {
                 {company.subscription?.status || "no subscription"}
               </Badge>
             </p>
+            {company.subscription?.trialEndsAt && company.subscription.plan?.price === 0 && (
+              <p className="text-xs text-text-secondary/60 mt-1">
+                Trial ends {formatDate(company.subscription.trialEndsAt)}
+              </p>
+            )}
           </CardContent>
         </Card>
         <Card>

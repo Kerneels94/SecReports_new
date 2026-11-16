@@ -3,7 +3,7 @@ import PDFDocument from "pdfkit";
 import { AuditLogService, type AuditLogFilters } from "../services/auditLog.service";
 import { paginationSchema } from "../validators/incident.schema";
 import { validationErrorMessage } from "../validators/shared";
-import { ValidationError } from "../lib/errors";
+import { AppError, ValidationError } from "../lib/errors";
 import { ADMIN_FROM_EMAIL, sendMail } from "../services/email.service";
 import { prisma } from "../lib/db";
 import { BRAND } from "../templates/layout";
@@ -292,40 +292,20 @@ export const AuditLogController = {
     const { companyId } = request.params as { companyId?: string };
 
     // If no companyId provided or empty, export all logs
+    let companyName = "All Companies";
+    let filename = `audit-logs-all-${Date.now()}.pdf`;
+    let result;
     if (!companyId || companyId === "all") {
-      const { entries, total } = await AuditLogService.exportAll(exportFilters(request.query));
-      const superadmins = await prisma.user.findMany({
-        where: { role: "superadmin", status: "active" },
-        select: { email: true },
-      });
-      const recipients = Array.from(
-        new Set(superadmins.map((u) => u.email).filter(Boolean)),
-      ) as string[];
-
-      const pdf = await generateAuditLogsPdf("All Companies", entries, total);
-      const filename = `audit-logs-all-${Date.now()}.pdf`;
-      for (const to of recipients) {
-        await sendMail({
-          to,
-          subject: "audit_export",
-          data: { companyName: "All Companies", entryCount: entries.length },
-          from: ADMIN_FROM_EMAIL,
-          attachments: [
-            { filename, content: pdf, contentType: "application/pdf" },
-          ],
-        });
-      }
-      return reply
-        .code(200)
-        .send({
-          success: true,
-          data: { emailedTo: recipients, count: entries.length, total },
-        });
+      result = await AuditLogService.exportAll(exportFilters(request.query));
+    } else {
+      const { company, ...rest } =
+        await AuditLogService.exportForCompany(companyId, exportFilters(request.query));
+      if (!company) throw new ValidationError("Company not found");
+      companyName = company.name;
+      filename = `audit-logs-${company.name.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-${Date.now()}.pdf`;
+      result = rest;
     }
-
-    const { company, entries, total } =
-      await AuditLogService.exportForCompany(companyId, exportFilters(request.query));
-    if (!company) throw new ValidationError("Company not found");
+    const { entries, total } = result;
 
     const superadmins = await prisma.user.findMany({
       where: { role: "superadmin", status: "active" },
@@ -335,25 +315,29 @@ export const AuditLogController = {
       new Set(superadmins.map((u) => u.email).filter(Boolean)),
     ) as string[];
 
-    const pdf = await generateAuditLogsPdf(company.name, entries, total);
-    const filename = `audit-logs-${company.name.replace(/[^a-z0-9]/gi, "-").toLowerCase()}-${Date.now()}.pdf`;
+    const pdf = await generateAuditLogsPdf(companyName, entries, total);
+    // sendMail reports failure as { error } instead of throwing, so only count real sends.
+    const emailedTo: string[] = [];
     for (const to of recipients) {
-      await sendMail({
+      const { error } = await sendMail({
         to,
         subject: "audit_export",
-        data: { companyName: company.name, entryCount: entries.length },
+        data: { companyName, entryCount: entries.length },
         from: ADMIN_FROM_EMAIL,
         attachments: [
           { filename, content: pdf, contentType: "application/pdf" },
         ],
       });
+      if (!error) emailedTo.push(to);
     }
+    if (emailedTo.length === 0)
+      throw new AppError(502, "EMAIL_SEND_FAILED", "Audit log export could not be emailed");
 
     reply
       .code(200)
       .send({
         success: true,
-        data: { emailedTo: recipients, count: entries.length, total },
+        data: { emailedTo, count: entries.length, total },
       });
   },
 };
