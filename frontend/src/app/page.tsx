@@ -57,7 +57,7 @@ export default function LandingPage() {
                   <svg className="icon" aria-hidden="true">
                     <use href="#i-check" />
                   </svg>
-                  Up to 3 users and 50 incident reports on the trial
+                  Up to 3 users and 10 incident reports on the trial
                 </li>
                 <li>
                   <svg className="icon" aria-hidden="true">
@@ -605,7 +605,7 @@ export default function LandingPage() {
                   <h3>Free trial</h3>
                 </div>
                 <p className="price-desc">
-                  Full access to all features — with a 3-user and 50-report
+                  Full access to all features — with a 3-user and 10-report
                   limit during your trial.
                 </p>
                 <p className="price">Free</p>
@@ -625,7 +625,7 @@ export default function LandingPage() {
                         <use href="#i-check" />
                       </svg>
                     </span>
-                    50 incident reports
+                    10 incident reports
                   </li>
                   <li>
                     <span className="tick">
@@ -658,7 +658,7 @@ export default function LandingPage() {
                 <p className="price">
                   R 650<small> /month</small>
                 </p>
-                <p className="price-note">Up to 3 users</p>
+                <p className="price-note">Up to 5 users</p>
                 <ul className="ticks">
                   <li>
                     <span className="tick">
@@ -666,7 +666,7 @@ export default function LandingPage() {
                         <use href="#i-check" />
                       </svg>
                     </span>
-                    Up to 3 user accounts
+                    Up to 5 user accounts
                   </li>
                   <li>
                     <span className="tick">
@@ -707,7 +707,7 @@ export default function LandingPage() {
                 <p className="price">
                   R 850<small> /month</small>
                 </p>
-                <p className="price-note">Up to 5 users</p>
+                <p className="price-note">Up to 8 users</p>
                 <ul className="ticks">
                   <li>
                     <span className="tick">
@@ -715,7 +715,7 @@ export default function LandingPage() {
                         <use href="#i-check" />
                       </svg>
                     </span>
-                    Up to 5 user accounts
+                    Up to 8 user accounts
                   </li>
                   <li>
                     <span className="tick">
@@ -927,7 +927,7 @@ export default function LandingPage() {
                 <summary>How does the free trial work?</summary>
                 <p>
                   You get 14 days of full access to every feature for up to 3
-                  users and 50 incident reports, with no credit card required.
+                  users and 10 incident reports, with no credit card required.
                   When the trial ends, an admin can upgrade from the Billing
                   page.
                 </p>

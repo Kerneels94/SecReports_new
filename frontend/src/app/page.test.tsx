@@ -45,6 +45,17 @@ describe("LandingPage", () => {
     expect(screen.getByText("R 850")).toBeInTheDocument();
     expect(screen.getByText("25 incident reports")).toBeInTheDocument();
     expect(screen.getByText("Up to 10 users")).toBeInTheDocument();
+    expect(screen.getByText("Up to 5 user accounts")).toBeInTheDocument();
+    expect(screen.getByText("Up to 8 user accounts")).toBeInTheDocument();
+  });
+
+  it("states the trial limits as 3 users and 10 reports everywhere", () => {
+    render(<LandingPage />);
+    expect(screen.getByText(/up to 3 users and 10 incident reports on the trial/i)).toBeInTheDocument();
+    expect(screen.getByText(/with a 3-user and 10-report\s+limit during your trial/i)).toBeInTheDocument();
+    expect(screen.getByText("10 incident reports")).toBeInTheDocument();
+    expect(screen.getByText(/users and 10 incident reports, with no credit card required/i)).toBeInTheDocument();
+    expect(screen.queryByText(/50-report/i)).not.toBeInTheDocument();
   });
 
   it("does not reference guarding operations or multi-site management", () => {
