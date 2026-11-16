@@ -195,9 +195,16 @@ export interface AdminCompany {
     status: string;
     currentPeriodStart: string | null;
     trialEndsAt: string | null;
-    plan: { id: string; name: string; price: number };
+    plan: { id: string; name: string; price: number; userLimit: number; reportLimit: number };
   } | null;
   _count?: { users: number; invoices: number };
+}
+
+/** Superadmin company detail: the company plus its users, invoices and report count. */
+export interface AdminCompanyDetail extends Omit<AdminCompany, "_count"> {
+  users: { id: string; name: string; email: string; role: string; status: string }[];
+  invoices: Invoice[];
+  _count: { incidents: number };
 }
 
 /** Result of generating monthly invoices. */

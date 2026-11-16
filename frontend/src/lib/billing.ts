@@ -46,11 +46,31 @@ export const PLAN_WORDING: Record<string, PlanWording> = {
       "14-day free trial, no credit card",
     ],
   },
-  Professional: {
-    description: "For growing teams that need more seats.",
+  Starter: {
+    description: "For small teams getting started.",
+    limit: "Up to 3 users",
+    features: [
+      "Up to 3 user accounts",
+      "25 incident reports",
+      "CSV & PDF export",
+      "Email support",
+    ],
+  },
+  Standard: {
+    description: "For small teams with more to report.",
     limit: "Up to 5 users",
     features: [
       "Up to 5 user accounts",
+      "50 incident reports",
+      "CSV & PDF export",
+      "Email support",
+    ],
+  },
+  Professional: {
+    description: "For growing teams that need more seats.",
+    limit: "Up to 10 users",
+    features: [
+      "Up to 10 user accounts",
       "100 incident reports",
       "CSV & PDF export",
       "Priority support",

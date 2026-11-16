@@ -55,11 +55,24 @@ describe("billing helpers", () => {
     });
 
     it("returns the landing page wording for the Professional plan", () => {
-      const wording = planWording({ name: "Professional", userLimit: 5, features: "[\"basic_crud\"]" });
+      const wording = planWording({ name: "Professional", userLimit: 10, features: "[\"basic_crud\"]" });
       expect(wording.description).toBe("For growing teams that need more seats.");
-      expect(wording.limit).toBe("Up to 5 users");
+      expect(wording.limit).toBe("Up to 10 users");
+      expect(wording.features).toContain("Up to 10 user accounts");
       expect(wording.features).toContain("CSV & PDF export");
       expect(wording.features).toContain("Priority support");
+    });
+
+    it("returns the landing page wording for the Starter plan", () => {
+      const wording = planWording({ name: "Starter", userLimit: 3, features: "[]" });
+      expect(wording.limit).toBe("Up to 3 users");
+      expect(wording.features).toContain("25 incident reports");
+    });
+
+    it("returns the landing page wording for the Standard plan", () => {
+      const wording = planWording({ name: "Standard", userLimit: 5, features: "[]" });
+      expect(wording.limit).toBe("Up to 5 users");
+      expect(wording.features).toContain("50 incident reports");
     });
 
     it("returns the landing page wording for the Enterprise plan", () => {

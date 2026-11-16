@@ -107,44 +107,6 @@ export const SubscriptionService = {
     };
   },
 
-  /** Returns the lowest-priced paid plan, used as the default post-trial upgrade. */
-  async getDefaultPaidPlan() {
-    return prisma.subscriptionPlan.findFirst({
-      where: { price: { gt: 0 } },
-      orderBy: { price: "asc" },
-    });
-  },
-
-  /**
-   * Automatically upgrades a company from an expired free-plan trial to the
-   * default paid plan. No-op when the trial is still active, the plan is
-   * already paid, or the subscription is cancelled.
-   */
-  async upgradeExpiredTrial(companyId: string) {
-    const sub = await prisma.companySubscription.findUnique({
-      where: { companyId },
-      include: { plan: true },
-    });
-    if (!sub || !sub.trialEndsAt || sub.status === "cancelled") return;
-    if (sub.plan.price > 0 || new Date() < sub.trialEndsAt) return;
-
-    const paidPlan = await this.getDefaultPaidPlan();
-    if (!paidPlan) return;
-
-    await prisma.companySubscription.update({
-      where: { companyId },
-      data: {
-        planId: paidPlan.id,
-        status: "active",
-        currentPeriodStart: new Date(),
-        trialStartedAt: null,
-        trialEndsAt: null,
-        trialWarningSent: false,
-      },
-      include: { plan: true },
-    });
-  },
-
   /** Checks if trial is ending in 2 days and sends a warning email if not yet sent. */
   async checkAndNotifyTrialEnding(companyId: string) {
     const sub = await prisma.companySubscription.findUnique({
@@ -333,8 +295,12 @@ export const SubscriptionService = {
     }
   },
 
-  /** Changes the company's subscription plan. The free trial plan is granted once (at signup or on cancellation) and cannot be selected again after the company has upgraded. */
-  async changePlan(companyId: string, planId: string) {
+  /**
+   * Changes the company's subscription plan, up or down. The free trial plan is granted once (at signup or on
+   * cancellation) and cannot be selected again. The company's active users and lifetime reports must fit the new
+   * plan; a superadmin `override` skips those checks.
+   */
+  async changePlan(companyId: string, planId: string, opts: { override?: boolean } = {}) {
     const plan = await prisma.subscriptionPlan.findUnique({
       where: { id: planId },
     });
@@ -352,21 +318,27 @@ export const SubscriptionService = {
       );
     }
 
-    if (plan.price < sub.plan.price) {
-      throw new ForbiddenError(
-        "You cannot downgrade to a lower-priced plan. Please contact support if you need to change your subscription.",
-      );
-    }
+    if (!opts.override) {
+      // canAddUser only guards new users, so a downgrade must not leave the company over the new limit.
+      if (plan.userLimit > 0) {
+        const count = await prisma.user.count({
+          where: { companyId, status: "active" },
+        });
+        if (count > plan.userLimit) {
+          throw new ForbiddenError(
+            `You have ${count} active users. The ${plan.name} plan allows ${plan.userLimit}. Remove users before changing plan.`,
+          );
+        }
+      }
 
-    // canAddUser only guards new users, so a downgrade must not leave the company over the new limit.
-    if (plan.userLimit > 0) {
-      const count = await prisma.user.count({
-        where: { companyId, status: "active" },
-      });
-      if (count > plan.userLimit) {
-        throw new ForbiddenError(
-          `You have ${count} active users. The ${plan.name} plan allows ${plan.userLimit}. Remove users before changing plan.`,
-        );
+      // assertActive locks the app once lifetime reports reach the limit, so refuse a plan that would lock it at once.
+      if (plan.reportLimit > 0) {
+        const reports = await prisma.incident.count({ where: { companyId } });
+        if (reports >= plan.reportLimit) {
+          throw new ForbiddenError(
+            `You have ${reports} reports. The ${plan.name} plan allows ${plan.reportLimit}. Choose a larger plan.`,
+          );
+        }
       }
     }
 

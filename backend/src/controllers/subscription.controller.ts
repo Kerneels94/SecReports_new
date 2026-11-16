@@ -31,4 +31,14 @@ export const SubscriptionController = {
     const data = await SubscriptionService.changePlan(request.user!.companyId, parsed.data.planId);
     reply.code(200).send({ success: true, data });
   },
+
+  /** Superadmin: moves any company to any paid plan, skipping the user and report checks. */
+  async adminChangePlan(request: FastifyRequest, reply: FastifyReply) {
+    const parsed = changePlanSchema.safeParse(request.body);
+    if (!parsed.success)
+      throw new ValidationError(validationErrorMessage(parsed.error), parsed.error.flatten());
+    const { id } = request.params as { id: string };
+    const data = await SubscriptionService.changePlan(id, parsed.data.planId, { override: true });
+    reply.code(200).send({ success: true, data });
+  },
 };

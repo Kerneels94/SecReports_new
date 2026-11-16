@@ -37,6 +37,16 @@ describe("LandingPage", () => {
     ).toHaveAttribute("href", "/how-to");
   });
 
+  it("lists every paid package with its price and limits", () => {
+    render(<LandingPage />);
+    expect(screen.getByRole("heading", { name: "Starter" })).toBeInTheDocument();
+    expect(screen.getByText("R 650")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Standard" })).toBeInTheDocument();
+    expect(screen.getByText("R 850")).toBeInTheDocument();
+    expect(screen.getByText("25 incident reports")).toBeInTheDocument();
+    expect(screen.getByText("Up to 10 users")).toBeInTheDocument();
+  });
+
   it("does not reference guarding operations or multi-site management", () => {
     render(<LandingPage />);
     expect(screen.queryByText(/security professionals/i)).not.toBeInTheDocument();
