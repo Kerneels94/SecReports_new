@@ -94,7 +94,7 @@ describe("BillingPage", () => {
     expect(screen.queryByText("Free")).not.toBeInTheDocument();
   });
 
-  it("does not offer lower-priced plans once on the highest plan", async () => {
+  it("offers lower-priced paid plans so the company can downgrade", async () => {
     getSubscription.mockResolvedValue({
       data: { ...currentSub, planId: "ent", plan: plans[2] },
     });
@@ -102,7 +102,7 @@ describe("BillingPage", () => {
     await waitFor(() => {
       expect(screen.getAllByText("Enterprise").length).toBeGreaterThan(0);
     });
-    expect(screen.queryByText("Professional")).not.toBeInTheDocument();
+    expect(screen.getByText("Professional")).toBeInTheDocument();
     expect(screen.queryByText("Free")).not.toBeInTheDocument();
   });
 

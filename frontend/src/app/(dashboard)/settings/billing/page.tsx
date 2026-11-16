@@ -75,8 +75,9 @@ export default function BillingPage() {
     );
   }
 
+  // Any paid plan, up or down; the free trial only shows while it is the current plan.
   const availablePlans = plans.filter(
-    (plan) => !subscription || plan.price >= subscription.plan.price,
+    (plan) => plan.price > 0 || plan.id === subscription?.planId,
   );
 
   return (
@@ -156,8 +157,8 @@ export default function BillingPage() {
         <svg className="mt-0.5 h-[18px] w-[18px] shrink-0 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" />
         </svg>
-        Monthly payments are due on the 25th of each month. Upgrades take effect
-        immediately; your first payment date is shown before you confirm.
+        Monthly payments are due on the 25th of each month. Plan changes take
+        effect immediately; your first payment date is shown before you confirm.
       </p>
 
       <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">

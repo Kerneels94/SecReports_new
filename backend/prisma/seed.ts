@@ -33,11 +33,31 @@ async function main() {
     },
   });
 
+  await prisma.subscriptionPlan.create({
+    data: {
+      name: "Starter",
+      price: 65000,
+      userLimit: 3,
+      reportLimit: 25,
+      features: allFeatures,
+    },
+  });
+
+  await prisma.subscriptionPlan.create({
+    data: {
+      name: "Standard",
+      price: 85000,
+      userLimit: 5,
+      reportLimit: 50,
+      features: allFeatures,
+    },
+  });
+
   const professionalPlan = await prisma.subscriptionPlan.create({
     data: {
       name: "Professional",
       price: 150000,
-      userLimit: 5,
+      userLimit: 10,
       reportLimit: 100,
       features: allFeatures,
       highlighted: true,

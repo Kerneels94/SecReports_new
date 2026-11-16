@@ -7,10 +7,10 @@ const plan: SubscriptionPlan = {
   id: "pro",
   name: "Professional",
   price: 150000,
-  userLimit: 5,
+  userLimit: 10,
   reportLimit: 100,
   trialPeriodDays: null,
-  features: "[\"5 users\"]",
+  features: "[\"10 users\"]",
   highlighted: true,
 };
 
@@ -19,7 +19,7 @@ describe("PlanSelectCard", () => {
     render(<PlanSelectCard plan={plan} isCurrent={false} onSelect={jest.fn()} />);
     expect(screen.getByText("Professional")).toBeInTheDocument();
     expect(screen.getByText("For growing teams that need more seats.")).toBeInTheDocument();
-    expect(screen.getByText("Up to 5 users")).toBeInTheDocument();
+    expect(screen.getByText("Up to 10 users")).toBeInTheDocument();
     expect(screen.getByText("R 1,500")).toBeInTheDocument();
     expect(screen.getByText("CSV & PDF export")).toBeInTheDocument();
     expect(screen.getByText("Priority support")).toBeInTheDocument();

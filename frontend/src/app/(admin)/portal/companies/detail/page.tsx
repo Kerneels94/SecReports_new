@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { adminCompanyService } from "@/services";
-import type { Invoice } from "@/types";
+import { adminCompanyService, subscriptionService } from "@/services";
+import type { AdminCompanyDetail, Invoice, SubscriptionPlan } from "@/types";
 
 function formatCurrency(cents: number): string {
   return `R ${(cents / 100).toLocaleString("en-ZA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -16,6 +16,11 @@ function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-ZA", { year: "numeric", month: "short", day: "numeric" });
 }
 
+/** "used / limit", or just "used" on an unlimited (0) plan. */
+function usage(used: number, limit?: number): string {
+  return limit ? `${used} / ${limit}` : `${used} (unlimited)`;
+}
+
 function InvoiceStatusBadge({ status }: { status: string }) {
   const variant = status === "paid" ? "success" : status === "sent" ? "info" : status === "overdue" ? "danger" : status === "draft" ? "warning" : "default";
   return <Badge variant={variant}>{status}</Badge>;
@@ -23,13 +28,18 @@ function InvoiceStatusBadge({ status }: { status: string }) {
 
 export default function CompanyDetailPage() {
   const [id, setId] = useState<string | null>(null);
-  const [company, setCompany] = useState<any>(null);
+  const [company, setCompany] = useState<AdminCompanyDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [planId, setPlanId] = useState("");
+  const [changing, setChanging] = useState(false);
+  const [planError, setPlanError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get("id");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- window is only readable after mount (static export)
     setId(id);
     if (!id) {
       setError("Missing company id");
@@ -44,7 +54,27 @@ export default function CompanyDetailPage() {
       .then((res) => setCompany(res.data))
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load company"))
       .finally(() => setLoading(false));
+    subscriptionService
+      .listPlans()
+      .then((res) => setPlans(res.data.filter((p) => p.price > 0)))
+      .catch(() => setPlans([]));
   }, [id]);
+
+  async function handleChangePlan() {
+    if (!id || !planId) return;
+    setChanging(true);
+    setPlanError(null);
+    try {
+      await adminCompanyService.changePlan(id, planId);
+      const res = await adminCompanyService.getById(id);
+      setCompany(res.data);
+      setPlanId("");
+    } catch (err) {
+      setPlanError(err instanceof Error ? err.message : "Failed to change plan");
+    } finally {
+      setChanging(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -107,11 +137,57 @@ export default function CompanyDetailPage() {
         </Card>
         <Card>
           <CardContent className="p-5">
-            <p className="text-xs text-text-secondary/70 uppercase tracking-wider font-semibold">Users</p>
-            <p className="text-lg font-bold text-text mt-1">{company.users?.length || 0}</p>
+            <p className="text-xs text-text-secondary/70 uppercase tracking-wider font-semibold">Usage</p>
+            <p className="text-sm text-text mt-1">
+              Active users{" "}
+              <span className="font-bold">
+                {usage(
+                  company.users?.filter((u) => u.status === "active").length || 0,
+                  // Free plan stores 0 users but the trial caps at 3 (TRIAL_USER_LIMIT in the backend).
+                  company.subscription?.plan?.price === 0 ? 3 : company.subscription?.plan?.userLimit,
+                )}
+              </span>
+            </p>
+            <p className="text-sm text-text mt-1">
+              Reports{" "}
+              <span className="font-bold">
+                {usage(company._count?.incidents || 0, company.subscription?.plan?.reportLimit)}
+              </span>
+            </p>
           </CardContent>
         </Card>
       </div>
+
+      {company.subscription && plans.length > 0 && (
+        <Card>
+          <CardContent className="p-5 flex flex-col gap-3 sm:flex-row sm:items-end">
+            <label className="flex flex-col gap-1 text-sm text-text-secondary">
+              Change plan
+              <select
+                className="rounded-lg border border-border-light bg-surface px-3 py-2 text-text"
+                value={planId}
+                onChange={(e) => setPlanId(e.target.value)}
+              >
+                <option value="">Select a plan</option>
+                {plans.map((p) => (
+                  <option key={p.id} value={p.id} disabled={p.id === company.subscription?.plan.id}>
+                    {p.name} — {formatCurrency(p.price)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <Button onClick={handleChangePlan} disabled={!planId || changing}>
+              Change plan
+            </Button>
+            <p className="text-xs text-text-secondary/60 sm:ml-2">
+              Skips the user and report checks. Over the report limit locks the company out; over the user limit blocks new users.
+            </p>
+          </CardContent>
+          {planError && (
+            <p className="px-5 pb-4 text-sm text-danger" role="alert">{planError}</p>
+          )}
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
@@ -132,7 +208,7 @@ export default function CompanyDetailPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {company.users.map((u: any, idx: number) => (
+                    {company.users.map((u, idx) => (
                       <tr key={u.id} className={`border-b border-border-light/50 hover:bg-surface-elevated/20 transition-colors ${idx % 2 === 0 ? 'bg-surface-elevated/10' : ''}`}>
                         <td className="px-4 py-3">
                           <div className="flex flex-col">

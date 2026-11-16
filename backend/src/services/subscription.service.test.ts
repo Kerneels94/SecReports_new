@@ -46,82 +46,6 @@ function sub(overrides: Record<string, unknown> = {}) {
   };
 }
 
-describe("SubscriptionService.upgradeExpiredTrial", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it("upgrades an expired free-plan trial to the default paid plan", async () => {
-    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(sub());
-    (prisma.subscriptionPlan.findFirst as jest.Mock).mockResolvedValue(paidPlan);
-    (prisma.companySubscription.update as jest.Mock).mockResolvedValue({});
-
-    await SubscriptionService.upgradeExpiredTrial("company1");
-
-    expect(prisma.companySubscription.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { companyId: "company1" },
-        data: expect.objectContaining({
-          planId: "pro",
-          status: "active",
-          currentPeriodStart: expect.any(Date),
-          trialEndsAt: null,
-          trialWarningSent: false,
-        }),
-      }),
-    );
-  });
-
-  it("does nothing while the trial is still active", async () => {
-    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
-      sub({ trialEndsAt: future }),
-    );
-
-    await SubscriptionService.upgradeExpiredTrial("company1");
-
-    expect(prisma.companySubscription.update).not.toHaveBeenCalled();
-  });
-
-  it("does nothing when already on a paid plan", async () => {
-    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
-      sub({ planId: paidPlan.id, plan: paidPlan, trialEndsAt: past }),
-    );
-
-    await SubscriptionService.upgradeExpiredTrial("company1");
-
-    expect(prisma.companySubscription.update).not.toHaveBeenCalled();
-  });
-
-  it("does nothing when the subscription has no trial end date", async () => {
-    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
-      sub({ trialEndsAt: null }),
-    );
-
-    await SubscriptionService.upgradeExpiredTrial("company1");
-
-    expect(prisma.companySubscription.update).not.toHaveBeenCalled();
-  });
-
-  it("does nothing when the subscription is cancelled", async () => {
-    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
-      sub({ status: "cancelled", trialEndsAt: past }),
-    );
-
-    await SubscriptionService.upgradeExpiredTrial("company1");
-
-    expect(prisma.companySubscription.update).not.toHaveBeenCalled();
-  });
-
-  it("does nothing when no paid plan exists", async () => {
-    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(sub());
-    (prisma.subscriptionPlan.findFirst as jest.Mock).mockResolvedValue(null);
-
-    await SubscriptionService.upgradeExpiredTrial("company1");
-
-    expect(prisma.companySubscription.update).not.toHaveBeenCalled();
-  });
-});
-
 describe("SubscriptionService.getTrialStatus", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -401,6 +325,7 @@ describe("SubscriptionService.getBillingDetails", () => {
 describe("SubscriptionService.changePlan", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (prisma.incident.count as jest.Mock).mockResolvedValue(0);
   });
 
   it("switches to a paid plan as an ongoing subscription with no end date", async () => {
@@ -432,23 +357,60 @@ describe("SubscriptionService.changePlan", () => {
     expect(prisma.companySubscription.update).not.toHaveBeenCalled();
   });
 
-  it("rejects downgrading from the highest plan", async () => {
-    const enterprise = {
-      id: "ent",
-      name: "Enterprise",
-      price: 250000,
-      userLimit: 0,
-      reportLimit: 0,
-    };
-    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(paidPlan);
+  const enterprise = { id: "ent", name: "Enterprise", price: 250000, userLimit: 0, reportLimit: 0 };
+  const starter = { id: "starter", name: "Starter", price: 65000, userLimit: 3, reportLimit: 25 };
+
+  it("allows downgrading when users and reports fit the cheaper plan", async () => {
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(starter);
     (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
       sub({ planId: enterprise.id, plan: enterprise }),
     );
+    (prisma.user.count as jest.Mock).mockResolvedValue(3);
+    (prisma.incident.count as jest.Mock).mockResolvedValue(24);
+    (prisma.companySubscription.update as jest.Mock).mockResolvedValue({});
+
+    await SubscriptionService.changePlan("company1", starter.id);
+
+    expect(prisma.companySubscription.update).toHaveBeenCalled();
+  });
+
+  it("rejects a plan whose report limit the company has already reached", async () => {
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(starter);
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: enterprise.id, plan: enterprise }),
+    );
+    (prisma.user.count as jest.Mock).mockResolvedValue(2);
+    (prisma.incident.count as jest.Mock).mockResolvedValue(25);
+
+    await expect(SubscriptionService.changePlan("company1", starter.id)).rejects.toThrow(
+      "You have 25 reports. The Starter plan allows 25.",
+    );
+    expect(prisma.companySubscription.update).not.toHaveBeenCalled();
+  });
+
+  it("lets a superadmin override skip the user and report checks", async () => {
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(starter);
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: enterprise.id, plan: enterprise }),
+    );
+    (prisma.user.count as jest.Mock).mockResolvedValue(40);
+    (prisma.incident.count as jest.Mock).mockResolvedValue(900);
+    (prisma.companySubscription.update as jest.Mock).mockResolvedValue({});
+
+    await SubscriptionService.changePlan("company1", starter.id, { override: true });
+
+    expect(prisma.companySubscription.update).toHaveBeenCalled();
+  });
+
+  it("still rejects the free plan on a superadmin override", async () => {
+    (prisma.subscriptionPlan.findUnique as jest.Mock).mockResolvedValue(freePlan);
+    (prisma.companySubscription.findUnique as jest.Mock).mockResolvedValue(
+      sub({ planId: paidPlan.id, plan: paidPlan }),
+    );
 
     await expect(
-      SubscriptionService.changePlan("company1", paidPlan.id),
-    ).rejects.toThrow(/cannot downgrade/i);
-    expect(prisma.companySubscription.update).not.toHaveBeenCalled();
+      SubscriptionService.changePlan("company1", freePlan.id, { override: true }),
+    ).rejects.toThrow(ForbiddenError);
   });
 
   it("throws NotFoundError when the plan does not exist", async () => {

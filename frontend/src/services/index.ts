@@ -15,6 +15,7 @@ import type {
   RevenueStats,
   RevenueTrend,
   AdminCompany,
+  AdminCompanyDetail,
   MonthlyInvoiceResult,
   AuditLogEntry,
   SubscriptionPlan,
@@ -208,7 +209,9 @@ export const userService = {
 /** Superadmin company-management endpoints. */
 export const adminCompanyService = {
   list: () => api.get<AdminCompany[]>("/admin/companies"),
-  getById: (id: string) => api.get<AdminCompany>(`/admin/companies/${id}`),
+  getById: (id: string) => api.get<AdminCompanyDetail>(`/admin/companies/${id}`),
+  changePlan: (id: string, planId: string) =>
+    api.patch<CompanySubscription>(`/admin/companies/${id}/plan`, { planId }),
 };
 
 /** Superadmin invoice-management endpoints. */

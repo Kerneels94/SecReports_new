@@ -20,7 +20,7 @@ const DAY_MS = 86_400_000;
 const filters = ["all", "trial", "paid"] as const;
 type Filter = (typeof filters)[number];
 
-/** A free-plan subscription with a trial end date is a trial (expired ones wait for the auto-upgrade). */
+/** A free-plan subscription with a trial end date is a trial (expired ones wait for the company to pick a paid plan). */
 function isTrial(c: AdminCompany) {
   return !!c.subscription?.trialEndsAt && (c.subscription.plan?.price ?? 0) === 0;
 }

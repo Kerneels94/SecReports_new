@@ -648,6 +648,104 @@ export default function LandingPage() {
                   Start free trial
                 </Link>
               </article>
+              <article className="card price-card">
+                <div className="price-top">
+                  <h3>Starter</h3>
+                </div>
+                <p className="price-desc">
+                  For small teams getting started.
+                </p>
+                <p className="price">
+                  R 650<small> /month</small>
+                </p>
+                <p className="price-note">Up to 3 users</p>
+                <ul className="ticks">
+                  <li>
+                    <span className="tick">
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#i-check" />
+                      </svg>
+                    </span>
+                    Up to 3 user accounts
+                  </li>
+                  <li>
+                    <span className="tick">
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#i-check" />
+                      </svg>
+                    </span>
+                    25 incident reports
+                  </li>
+                  <li>
+                    <span className="tick">
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#i-check" />
+                      </svg>
+                    </span>
+                    CSV &amp; PDF export
+                  </li>
+                  <li>
+                    <span className="tick">
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#i-check" />
+                      </svg>
+                    </span>
+                    Email support
+                  </li>
+                </ul>
+                <Link className="btn btn-ghost btn-block" href="/register">
+                  Get started
+                </Link>
+              </article>
+              <article className="card price-card">
+                <div className="price-top">
+                  <h3>Standard</h3>
+                </div>
+                <p className="price-desc">
+                  For small teams with more to report.
+                </p>
+                <p className="price">
+                  R 850<small> /month</small>
+                </p>
+                <p className="price-note">Up to 5 users</p>
+                <ul className="ticks">
+                  <li>
+                    <span className="tick">
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#i-check" />
+                      </svg>
+                    </span>
+                    Up to 5 user accounts
+                  </li>
+                  <li>
+                    <span className="tick">
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#i-check" />
+                      </svg>
+                    </span>
+                    50 incident reports
+                  </li>
+                  <li>
+                    <span className="tick">
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#i-check" />
+                      </svg>
+                    </span>
+                    CSV &amp; PDF export
+                  </li>
+                  <li>
+                    <span className="tick">
+                      <svg className="icon" aria-hidden="true">
+                        <use href="#i-check" />
+                      </svg>
+                    </span>
+                    Email support
+                  </li>
+                </ul>
+                <Link className="btn btn-ghost btn-block" href="/register">
+                  Get started
+                </Link>
+              </article>
               <article className="card price-card featured">
                 <div className="price-top">
                   <h3>Professional</h3>
@@ -659,7 +757,7 @@ export default function LandingPage() {
                 <p className="price">
                   R 1,500<small> /month</small>
                 </p>
-                <p className="price-note">Up to 5 users</p>
+                <p className="price-note">Up to 10 users</p>
                 <ul className="ticks">
                   <li>
                     <span className="tick">
@@ -667,7 +765,7 @@ export default function LandingPage() {
                         <use href="#i-check" />
                       </svg>
                     </span>
-                    Up to 5 user accounts
+                    Up to 10 user accounts
                   </li>
                   <li>
                     <span className="tick">
