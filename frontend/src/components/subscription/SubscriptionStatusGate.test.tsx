@@ -35,6 +35,20 @@ describe("SubscriptionStatusGate", () => {
     listPlans.mockResolvedValue({ data: [] });
   });
 
+  it("renders children straight away, without a spinner, while the check runs", () => {
+    getSubscription.mockReturnValue(new Promise(() => {}));
+
+    render(
+      <SubscriptionStatusGate>
+        <div>Dashboard content</div>
+      </SubscriptionStatusGate>,
+    );
+
+    // A spinner here delayed every dashboard request until the check finished.
+    expect(screen.getByText("Dashboard content")).toBeInTheDocument();
+    expect(document.querySelector(".animate-spin")).not.toBeInTheDocument();
+  });
+
   it("renders children when the subscription is active", async () => {
     getSubscription.mockResolvedValue({
       data: { plan: { price: 0 }, trialEndsAt: futureDate(5) },
