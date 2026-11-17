@@ -35,13 +35,16 @@ export function IncidentHeatMap({ cells, className }: { cells: IncidentMapCell[]
       for (const c of [...cells].reverse()) {
         const t = c.count / max;
         const color = heatColor(t);
+        // Leaflet parses string content as HTML, and area is user-entered: pass a text node only.
+        const label = document.createElement("span");
+        label.textContent = `${c.area || "Unnamed area"}: ${c.count} incident${c.count === 1 ? "" : "s"}`;
         L.circleMarker([c.lat, c.lng], {
           radius: 8 + 22 * Math.sqrt(t),
           stroke: false,
           fillColor: color,
           fillOpacity: 0.35 + 0.35 * t,
         })
-          .bindTooltip(`${c.area || "Unnamed area"}: ${c.count} incident${c.count === 1 ? "" : "s"}`)
+          .bindTooltip(label)
           .addTo(map);
       }
       map.fitBounds(L.latLngBounds(cells.map((c) => [c.lat, c.lng])), { padding: [30, 30], maxZoom: 14 });

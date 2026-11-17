@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/csp-headers.js",
     "start": "next start",
     "lint": "eslint",
     "test": "jest --passWithNoTests"
