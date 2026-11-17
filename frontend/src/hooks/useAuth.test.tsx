@@ -56,6 +56,50 @@ describe("useAuth", () => {
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
 
+  it("shows the cached user straight away while the session is validated", () => {
+    localStorage.setItem("accessToken", "tok");
+    localStorage.setItem("cache:user", JSON.stringify(alice));
+    mockRefreshSession.mockReturnValue(new Promise(() => {}));
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>,
+    );
+    expect(screen.getByTestId("user")).toHaveTextContent("Alice");
+  });
+
+  it("drops the cached user and cache when the session is gone", async () => {
+    localStorage.setItem("accessToken", "tok");
+    localStorage.setItem("cache:user", JSON.stringify(alice));
+    localStorage.setItem("cache:dashboard:1", "{}");
+    mockRefreshSession.mockResolvedValue(null);
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>,
+    );
+    await waitFor(() => expect(screen.getByTestId("user")).toHaveTextContent("null"));
+    expect(localStorage.getItem("cache:user")).toBeNull();
+    expect(localStorage.getItem("cache:dashboard:1")).toBeNull();
+  });
+
+  it("caches the signed-in user and clears every cache on logout", async () => {
+    localStorage.setItem("accessToken", "tok");
+    mockRefreshSession.mockResolvedValue({ accessToken: "t", user: alice });
+    mockMe.mockResolvedValue({ data: alice });
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>,
+    );
+    await waitFor(() => expect(JSON.parse(localStorage.getItem("cache:user")!)).toEqual(alice));
+    localStorage.setItem("cache:dashboard:1", "{}");
+
+    await userEvent.click(screen.getByText("Logout"));
+    await waitFor(() => expect(localStorage.getItem("cache:user")).toBeNull());
+    expect(localStorage.getItem("cache:dashboard:1")).toBeNull();
+  });
+
   it("does not show loading when no token", async () => {
     render(
       <AuthProvider>

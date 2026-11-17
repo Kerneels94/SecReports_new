@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import DashboardPage, { aggregateYearly, fillMonthGaps, utcMonthKey } from "./page";
 import { reportService, exportService } from "@/services";
@@ -70,6 +70,7 @@ afterAll(() => jest.useRealTimers());
 
 beforeEach(() => {
   jest.clearAllMocks();
+  localStorage.clear(); // every render now writes the refresh cache
   mockMonthly.mockResolvedValue({ data: [] });
   mockMonthlyResponse.mockResolvedValue({ data: [] });
   mockResponseByArea.mockResolvedValue({ data: [] });
@@ -88,6 +89,56 @@ describe("DashboardPage", () => {
     expect(screen.getByText("Incident hotspots")).toBeInTheDocument();
     expect(screen.getByText("Loading dashboard data")).toBeInTheDocument();
     expect(screen.queryByText("No incident data yet.")).not.toBeInTheDocument();
+  });
+
+  describe("refresh cache", () => {
+    const cached = {
+      summary: { ...mockData, trial: null },
+      monthly: [{ month: "2026-03", count: 4 }],
+      response: [{ month: "2026-03", avgMs: 600000, count: 1 }],
+      area: [{ area: "Cached Suburb", avgMs: 600000, count: 1 }],
+      map: [{ lat: -26.2, lng: 28.05, count: 7, area: "Cached Hotspot" }],
+    };
+    it("renders the last dashboard data straight away while fresh data loads", () => {
+      localStorage.setItem("cache:dashboard:1", JSON.stringify(cached));
+      const pending = () => new Promise(() => {});
+      mockSummary.mockReturnValue(pending());
+      mockMonthly.mockReturnValue(pending());
+      mockMonthlyResponse.mockReturnValue(pending());
+      mockResponseByArea.mockReturnValue(pending());
+      mockIncidentMap.mockReturnValue(pending());
+      render(<DashboardPage />);
+
+      expect(screen.getAllByText("25").length).toBeGreaterThan(0);
+      expect(screen.getByText("Cached Suburb")).toBeInTheDocument();
+      expect(screen.getByText("Cached Hotspot")).toBeInTheDocument();
+      expect(screen.queryByText("Loading dashboard data")).not.toBeInTheDocument();
+    });
+
+    it("saves fresh data for the next load", async () => {
+      mockSummary.mockResolvedValue({ data: mockData });
+      mockResponseByArea.mockResolvedValue({ data: cached.area });
+      render(<DashboardPage />);
+
+      await waitFor(() => {
+        const saved = JSON.parse(localStorage.getItem("cache:dashboard:1") ?? "{}");
+        expect(saved.summary?.total).toBe(25);
+        expect(saved.area).toEqual(cached.area);
+      });
+    });
+
+    it("keeps cached data on screen when the background refresh fails", async () => {
+      localStorage.setItem("cache:dashboard:1", JSON.stringify(cached));
+      mockSummary.mockRejectedValue(new Error("down"));
+      mockIncidentMap.mockRejectedValue(new Error("down"));
+      render(<DashboardPage />);
+
+      await waitFor(() => expect(mockSummary).toHaveBeenCalled());
+      await act(async () => {});
+      expect(screen.queryByText("Failed to load dashboard data")).not.toBeInTheDocument();
+      expect(screen.queryByText("Could not load the incident map.")).not.toBeInTheDocument();
+      expect(screen.getAllByText("25").length).toBeGreaterThan(0);
+    });
   });
 
   it("shows a map skeleton, not the empty message, while the map loads", () => {
