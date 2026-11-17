@@ -40,46 +40,20 @@ const monthKey = (d: Date) =>
   `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 
 export const ReportService = {
-  /** Aggregates incident counts by status, recent incidents, and type-based counts (attempted/positive) for the dashboard. */
+  /** Total and type-based counts (attempted/positive) plus trial status for the dashboard. */
   async summary(companyId: string) {
-    const [
-      total,
-      allIncidents,
-      recent,
-      attemptedCount,
-      positiveCount,
-    ] = await Promise.all([
+    const [total, attemptedCount, positiveCount, trial] = await Promise.all([
       prisma.incident.count({ where: { companyId } }),
-      prisma.incident.findMany({
-        where: { companyId },
-        select: { status: true },
-      }),
-      prisma.incident.findMany({
-        where: { companyId },
-        include: { reporter: { select: { id: true, name: true } } },
-        orderBy: { createdAt: "desc" },
-        take: 10,
-      }),
       prisma.incident.count({
         where: { companyId, type: { contains: "attempted", mode: "insensitive" } },
       }),
       prisma.incident.count({
         where: { companyId, type: { contains: "positive", mode: "insensitive" } },
       }),
+      SubscriptionService.getTrialStatus(companyId),
     ]);
 
-    const byStatusMap: Record<string, number> = {};
-    for (const inc of allIncidents) {
-      byStatusMap[inc.status] = (byStatusMap[inc.status] || 0) + 1;
-    }
-    const byStatus = Object.entries(byStatusMap).map(([status, count]) => ({
-      status,
-      _count: { id: count },
-    }));
-
-    const trial = await SubscriptionService.getTrialStatus(companyId);
-
-    return { total, byStatus, recent, attemptedCount, positiveCount, trial };
+    return { total, attemptedCount, positiveCount, trial };
   },
 
   async monthlyStats(companyId: string) {

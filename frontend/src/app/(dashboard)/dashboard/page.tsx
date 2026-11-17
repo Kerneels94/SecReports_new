@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import { preconnect } from "react-dom";
 import { Button } from "@/components/ui/Button";
 import { MonthlyCrimeReportModal } from "@/components/reports/MonthlyCrimeReportModal";
 import { reportService, exportService, formatDurationMs } from "@/services";
@@ -191,7 +192,8 @@ export default function DashboardPage() {
   // whole dashboard with a Retry button, so a 404 or expired trial would blank every chart.
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [yearlyError, setYearlyError] = useState<string | null>(null);
-  const [mapCells, setMapCells] = useState<IncidentMapCell[]>([]);
+  // null = still loading.
+  const [mapCells, setMapCells] = useState<IncidentMapCell[] | null>(null);
   const [mapError, setMapError] = useState(false);
 
   const fetchSummary = useCallback(async () => {
@@ -233,6 +235,8 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
+    // Fetch the Leaflet chunk alongside the data, not after it: the map tile is the LCP element.
+    import("leaflet").catch(() => {});
     fetchSummary();
     fetchResponseMetrics();
     // Own error flag: a map failure should not blank the rest of the dashboard.
@@ -341,17 +345,6 @@ export default function DashboardPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
-          <p className="text-lg text-text-secondary">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="flex flex-col items-center gap-4 py-24">
@@ -439,6 +432,8 @@ export default function DashboardPage() {
       note: `${positivePct}% of all incidents`,
     },
   );
+
+  preconnect("https://tile.openstreetmap.org");
 
   return (
     <div className="relative isolate">
@@ -561,8 +556,22 @@ export default function DashboardPage() {
           </p>
         )}
 
+        {loading && (
+          <p className="sr-only" role="status">
+            Loading dashboard data
+          </p>
+        )}
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {statCards.map((stat) => (
+          {loading && Array.from({ length: 4 }).map((_, i) => (
+            // Same row heights as a real stat card so nothing moves when data lands.
+            <div key={i} className={PANEL} aria-hidden="true">
+              <div className="h-9 w-32 animate-pulse rounded bg-zinc-600" />
+              <div className="mt-4 h-9 w-16 animate-pulse rounded bg-zinc-600" />
+              <div className="mt-2.5 h-5 w-40 animate-pulse rounded bg-zinc-600" />
+            </div>
+          ))}
+          {!loading && statCards.map((stat) => (
             <div key={stat.key} className={PANEL}>
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-medium text-text-secondary">
@@ -620,7 +629,9 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-            {monthlyData.length === 0 ? (
+            {loading ? (
+              <div className="h-64 animate-pulse rounded-lg bg-zinc-600" aria-hidden="true" />
+            ) : monthlyData.length === 0 ? (
               <p className="text-lg text-text-secondary">
                 No incident data yet.
               </p>
@@ -650,6 +661,13 @@ export default function DashboardPage() {
                 <p className="text-lg text-text-secondary">
                   Could not load the incident map.
                 </p>
+              ) : mapCells === null ? (
+                <>
+                  <p className="sr-only" role="status">
+                    Loading incident map
+                  </p>
+                  <div className="h-72 animate-pulse rounded-xl bg-zinc-600" aria-hidden="true" />
+                </>
               ) : mapCells.length === 0 ? (
                 <p className="text-lg text-text-secondary">
                   No incidents with a location yet.
