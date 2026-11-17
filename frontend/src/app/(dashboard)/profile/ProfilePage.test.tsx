@@ -41,6 +41,17 @@ beforeEach(() => {
 });
 
 describe("ProfilePage", () => {
+  it("waits for the user before rendering the form, then prefills the name", () => {
+    // On refresh the page mounts while the session is validated; the user arrives later.
+    mockUseAuth.mockReturnValue({ user: null });
+    const { container, rerender } = render(<ProfilePage />);
+    expect(container).toBeEmptyDOMElement();
+
+    mockUseAuth.mockReturnValue({ user: { ...mockUser, permissions: ["users.update"] } });
+    rerender(<ProfilePage />);
+    expect(screen.getByDisplayValue("Alice")).toBeInTheDocument();
+  });
+
   it("renders user information", () => {
     mockUseAuth.mockReturnValue({ user: mockUser });
     render(<ProfilePage />);

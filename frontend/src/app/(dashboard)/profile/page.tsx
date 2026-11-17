@@ -15,8 +15,17 @@ import { cn } from "@/lib/cn";
 
 const PANEL = "rounded-[18px] border border-border-light bg-surface p-[22px]";
 
-/** Profile page component with account info, name edit, and password change form. */
+/**
+ * Waits for the user: on refresh the page mounts before the session is validated, and the form
+ * below copies the name into state once on mount.
+ */
 export default function ProfilePage() {
+  const { user } = useAuth();
+  return user ? <ProfileContent /> : null;
+}
+
+/** Profile page component with account info, name edit, and password change form. */
+function ProfileContent() {
   const { user, refreshUser, logout } = useAuth();
 
   const [editName, setEditName] = useState(user?.name ?? "");

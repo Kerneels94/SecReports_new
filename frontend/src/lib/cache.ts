@@ -22,10 +22,11 @@ export function writeCache(key: string, value: unknown): void {
   }
 }
 
-export function clearCache(): void {
+/** Removes every cached key, or only those starting with `match`. */
+export function clearCache(match = ""): void {
   try {
     Object.keys(localStorage)
-      .filter((k) => k.startsWith(PREFIX))
+      .filter((k) => k.startsWith(PREFIX + match))
       .forEach((k) => localStorage.removeItem(k));
   } catch {
     // blocked storage holds nothing to clear

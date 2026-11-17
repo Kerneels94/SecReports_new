@@ -16,3 +16,13 @@ it("returns undefined for corrupt JSON instead of throwing", () => {
   localStorage.setItem("cache:user", "{not json");
   expect(readCache("user")).toBeUndefined();
 });
+
+it("clears only keys under the given prefix", () => {
+  writeCache("user", {});
+  writeCache("dashboard:1", {});
+  writeCache("dashboard", {});
+  clearCache("dashboard:");
+  expect(readCache("dashboard:1")).toBeUndefined();
+  expect(readCache("dashboard")).toEqual({});
+  expect(readCache("user")).toEqual({});
+});
