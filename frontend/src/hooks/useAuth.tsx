@@ -7,12 +7,14 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import type { User, LoginRequest } from "@/types";
 import { authService } from "@/services";
-import { readCache, writeCache, clearCache } from "@/lib/cache";
+import { clearCache } from "@/lib/cache";
 
 /** Shape of the authentication context value. */
 interface AuthState {
   user: User | null;
   isLoading: boolean;
+  /** A stored token is being validated: pages may render from their cache, but `user` is still null. */
+  pendingSession: boolean;
   login: (data: LoginRequest) => Promise<User>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -27,6 +29,7 @@ const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingSession, setPendingSession] = useState(false);
   const sessionEpoch = useRef(0);
 
   useEffect(() => {
@@ -36,13 +39,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Paint with the last known user now; the refresh below still validates the session.
-    // Read here, not in useState: the layout is prerendered, so a lazy init would mismatch hydration.
-    const cachedUser = readCache<User>("user");
-    if (cachedUser) {
-      setUser(cachedUser);
-      setIsLoading(false);
-    }
+    // Earlier builds cached the user and a per-user dashboard; no user data is kept at rest now.
+    clearCache("user");
+    clearCache("dashboard:");
+    // Let pages paint from their cache while the refresh below validates the session.
+    // Set here, not in useState: the layout is prerendered, so a lazy init would mismatch hydration.
+    setPendingSession(true);
 
     let cancelled = false;
     const epoch = sessionEpoch.current;
@@ -55,11 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(async (session) => {
         // No session: api.ts has already cleared the token if the server
         // rejected it, and left it alone if a newer session took over.
-        if (!isCurrent()) return;
-        if (!session) {
-          setUser(null); // the cached user may be on screen
-          return;
-        }
+        if (!isCurrent() || !session) return;
         // A successful refresh IS the authenticated session, so show the user
         // now instead of waiting on a second request that may fail.
         setUser(session.user);
@@ -86,7 +84,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       })
       .finally(() => {
-        if (!cancelled) setIsLoading(false);
+        if (cancelled) return;
+        setIsLoading(false);
+        setPendingSession(false);
       });
 
     return () => {
@@ -94,11 +94,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Keep the cached user in step; no user means signed out, so drop every cached response too.
+  // Signed out (logout, expiry, another tab, or a dead session): drop every cached response.
   useEffect(() => {
-    if (isLoading) return;
-    if (user) writeCache("user", user);
-    else clearCache();
+    if (!isLoading && !user) clearCache();
   }, [user, isLoading]);
 
   // Clear the user when another tab logs out (shared localStorage).
@@ -154,7 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [logout]);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, isLoading, pendingSession, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -93,14 +93,14 @@ describe("DashboardPage", () => {
 
   describe("refresh cache", () => {
     const cached = {
-      summary: { ...mockData, trial: null },
+      summary: { total: 25, attemptedCount: 3, positiveCount: 2 },
       monthly: [{ month: "2026-03", count: 4 }],
       response: [{ month: "2026-03", avgMs: 600000, count: 1 }],
       area: [{ area: "Cached Suburb", avgMs: 600000, count: 1 }],
       map: [{ lat: -26.2, lng: 28.05, count: 7, area: "Cached Hotspot" }],
     };
     it("renders the last dashboard data straight away while fresh data loads", () => {
-      localStorage.setItem("cache:dashboard:1", JSON.stringify(cached));
+      localStorage.setItem("cache:dashboard", JSON.stringify(cached));
       const pending = () => new Promise(() => {});
       mockSummary.mockReturnValue(pending());
       mockMonthly.mockReturnValue(pending());
@@ -121,14 +121,15 @@ describe("DashboardPage", () => {
       render(<DashboardPage />);
 
       await waitFor(() => {
-        const saved = JSON.parse(localStorage.getItem("cache:dashboard:1") ?? "{}");
+        const saved = JSON.parse(localStorage.getItem("cache:dashboard") ?? "{}");
         expect(saved.summary?.total).toBe(25);
+        expect(saved.summary).not.toHaveProperty("trial"); // plan data stays off disk
         expect(saved.area).toEqual(cached.area);
       });
     });
 
     it("keeps cached data on screen when the background refresh fails", async () => {
-      localStorage.setItem("cache:dashboard:1", JSON.stringify(cached));
+      localStorage.setItem("cache:dashboard", JSON.stringify(cached));
       mockSummary.mockRejectedValue(new Error("down"));
       mockIncidentMap.mockRejectedValue(new Error("down"));
       render(<DashboardPage />);

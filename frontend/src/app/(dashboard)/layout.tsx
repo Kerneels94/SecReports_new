@@ -23,7 +23,7 @@ function requiredPermission(pathname: string): string | null {
 }
 
 function DashboardShell({ children }: { children: ReactNode }) {
-  const { user, isLoading, logout } = useAuth();
+  const { user, isLoading, pendingSession, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -56,8 +56,11 @@ function DashboardShell({ children }: { children: ReactNode }) {
           </button>
         </header>
         <main className="relative z-10 flex-1 animate-fade-in px-4 pb-[72px] pt-8 text-[16px] sm:px-6 lg:px-10">
-          {/* Auth check: render nothing rather than a spinner that gets swapped for the page. */}
-          {isLoading ? null : (
+          {/* Stored session being validated: render the page from its cache now; permission
+              checks wait for the real user, and the API enforces them regardless. */}
+          {pendingSession ? (
+            <SubscriptionStatusGate>{children}</SubscriptionStatusGate>
+          ) : isLoading ? null : (
             (() => {
               const permission = requiredPermission(pathname);
               return permission && !user?.permissions?.includes(permission) ? (

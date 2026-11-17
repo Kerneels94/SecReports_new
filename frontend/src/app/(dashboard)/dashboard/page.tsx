@@ -169,7 +169,8 @@ export function fillMonthGaps(
 
 /** Last responses, shown instantly on the next load while fresh ones are fetched. */
 type DashboardCache = {
-  summary?: { total: number; attemptedCount: number; positiveCount: number; trial: TrialStatus | null };
+  // No trial/plan data and no user id: only incident counts and area names are kept at rest.
+  summary?: { total: number; attemptedCount: number; positiveCount: number };
   monthly?: { month: string; count: number }[];
   response?: MonthlyResponseStat[];
   area?: AreaResponseStat[];
@@ -179,8 +180,9 @@ type DashboardCache = {
 export default function DashboardPage() {
   const { user } = useAuth();
   const canExportReports = hasPermission(user, "export.reports");
-  // Lazy init is safe here: the layout only mounts this page client-side, after auth.
-  const cacheKey = `dashboard:${user?.id}`;
+  // Lazy init is safe here: the layout only mounts this page client-side. Unkeyed by user:
+  // signing out clears it, and `user` may still be null while the session is validated.
+  const cacheKey = "dashboard";
   const [cached] = useState(() => readCache<DashboardCache>(cacheKey));
   const saveCache = useCallback(
     (part: DashboardCache) => writeCache(cacheKey, { ...readCache<DashboardCache>(cacheKey), ...part }),
@@ -189,7 +191,7 @@ export default function DashboardPage() {
   const [total, setTotal] = useState(cached?.summary?.total ?? 0);
   const [attemptedCount, setAttemptedCount] = useState(cached?.summary?.attemptedCount ?? 0);
   const [positiveCount, setPositiveCount] = useState(cached?.summary?.positiveCount ?? 0);
-  const [trial, setTrial] = useState<TrialStatus | null>(cached?.summary?.trial ?? null);
+  const [trial, setTrial] = useState<TrialStatus | null>(null);
   const [monthlyData, setMonthlyData] = useState<
     { month: string; count: number }[]
   >(() => fillMonthGaps(cached?.monthly ?? []));
@@ -227,8 +229,8 @@ export default function DashboardPage() {
       setPositiveCount(summaryRes.data.positiveCount);
       setTrial(summaryRes.data.trial);
       setMonthlyData(fillMonthGaps(monthlyRes.data));
-      const { total, attemptedCount, positiveCount, trial } = summaryRes.data;
-      saveCache({ summary: { total, attemptedCount, positiveCount, trial }, monthly: monthlyRes.data });
+      const { total, attemptedCount, positiveCount } = summaryRes.data;
+      saveCache({ summary: { total, attemptedCount, positiveCount }, monthly: monthlyRes.data });
     } catch {
       if (!quiet) setError("Failed to load dashboard data");
     } finally {
