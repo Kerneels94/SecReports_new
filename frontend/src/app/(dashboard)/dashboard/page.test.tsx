@@ -77,11 +77,25 @@ beforeEach(() => {
 });
 
 describe("DashboardPage", () => {
-  it("shows loading spinner initially", () => {
+  it("renders the layout with skeletons while the summary loads, not a full-page spinner", () => {
     mockSummary.mockReturnValue(new Promise(() => {}));
     mockMonthly.mockReturnValue(new Promise(() => {}));
     render(<DashboardPage />);
-    expect(document.querySelector(".animate-spin")).toBeInTheDocument();
+    // Swapping a centred spinner for the whole layout caused CLS 0.28.
+    expect(document.querySelector(".animate-spin")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Dashboard" })).toBeInTheDocument();
+    expect(screen.getByText("Incident trends")).toBeInTheDocument();
+    expect(screen.getByText("Incident hotspots")).toBeInTheDocument();
+    expect(screen.getByText("Loading dashboard data")).toBeInTheDocument();
+    expect(screen.queryByText("No incident data yet.")).not.toBeInTheDocument();
+  });
+
+  it("shows a map skeleton, not the empty message, while the map loads", () => {
+    mockSummary.mockReturnValue(new Promise(() => {}));
+    mockIncidentMap.mockReturnValue(new Promise(() => {}));
+    render(<DashboardPage />);
+    expect(screen.getByText("Loading incident map")).toBeInTheDocument();
+    expect(screen.queryByText("No incidents with a location yet.")).not.toBeInTheDocument();
   });
 
   it("shows zinc skeleton blocks for response cards while they load", async () => {

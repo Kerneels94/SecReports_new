@@ -19,40 +19,29 @@ describe("ReportService", () => {
   });
 
   describe("summary", () => {
-    it("executes all parallel queries and returns combined result", async () => {
-      (prisma.incident.count as jest.Mock).mockResolvedValueOnce(42);
-      (prisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
-        { status: "open" },
-        { status: "closed" },
-      ]);
-      (prisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
-        { id: "1", title: "Recent", reporter: { id: "1", name: "Alice" } },
-      ]);
-      (prisma.incident.count as jest.Mock).mockResolvedValueOnce(3);
-      (prisma.incident.count as jest.Mock).mockResolvedValueOnce(2);
+    it("returns counts without reading every incident", async () => {
+      (prisma.incident.count as jest.Mock)
+        .mockResolvedValueOnce(42)
+        .mockResolvedValueOnce(3)
+        .mockResolvedValueOnce(2);
 
       const result = await ReportService.summary("company1");
 
       expect(result.total).toBe(42);
-      expect(result.byStatus).toEqual([
-        { status: "open", _count: { id: 1 } },
-        { status: "closed", _count: { id: 1 } },
-      ]);
-      expect(result.recent).toHaveLength(1);
-      expect(result.recent[0].title).toBe("Recent");
       expect(result.attemptedCount).toBe(3);
       expect(result.positiveCount).toBe(2);
+      // Unused byStatus/recent were full scans on every dashboard load.
+      expect(prisma.incident.findMany).not.toHaveBeenCalled();
+      expect(result).not.toHaveProperty("byStatus");
+      expect(result).not.toHaveProperty("recent");
     });
 
     it("handles empty data gracefully", async () => {
       (prisma.incident.count as jest.Mock).mockResolvedValue(0);
-      (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
 
       const result = await ReportService.summary("empty");
 
       expect(result.total).toBe(0);
-      expect(result.byStatus).toEqual([]);
-      expect(result.recent).toEqual([]);
       expect(result.attemptedCount).toBe(0);
       expect(result.positiveCount).toBe(0);
     });

@@ -66,8 +66,6 @@ export interface IncidentMapCell {
 /** Aggregated report summary data for the dashboard. */
 interface ReportSummary {
   total: number;
-  byStatus: { status: string; _count: { id: number } }[];
-  recent: Incident[];
   attemptedCount: number;
   positiveCount: number;
   trial: TrialStatus | null;
