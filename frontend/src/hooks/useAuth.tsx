@@ -7,6 +7,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import type { User, LoginRequest } from "@/types";
 import { authService } from "@/services";
+import { readCache, writeCache, clearCache } from "@/lib/cache";
 
 /** Shape of the authentication context value. */
 interface AuthState {
@@ -35,6 +36,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    // Paint with the last known user now; the refresh below still validates the session.
+    // Read here, not in useState: the layout is prerendered, so a lazy init would mismatch hydration.
+    const cachedUser = readCache<User>("user");
+    if (cachedUser) {
+      setUser(cachedUser);
+      setIsLoading(false);
+    }
+
     let cancelled = false;
     const epoch = sessionEpoch.current;
     const isCurrent = () => !cancelled && epoch === sessionEpoch.current;
@@ -46,7 +55,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(async (session) => {
         // No session: api.ts has already cleared the token if the server
         // rejected it, and left it alone if a newer session took over.
-        if (!isCurrent() || !session) return;
+        if (!isCurrent()) return;
+        if (!session) {
+          setUser(null); // the cached user may be on screen
+          return;
+        }
         // A successful refresh IS the authenticated session, so show the user
         // now instead of waiting on a second request that may fail.
         setUser(session.user);
@@ -80,6 +93,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, []);
+
+  // Keep the cached user in step; no user means signed out, so drop every cached response too.
+  useEffect(() => {
+    if (isLoading) return;
+    if (user) writeCache("user", user);
+    else clearCache();
+  }, [user, isLoading]);
 
   // Clear the user when another tab logs out (shared localStorage).
   useEffect(() => {

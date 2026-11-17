@@ -19,6 +19,7 @@ import type {
 } from "@/services";
 import { useAuth } from "@/hooks/useAuth";
 import { hasPermission } from "@/lib/permissions";
+import { readCache, writeCache } from "@/lib/cache";
 import type { TrialStatus } from "@/types";
 
 /** Periods the avg response time report can be downloaded over. */
@@ -166,24 +167,40 @@ export function fillMonthGaps(
   });
 }
 
+/** Last responses, shown instantly on the next load while fresh ones are fetched. */
+type DashboardCache = {
+  summary?: { total: number; attemptedCount: number; positiveCount: number; trial: TrialStatus | null };
+  monthly?: { month: string; count: number }[];
+  response?: MonthlyResponseStat[];
+  area?: AreaResponseStat[];
+  map?: IncidentMapCell[];
+};
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const canExportReports = hasPermission(user, "export.reports");
-  const [total, setTotal] = useState(0);
-  const [attemptedCount, setAttemptedCount] = useState(0);
-  const [positiveCount, setPositiveCount] = useState(0);
-  const [trial, setTrial] = useState<TrialStatus | null>(null);
+  // Lazy init is safe here: the layout only mounts this page client-side, after auth.
+  const cacheKey = `dashboard:${user?.id}`;
+  const [cached] = useState(() => readCache<DashboardCache>(cacheKey));
+  const saveCache = useCallback(
+    (part: DashboardCache) => writeCache(cacheKey, { ...readCache<DashboardCache>(cacheKey), ...part }),
+    [cacheKey],
+  );
+  const [total, setTotal] = useState(cached?.summary?.total ?? 0);
+  const [attemptedCount, setAttemptedCount] = useState(cached?.summary?.attemptedCount ?? 0);
+  const [positiveCount, setPositiveCount] = useState(cached?.summary?.positiveCount ?? 0);
+  const [trial, setTrial] = useState<TrialStatus | null>(cached?.summary?.trial ?? null);
   const [monthlyData, setMonthlyData] = useState<
     { month: string; count: number }[]
-  >([]);
-  const [responseData, setResponseData] = useState<MonthlyResponseStat[]>([]);
-  const [areaData, setAreaData] = useState<AreaResponseStat[]>([]);
+  >(() => fillMonthGaps(cached?.monthly ?? []));
+  const [responseData, setResponseData] = useState<MonthlyResponseStat[]>(cached?.response ?? []);
+  const [areaData, setAreaData] = useState<AreaResponseStat[]>(cached?.area ?? []);
   const [areaPage, setAreaPage] = useState(1);
   const [chartMode, setChartMode] = useState<"monthly" | "yearly">("monthly");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cached?.summary);
   const [error, setError] = useState<string | null>(null);
   const [responseError, setResponseError] = useState(false);
-  const [responseLoading, setResponseLoading] = useState(true);
+  const [responseLoading, setResponseLoading] = useState(!cached?.response);
   const [downloading, setDownloading] = useState(false);
   const [monthlyOpen, setMonthlyOpen] = useState(false);
   const [downloadingPeriod, setDownloadingPeriod] =
@@ -193,11 +210,12 @@ export default function DashboardPage() {
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [yearlyError, setYearlyError] = useState<string | null>(null);
   // null = still loading.
-  const [mapCells, setMapCells] = useState<IncidentMapCell[] | null>(null);
+  const [mapCells, setMapCells] = useState<IncidentMapCell[] | null>(cached?.map ?? null);
   const [mapError, setMapError] = useState(false);
 
-  const fetchSummary = useCallback(async () => {
-    setLoading(true);
+  // quiet = cached data is on screen: refresh behind it, and keep it if the fetch fails.
+  const fetchSummary = useCallback(async (quiet = false) => {
+    if (!quiet) setLoading(true);
     setError(null);
     try {
       const [summaryRes, monthlyRes] = await Promise.all([
@@ -209,16 +227,18 @@ export default function DashboardPage() {
       setPositiveCount(summaryRes.data.positiveCount);
       setTrial(summaryRes.data.trial);
       setMonthlyData(fillMonthGaps(monthlyRes.data));
+      const { total, attemptedCount, positiveCount, trial } = summaryRes.data;
+      saveCache({ summary: { total, attemptedCount, positiveCount, trial }, monthly: monthlyRes.data });
     } catch {
-      setError("Failed to load dashboard data");
+      if (!quiet) setError("Failed to load dashboard data");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [saveCache]);
 
-  const fetchResponseMetrics = useCallback(async () => {
+  const fetchResponseMetrics = useCallback(async (quiet = false) => {
     setResponseError(false);
-    setResponseLoading(true);
+    if (!quiet) setResponseLoading(true);
     try {
       const [responseRes, areaRes] = await Promise.all([
         reportService.monthlyResponse(),
@@ -227,24 +247,30 @@ export default function DashboardPage() {
       setResponseData(responseRes.data);
       setAreaData(areaRes.data ?? []);
       setAreaPage(1);
+      saveCache({ response: responseRes.data, area: areaRes.data ?? [] });
     } catch {
-      setResponseError(true);
+      if (!quiet) setResponseError(true);
     } finally {
       setResponseLoading(false);
     }
-  }, []);
+  }, [saveCache]);
 
   useEffect(() => {
     // Fetch the Leaflet chunk alongside the data, not after it: the map tile is the LCP element.
     import("leaflet").catch(() => {});
-    fetchSummary();
-    fetchResponseMetrics();
+    fetchSummary(Boolean(cached?.summary));
+    fetchResponseMetrics(Boolean(cached?.response));
     // Own error flag: a map failure should not blank the rest of the dashboard.
     reportService
       .incidentMap()
-      .then((res) => setMapCells(res.data ?? []))
-      .catch(() => setMapError(true));
-  }, [fetchSummary, fetchResponseMetrics]);
+      .then((res) => {
+        setMapCells(res.data ?? []);
+        saveCache({ map: res.data ?? [] });
+      })
+      .catch(() => {
+        if (!cached?.map) setMapError(true);
+      });
+  }, [fetchSummary, fetchResponseMetrics, saveCache, cached]);
 
   const chartData = useMemo(() => {
     return chartMode === "yearly" ? aggregateYearly(monthlyData) : monthlyData;
@@ -350,7 +376,7 @@ export default function DashboardPage() {
       <div className="flex flex-col items-center gap-4 py-24">
         <p className="text-lg text-danger">{error}</p>
         <button
-          onClick={fetchSummary}
+          onClick={() => fetchSummary()}
           className="cursor-pointer rounded-lg bg-surface px-4 py-2 text-lg font-medium text-text border border-border hover:bg-surface-elevated transition-colors"
         >
           Retry
@@ -741,7 +767,7 @@ export default function DashboardPage() {
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={fetchResponseMetrics}
+                    onClick={() => fetchResponseMetrics()}
                   >
                     Retry
                   </Button>
