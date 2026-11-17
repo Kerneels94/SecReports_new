@@ -56,16 +56,8 @@ function DashboardShell({ children }: { children: ReactNode }) {
           </button>
         </header>
         <main className="relative z-10 flex-1 animate-fade-in px-4 pb-[72px] pt-8 text-[16px] sm:px-6 lg:px-10">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-24">
-              <div className="flex flex-col items-center gap-3">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
-                <p className="text-lg text-text-secondary">
-                  Loading dashboard...
-                </p>
-              </div>
-            </div>
-          ) : (
+          {/* Auth check: render nothing rather than a spinner that gets swapped for the page. */}
+          {isLoading ? null : (
             (() => {
               const permission = requiredPermission(pathname);
               return permission && !user?.permissions?.includes(permission) ? (

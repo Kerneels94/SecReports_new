@@ -42,16 +42,12 @@ export function SubscriptionStatusGate({ children }: SubscriptionStatusGateProps
   const { user, logout } = useAuth();
   const [blockReason, setBlockReason] = useState<BlockReason>(null);
   const [currentPlanId, setCurrentPlanId] = useState<string | undefined>(undefined);
-  const [checking, setChecking] = useState(true);
 
+  // Children render while this runs: the API already blocks non-billing routes for a blocked
+  // company, so the check only decides which screen to show, not what data is reachable.
   useEffect(() => {
     let cancelled = false;
-    if (!user?.companyId) {
-      Promise.resolve().then(() => {
-        if (!cancelled) setChecking(false);
-      });
-      return;
-    }
+    if (!user?.companyId) return;
 
     subscriptionService
       .getSubscription()
@@ -72,24 +68,13 @@ export function SubscriptionStatusGate({ children }: SubscriptionStatusGateProps
         setBlockReason(
           reportLimitReached ? "reports" : trialExpired ? "trial" : null,
         );
-        setChecking(false);
       })
-      .catch(() => {
-        if (!cancelled) setChecking(false);
-      });
+      .catch(() => {});
 
     return () => {
       cancelled = true;
     };
   }, [user?.companyId]);
-
-  if (checking) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary shadow-[0_0_24px_var(--color-primary-glow)]" />
-      </div>
-    );
-  }
 
   if (!user) {
     return <>{children}</>;
