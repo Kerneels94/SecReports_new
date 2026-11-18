@@ -45,7 +45,7 @@ function DashboardShell({ children }: { children: ReactNode }) {
         onLogout={logout}
       />
       <div className="relative flex flex-1 flex-col lg:pl-[264px]">
-        <header className="sticky top-0 z-20 flex h-14 items-center border-b border-border-light bg-surface-secondary/80 px-4 backdrop-blur-md sm:px-6 lg:px-10">
+        <header className="sticky top-0 z-20 flex h-14 items-center border-b border-border-light bg-surface-secondary/80 px-4 backdrop-blur-md sm:px-6 lg:static lg:px-10">
           <button
             onClick={() => setSidebarOpen(true)}
             className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[10px] border border-border text-text transition-colors hover:bg-surface lg:hidden"
