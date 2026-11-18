@@ -16,11 +16,11 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  default: "bg-slate-800 text-slate-200 ring-1 ring-slate-700/50",
-  success: "bg-green-900/30 text-green-300 ring-1 ring-green-500/20",
-  warning: "bg-yellow-900/30 text-yellow-300 ring-1 ring-yellow-500/20",
-  danger: "bg-red-900/30 text-red-300 ring-1 ring-red-500/20",
-  info: "bg-blue-900/30 text-blue-300 ring-1 ring-blue-500/20",
+  default: "bg-slate-800 text-slate-200 ring-1 ring-slate-700/50 light:bg-slate-100 light:text-slate-800 light:ring-slate-300",
+  success: "bg-green-900/30 text-green-300 ring-1 ring-green-500/20 light:bg-green-100 light:text-green-800 light:ring-green-600/20",
+  warning: "bg-yellow-900/30 text-yellow-300 ring-1 ring-yellow-500/20 light:bg-yellow-100 light:text-yellow-800 light:ring-yellow-600/20",
+  danger: "bg-red-900/30 text-red-300 ring-1 ring-red-500/20 light:bg-red-100 light:text-red-800 light:ring-red-600/20",
+  info: "bg-blue-900/30 text-blue-300 ring-1 ring-blue-500/20 light:bg-blue-100 light:text-blue-800 light:ring-blue-600/20",
 };
 
 const dotColors: Record<BadgeVariant, string> = {

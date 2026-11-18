@@ -67,8 +67,8 @@ function Section({ title, children, className }: { title: string; children: Reac
 function Chip({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "amber" | "red" | "green" }) {
   const tones = {
     neutral: "border-border bg-surface-elevated/40 text-text-secondary",
-    amber: "border-[#fcd34d]/30 bg-[#fcd34d]/10 text-[#fcd34d]",
-    red: "border-[#fca5a5]/30 bg-[#fca5a5]/10 text-[#fca5a5]",
+    amber: "border-warning-soft/30 bg-warning-soft/10 text-warning-soft",
+    red: "border-danger-soft/30 bg-danger-soft/10 text-danger-soft",
     green: "border-primary/30 bg-primary/10 text-primary",
   };
   return (
