@@ -24,6 +24,14 @@ describe("Badge", () => {
     expect(screen.getByText("Default")).toHaveClass("bg-slate-800");
   });
 
+  it("switches to dark text on a pale tint in light mode", () => {
+    for (const [variant, colour] of [["success", "green"], ["danger", "red"], ["warning", "yellow"], ["info", "blue"], ["default", "slate"]] as const) {
+      const { unmount } = render(<Badge variant={variant}>{variant}</Badge>);
+      expect(screen.getByText(variant)).toHaveClass(`light:bg-${colour}-100`, `light:text-${colour}-800`);
+      unmount();
+    }
+  });
+
   it("applies custom className", () => {
     render(<Badge className="my-badge">Custom</Badge>);
     expect(screen.getByText("Custom")).toHaveClass("my-badge");

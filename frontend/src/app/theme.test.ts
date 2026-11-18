@@ -49,3 +49,59 @@ describe("brand green tokens", () => {
     expect(btnPrimary).toContain("var(--accent-fill)");
   });
 });
+
+describe("light theme", () => {
+  const globals = read("globals.css");
+  const light = globals.match(/\[data-theme="light"\]\s*\{([^}]*)\}/)?.[1] ?? "";
+
+  it("emits tokens as CSS vars so the theme can switch at runtime", () => {
+    expect(globals).not.toMatch(/@theme\s+inline/);
+  });
+
+  it("overrides surface and text tokens", () => {
+    expect(token(light, "--color-surface")).toBeDefined();
+    expect(token(light, "--color-text")).toBeDefined();
+  });
+
+  it("meets WCAG AA (4.5:1) for text on light surfaces", () => {
+    for (const bg of ["--color-surface", "--color-surface-secondary"]) {
+      expect(contrast(token(light, "--color-text")!, token(light, bg)!)).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(token(light, "--color-text-secondary")!, token(light, bg)!)).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(token(light, "--color-primary")!, token(light, bg)!)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});
+
+describe("loading placeholders", () => {
+  it("use the themed skeleton colour, not a fixed zinc", () => {
+    const globals = read("globals.css");
+    const light = globals.match(/\[data-theme="light"\]\s*\{([^}]*)\}/)?.[1] ?? "";
+    expect(token(globals, "--color-skeleton")).toBe("#52525b"); // dark unchanged (was bg-zinc-600)
+    expect(token(light, "--color-skeleton")).toBeDefined();
+    expect(read("(dashboard)/dashboard/page.tsx")).not.toContain("bg-zinc-600");
+  });
+});
+
+describe("pale palette text", () => {
+  // Toast keeps pale text: it sits on an opaque dark fill in both themes.
+  const files = (dir: string): string[] =>
+    fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) return e.name === "Toast" ? [] : files(p);
+      return /\.tsx$/.test(e.name) && !/\.test\./.test(e.name) ? [p] : [];
+    });
+
+  it("has a light: override so it stays readable on white", () => {
+    const pale = /(?<![:\w-])((?:hover:)?)text-([a-z]+)-[234]00\b/g;
+    const missing: string[] = [];
+    for (const file of files(path.join(__dirname, ".."))) {
+      fs.readFileSync(file, "utf8").split("\n").forEach((line, i) => {
+        if (line.trimStart().startsWith("//")) return;
+        for (const [, hover, colour] of line.matchAll(pale)) {
+          if (!line.includes(`light:${hover}text-${colour}-`)) missing.push(`${path.relative(__dirname, file)}:${i + 1}`);
+        }
+      });
+    }
+    expect(missing).toEqual([]);
+  });
+});

@@ -120,10 +120,10 @@ const TONE = {
     box: "bg-primary/10 text-primary border-primary/25",
   },
   amber: {
-    box: "bg-amber-600/15 text-amber-300 border-amber-600/40",
+    box: "bg-amber-600/15 text-amber-300 light:text-amber-800 border-amber-600/40",
   },
   rose: {
-    box: "bg-rose-600/15 text-rose-300 border-rose-600/40",
+    box: "bg-rose-600/15 text-rose-300 light:text-rose-800 border-rose-600/40",
   },
 } as const;
 
@@ -411,7 +411,7 @@ export default function DashboardPage() {
           "No previous month"
         ) : (
           <span
-            className={`inline-flex items-center gap-1.5 ${latestMonth.delta > 0 ? "text-rose-300" : "text-primary"}`}
+            className={`inline-flex items-center gap-1.5 ${latestMonth.delta > 0 ? "text-rose-300 light:text-rose-800" : "text-primary"}`}
           >
             <svg
               className="h-[15px] w-[15px]"
@@ -469,7 +469,7 @@ export default function DashboardPage() {
         {trial?.isTrial && trial.daysRemaining <= 2 && !trial.isExpired && (
           <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 flex items-center gap-3">
             <svg
-              className="h-5 w-5 shrink-0 text-amber-400"
+              className="h-5 w-5 shrink-0 text-amber-400 light:text-amber-800"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -479,7 +479,7 @@ export default function DashboardPage() {
             >
               <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <div className="text-lg text-amber-200">
+            <div className="text-lg text-amber-200 light:text-amber-800">
               Your free trial ends in{" "}
               <strong>
                 {trial.daysRemaining} day{trial.daysRemaining === 1 ? "" : "s"}
@@ -509,7 +509,7 @@ export default function DashboardPage() {
             >
               <path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <div className="text-lg text-red-200">
+            <div className="text-lg text-red-200 light:text-red-800">
               Your free trial has ended. Some features may be limited.{" "}
               <Link
                 href="/settings/billing"
@@ -594,9 +594,9 @@ export default function DashboardPage() {
           {loading && Array.from({ length: 4 }).map((_, i) => (
             // Same row heights as a real stat card so nothing moves when data lands.
             <div key={i} className={PANEL} aria-hidden="true">
-              <div className="h-9 w-32 animate-pulse rounded bg-zinc-600" />
-              <div className="mt-4 h-9 w-16 animate-pulse rounded bg-zinc-600" />
-              <div className="mt-2.5 h-5 w-40 animate-pulse rounded bg-zinc-600" />
+              <div className="h-9 w-32 animate-pulse rounded bg-skeleton" />
+              <div className="mt-4 h-9 w-16 animate-pulse rounded bg-skeleton" />
+              <div className="mt-2.5 h-5 w-40 animate-pulse rounded bg-skeleton" />
             </div>
           ))}
           {!loading && statCards.map((stat) => (
@@ -658,7 +658,7 @@ export default function DashboardPage() {
               </div>
             </div>
             {loading ? (
-              <div className="h-64 animate-pulse rounded-lg bg-zinc-600" aria-hidden="true" />
+              <div className="h-64 animate-pulse rounded-lg bg-skeleton" aria-hidden="true" />
             ) : monthlyData.length === 0 ? (
               <p className="text-lg text-text-secondary">
                 No incident data yet.
@@ -694,7 +694,7 @@ export default function DashboardPage() {
                   <p className="sr-only" role="status">
                     Loading incident map
                   </p>
-                  <div className="h-72 animate-pulse rounded-xl bg-zinc-600" aria-hidden="true" />
+                  <div className="h-72 animate-pulse rounded-xl bg-skeleton" aria-hidden="true" />
                 </>
               ) : mapCells.length === 0 ? (
                 <p className="text-lg text-text-secondary">
@@ -757,7 +757,7 @@ export default function DashboardPage() {
                     Loading response time data
                   </p>
                   <div
-                    className="h-full min-h-64 animate-pulse rounded-lg bg-zinc-600"
+                    className="h-full min-h-64 animate-pulse rounded-lg bg-skeleton"
                     aria-hidden="true"
                   />
                 </>
@@ -839,10 +839,10 @@ export default function DashboardPage() {
                 >
                   {Array.from({ length: AREA_PAGE_SIZE }).map((_, i) => (
                     <div key={i} className="flex items-center gap-4 py-2.5">
-                      <div className="h-5 w-32 shrink-0 animate-pulse rounded bg-zinc-600" />
-                      <div className="h-2 min-w-0 flex-1 max-w-48 animate-pulse rounded-full bg-zinc-600" />
-                      <div className="ml-auto h-5 w-20 shrink-0 animate-pulse rounded bg-zinc-600" />
-                      <div className="h-5 w-28 shrink-0 animate-pulse rounded bg-zinc-600" />
+                      <div className="h-5 w-32 shrink-0 animate-pulse rounded bg-skeleton" />
+                      <div className="h-2 min-w-0 flex-1 max-w-48 animate-pulse rounded-full bg-skeleton" />
+                      <div className="ml-auto h-5 w-20 shrink-0 animate-pulse rounded bg-skeleton" />
+                      <div className="h-5 w-28 shrink-0 animate-pulse rounded bg-skeleton" />
                     </div>
                   ))}
                 </div>

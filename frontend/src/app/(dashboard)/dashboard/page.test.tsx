@@ -160,7 +160,7 @@ describe("DashboardPage", () => {
       await screen.findByText("Loading area response data"),
     ).toBeInTheDocument();
     expect(screen.getByText("Loading response time data")).toBeInTheDocument();
-    expect(document.querySelectorAll(".bg-zinc-600").length).toBeGreaterThan(0);
+    expect(document.querySelectorAll(".bg-skeleton").length).toBeGreaterThan(0);
     expect(screen.queryByText("No area response data yet.")).not.toBeInTheDocument();
   });
 

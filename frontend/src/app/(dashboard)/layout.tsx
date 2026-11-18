@@ -11,6 +11,7 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { SubscriptionStatusGate } from "@/components/subscription/SubscriptionStatusGate";
 import { NoAccess } from "@/components/access/NoAccess";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 /** Permission a route needs; null = no permission gate (role/admin pages only). */
 function requiredPermission(pathname: string): string | null {
@@ -44,16 +45,19 @@ function DashboardShell({ children }: { children: ReactNode }) {
         onLogout={logout}
       />
       <div className="relative flex flex-1 flex-col lg:pl-[264px]">
-        <header className="sticky top-0 z-20 flex h-14 items-center border-b border-border-light bg-surface-secondary/80 px-4 backdrop-blur-md sm:px-6 lg:hidden">
+        <header className="sticky top-0 z-20 flex h-14 items-center border-b border-border-light bg-surface-secondary/80 px-4 backdrop-blur-md sm:px-6 lg:px-10">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[10px] border border-border text-text transition-colors hover:bg-surface"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[10px] border border-border text-text transition-colors hover:bg-surface lg:hidden"
             aria-label="Open sidebar"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 12h18M3 6h18M3 18h18" />
             </svg>
           </button>
+          <div className="ml-auto">
+            <ThemeToggle />
+          </div>
         </header>
         <main className="relative z-10 flex-1 animate-fade-in px-4 pb-[72px] pt-8 text-[16px] sm:px-6 lg:px-10">
           {/* Stored session being validated: render the page from its cache now; permission

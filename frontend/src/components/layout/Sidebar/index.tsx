@@ -214,7 +214,7 @@ export function Sidebar({ isOpen, onClose, onLogout }: SidebarProps) {
           </Link>
           <button
             onClick={() => { onClose?.(); onLogout?.(); }}
-            className="flex cursor-pointer items-center gap-3 rounded-[10px] px-3 py-[9px] text-sm font-medium text-red-300 transition-colors duration-150 hover:bg-red-300/[0.08]"
+            className="flex cursor-pointer items-center gap-3 rounded-[10px] px-3 py-[9px] text-sm font-medium text-red-300 light:text-red-800 transition-colors duration-150 hover:bg-red-300/[0.08]"
             aria-label="Logout"
           >
             <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

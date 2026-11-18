@@ -332,7 +332,7 @@ export default function AdminUsersPage() {
                         type="button"
                         onClick={() => { setDeleteUser(u); setDeleteError(null); }}
                         aria-label={`Remove ${fullName(u)}`}
-                        className="grid h-[34px] w-[34px] cursor-pointer place-items-center rounded-lg text-text-secondary transition-colors hover:bg-red-300/10 hover:text-red-300"
+                        className="grid h-[34px] w-[34px] cursor-pointer place-items-center rounded-lg text-text-secondary transition-colors hover:bg-red-300/10 hover:text-red-300 light:hover:text-red-800"
                       >
                         <svg className="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2m2 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6" />

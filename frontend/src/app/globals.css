@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
-@theme inline {
+/* `light:` prefix: styles that only apply when ThemeToggle has set light mode. */
+@custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
+
+@theme {
   --color-primary: #86efac;
   --color-primary-hover: #6ee7b7;
   --color-primary-fill: #20764b;        /* deep green for buttons, bars, toggles; white text on top */
@@ -9,6 +12,9 @@
   --color-danger: #f87171;
   --color-success: #4ade80;
   --color-warning: #fbbf24;
+  --color-warning-soft: #fcd34d;      /* pale amber/red text on tinted chips */
+  --color-danger-soft: #fca5a5;
+  --color-skeleton: #52525b;          /* loading placeholder blocks */
   --color-surface: #27272a;
   --color-surface-secondary: #18181b;
   --color-surface-raised: #1f1f23;
@@ -20,6 +26,29 @@
   --color-text-subtle: #9393a0;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+/* Light theme: dark is the default; ThemeToggle sets data-theme on <html>. */
+:root[data-theme="light"] {
+  --color-primary: #15803d;
+  --color-primary-hover: #166534;
+  --color-primary-glow: rgba(21, 128, 61, 0.2);
+  --color-danger: #dc2626;
+  --color-success: #16a34a;
+  --color-warning: #b45309;
+  --color-warning-soft: #b45309;
+  --color-danger-soft: #b91c1c;
+  --color-skeleton: #e4e4e7;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f4f4f5;
+  --color-surface-raised: #fafafa;
+  --color-surface-elevated: #e4e4e7;
+  --color-border: #d4d4d8;
+  --color-border-light: rgba(21, 128, 61, 0.15);
+  --color-text: #18181b;
+  --color-text-secondary: #3f3f46;
+  --color-text-subtle: #71717a;
+  color-scheme: light;
 }
 
 body {
@@ -93,8 +122,8 @@ body {
   animation: scaleIn 0.2s ease-out;
 }
 
-/* Leaflet: darken OSM tiles to match the zinc theme. Only tiles are filtered, so the pin keeps its colour. */
-.location-map .leaflet-tile-pane {
+/* Leaflet (dark theme only): darken OSM tiles to match the zinc theme. Only tiles are filtered, so the pin keeps its colour. */
+:root:not([data-theme="light"]) .location-map .leaflet-tile-pane {
   filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);
 }
 .location-map .leaflet-container,

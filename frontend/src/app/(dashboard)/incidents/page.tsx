@@ -42,9 +42,9 @@ const formatIncidentDate = (iso: string) => {
 const typeChip = (type: string) => {
   const t = type.toLowerCase();
   if (t === "attempted")
-    return "bg-amber-300/10 text-amber-300 border border-amber-300/20";
+    return "bg-amber-300/10 text-amber-300 light:text-amber-800 border border-amber-300/20";
   if (t === "positive")
-    return "bg-red-300/10 text-red-300 border border-red-300/25";
+    return "bg-red-300/10 text-red-300 light:text-red-800 border border-red-300/25";
   return "bg-surface-elevated text-text-secondary border border-zinc-500";
 };
 
@@ -208,7 +208,7 @@ export default function IncidentsPage() {
           <article className={`${PANEL} flex flex-col p-4`}>
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-text-secondary">Attempted</p>
-              <span className="grid h-8 w-8 place-items-center rounded-[10px] border border-amber-600/40 bg-amber-600/15 text-amber-300">
+              <span className="grid h-8 w-8 place-items-center rounded-[10px] border border-amber-600/40 bg-amber-600/15 text-amber-300 light:text-amber-800">
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                   <path d={ICONS.alert} />
                 </svg>
@@ -234,7 +234,7 @@ export default function IncidentsPage() {
           <article className={`${PANEL} flex flex-col p-4`}>
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-text-secondary">Positive</p>
-              <span className="grid h-8 w-8 place-items-center rounded-[10px] border border-rose-600/40 bg-rose-600/15 text-rose-300">
+              <span className="grid h-8 w-8 place-items-center rounded-[10px] border border-rose-600/40 bg-rose-600/15 text-rose-300 light:text-rose-800">
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                   <path d={ICONS.octagon} />
                 </svg>

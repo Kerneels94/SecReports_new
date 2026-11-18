@@ -12,9 +12,9 @@ import {
   Tooltip,
 } from "recharts";
 
-const ACCENT = "#86efac";
-const CURSOR = { stroke: "#71717a", strokeWidth: 1, strokeDasharray: "4 4" };
-const AXIS_TICK = { fill: "#9393a0", fontSize: 11 };
+const ACCENT = "var(--color-primary)";
+const CURSOR = { stroke: "var(--color-text-subtle)", strokeWidth: 1, strokeDasharray: "4 4" };
+const AXIS_TICK = { fill: "var(--color-text-subtle)", fontSize: 11 };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -60,7 +60,7 @@ export function ResponseTimeChart({ data }: { data: { month: string; avgMs: numb
     <div className="h-full min-h-64">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={series} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
-          <CartesianGrid strokeDasharray="2 4" stroke="#3f3f46" vertical={false} />
+          <CartesianGrid strokeDasharray="2 4" stroke="var(--color-border)" vertical={false} />
           <XAxis
             dataKey="month"
             tick={{ ...AXIS_TICK }}
@@ -82,7 +82,7 @@ export function ResponseTimeChart({ data }: { data: { month: string; avgMs: numb
             name="Avg response time"
             stroke={ACCENT}
             strokeWidth={2}
-            dot={{ fill: "#27272a", stroke: ACCENT, strokeWidth: 2, r: 3.5 }}
+            dot={{ fill: "var(--color-surface)", stroke: ACCENT, strokeWidth: 2, r: 3.5 }}
             activeDot={{ r: 5 }}
           />
         </LineChart>
@@ -102,7 +102,7 @@ export function YearlyTrendChart({ data }: { data: { month: string; count: numbe
               <stop offset="1" stopColor={ACCENT} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="2 4" stroke="#3f3f46" vertical={false} />
+          <CartesianGrid strokeDasharray="2 4" stroke="var(--color-border)" vertical={false} />
           <XAxis
             dataKey="month"
             tick={{ ...AXIS_TICK }}
@@ -124,7 +124,7 @@ export function YearlyTrendChart({ data }: { data: { month: string; count: numbe
             stroke={ACCENT}
             strokeWidth={2}
             fill="url(#trend-fill)"
-            dot={{ fill: "#27272a", stroke: ACCENT, strokeWidth: 2, r: 3.5 }}
+            dot={{ fill: "var(--color-surface)", stroke: ACCENT, strokeWidth: 2, r: 3.5 }}
             activeDot={{ r: 5 }}
           />
         </AreaChart>

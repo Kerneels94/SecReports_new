@@ -83,8 +83,8 @@ function TypeOption({
           className={cn(
             "grid h-[34px] w-[34px] shrink-0 place-items-center rounded-[10px] border",
             tone === "attempted"
-              ? "border-[#fcd34d]/40 bg-[#fcd34d]/[0.12] text-[#fcd34d]"
-              : "border-[#fca5a5]/40 bg-[#fca5a5]/[0.12] text-[#fca5a5]",
+              ? "border-warning-soft/40 bg-warning-soft/[0.12] text-warning-soft"
+              : "border-danger-soft/40 bg-danger-soft/[0.12] text-danger-soft",
           )}
         >
           {icon}
@@ -435,7 +435,7 @@ export default function NewIncidentPage() {
                 responseMinutes === null
                   ? "text-text-secondary"
                   : responseMinutes < 0
-                    ? "text-[#fca5a5]"
+                    ? "text-danger-soft"
                     : "text-primary",
               )}
             >

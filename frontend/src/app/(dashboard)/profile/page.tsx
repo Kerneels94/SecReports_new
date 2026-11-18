@@ -181,7 +181,7 @@ function ProfileContent() {
           </dl>
 
           {user.role !== "admin" && (
-            <div className="mb-4 rounded-xl bg-blue-900/20 px-4 py-3 text-sm text-blue-300 ring-1 ring-blue-500/20" role="status">
+            <div className="mb-4 rounded-xl bg-blue-900/20 px-4 py-3 text-sm text-blue-300 light:text-blue-800 ring-1 ring-blue-500/20" role="status">
               Your profile details can only be updated by an admin. Contact them to request changes.
             </div>
           )}
