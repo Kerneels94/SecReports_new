@@ -20,6 +20,13 @@ describe("toSuggestion", () => {
     });
   });
 
+  it("never uses the city as the suburb", () => {
+    const s = toSuggestion(feature({ countrycode: "ZA", street: "Long St", district: "Cape Town", locality: "City Bowl", city: "Cape Town" }));
+    expect(s).toMatchObject({ suburb: "City Bowl", city: "Cape Town" });
+    const t = toSuggestion(feature({ countrycode: "ZA", street: "Long St", district: "Cape Town", city: "Cape Town" }));
+    expect(t).toMatchObject({ suburb: "", city: "Cape Town" });
+  });
+
   it("drops results outside South Africa", () => {
     expect(toSuggestion(feature({ countrycode: "BW", name: "Gaborone" }))).toBeNull();
   });

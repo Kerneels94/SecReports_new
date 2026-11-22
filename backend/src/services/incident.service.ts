@@ -171,7 +171,9 @@ export const IncidentService = {
     const pairs = new Map<string, { city: string | null; suburb: string | null }>();
     for (const r of rows) {
       const city = r.city?.trim() || null;
-      const suburb = r.suburb?.trim() || null;
+      const rawSuburb = r.suburb?.trim() || null;
+      // Older rows saved the city as the suburb; treat those as no suburb.
+      const suburb = rawSuburb && rawSuburb.toLowerCase() !== city?.toLowerCase() ? rawSuburb : null;
       if (city || suburb) pairs.set(`${city}\u0000${suburb}`, { city, suburb });
     }
     const cmp = (a: string | null, b: string | null) => (a === b ? 0 : a === null ? 1 : b === null ? -1 : a.localeCompare(b));

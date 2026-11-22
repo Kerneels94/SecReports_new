@@ -39,8 +39,9 @@ export function toSuggestion(f: PhotonFeature, houseNumber?: string): AddressSug
   const number = p.housenumber || (isStreet ? houseNumber : undefined);
   const road = [number, p.street || (isStreet ? p.name : undefined)].filter(Boolean).join(" ");
   const street = road || p.name || "";
-  const suburb = p.district || p.locality || "";
   const city = p.city || p.county || "";
+  // Photon often puts the city name in district (e.g. Cape Town); never use the city as the suburb.
+  const suburb = [p.district, p.locality].find((v) => v && v.toLowerCase() !== city.toLowerCase()) || "";
   const label = [p.street && p.name !== p.street && !isStreet ? p.name : null, street, suburb, city, p.postcode]
     .filter((part, i, all) => part && all.indexOf(part) === i)
     .join(", ");

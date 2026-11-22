@@ -19,6 +19,16 @@ describe("incident schemas", () => {
       expect(result.success).toBe(true);
     });
 
+    it("rejects a suburb that is the same as the city, ignoring case and spaces", () => {
+      const result = createIncidentSchema.safeParse({ ...validCreate, suburb: " cape town ", city: "Cape Town" });
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0]).toMatchObject({ path: ["suburb"], message: "Suburb can't be the same as the city" });
+    });
+
+    it("allows an empty suburb with a city", () => {
+      expect(createIncidentSchema.safeParse({ ...validCreate, suburb: "", city: "Cape Town" }).success).toBe(true);
+    });
+
     it("fails when title is missing", () => {
       const { title, ...rest } = validCreate;
       const result = createIncidentSchema.safeParse(rest);

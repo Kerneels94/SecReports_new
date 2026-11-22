@@ -64,6 +64,7 @@ describe("IncidentService", () => {
         { city: null, suburb: "Midrand" },
         { city: "Cape Town", suburb: null },
         { city: " ", suburb: null },
+        { city: "Cape Town", suburb: "cape town" },
       ]);
 
       const result = await IncidentService.areas("1");
