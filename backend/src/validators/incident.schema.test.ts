@@ -77,5 +77,10 @@ describe("incident schemas", () => {
       const result = paginationSchema.safeParse({ perPage: "101" });
       expect(result.success).toBe(false);
     });
+
+    it("keeps suburb and city filters", () => {
+      const result = paginationSchema.safeParse({ suburb: "Rivonia", city: "Johannesburg" });
+      expect(result.success && result.data).toMatchObject({ suburb: "Rivonia", city: "Johannesburg" });
+    });
   });
 });

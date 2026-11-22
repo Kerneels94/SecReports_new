@@ -10,6 +10,7 @@ export default async function incidentRoutes(fastify: FastifyInstance) {
   fastify.addHook("preHandler", fastify.authenticate);
 
   fastify.get("/incidents", { preHandler: [requirePermission("incidents.view")] }, IncidentController.list);
+  fastify.get("/incidents/areas", { preHandler: [requirePermission("incidents.view")] }, IncidentController.areas);
   fastify.get("/incidents/:id", { preHandler: [requirePermission("incidents.view")] }, IncidentController.getById);
   fastify.post("/incidents", { preHandler: [requirePermission("incidents.create")] }, IncidentController.create);
 }

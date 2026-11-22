@@ -54,6 +54,21 @@ describe("IncidentService", () => {
     jest.clearAllMocks();
   });
 
+  describe("areas", () => {
+    it("returns trimmed, unique, sorted suburbs and cities for the company", async () => {
+      (prisma.incident.findMany as jest.Mock)
+        .mockResolvedValueOnce([{ suburb: "Sandton" }, { suburb: " Rivonia " }, { suburb: "Rivonia" }, { suburb: "" }])
+        .mockResolvedValueOnce([{ city: "Pretoria" }, { city: "Johannesburg" }]);
+
+      const result = await IncidentService.areas("1");
+
+      expect(result).toEqual({ suburbs: ["Rivonia", "Sandton"], cities: ["Johannesburg", "Pretoria"] });
+      expect(prisma.incident.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ companyId: "1" }), distinct: ["suburb"] }),
+      );
+    });
+  });
+
   describe("list", () => {
     it("returns paginated incidents with default params", async () => {
       (prisma.incident.findMany as jest.Mock).mockResolvedValue([baseIncident]);
@@ -89,6 +104,17 @@ describe("IncidentService", () => {
       const where = (prisma.incident.findMany as jest.Mock).mock.calls[0][0].where;
       expect(where.incidentDate.lt.getTime()).toBe(Date.parse("2026-03-15") + 86_400_000);
       expect(where.incidentDate.lte).toBeUndefined();
+    });
+
+    it("filters by suburb and city, ignoring case", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.incident.count as jest.Mock).mockResolvedValue(0);
+
+      await IncidentService.list({ ...defaultListParams, suburb: "Rivonia", city: "Johannesburg" });
+
+      const where = (prisma.incident.findMany as jest.Mock).mock.calls[0][0].where;
+      expect(where.suburb).toEqual({ equals: "Rivonia", mode: "insensitive" });
+      expect(where.city).toEqual({ equals: "Johannesburg", mode: "insensitive" });
     });
 
     it("filters by search on title, reference, address and reporter name", async () => {

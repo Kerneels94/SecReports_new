@@ -76,4 +76,6 @@ export const paginationSchema = z.object({
   dateFrom: isoDate.optional(),
   dateTo: isoDate.optional(),
   type: z.string().optional(),
+  suburb: z.string().max(255).optional(),
+  city: z.string().max(255).optional(),
 });

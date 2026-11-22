@@ -132,6 +132,7 @@ export const incidentService = {
     api.get<PaginatedResponse<Incident>>(
       `/incidents?${new URLSearchParams(params)}`,
     ),
+  areas: () => api.get<{ suburbs: string[]; cities: string[] }>("/incidents/areas"),
   getById: (id: number) => api.get<Incident>(`/incidents/${id}`),
   create: (data: Partial<Incident>) => api.post<Incident>("/incidents", data),
 };

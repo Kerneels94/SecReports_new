@@ -21,13 +21,14 @@ jest.mock("@/hooks/useAuth", () => ({
 }));
 
 jest.mock("@/services", () => ({
-  incidentService: { list: jest.fn() },
+  incidentService: { list: jest.fn(), areas: jest.fn() },
   reportService: { summary: jest.fn(), batchEmail: jest.fn() },
   exportService: { downloadPdf: jest.fn() },
 }));
 
 const mockList = incidentService.list as jest.Mock;
 const mockSummary = reportService.summary as jest.Mock;
+const mockAreas = incidentService.areas as jest.Mock;
 
 const mockIncidents = [
   {
@@ -69,6 +70,7 @@ const mockSummaryData = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockAreas.mockResolvedValue({ data: { suburbs: ["Rivonia", "Sandton"], cities: ["Johannesburg"] } });
 });
 
 describe("IncidentsPage", () => {
@@ -79,26 +81,44 @@ describe("IncidentsPage", () => {
     expect(document.querySelector(".animate-spin")).toBeInTheDocument();
   });
 
-  it("renders summary cards", async () => {
+  it("does not show the incident counter cards", async () => {
     mockList.mockResolvedValue({ data: mockPaginated });
-    mockSummary.mockResolvedValue({ data: mockSummaryData });
     render(<IncidentsPage />);
 
-    await waitFor(() => {
-      expect(screen.getByText("Total incidents")).toBeInTheDocument();
-      expect(screen.getByText("42")).toBeInTheDocument();
-      expect(screen.getAllByText("Attempted").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getAllByText("Positive").length).toBeGreaterThanOrEqual(1);
-    });
+    await screen.findByText("SEC-001");
+    expect(screen.queryByText("Total incidents")).not.toBeInTheDocument();
+    expect(mockSummary).not.toHaveBeenCalled();
   });
 
-  it("renders Email All buttons when counts are positive", async () => {
+  it("hides the Email all buttons", async () => {
     mockList.mockResolvedValue({ data: mockPaginated });
-    mockSummary.mockResolvedValue({ data: mockSummaryData });
     render(<IncidentsPage />);
 
+    await screen.findByText("SEC-001");
+    expect(screen.queryByRole("button", { name: /email all/i })).not.toBeInTheDocument();
+  });
+
+  it("passes suburb and city filters from the loaded areas", async () => {
+    mockList.mockResolvedValue({ data: mockPaginated });
+    render(<IncidentsPage />);
+
+    await screen.findByText("SEC-001");
+    await screen.findByRole("option", { name: "Sandton" });
+    await userEvent.selectOptions(screen.getByLabelText("Suburb"), "Sandton");
+    await userEvent.selectOptions(screen.getByLabelText("City"), "Johannesburg");
+
     await waitFor(() => {
-      expect(screen.getAllByText("Email all")).toHaveLength(2);
+      expect(mockList).toHaveBeenLastCalledWith({
+        page: "1",
+        perPage: "10",
+        suburb: "Sandton",
+        city: "Johannesburg",
+      });
+    });
+
+    await userEvent.click(screen.getByText("Clear"));
+    await waitFor(() => {
+      expect(mockList).toHaveBeenLastCalledWith({ page: "1", perPage: "10" });
     });
   });
 
