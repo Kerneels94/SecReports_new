@@ -81,17 +81,15 @@ describe("IncidentController", () => {
   });
 
   describe("areas", () => {
-    it("returns the company's suburbs and cities", async () => {
-      (IncidentService.areas as jest.Mock).mockResolvedValue({ suburbs: ["Rivonia"], cities: ["Johannesburg"] });
+    it("returns the company's city/suburb pairs", async () => {
+      const pairs = [{ city: "Johannesburg", suburb: "Rivonia" }];
+      (IncidentService.areas as jest.Mock).mockResolvedValue(pairs);
 
       await IncidentController.areas(mockRequest, mockReply);
 
       expect(IncidentService.areas).toHaveBeenCalledWith("1");
       expect(mockReply.code).toHaveBeenCalledWith(200);
-      expect(mockReply.send).toHaveBeenCalledWith({
-        success: true,
-        data: { suburbs: ["Rivonia"], cities: ["Johannesburg"] },
-      });
+      expect(mockReply.send).toHaveBeenCalledWith({ success: true, data: pairs });
     });
   });
 

@@ -71,7 +71,17 @@ export default function IncidentsPage() {
   const [typeFilter, setTypeFilter] = useState("");
   const [suburb, setSuburb] = useState("");
   const [city, setCity] = useState("");
-  const [areas, setAreas] = useState<{ suburbs: string[]; cities: string[] }>({ suburbs: [], cities: [] });
+  const [areas, setAreas] = useState<{ city: string | null; suburb: string | null }[]>([]);
+  const cities = [...new Set(areas.map((a) => a.city).filter((c): c is string => !!c))];
+  // Case-insensitive like the backend filter; no city picked lists every suburb.
+  const suburbs = [
+    ...new Set(
+      areas
+        .filter((a) => !city || a.city?.toLowerCase() === city.toLowerCase())
+        .map((a) => a.suburb)
+        .filter((s): s is string => !!s),
+    ),
+  ].sort((a, b) => a.localeCompare(b));
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [batchType, setBatchType] = useState<"attempted" | "positive" | null>(null);
@@ -246,8 +256,8 @@ export default function IncidentsPage() {
           </select>
         </div>
         {([
-          ["suburb", "Suburb", "All suburbs", suburb, setSuburb, areas.suburbs],
-          ["city", "City", "All cities", city, setCity, areas.cities],
+          ["city", "City", "All cities", city, (v: string) => { setCity(v); setSuburb(""); }, cities],
+          ["suburb", "Suburb", "All suburbs", suburb, setSuburb, suburbs],
         ] as const).map(([key, label, all, value, set, options]) => (
           <div key={key} className="min-w-[150px]">
             <label htmlFor={`filter-${key}`} className="mb-1.5 block text-[13px] font-medium text-text-secondary">{label}</label>
