@@ -16,7 +16,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { hasPermission } from "@/lib/permissions";
 import type { Incident } from "@/types";
 
-const PANEL = "rounded-[18px] border border-border-light bg-surface";
+// Batch "Email all" is hidden for now; set true to bring the header buttons back.
+const SHOW_BATCH_EMAIL = false;
+
+const PANEL ="rounded-[18px] border border-border-light bg-surface";
 const TH =
   "px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.09em] text-text-secondary/70 whitespace-nowrap";
 const TD = "px-4 py-3.5 text-sm align-middle";
@@ -50,15 +53,9 @@ const typeChip = (type: string) => {
 
 export default function IncidentsPage() {
   const { user } = useAuth();
-  const canViewReports = hasPermission(user, "reports.view");
   const canCreate = hasPermission(user, "incidents.create");
   const canExportPdf = hasPermission(user, "export.csv");
   const canEmail = hasPermission(user, "export.reports");
-  const [summary, setSummary] = useState<{
-    total: number;
-    attemptedCount: number;
-    positiveCount: number;
-  } | null>(null);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -72,6 +69,9 @@ export default function IncidentsPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
+  const [suburb, setSuburb] = useState("");
+  const [city, setCity] = useState("");
+  const [areas, setAreas] = useState<{ suburbs: string[]; cities: string[] }>({ suburbs: [], cities: [] });
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [batchType, setBatchType] = useState<"attempted" | "positive" | null>(null);
@@ -87,6 +87,11 @@ export default function IncidentsPage() {
     return () => clearTimeout(id);
   }, [searchInput]);
 
+  useEffect(() => {
+    // Dropdowns stay empty on failure; the table still loads.
+    incidentService.areas().then((res) => setAreas(res.data)).catch(() => {});
+  }, []);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -96,19 +101,10 @@ export default function IncidentsPage() {
       if (dateTo) params.dateTo = dateTo;
       if (typeFilter) params.type = typeFilter;
       if (search) params.search = search;
+      if (suburb) params.suburb = suburb;
+      if (city) params.city = city;
 
-      const summaryTask = canViewReports ? reportService.summary() : Promise.resolve(null);
-      const [summaryRes, incidentsRes] = await Promise.all([
-        summaryTask,
-        incidentService.list(params),
-      ]);
-      if (summaryRes) {
-        setSummary({
-          total: summaryRes.data.total,
-          attemptedCount: summaryRes.data.attemptedCount,
-          positiveCount: summaryRes.data.positiveCount,
-        });
-      }
+      const incidentsRes = await incidentService.list(params);
       setIncidents(incidentsRes.data.data);
       setTotal(incidentsRes.data.total);
     } catch {
@@ -116,7 +112,7 @@ export default function IncidentsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, dateFrom, dateTo, typeFilter, search, canViewReports]);
+  }, [page, dateFrom, dateTo, typeFilter, search, suburb, city]);
 
   useEffect(() => {
     fetchData();
@@ -176,6 +172,20 @@ export default function IncidentsPage() {
           <h1 className="text-[28px] font-semibold tracking-tight text-text">Incidents</h1>
           <p className="mt-1 text-text-secondary">{total} total incidents</p>
         </div>
+        <div className="flex flex-wrap items-center gap-2">
+        {SHOW_BATCH_EMAIL && canEmail && (["attempted", "positive"] as const).map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => openBatchModal(t)}
+            className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3.5 text-sm font-medium text-text transition-colors hover:border-border-light hover:bg-surface-elevated"
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d={ICONS.mail} />
+            </svg>
+            Email all {t}
+          </button>
+        ))}
         {canCreate && (
           <Link
             href="/incidents/new"
@@ -187,77 +197,8 @@ export default function IncidentsPage() {
             Report incident
           </Link>
         )}
-      </div>
-
-      {canViewReports && summary && (
-        <div className="grid grid-cols-3 gap-3">
-          <article className={`${PANEL} flex flex-col p-4`}>
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-medium text-text-secondary">Total incidents</p>
-              <span className="grid h-8 w-8 place-items-center rounded-[10px] border border-primary/25 bg-primary/10 text-primary">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                  <path d={ICONS.file} />
-                </svg>
-              </span>
-            </div>
-            <p className="mt-2 font-mono text-2xl font-semibold leading-none tracking-tight text-text">
-              {summary.total}
-            </p>
-          </article>
-
-          <article className={`${PANEL} flex flex-col p-4`}>
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-medium text-text-secondary">Attempted</p>
-              <span className="grid h-8 w-8 place-items-center rounded-[10px] border border-amber-600/40 bg-amber-600/15 text-amber-300 light:text-amber-800">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                  <path d={ICONS.alert} />
-                </svg>
-              </span>
-            </div>
-            <p className="mt-2 font-mono text-2xl font-semibold leading-none tracking-tight text-text">
-              {summary.attemptedCount}
-            </p>
-            {summary.attemptedCount > 0 && (
-              <button
-                type="button"
-                onClick={() => openBatchModal("attempted")}
-                className="mt-2 inline-flex cursor-pointer items-center gap-2 self-start rounded-lg border border-border bg-surface px-2.5 py-1 text-xs font-medium text-text transition-colors hover:border-border-light hover:bg-surface-elevated"
-              >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d={ICONS.mail} />
-                </svg>
-                Email all
-              </button>
-            )}
-          </article>
-
-          <article className={`${PANEL} flex flex-col p-4`}>
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-medium text-text-secondary">Positive</p>
-              <span className="grid h-8 w-8 place-items-center rounded-[10px] border border-rose-600/40 bg-rose-600/15 text-rose-300 light:text-rose-800">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                  <path d={ICONS.octagon} />
-                </svg>
-              </span>
-            </div>
-            <p className="mt-2 font-mono text-2xl font-semibold leading-none tracking-tight text-text">
-              {summary.positiveCount}
-            </p>
-            {summary.positiveCount > 0 && (
-              <button
-                type="button"
-                onClick={() => openBatchModal("positive")}
-                className="mt-2 inline-flex cursor-pointer items-center gap-2 self-start rounded-lg border border-border bg-surface px-2.5 py-1 text-xs font-medium text-text transition-colors hover:border-border-light hover:bg-surface-elevated"
-              >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d={ICONS.mail} />
-                </svg>
-                Email all
-              </button>
-            )}
-          </article>
         </div>
-      )}
+      </div>
 
       <div className={`${PANEL} flex flex-wrap items-end gap-3 px-5 py-[18px]`}>
         <div className="min-w-[220px] flex-1">
@@ -304,11 +245,28 @@ export default function IncidentsPage() {
             <option value="positive">Positive</option>
           </select>
         </div>
+        {([
+          ["suburb", "Suburb", "All suburbs", suburb, setSuburb, areas.suburbs],
+          ["city", "City", "All cities", city, setCity, areas.cities],
+        ] as const).map(([key, label, all, value, set, options]) => (
+          <div key={key} className="min-w-[150px]">
+            <label htmlFor={`filter-${key}`} className="mb-1.5 block text-[13px] font-medium text-text-secondary">{label}</label>
+            <select
+              id={`filter-${key}`}
+              value={value}
+              onChange={(e) => { set(e.target.value); setPage(1); }}
+              className="h-10 max-w-[220px] rounded-[9px] border border-border bg-surface-secondary px-3 text-sm text-text outline-none transition-colors focus:border-primary"
+            >
+              <option value="">{all}</option>
+              {options.map((o) => <option key={o} value={o}>{o}</option>)}
+            </select>
+          </div>
+        ))}
         <Button
           variant="secondary"
           size="sm"
           className="h-10"
-          onClick={() => { setSearchInput(""); setSearch(""); setDateFrom(""); setDateTo(""); setTypeFilter(""); setPage(1); }}
+          onClick={() => { setSearchInput(""); setSearch(""); setDateFrom(""); setDateTo(""); setTypeFilter(""); setSuburb(""); setCity(""); setPage(1); }}
         >
           Clear
         </Button>

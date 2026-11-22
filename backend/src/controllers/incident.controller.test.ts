@@ -9,6 +9,7 @@ jest.mock("../services/subscription.service", () => ({
 jest.mock("../services/incident.service", () => ({
   IncidentService: {
     list: jest.fn(),
+    areas: jest.fn(),
     getById: jest.fn(),
     create: jest.fn(),
   },
@@ -55,6 +56,20 @@ describe("IncidentController", () => {
       expect(mockReply.code).toHaveBeenCalledWith(200);
     });
 
+    it("passes suburb and city filters to the service", async () => {
+      (paginationSchema.safeParse as jest.Mock).mockReturnValue({
+        success: true,
+        data: { page: 1, perPage: 20, suburb: "Rivonia", city: "Johannesburg" },
+      });
+      (IncidentService.list as jest.Mock).mockResolvedValue({ data: [], total: 0, page: 1, perPage: 20 });
+
+      await IncidentController.list(mockRequest, mockReply);
+
+      expect(IncidentService.list).toHaveBeenCalledWith(
+        expect.objectContaining({ suburb: "Rivonia", city: "Johannesburg" }),
+      );
+    });
+
     it("throws ValidationError for invalid query", async () => {
       (paginationSchema.safeParse as jest.Mock).mockReturnValue({
         success: false,
@@ -62,6 +77,21 @@ describe("IncidentController", () => {
       });
 
       await expect(IncidentController.list(mockRequest, mockReply)).rejects.toThrow(ValidationError);
+    });
+  });
+
+  describe("areas", () => {
+    it("returns the company's suburbs and cities", async () => {
+      (IncidentService.areas as jest.Mock).mockResolvedValue({ suburbs: ["Rivonia"], cities: ["Johannesburg"] });
+
+      await IncidentController.areas(mockRequest, mockReply);
+
+      expect(IncidentService.areas).toHaveBeenCalledWith("1");
+      expect(mockReply.code).toHaveBeenCalledWith(200);
+      expect(mockReply.send).toHaveBeenCalledWith({
+        success: true,
+        data: { suburbs: ["Rivonia"], cities: ["Johannesburg"] },
+      });
     });
   });
 

@@ -154,17 +154,34 @@ interface ListParams {
   dateFrom?: string;
   dateTo?: string;
   type?: string;
+  suburb?: string;
+  city?: string;
   userId?: string;
   role?: string;
 }
 
+/** Trimmed, de-duplicated, sorted non-empty values. */
+const uniqueSorted = (values: (string | null)[]) =>
+  [...new Set(values.map((v) => v?.trim()).filter((v): v is string => !!v))].sort((a, b) => a.localeCompare(b));
+
 export const IncidentService = {
+  /** Distinct suburbs and cities on the company's incidents, for the list filters. */
+  async areas(companyId: string) {
+    const [suburbs, cities] = await Promise.all([
+      prisma.incident.findMany({ where: { companyId, suburb: { not: null } }, distinct: ["suburb"], select: { suburb: true } }),
+      prisma.incident.findMany({ where: { companyId, city: { not: null } }, distinct: ["city"], select: { city: true } }),
+    ]);
+    return { suburbs: uniqueSorted(suburbs.map((i) => i.suburb)), cities: uniqueSorted(cities.map((i) => i.city)) };
+  },
+
   /** Paginated listing with filtering by status, type, full-text search, and date range. Search also attempts natural language date parsing. */
   async list(params: ListParams) {
     const where: Prisma.IncidentWhereInput = { companyId: params.companyId };
 
     if (params.status) where.status = params.status;
     if (params.type) where.type = { contains: params.type, mode: "insensitive" };
+    if (params.suburb) where.suburb = { equals: params.suburb, mode: "insensitive" };
+    if (params.city) where.city = { equals: params.city, mode: "insensitive" };
     if (params.search) {
       const contains = { contains: params.search, mode: "insensitive" as const };
       const or: Prisma.IncidentWhereInput[] = [

@@ -25,6 +25,12 @@ export const IncidentController = {
     reply.code(200).send({ success: true, data: result });
   },
 
+  /** Distinct suburbs and cities for the list filters. */
+  async areas(request: FastifyRequest, reply: FastifyReply) {
+    const areas = await IncidentService.areas(request.user!.companyId);
+    reply.code(200).send({ success: true, data: areas });
+  },
+
   /** Get a single incident by ID. */
   async getById(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
