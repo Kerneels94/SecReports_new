@@ -83,6 +83,24 @@ describe("NewIncidentPage", () => {
     });
   });
 
+  it("blocks submit when the suburb is the same as the city", async () => {
+    render(<NewIncidentPage />);
+    const user = userEvent.setup();
+
+    // Zod runs the object-level rule only once the required fields pass.
+    await user.type(screen.getByLabelText("Operator Name"), "John Op");
+    await user.type(screen.getByLabelText("Dispatcher"), "Jane Disp");
+    await user.type(screen.getByLabelText("Report"), "Break-in");
+    await user.click(screen.getByRole("radio", { name: "Attempted" }));
+    await user.selectOptions(screen.getByLabelText("Alarm Type"), "Panic");
+    await user.type(screen.getByLabelText("Suburb"), "Cape Town");
+    await user.type(screen.getByLabelText("City"), "cape town");
+    await user.click(screen.getByRole("button", { name: /submit report/i }));
+
+    expect(await screen.findByText("Suburb can't be the same as the city")).toBeInTheDocument();
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
   it("calls create and redirects on success", async () => {
     mockCreate.mockResolvedValue({ success: true, data: { id: 1 } });
     render(<NewIncidentPage />);

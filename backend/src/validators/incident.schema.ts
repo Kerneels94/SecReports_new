@@ -54,7 +54,10 @@ export const createIncidentSchema = z.object({
   alarmType: z.enum(ALARM_TYPES, "Alarm type must be Burglary, Panic or Duress"),
   latitude: z.number().min(-90).max(90).optional(),
   longitude: z.number().min(-180).max(180).optional(),
-});
+}).refine(
+  (d) => !d.suburb?.trim() || d.suburb.trim().toLowerCase() !== d.city?.trim().toLowerCase(),
+  { path: ["suburb"], message: "Suburb can't be the same as the city" },
+);
 
 /**
  * Validates query-string pagination and filtering parameters.

@@ -37,7 +37,10 @@ const createIncidentSchema = z.object({
   alarmType: z.enum(ALARM_TYPES, "Alarm type is required"),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
-});
+}).refine(
+  (d) => !d.suburb?.trim() || d.suburb.trim().toLowerCase() !== d.city?.trim().toLowerCase(),
+  { path: ["suburb"], message: "Suburb can't be the same as the city" },
+);
 
 type CreateIncidentForm = z.infer<typeof createIncidentSchema>;
 
