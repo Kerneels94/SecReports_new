@@ -160,18 +160,22 @@ interface ListParams {
   role?: string;
 }
 
-/** Trimmed, de-duplicated, sorted non-empty values. */
-const uniqueSorted = (values: (string | null)[]) =>
-  [...new Set(values.map((v) => v?.trim()).filter((v): v is string => !!v))].sort((a, b) => a.localeCompare(b));
-
 export const IncidentService = {
-  /** Distinct suburbs and cities on the company's incidents, for the list filters. */
+  /** Distinct city/suburb pairs on the company's incidents, for the cascading list filters. Nulls sort last. */
   async areas(companyId: string) {
-    const [suburbs, cities] = await Promise.all([
-      prisma.incident.findMany({ where: { companyId, suburb: { not: null } }, distinct: ["suburb"], select: { suburb: true } }),
-      prisma.incident.findMany({ where: { companyId, city: { not: null } }, distinct: ["city"], select: { city: true } }),
-    ]);
-    return { suburbs: uniqueSorted(suburbs.map((i) => i.suburb)), cities: uniqueSorted(cities.map((i) => i.city)) };
+    const rows = await prisma.incident.findMany({
+      where: { companyId },
+      distinct: ["city", "suburb"],
+      select: { city: true, suburb: true },
+    });
+    const pairs = new Map<string, { city: string | null; suburb: string | null }>();
+    for (const r of rows) {
+      const city = r.city?.trim() || null;
+      const suburb = r.suburb?.trim() || null;
+      if (city || suburb) pairs.set(`${city}\u0000${suburb}`, { city, suburb });
+    }
+    const cmp = (a: string | null, b: string | null) => (a === b ? 0 : a === null ? 1 : b === null ? -1 : a.localeCompare(b));
+    return [...pairs.values()].sort((a, b) => cmp(a.city, b.city) || cmp(a.suburb, b.suburb));
   },
 
   /** Paginated listing with filtering by status, type, full-text search, and date range. Search also attempts natural language date parsing. */

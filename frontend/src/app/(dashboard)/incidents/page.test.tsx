@@ -70,7 +70,13 @@ const mockSummaryData = {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockAreas.mockResolvedValue({ data: { suburbs: ["Rivonia", "Sandton"], cities: ["Johannesburg"] } });
+  mockAreas.mockResolvedValue({
+    data: [
+      { city: "Cape Town", suburb: "Sea Point" },
+      { city: "Johannesburg", suburb: "Rivonia" },
+      { city: "Johannesburg", suburb: "Sandton" },
+    ],
+  });
 });
 
 describe("IncidentsPage", () => {
@@ -104,8 +110,8 @@ describe("IncidentsPage", () => {
 
     await screen.findByText("SEC-001");
     await screen.findByRole("option", { name: "Sandton" });
-    await userEvent.selectOptions(screen.getByLabelText("Suburb"), "Sandton");
     await userEvent.selectOptions(screen.getByLabelText("City"), "Johannesburg");
+    await userEvent.selectOptions(screen.getByLabelText("Suburb"), "Sandton");
 
     await waitFor(() => {
       expect(mockList).toHaveBeenLastCalledWith({
@@ -119,6 +125,44 @@ describe("IncidentsPage", () => {
     await userEvent.click(screen.getByText("Clear"));
     await waitFor(() => {
       expect(mockList).toHaveBeenLastCalledWith({ page: "1", perPage: "10" });
+    });
+  });
+
+  it("shows City before Suburb", async () => {
+    mockList.mockResolvedValue({ data: mockPaginated });
+    render(<IncidentsPage />);
+
+    const city = await screen.findByLabelText("City");
+    const suburb = screen.getByLabelText("Suburb");
+    expect(city.compareDocumentPosition(suburb) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("only lists suburbs in the selected city", async () => {
+    mockList.mockResolvedValue({ data: mockPaginated });
+    render(<IncidentsPage />);
+
+    await screen.findByRole("option", { name: "Sandton" });
+    expect(screen.getByRole("option", { name: "Sea Point" })).toBeInTheDocument();
+
+    await userEvent.selectOptions(screen.getByLabelText("City"), "Cape Town");
+
+    expect(screen.getByRole("option", { name: "Sea Point" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Sandton" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Rivonia" })).not.toBeInTheDocument();
+  });
+
+  it("clears the suburb when the city changes", async () => {
+    mockList.mockResolvedValue({ data: mockPaginated });
+    render(<IncidentsPage />);
+
+    await screen.findByRole("option", { name: "Sandton" });
+    await userEvent.selectOptions(screen.getByLabelText("City"), "Johannesburg");
+    await userEvent.selectOptions(screen.getByLabelText("Suburb"), "Sandton");
+    await userEvent.selectOptions(screen.getByLabelText("City"), "Cape Town");
+
+    expect(screen.getByLabelText("Suburb")).toHaveValue("");
+    await waitFor(() => {
+      expect(mockList).toHaveBeenLastCalledWith({ page: "1", perPage: "10", city: "Cape Town" });
     });
   });
 

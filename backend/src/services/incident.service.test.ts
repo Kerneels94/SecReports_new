@@ -55,16 +55,28 @@ describe("IncidentService", () => {
   });
 
   describe("areas", () => {
-    it("returns trimmed, unique, sorted suburbs and cities for the company", async () => {
-      (prisma.incident.findMany as jest.Mock)
-        .mockResolvedValueOnce([{ suburb: "Sandton" }, { suburb: " Rivonia " }, { suburb: "Rivonia" }, { suburb: "" }])
-        .mockResolvedValueOnce([{ city: "Pretoria" }, { city: "Johannesburg" }]);
+    it("returns trimmed, unique city/suburb pairs sorted by city then suburb", async () => {
+      (prisma.incident.findMany as jest.Mock).mockResolvedValue([
+        { city: "Johannesburg", suburb: "Sandton" },
+        { city: "Cape Town", suburb: "Sea Point" },
+        { city: " Johannesburg ", suburb: " Rivonia " },
+        { city: "Johannesburg", suburb: "Rivonia" },
+        { city: null, suburb: "Midrand" },
+        { city: "Cape Town", suburb: null },
+        { city: " ", suburb: null },
+      ]);
 
       const result = await IncidentService.areas("1");
 
-      expect(result).toEqual({ suburbs: ["Rivonia", "Sandton"], cities: ["Johannesburg", "Pretoria"] });
+      expect(result).toEqual([
+        { city: "Cape Town", suburb: "Sea Point" },
+        { city: "Cape Town", suburb: null },
+        { city: "Johannesburg", suburb: "Rivonia" },
+        { city: "Johannesburg", suburb: "Sandton" },
+        { city: null, suburb: "Midrand" },
+      ]);
       expect(prisma.incident.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: expect.objectContaining({ companyId: "1" }), distinct: ["suburb"] }),
+        expect.objectContaining({ where: { companyId: "1" }, distinct: ["city", "suburb"] }),
       );
     });
   });
