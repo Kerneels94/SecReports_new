@@ -2,7 +2,8 @@
  * Business details printed on every invoice — email body and PDF attachment both
  * read these so they can never drift apart.
  *
- * Fill in the real address and banking details here.
+ * Fill in the real address here. Banking details come from env
+ * (BANK_NAME, ACCOUNT_HOLDER, ACCOUNT_NUMBER, BRANCH_CODE).
  *
  * NOTE: no company registration number is shown — add one under `REGISTRATION`
  * only once the business is actually registered with CIPC. Likewise the trading
@@ -27,10 +28,10 @@ export const BUSINESS_ADDRESS: string[] = [
 ];
 
 export const BANK_DETAILS = {
-  bankName: "Your Bank",
-  accountHolder: "SecReports",
-  accountNumber: "0000000000",
-  branchCode: "",
+  bankName: process.env.BANK_NAME ?? "",
+  accountHolder: process.env.ACCOUNT_HOLDER || BUSINESS_NAME,
+  accountNumber: process.env.ACCOUNT_NUMBER ?? "",
+  branchCode: process.env.BRANCH_CODE ?? "",
 };
 
 /** Default line item when an invoice has no description of its own. */
